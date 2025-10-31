@@ -1,10 +1,17 @@
+import InfoSendPost from "@/features/InfoSendPost.tsx";
+
 const UserPage = () => {
     return (
         <div>
-            <h1>Добро пожаловать!</h1>
-            <p style={{ color: '#666' }}>
-                Это контент для обычного пользователя.
-            </p>
+            <header><h1>Добро пожаловать!</h1></header>
+            <main>
+                <div style={{ color: '#666' }}>
+                    Расчитать/Следить за посылкой тут.
+                </div>
+                <div className={'m-auto'}>
+                    <InfoSendPost/>
+                </div>
+            </main>
         </div>
     );
 };
