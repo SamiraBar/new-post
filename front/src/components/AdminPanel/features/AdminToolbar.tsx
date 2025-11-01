@@ -26,7 +26,7 @@ export const AdminToolbar = () => {
       <NavigationMenuList className="flex-col sm:flex-row flex-wrap items-center md:justify-between w-full gap-2.5">
         <NavigationMenuItem className="flex gap-5">
           <Link to={"/"}>
-            <img src="" alt="logo" style={{width: "60px", minWidth: "60px"}}/>
+            <img src="../../../../public/images/newPostLogo.jpeg" alt="logo" style={{width: "60px", minWidth: "60px"}}/>
           </Link>
 
           <Button className="inline-block sm:hidden bg-amber-600 hover:bg-amber-700 transition duration-300 active:bg-amber-800">

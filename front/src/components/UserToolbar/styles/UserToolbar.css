@@ -25,7 +25,7 @@
   overflow: hidden;
   text-indent: 100%;
   border-radius: 50%;
-  background: url(../images/ic-wa.png) center no-repeat;
+  background: url(../../../../public/images/ic-wa.png) center no-repeat;
   background-size: cover;
   text-decoration: none;
   cursor: pointer;
