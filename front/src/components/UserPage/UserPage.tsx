@@ -9,7 +9,7 @@ const UserPage = () => {
                 <div style={{ color: '#666' }}>
                     Расчитать/Следить за посылкой тут.
                 </div>
-                <div className={'m-auto'}>
+                <div className={'pl-2'}>
                     <InfoSendPost/>
                 </div>
             </main>
