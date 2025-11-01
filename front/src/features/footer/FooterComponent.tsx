@@ -1,7 +1,7 @@
-import logo from "../components/UserToolbar/images/newPostLogo.jpeg";
-import whatsappIcon from "../components/UserToolbar/images/socialNetworks/whatsapp.png";
-import instagramIcon from "../components/UserToolbar/images/socialNetworks/instagram.png";
-import facebookIcon from "../components/UserToolbar/images/socialNetworks/facebook.png";
+import logo from "../../assets/logo/newPostLogo.jpeg";
+import whatsappIcon from "../../assets/cosialIcons/whatsapp.png";
+import instagramIcon from "../../assets/cosialIcons/instagram.png";
+import facebookIcon from "../../assets/cosialIcons/facebook.png";
 
 const FooterComponent = () => {
     return (
@@ -15,7 +15,7 @@ const FooterComponent = () => {
                         alt="New Post logo"
                         width="180"
                         height="100"
-                        className="mx-auto md:mx-0"
+                        className="w-32 h-auto sm:w-40 md:w-44 lg:w-48 mx-auto md:mx-0"
                     />
                 </div>
 

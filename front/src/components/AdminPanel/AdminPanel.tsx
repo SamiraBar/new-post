@@ -5,7 +5,7 @@ const AdminPanel = () => {
     return (
         <>
             <AdminToolbar/>
-            <h1>Панель администратора</h1>
+            <h1 className={'mx-auto my-10 max-w-6xl'}>Панель администратора</h1>
         </>
     );
 };

@@ -1,5 +1,6 @@
 .user-toolbar-main {
   gap: 50px;
+  padding: 15px;
 }
 .links-list {
   padding: 0;
@@ -25,7 +26,7 @@
   overflow: hidden;
   text-indent: 100%;
   border-radius: 50%;
-  background: url(../../../../public/images/ic-wa.png) center no-repeat;
+  background: url(../../../assets/cosialIcons/whatsapp.png) center no-repeat;
   background-size: cover;
   text-decoration: none;
   cursor: pointer;

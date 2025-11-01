@@ -1,5 +1,5 @@
 import { useState } from "react";
-import logo from "../../../public/images/newPostLogo.jpeg";
+import logo from "../../assets/logo/newPostLogo.jpeg";
 import "./styles/UserToolbar.css";
 import "./styles/UserToolbarAdaptive.css";
 
