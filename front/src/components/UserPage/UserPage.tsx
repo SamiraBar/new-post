@@ -1,7 +1,7 @@
 import InfoSendPost from '@/features/infoSendPost/InfoSendPost.tsx';
 import UserToolbar from '@/components/UserToolbar/UserToolbar.tsx';
 import FooterComponent from '@/features/footer/FooterComponent.tsx';
-import DeliveryCostCalculator from '@/features/DeliveryCostCalculator.tsx';
+import DeliveryCostCalculator from '@/features/deliveryCostCalculator/DeliveryCostCalculator.tsx';
 
 const UserPage = () => {
   return (
