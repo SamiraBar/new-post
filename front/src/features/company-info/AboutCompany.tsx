@@ -6,7 +6,7 @@ const AboutCompany = () => {
     return (
         <section
             id="about"
-            className="w-full px-4 py-10 max-w-full sm:max-w-xl md:max-w-5xl mx-auto"
+            className="w-full px-4 pt-0 pb-10 max-w-full sm:max-w-xl md:max-w-5xl mx-auto"
         >
             <Card className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 md:gap-8 p-4 md:p-6 w-full shadow-md rounded-2xl transition-transform transform hover:scale-105">
 

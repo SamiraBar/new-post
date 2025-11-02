@@ -38,7 +38,7 @@ const UserToolbar = () => {
         }`}
       >
         <li>
-          <a href="#" onClick={() => setIsMenuOpen(false)}>
+          <a href="#important-info" onClick={() => setIsMenuOpen(false)}>
             Маанилуу маалымат
             <br />
             Важная информация

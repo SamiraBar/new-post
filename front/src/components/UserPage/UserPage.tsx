@@ -2,6 +2,7 @@ import InfoSendPost from "@/features/infoSendPost/InfoSendPost.tsx";
 import UserToolbar from "@/components/UserToolbar/UserToolbar.tsx";
 import FooterComponent from "@/features/footer/FooterComponent.tsx";
 import AboutCompany from "@/features/company-info/AboutCompany";
+import ImportantInfo from "@/features/company-info/ImportantInfo.tsx";
 
 const UserPage = () => {
     return (
@@ -14,6 +15,7 @@ const UserPage = () => {
                 <div className={'pl-2'}>
                     <InfoSendPost/>
                 </div>
+                <ImportantInfo />
                 <AboutCompany />
                 <div className={'pl-2'}>
                     <FooterComponent/>
