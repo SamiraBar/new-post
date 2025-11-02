@@ -52,10 +52,13 @@
 
 body {
   margin: 0;
-  /*display: flex;*/
-  /*place-items: center;*/
-  /*min-width: 500px;*/
+  box-sizing: border-box;
   min-height: 100vh;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
 }
 
 @theme inline {

@@ -1,9 +1,12 @@
+import AdminToolbar from "@/components/AdminPanel/features/AdminToolbar.tsx";
+
 const AdminPanel = () => {
 
     return (
-        <div>
-            <h1>Панель администратора</h1>
-        </div>
+        <>
+            <AdminToolbar/>
+            <h1 className={'mx-auto my-10 max-w-6xl'}>Панель администратора</h1>
+        </>
     );
 };
 
