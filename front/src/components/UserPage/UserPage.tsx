@@ -6,7 +6,7 @@ import CalculateDelivery from "@/features/CalculateDelivery/CalculateDelivery.ts
 const UserPage = () => {
     return (
         <div>
-            <header><h1><UserToolbar/></h1></header>
+            <header className={'mb-12'}><h1><UserToolbar/></h1></header>
             <main>
                 <div className={'pl-2'}>
                     <CalculateDelivery/>
