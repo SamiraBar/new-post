@@ -11,7 +11,7 @@ const InfoSendPost = () => {
                     <div className="h-12 flex items-center justify-center mb-1 text-center text-base font-medium px-2">
                         Посылканы онлайн <br/> каттоодон өткөр
                     </div>
-                    <Avatar className="w-42 h-42 border-4 border-orange-500 flex-shrink-0 mb-1">
+                    <Avatar className="w-42 h-42 border-5 border-orange-500 flex-shrink-0 mb-1">
                         <AvatarImage src="/src/assets/images/Image.png" alt="Оформление посылки" />
                         <AvatarFallback>Оформление посылки</AvatarFallback>
                     </Avatar>
@@ -24,7 +24,7 @@ const InfoSendPost = () => {
                     <div className="h-12 flex items-center justify-center mb-1 text-center text-base font-medium px-2">
                         Посылканын <br/>трек номерин ал
                     </div>
-                    <Avatar className="w-42 h-42 border-4 border-orange-500 flex-shrink-0 mb-1">
+                    <Avatar className="w-42 h-42 border-5 border-orange-500 flex-shrink-0 mb-1">
                         <AvatarImage src="/src/assets/images/Image.png" alt="Получение трек номера" />
                         <AvatarFallback>Получение трек номера</AvatarFallback>
                     </Avatar>
@@ -37,7 +37,7 @@ const InfoSendPost = () => {
                     <div className="h-12 flex items-center justify-center mb-1 text-center text-base font-medium px-2">
                         Посылканы <br/>офиске алып кел
                     </div>
-                    <Avatar className="w-42 h-42 border-4 border-orange-500 flex-shrink-0 mb-1">
+                    <Avatar className="w-42 h-42 border-5 border-orange-500 flex-shrink-0 mb-1">
                         <AvatarImage src="/src/assets/images/Image.png" alt="Принести посылку в офис" />
                         <AvatarFallback>Принести посылку в офис</AvatarFallback>
                     </Avatar>
@@ -50,7 +50,7 @@ const InfoSendPost = () => {
                     <div className="h-12 flex items-center justify-center mb-1 text-center text-base font-medium px-2">
                         Посылканы онлайн көзөмөлдөө
                     </div>
-                    <Avatar className="w-42 h-42 border-4 border-orange-500 flex-shrink-0 mb-1">
+                    <Avatar className="w-42 h-42 border-5 border-orange-500 flex-shrink-0 mb-1">
                         <AvatarImage src="/src/assets/images/Image.png" alt="Отслеживание посылки" />
                         <AvatarFallback>Отслеживание посылки</AvatarFallback>
                     </Avatar>
