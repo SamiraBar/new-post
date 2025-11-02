@@ -45,10 +45,10 @@ const UserToolbar = () => {
           </a>
         </li>
         <li>
-          <a href="#" onClick={() => setIsMenuOpen(false)}>
-            Биз жонундо
-            <br />О компании
-          </a>
+            <a href="#about" onClick={() => setIsMenuOpen(false)}>
+                Биз жонундо
+                <br />О компании
+            </a>
         </li>
         <li>
           <a href="#" onClick={() => setIsMenuOpen(false)}>
