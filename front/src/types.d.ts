@@ -1,4 +1,4 @@
-export interface User {
+export interface Admin {
     _id: string;
     email: string;
     token: string;

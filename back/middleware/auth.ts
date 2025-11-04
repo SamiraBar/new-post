@@ -1,26 +1,26 @@
 import {Request, Response, NextFunction} from "express";
 import {HydratedDocument} from "mongoose";
-import {UserDef} from "../types";
-import User from "../models/User";
+import {AdminDef} from "../types";
+import Admin from "../models/Admin";
 
-export interface RequestWithUser extends Request {
-    user: HydratedDocument<UserDef>
+export interface RequestWithAdmin extends Request {
+    admin: HydratedDocument<AdminDef>
 }
 
 const auth = async (expressReq: Request, res: Response, next: NextFunction) => {
-    const req = expressReq as RequestWithUser;
+    const req = expressReq as RequestWithAdmin;
 
     const token = req.get('Authorization');
     if (!token) {
         return res.status(401).send({error: 'No token present'});
     }
 
-    const user = await User.findOne({token});
-    if (!user) {
+    const admin = await Admin.findOne({token});
+    if (!admin) {
         return res.status(401).send({error: 'Wrong token!'});
     }
 
-    req.user = user;
+    req.admin = admin;
     next();
 };
 

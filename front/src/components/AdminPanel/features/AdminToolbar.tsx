@@ -8,10 +8,10 @@ import {Input} from "@/components/ui/input.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {type ChangeEvent, useState} from "react";
 import logoImage from "@/assets/logo/newPostLogo.jpeg"
-import useUserStore from "@/stores/userStore/userStore.ts";
+import useAdminStore from "@/stores/adminStore/adminStore.ts";
 
 export const AdminToolbar = () => {
-  const { logout } = useUserStore()
+  const { logout } = useAdminStore()
   const [search, setSearch] = useState({
     trackNumber: "",
     sender: "",

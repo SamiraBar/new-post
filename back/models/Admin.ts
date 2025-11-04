@@ -1,28 +1,28 @@
 import mongoose, {Model} from "mongoose";
-import {UserDef} from "../types";
+import {AdminDef} from "../types";
 import bcrypt from "bcrypt";
 import {randomUUID} from "node:crypto";
 
-interface UserMethods {
+interface AdminMethods {
     checkPassword(password: string): Promise<boolean>;
     generateToken(): void;
 }
 
-type UserModel = Model<UserDef, object, UserMethods>
+type AdminModel = Model<AdminDef, object, AdminMethods>
 
 const Schema = mongoose.Schema;
 
 const SALT_WORK_FACTOR = 10;
 
-const UserSchema = new Schema <UserDef, UserModel, UserMethods>({
+const AdminSchema = new Schema <AdminDef, AdminModel, AdminMethods>({
     email: {type: String, required: true, unique: true,
         validate: {
             validator: async function(value: string): Promise<boolean> {
                 if (!this.isModified('email')) {
                     return true;
                 }
-                const user = await User.findOne({email: value});
-                return Boolean(!user);
+                const admin = await Admin.findOne({email: value});
+                return Boolean(!admin);
             },
             message: 'This user already exist'
         }},
@@ -37,7 +37,7 @@ const UserSchema = new Schema <UserDef, UserModel, UserMethods>({
     }
 )
 
-UserSchema.pre('save', async function (next) {
+AdminSchema.pre('save', async function (next) {
     if (!this.isModified('password')) {
         return next();
     }
@@ -48,20 +48,20 @@ UserSchema.pre('save', async function (next) {
     next();
 })
 
-UserSchema.set('toJSON', {
-    transform: (_doc, ret: Partial<UserDef>) => {
+AdminSchema.set('toJSON', {
+    transform: (_doc, ret: Partial<AdminDef>) => {
         delete ret.password;
         return ret;
     }
 })
 
-UserSchema.methods.checkPassword = function(password: string) {
+AdminSchema.methods.checkPassword = function(password: string) {
     return bcrypt.compare(password, this.password);
 };
 
-UserSchema.methods.generateToken = function() {
+AdminSchema.methods.generateToken = function() {
     this.token = randomUUID();
 }
 
-const User = mongoose.model<UserDef, UserModel>("User", UserSchema);
-export default User;
+const Admin = mongoose.model<AdminDef, AdminModel>("Admin", AdminSchema);
+export default Admin;

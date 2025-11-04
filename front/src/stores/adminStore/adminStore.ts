@@ -1,21 +1,21 @@
 import {create} from "zustand";
 import axiosApi from "@/axiosApi.ts";
-import type {UserState} from "@/stores/userStore/types.ts";
-import type {User} from "@/types";
+import type {AdminState} from "@/stores/adminStore/types.ts";
+import type {Admin} from "@/types";
 import axios from "axios";
 import {persist} from "zustand/middleware";
 
-export const useUserStore = create<UserState>() (
+export const useAdminStore = create<AdminState>() (
   persist ((set) => ({
-    user: null,
+    admin: null,
     loginLoading: false,
     loginError: null,
 
     async login(data) {
       try {
         set({loginLoading: true, loginError: null});
-        const {data: user} = await axiosApi.post<User>("/users/", data);
-        set({user});
+        const {data: admin} = await axiosApi.post<Admin>("/admins/", data);
+        set({admin});
         return true;
       } catch (e: unknown) {
         let errorMessage = "";
@@ -35,14 +35,14 @@ export const useUserStore = create<UserState>() (
     },
 
     async logout() {
-      await axiosApi.delete("/users/");
-      set({user: null});
+      await axiosApi.delete("/admins/");
+      set({admin: null});
     },
   }),
     {
-      name: "new-post-user",
-      partialize: (state) => ({ user: state.user }),
+      name: "new-post-admin",
+      partialize: (state) => ({ admin: state.admin }),
     }
 ));
 
-export default useUserStore;
+export default useAdminStore;

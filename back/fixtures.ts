@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import config from "./config"
-import User from "./models/User";
+import Admin from "./models/Admin";
 import {randomUUID} from "node:crypto";
 
 const run = async () => {
@@ -8,12 +8,12 @@ const run = async () => {
     const db = mongoose.connection;
 
     try {
-        await db.dropCollection('users');
+        await db.dropCollection('admins');
     } catch (e) {
         console.log("No collection, skipping", e);
     }
 
-    await User.create({
+    await Admin.create({
         email: 'AdminNum1@gmail.com',
         password: 'Qwerty123',
         token: randomUUID(),

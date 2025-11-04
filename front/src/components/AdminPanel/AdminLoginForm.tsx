@@ -14,13 +14,13 @@ import {
 import { Input } from "@/components/ui/input"
 import {type ChangeEvent, type FormEvent, useState} from "react";
 import type {LoginMutation} from "@/types";
-import useUserStore from "@/stores/userStore/userStore.ts";
+import useAdminStore from "@/stores/adminStore/adminStore.ts";
 import {useNavigate} from "react-router-dom";
 import {Alert, AlertTitle} from "@/components/ui/alert.tsx";
 import {AlertCircleIcon} from "lucide-react";
 
 const AdminLoginForm = () => {
-  const { login, loginError, loginLoading } = useUserStore();
+  const { login, loginError, loginLoading } = useAdminStore();
   const navigate = useNavigate();
   const [state, setState] = useState<LoginMutation>({
     email: "",

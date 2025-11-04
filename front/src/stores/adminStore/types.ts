@@ -1,7 +1,7 @@
-import type {GlobalError, LoginMutation, User} from "@/types";
+import type {GlobalError, LoginMutation, Admin} from "@/types";
 
-export interface UserState {
-  user: User | null;
+export interface AdminState {
+  admin: Admin | null;
   loginLoading: boolean;
   loginError: GlobalError | null;
 
