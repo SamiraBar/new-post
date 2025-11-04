@@ -8,13 +8,13 @@ usersRouter.post("/", async (req, res, next) => {
         const user = await User.findOne({email: req.body.email});
 
         if (!user) {
-            return res.status(400).send({error: "User not found"});
+            return res.status(400).send({error: "Wrong credentials."});
         }
 
         const isMatch = await user.checkPassword(req.body.password)
 
         if (!isMatch) {
-            return res.status(400).send({error: "Invalid password"});
+            return res.status(400).send({error: "Wrong credentials."});
         }
 
         user.generateToken();
