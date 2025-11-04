@@ -8,8 +8,10 @@ import {Input} from "@/components/ui/input.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {type ChangeEvent, useState} from "react";
 import logoImage from "@/assets/logo/newPostLogo.jpeg"
+import useUserStore from "@/stores/userStore/userStore.ts";
 
 export const AdminToolbar = () => {
+  const { logout } = useUserStore()
   const [search, setSearch] = useState({
     trackNumber: "",
     sender: "",
@@ -70,7 +72,10 @@ export const AdminToolbar = () => {
         </NavigationMenuItem>
 
         <NavigationMenuItem className="hidden sm:inline-flex">
-          <Button className="bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700">
+          <Button
+            className="bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700"
+            onClick={async () => await logout()}
+          >
             Выйти
           </Button>
         </NavigationMenuItem>

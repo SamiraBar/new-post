@@ -16,6 +16,8 @@ import {type ChangeEvent, type FormEvent, useState} from "react";
 import type {LoginMutation} from "@/types";
 import useUserStore from "@/stores/userStore/userStore.ts";
 import {useNavigate} from "react-router-dom";
+import {Alert, AlertTitle} from "@/components/ui/alert.tsx";
+import {AlertCircleIcon} from "lucide-react";
 
 const AdminLoginForm = () => {
   const { login, loginError, loginLoading } = useUserStore();
@@ -77,6 +79,14 @@ const AdminLoginForm = () => {
                   onChange={inputChangeHandler}
                   required />
               </Field>
+
+              {loginError && (
+                <Alert variant="destructive">
+                  <AlertCircleIcon />
+                  <AlertTitle>{loginError.error}</AlertTitle>
+                </Alert>
+              )}
+
               <Field>
                 <Button
                   type="submit"
@@ -85,10 +95,6 @@ const AdminLoginForm = () => {
                 >Login</Button>
               </Field>
             </FieldGroup>
-
-            {loginError && (
-              <p className="text-red-500">{loginError.error}</p>
-            )}
           </form>
         </CardContent>
       </Card>
