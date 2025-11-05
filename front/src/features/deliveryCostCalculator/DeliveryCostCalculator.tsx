@@ -17,7 +17,7 @@ const DeliveryCostCalculator = () => {
         Жеткирүү баасын эсептөө калькулятору <br/> Калькулятор расчёта стоимости доставки
       </h3>
       <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg ">
-        <form className="w-full lg:flex">
+        <form className="w-full lg:flex pt-5">
           <div className="border p-5 rounded-lg w-full shadow-lg">
             <FieldGroup>
               <FieldSet>
@@ -43,18 +43,18 @@ const DeliveryCostCalculator = () => {
                           </svg>
                     </span>
                       </div>
-                      <Select onOpenChange={(open) => {
-                        if (!open) {
-                          setCity('');
-                        }
-                      }}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Жиберүүчү өлкө / Страна отправителя"/>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="light">Кыргызстан</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      {/*<Select onOpenChange={(open) => {*/}
+                      {/*  if (!open) {*/}
+                      {/*    setCity('');*/}
+                      {/*  }*/}
+                      {/*}}>*/}
+                      {/*  <SelectTrigger className="w-full">*/}
+                      {/*    <SelectValue placeholder="Жиберүүчү өлкө / Страна отправителя"/>*/}
+                      {/*  </SelectTrigger>*/}
+                      {/*  <SelectContent>*/}
+                      {/*    <SelectItem value="light">Кыргызстан</SelectItem>*/}
+                      {/*  </SelectContent>*/}
+                      {/*</Select>*/}
                       <Select>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Жиберүүчү шаар / Город отправителя"/>
@@ -95,14 +95,14 @@ const DeliveryCostCalculator = () => {
                     </svg>
                       </span>
                       </div>
-                      <Select>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Алуучу өлкө / Страна получателя"/>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="light">Кыргызстан</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      {/*<Select>*/}
+                      {/*  <SelectTrigger className="w-full">*/}
+                      {/*    <SelectValue placeholder="Алуучу өлкө / Страна получателя"/>*/}
+                      {/*  </SelectTrigger>*/}
+                      {/*  <SelectContent>*/}
+                      {/*    <SelectItem value="light">Кыргызстан</SelectItem>*/}
+                      {/*  </SelectContent>*/}
+                      {/*</Select>*/}
                       <Select>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Алуучу шаар / Город получателя"/>
