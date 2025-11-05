@@ -7,8 +7,11 @@ import {Link} from 'react-router-dom';
 import {Input} from "@/components/ui/input.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {type ChangeEvent, useState} from "react";
+import logoImage from "@/assets/logo/newPostLogo.jpeg"
+import useAdminStore from "@/stores/adminStore/adminStore.ts";
 
 export const AdminToolbar = () => {
+  const { logout } = useAdminStore()
   const [search, setSearch] = useState({
     trackNumber: "",
     sender: "",
@@ -25,11 +28,11 @@ export const AdminToolbar = () => {
     <NavigationMenu className="mx-auto py-3">
       <NavigationMenuList className="flex-col sm:flex-row flex-wrap items-center  md:justify-between w-full gap-2.5">
         <NavigationMenuItem className="flex gap-5">
-          <Link to={"/"}>
-            <img src="../../../assets/logo/newPostLogo.jpeg" alt="logo" style={{width: "60px", minWidth: "60px"}}/>
+          <Link to={"/admin"}>
+            <img src={logoImage} alt="logo" style={{width: "60px", minWidth: "60px"}}/>
           </Link>
 
-          <Button className="inline-block sm:hidden bg-amber-600 hover:bg-amber-700 transition duration-300 active:bg-amber-800">
+          <Button className="inline-block sm:hidden bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700">
             Выйти
           </Button>
         </NavigationMenuItem>
@@ -69,7 +72,10 @@ export const AdminToolbar = () => {
         </NavigationMenuItem>
 
         <NavigationMenuItem className="hidden sm:inline-flex">
-          <Button className="bg-amber-600 hover:bg-amber-700 transition duration-300 active:bg-amber-800">
+          <Button
+            className="bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700"
+            onClick={async () => await logout()}
+          >
             Выйти
           </Button>
         </NavigationMenuItem>

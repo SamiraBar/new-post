@@ -1,13 +1,5 @@
-import {Request} from "express";
-import {HydratedDocument, Types} from "mongoose";
-
-export interface UserFields {
-    username: string;
+export interface AdminDef {
+    email: string;
     password: string;
     token: string;
-    role: 'user' | 'admin';
-}
-
-export interface RequestWithUser extends Request {
-    user: HydratedDocument<UserFields>
 }
