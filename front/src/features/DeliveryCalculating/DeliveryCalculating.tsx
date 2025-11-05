@@ -1,5 +1,12 @@
-import {Button} from "@/components/ui/button.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import { Search } from 'lucide-react';
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const DeliveryCalculating = () => {
     return (
@@ -8,12 +15,85 @@ const DeliveryCalculating = () => {
                 <div className="space-y-4 text-center">
                     <h4 className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 flex items-center justify-center mb-1 text-center text-base font-bold px-2 mx-auto"
                     >Жеткирүү баасын эсептөө</h4>
-                    <Button className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 border-2 border-orange-500 bg-orange-500 text-white
-                    hover:bg-white hover:text-black rounded-xl
-                    active:scale-95 active:shadow-lg active:bg-orange-500 transition-all duration-200 shadow-md hover:shadow-lg"
-                    >
-                        Расчитать/Эсептөө
-                    </Button>
+
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 border-2 border-orange-500 bg-orange-500 text-white
+    hover:bg-white hover:text-black rounded-xl
+    active:scale-95 active:shadow-lg active:bg-orange-500 transition-all duration-200 shadow-md hover:shadow-lg"
+                            >
+                                Расчитать/Эсептөө
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="max-w-md mx-auto p-6 sm:p-8 md:p-10 rounded-2xl border-[3px] border-orange-500 bg-white shadow-2xl">
+                          <div className="flex flex-col gap-4 mt-4">
+                                <Button
+                                    className="max-w-80 sm:max-w-96 md:max-w-110 h-16 border-2 border-orange-500 bg-orange-500 text-white
+      hover:bg-white hover:text-orange-600 rounded-xl
+      active:scale-95 transition-all duration-300
+      flex flex-col items-center justify-center py-2 relative overflow-hidden
+      group transform hover:-translate-y-1
+      shadow-2xl hover:shadow-3xl shadow-orange-500/30 hover:shadow-orange-500/40"
+                                    onClick={() => {
+                                        window.location.href = '#quick-calculator';
+                                    }}
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
+      -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%]
+      transition-transform duration-700"></div>
+
+                                    <span className="text-md font-bold
+      text-white group-hover:text-orange-600 transition-colors duration-300
+      [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]">
+      Посылка беруу пунктка чейин жеткирүү
+    </span>
+                                    <span className="text-md font-bold text-center leading-tight relative z-10
+      text-white group-hover:text-orange-500 transition-colors duration-300 mt-1
+      [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]">
+      Доставка до пункта выдачи посылок
+    </span>
+                                </Button>
+
+                                <Button
+                                    className="max-w-80 sm:max-w-96 md:max-w-110 h-16 border-2 border-orange-500 bg-gradient-to-br from-orange-500 to-amber-500 text-white
+      hover:bg-gradient-to-br hover:from-white hover:to-orange-50 hover:text-orange-600 rounded-xl
+      active:scale-95 transition-all duration-300
+      flex flex-col items-center justify-center py-2 relative overflow-hidden
+      group transform hover:-translate-y-1
+      shadow-2xl hover:shadow-3xl shadow-amber-500/30 hover:shadow-amber-500/40"
+                                    onClick={() => {
+                                        window.location.href = '#full-calculator';
+                                    }}
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
+      -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%]
+      transition-transform duration-700"></div>
+
+                                    <span className="text-md font-bold text-center leading-tight relative z-10
+      text-white group-hover:text-orange-600 transition-colors duration-300
+      [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]">
+      Алуучунун уйунө чейин жеткирүү
+    </span>
+                                    <span className="text-md font-bold text-center leading-tight relative z-10
+      text-white group-hover:text-orange-500 transition-colors duration-300 mt-1
+      [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]">
+      Доставка до двери получателя
+    </span>
+                                </Button>
+                            </div>
+
+                            <AlertDialogFooter className="mt-4">
+                                <AlertDialogCancel className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 border-2 border-gray-200 bg-white/80 text-gray-600
+  hover:bg-white hover:border-gray-300 hover:text-gray-800
+  active:bg-gray-100 active:scale-95
+  backdrop-blur-sm
+  transition-all duration-200 rounded-xl shadow-md hover:shadow-lg
+  font-bold">
+                                    Жабуу / Закрыть
+                                </AlertDialogCancel>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
 
                     <p>Рассчитать доставку</p>
                 </div>
