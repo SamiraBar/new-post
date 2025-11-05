@@ -25,12 +25,9 @@ const UserToolbar = () => {
 
   return (
     <header className="w-full bg-white shadow-sm sticky top-0 z-5">
-      <div className="container px-4">
-        <NavigationMenu className="w-full py-3 md:py-4 max-w-none">
-          <NavigationMenuList
-            className="flex items-center justify-between w-full max-w-none gap-12 m-0"
-            style={{ width: "100% !important" }}
-          >
+      <div className="container mx-auto px-4">
+        <NavigationMenu className="w-full py-3 md:py-4 max-w-none [&>div]:w-full">
+          <NavigationMenuList className="w-full max-w-none gap-12 m-0">
             <NavigationMenuItem>
               <Link to="/" className="flex items-center">
                 <img
@@ -42,17 +39,17 @@ const UserToolbar = () => {
             </NavigationMenuItem>
 
             <NavigationMenuItem className="hidden sm:block flex-1">
-              <ul className="flex items-center justify-center gap-6 md:gap-8">
+              <ul className="flex items-center justify-center gap-6 md:gap-12">
                 {renderText.map((text, index) => (
                   <li key={`${text.ru}-${index}`}>
                     <Link
                       to={text.link}
                       className="group flex flex-col items-center text-center transition-colors hover:text-blue-600"
                     >
-                      <span className="text-sm font-semibold leading-tight">
+                      <span className="sm:text-sm md:text-lg lg:text-xl font-semibold leading-tight">
                         {text.kg}
                       </span>
-                      <span className="text-xs text-gray-600 group-hover:text-blue-600 transition-colors">
+                      <span className="sm:text-xs md:text-sm lg:text-lg text-gray-600 group-hover:text-blue-600 transition-colors">
                         {text.ru}
                       </span>
                     </Link>
@@ -72,7 +69,7 @@ const UserToolbar = () => {
 
               <button
                 onClick={toggleMenu}
-                className="sm:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="sm:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                 aria-label="Toggle menu"
               >
                 {isMenuOpen ? (
