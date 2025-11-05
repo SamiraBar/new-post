@@ -4,11 +4,26 @@ import {
     AlertDialog,
     AlertDialogCancel,
     AlertDialogContent,
-    AlertDialogFooter,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { useState } from "react";
 
 const DeliveryCalculating = () => {
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const handleButtonClick = () => {
+        setIsDialogOpen(false);
+        setTimeout(() => {
+            const calculatorElement = document.getElementById('calculator');
+            if (calculatorElement) {
+                calculatorElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }, 100);
+    };
+
     return (
         <div className="container mx-auto my-10 p-5 max-w-6xl overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -16,7 +31,7 @@ const DeliveryCalculating = () => {
                     <h4 className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 flex items-center justify-center mb-1 text-center text-base font-bold px-2 mx-auto"
                     >Жеткирүү баасын эсептөө</h4>
 
-                    <AlertDialog>
+                    <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <AlertDialogTrigger asChild>
                             <Button className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 border-2 border-orange-500 bg-orange-500 text-white
     hover:bg-white hover:text-black rounded-xl
@@ -26,7 +41,7 @@ const DeliveryCalculating = () => {
                             </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent className="max-w-md mx-auto p-6 sm:p-8 md:p-10 rounded-2xl border-[3px] border-orange-500 bg-white shadow-2xl">
-                          <div className="flex flex-col gap-4 mt-4">
+                            <div className="flex flex-col gap-4">
                                 <Button
                                     className="max-w-80 sm:max-w-96 md:max-w-110 h-16 border-2 border-orange-500 bg-orange-500 text-white
       hover:bg-white hover:text-orange-600 rounded-xl
@@ -34,9 +49,7 @@ const DeliveryCalculating = () => {
       flex flex-col items-center justify-center py-2 relative overflow-hidden
       group transform hover:-translate-y-1
       shadow-2xl hover:shadow-3xl shadow-orange-500/30 hover:shadow-orange-500/40"
-                                    onClick={() => {
-                                        window.location.href = '#quick-calculator';
-                                    }}
+                                    onClick={handleButtonClick}
                                 >
                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
       -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%]
@@ -53,7 +66,6 @@ const DeliveryCalculating = () => {
       Доставка до пункта выдачи посылок
     </span>
                                 </Button>
-
                                 <Button
                                     className="max-w-80 sm:max-w-96 md:max-w-110 h-16 border-2 border-orange-500 bg-gradient-to-br from-orange-500 to-amber-500 text-white
       hover:bg-gradient-to-br hover:from-white hover:to-orange-50 hover:text-orange-600 rounded-xl
@@ -61,9 +73,7 @@ const DeliveryCalculating = () => {
       flex flex-col items-center justify-center py-2 relative overflow-hidden
       group transform hover:-translate-y-1
       shadow-2xl hover:shadow-3xl shadow-amber-500/30 hover:shadow-amber-500/40"
-                                    onClick={() => {
-                                        window.location.href = '#full-calculator';
-                                    }}
+                                    onClick={handleButtonClick}
                                 >
                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
       -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%]
@@ -80,18 +90,22 @@ const DeliveryCalculating = () => {
       Доставка до двери получателя
     </span>
                                 </Button>
+                                <div className="flex flex-col gap-3 mt-4">
+                                    <AlertDialogCancel
+                                        className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 border-2 border-gray-300 bg-white text-gray-700
+          hover:bg-gray-50 hover:border-gray-400 hover:text-gray-900
+          active:bg-gray-100 active:border-gray-500 active:scale-95
+          transition-all duration-200 rounded-xl shadow-md hover:shadow-lg
+          font-bold"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setIsDialogOpen(false);
+                                        }}
+                                    >
+                                        Жабуу / Закрыть
+                                    </AlertDialogCancel>
+                                </div>
                             </div>
-
-                            <AlertDialogFooter className="mt-4">
-                                <AlertDialogCancel className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 border-2 border-gray-200 bg-white/80 text-gray-600
-  hover:bg-white hover:border-gray-300 hover:text-gray-800
-  active:bg-gray-100 active:scale-95
-  backdrop-blur-sm
-  transition-all duration-200 rounded-xl shadow-md hover:shadow-lg
-  font-bold">
-                                    Жабуу / Закрыть
-                                </AlertDialogCancel>
-                            </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
 

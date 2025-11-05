@@ -12,7 +12,7 @@ const DeliveryCostCalculator = () => {
 
   return (
     <div
-      className="container">
+      className="container" id={'calculator'}>
       <h3 className="text-xl font-medium text-center mb-10">
         Жеткирүү баасын эсептөө калькулятору <br/> Калькулятор расчёта стоимости доставки
       </h3>
