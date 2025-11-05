@@ -18,10 +18,10 @@ const DeliveryCalculating = () => {
             if (calculatorElement) {
                 calculatorElement.scrollIntoView({
                     behavior: 'smooth',
-                    block: 'start'
+                    block: 'start',
                 });
             }
-        }, 100);
+        }, 180);
     };
 
     return (
@@ -55,7 +55,7 @@ const DeliveryCalculating = () => {
       -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%]
       transition-transform duration-700"></div>
 
-                                    <span className="text-md font-bold
+                                    <span className="text-lg font-bold
       text-white group-hover:text-orange-600 transition-colors duration-300
       [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]">
       Посылка беруу пунктка чейин жеткирүү
@@ -79,7 +79,7 @@ const DeliveryCalculating = () => {
       -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%]
       transition-transform duration-700"></div>
 
-                                    <span className="text-md font-bold text-center leading-tight relative z-10
+                                    <span className="text-lg font-bold text-center leading-tight relative z-10
       text-white group-hover:text-orange-600 transition-colors duration-300
       [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]">
       Алуучунун уйунө чейин жеткирүү
