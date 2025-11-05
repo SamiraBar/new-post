@@ -9,7 +9,7 @@ const FooterComponent = () => {
             <div
                 className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
 
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                     <img
                         src={logo}
                         alt="New Post logo"
