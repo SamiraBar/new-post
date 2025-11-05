@@ -9,9 +9,9 @@ import AboutCompany from '@/features/company-info/AboutCompany.tsx';
 const UserPage = () => {
     return (
         <div>
-            <header className={'mb-10'}><h1><UserToolbar/></h1></header>
+            <header className={'mb-20'}><h1><UserToolbar/></h1></header>
             <main>
-                <div className={'pl-2'}>
+                <div className={'pl-2 mb-15'}>
                     <DeliveryCalculating/>
                 </div>
                 <div className={'pl-2'}>
