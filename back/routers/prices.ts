@@ -1,5 +1,5 @@
 import express from "express";
-import { Request } from "express";
+import {Request} from "express";
 import PriceToPVZ from "../models/PriceToPVZ";
 import XLSX from "xlsx";
 import {pricesUpload} from "../multer";
@@ -18,13 +18,48 @@ pricesRouter.post("/upload", auth, pricesUpload.single("data"), async (req: Mult
     const file = req.file;
 
     if (!file) {
-      return res.status(400).json({ message: "No file uploaded" });
+      return res.status(400).json({message: "No file uploaded"});
+    }
+    if (!type) {
+      return res.status(400).json({message: "No type"});
     }
 
     const workbook = XLSX.readFile(file.path);
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    const jsonData = XLSX.utils.sheet_to_json(worksheet) as Record<string, any>[];
+
+    const schemaMap: Record<string, string[]> = {
+      PVZ: ["city", "region", "basePrice", "pricePerOneLessThree", "pricePerOneLessSix", "pricePerOneLessTwelve", "pricePerOneLessFifteen"],
+      Hand: ["city", "country", "tariffZone","basePrice", "pricePerOneKg"],
+    };
+
+    const requiredFields = schemaMap[String(type)];
+
+    if (!requiredFields) {
+      return res.status(400).json({message: `Unknown type: ${type}`});
+    }
+
+    const firstRow = jsonData[0] || {};
+    const keys = Object.keys(firstRow);
+    const missing = requiredFields.filter(f => !keys.includes(f));
+
+    if (missing.length > 0) {
+      return res.status(400).json({
+        message: `Wrong files columns "${type}"`,
+        missingFields: missing,
+        expected: requiredFields,
+        received: keys,
+      });
+    }
+
+    const filteredData = jsonData.filter(row =>
+      Object.values(row).some(v => v !== null && v !== undefined && v !== "")
+    );
+
+    if (filteredData.length === 0) {
+      return res.status(400).json({message: "Data could not be empty"});
+    }
 
     if (type === "PVZ") {
       await PriceToPVZ.collection.drop();
@@ -32,12 +67,9 @@ pricesRouter.post("/upload", auth, pricesUpload.single("data"), async (req: Mult
     } else if (type === "Hand") {
       await PriceToHand.collection.drop();
       await PriceToHand.insertMany(jsonData);
-    } else {
-      return res.status(400).json({ message: "No type" });
     }
 
-
-    res.status(200).json({ message: "Base updated", count: jsonData.length });
+    res.status(200).json({message: "Base updated", count: jsonData.length});
   } catch (err) {
     console.error(err);
     next(err);
@@ -55,7 +87,7 @@ pricesRouter.get("/", async (req, res, next) => {
       const data = await PriceToHand.find()
       res.send(data);
     } else {
-      return res.status(400).json({ message: "No type" });
+      return res.status(400).json({message: "No type"});
     }
 
   } catch {
