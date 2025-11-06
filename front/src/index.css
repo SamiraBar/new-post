@@ -54,6 +54,7 @@ body {
   margin: 0;
   box-sizing: border-box;
   min-height: 100vh;
+    font-family: 'Quicksand', sans-serif;
 }
 .container {
   max-width: 1200px;
