@@ -1,4 +1,8 @@
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar.tsx";
+import mackbookPro from "../../assets/images/macbook-pro.png"
+import number from "../../assets/images/number-car.png"
+import cafe from "../../assets/images/cafe.png"
+import map from "../../assets/images/map-location.png"
 
 const InfoSendPost = () => {
     return (
@@ -12,7 +16,7 @@ const InfoSendPost = () => {
                         Посылканы онлайн <br/> каттоодон өткөр
                     </div>
                     <Avatar className="w-42 h-42 border-5 border-orange-500 flex-shrink-0 mb-1">
-                        <AvatarImage src="/src/assets/images/Image.png" alt="Оформление посылки" />
+                        <AvatarImage src={mackbookPro} alt="Оформление посылки" />
                         <AvatarFallback>Оформление посылки</AvatarFallback>
                     </Avatar>
                     <div className="h-10 flex items-center justify-center text-base text-center font-medium">
@@ -25,7 +29,7 @@ const InfoSendPost = () => {
                         Посылканын <br/>трек номерин ал
                     </div>
                     <Avatar className="w-42 h-42 border-5 border-orange-500 flex-shrink-0 mb-1">
-                        <AvatarImage src="/src/assets/images/Image.png" alt="Получение трек номера" />
+                        <AvatarImage src={number} alt="Получение трек номера" />
                         <AvatarFallback>Получение трек номера</AvatarFallback>
                     </Avatar>
                     <div className="h-10 flex items-center justify-center text-base text-center font-medium">
@@ -38,7 +42,7 @@ const InfoSendPost = () => {
                         Посылканы <br/>офиске алып кел
                     </div>
                     <Avatar className="w-42 h-42 border-5 border-orange-500 flex-shrink-0 mb-1">
-                        <AvatarImage src="/src/assets/images/Image.png" alt="Принести посылку в офис" />
+                        <AvatarImage src={cafe} alt="Принести посылку в офис" />
                         <AvatarFallback>Принести посылку в офис</AvatarFallback>
                     </Avatar>
                     <div className="h-10 flex items-center justify-center text-base text-center font-medium">
@@ -51,7 +55,7 @@ const InfoSendPost = () => {
                         Посылканы онлайн көзөмөлдөө
                     </div>
                     <Avatar className="w-42 h-42 border-5 border-orange-500 flex-shrink-0 mb-1">
-                        <AvatarImage src="/src/assets/images/Image.png" alt="Отслеживание посылки" />
+                        <AvatarImage src={map} alt="Отслеживание посылки" />
                         <AvatarFallback>Отслеживание посылки</AvatarFallback>
                     </Avatar>
                     <div className="h-10 flex items-center justify-center text-base text-center font-medium">
