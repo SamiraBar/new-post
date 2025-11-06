@@ -9,8 +9,8 @@ const PriceSchema = new Schema ({
   pricePerOneLessThree:{ type: Number, required: true },
   pricePerOneLessSix:{ type: Number, required: true },
   pricePerOneLessTwelve:{ type: Number, required: true },
-  pricePerOneLessFifth:{ type: Number, required: true },
+  pricePerOneLessFifteen:{ type: Number, required: true },
 })
 
-const Price = mongoose.model("Price", PriceSchema);
-export default Price;
+const PriceToPVZ = mongoose.model("PriceToPVZ", PriceSchema);
+export default PriceToPVZ;
