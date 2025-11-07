@@ -1,4 +1,4 @@
-import type {GlobalError, LoginMutation, Admin} from "@/types";
+import type { GlobalError, LoginMutation, Admin } from '@/types';
 
 export interface AdminState {
   admin: Admin | null;

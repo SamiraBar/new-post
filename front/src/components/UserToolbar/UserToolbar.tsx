@@ -1,19 +1,15 @@
-import { useState } from "react";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuList,
-} from "../ui/navigation-menu";
-import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { useState } from 'react';
+import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from '../ui/navigation-menu';
+import { Link } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 
-import logo from "../../assets/logo/newPostLogo.jpeg";
-import icWhatsapp from "../../assets/cosialIcons/whatsapp.png";
+import logo from '../../assets/logo/newPostLogo.jpeg';
+import icWhatsapp from '../../assets/cosialIcons/whatsapp.png';
 
 const renderText: { kg: string; ru: string; link: string }[] = [
-  { kg: "Маанилуу маалымат", ru: "Важная информация", link: "#important-info" },
-  { kg: "Биз жонундо", ru: "О компании", link: "#about" },
-  { kg: "Байланыштар", ru: "Контакты", link: "#" },
+  { kg: 'Маанилуу маалымат', ru: 'Важная информация', link: '#important-info' },
+  { kg: 'Биз жонундо', ru: 'О компании', link: '#about' },
+  { kg: 'Байланыштар', ru: 'Контакты', link: '#' },
 ];
 
 const UserToolbar = () => {
@@ -72,11 +68,7 @@ const UserToolbar = () => {
                 className="sm:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                 aria-label="Toggle menu"
               >
-                {isMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             </NavigationMenuItem>
           </NavigationMenuList>
@@ -84,7 +76,7 @@ const UserToolbar = () => {
 
         <div
           className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-            isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
           <nav className="py-4 border-t border-gray-200">
@@ -96,9 +88,7 @@ const UserToolbar = () => {
                     onClick={() => setIsMenuOpen(false)}
                     className="flex flex-col px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    <span className="text-base font-semibold text-gray-900">
-                      {text.kg}
-                    </span>
+                    <span className="text-base font-semibold text-gray-900">{text.kg}</span>
                     <span className="text-sm text-gray-600">{text.ru}</span>
                   </Link>
                 </li>
