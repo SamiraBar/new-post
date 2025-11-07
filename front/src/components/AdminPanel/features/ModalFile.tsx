@@ -59,7 +59,7 @@ const ModalFile = () => {
           <div className="grid gap-3">
             <Label htmlFor="PVZ">Тарифы для доставки в ПВЗ</Label>
             <div className="flex w-full max-w-sm items-center gap-2">
-              <FileInput name="PVZ" onChange={handlePvzChange} file={pvzFile}/>
+              <FileInput id="PVZ" name="PVZ" onChange={handlePvzChange} file={pvzFile}/>
               <Button
                 className={"bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700"}
                 type="button"
@@ -71,7 +71,7 @@ const ModalFile = () => {
           <div className="grid gap-3">
             <Label htmlFor="Hand">Тарифы для личной доставки</Label>
             <div className="flex w-full max-w-sm items-center gap-2">
-              <FileInput name="Hand" onChange={handleHandChange} file={handFile}/>
+              <FileInput id="Hand" name="Hand" onChange={handleHandChange} file={handFile}/>
               <Button
                 className={"bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700"}
                 type="button"

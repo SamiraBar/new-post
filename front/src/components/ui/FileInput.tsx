@@ -4,10 +4,11 @@ import {Input} from "@/components/ui/input";
 interface Props {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   name: string;
+  id: string;
   file?: File | null;
 }
 
-const FileInput: FC<Props> = ({onChange, name, file}) => {
+const FileInput: FC<Props> = ({onChange, name, file, id}) => {
   const ref = useRef<HTMLInputElement | null>(null);
   const [fileName, setFileName] = useState("");
 
@@ -34,6 +35,7 @@ const FileInput: FC<Props> = ({onChange, name, file}) => {
       <input
         ref={ref}
         name={name}
+        id={id}
         type="file"
         className="hidden"
         onChange={handleFileChange}
