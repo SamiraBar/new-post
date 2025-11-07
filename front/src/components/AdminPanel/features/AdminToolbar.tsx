@@ -9,6 +9,7 @@ import {Button} from "@/components/ui/button.tsx";
 import {type ChangeEvent, useState} from "react";
 import logoImage from "@/assets/logo/newPostLogo.jpeg"
 import useAdminStore from "@/stores/adminStore/adminStore.ts";
+import ModalFile from "@/components/AdminPanel/features/ModalFile.tsx";
 
 export const AdminToolbar = () => {
   const { logout } = useAdminStore()
@@ -70,6 +71,8 @@ export const AdminToolbar = () => {
             className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1"
           />
         </NavigationMenuItem>
+
+        <ModalFile/>
 
         <NavigationMenuItem className="hidden sm:inline-flex">
           <Button
