@@ -1,20 +1,15 @@
-import { useState } from "react";
-import {
-    NavigationMenu,
-    NavigationMenuItem,
-    NavigationMenuList,
-} from "../ui/navigation-menu";
-import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { useState } from 'react';
+import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from '../ui/navigation-menu';
+import { Link } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 
-import logo from "../../assets/logo/newPostLogo.jpeg";
-import icWhatsapp from "../../assets/cosialIcons/WhatsApp1.png";
-import icInstagram from "../../assets/cosialIcons/Instagram1.png";
+import logo from '../../assets/logo/newPostLogo.jpeg';
+import icWhatsapp from '../../assets/cosialIcons/whatsapp.png';
 
 const renderText: { kg: string; ru: string; link: string }[] = [
-    { kg: "Маанилуу маалымат", ru: "Важная информация", link: "#important-info" },
-    { kg: "Биз жонундо", ru: "О компании", link: "#about" },
-    { kg: "Байланыштар", ru: "Контакты", link: "#" },
+  { kg: 'Маанилуу маалымат', ru: 'Важная информация', link: '#important-info' },
+  { kg: 'Биз жонундо', ru: 'О компании', link: '#about' },
+  { kg: 'Байланыштар', ru: 'Контакты', link: '#' },
 ];
 
 const UserToolbar = () => {
@@ -75,64 +70,57 @@ const UserToolbar = () => {
                                             >
                         {text.ru}
                       </span>
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem className="flex items-center gap-12">
-                            <div className="flex gap-2">
-                                <a href="#" aria-label="WhatsApp">
-                                    <img
-                                        src={icWhatsapp}
-                                        alt="whatsapp"
-                                        className="w-9 h-9 md:w-10 md:h-10 transition-transform hover:scale-110"
-                                    />
-                                </a>
-                                <a href="#" aria-label="Instagram">
-                                    <img
-                                        src={icInstagram}
-                                        alt="instagram"
-                                        className="w-9 h-9 md:w-10 md:h-10 transition-transform hover:scale-110"
-                                    />
-                                </a>
-                            </div>
-                            <button
-                                onClick={toggleMenu}
-                                className="sm:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                                aria-label="Toggle menu"
-                            >
-                                {state.isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                            </button>
-                        </NavigationMenuItem>
-                    </NavigationMenuList>
-                </NavigationMenu>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </NavigationMenuItem>
 
-                <div
-                    className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-                        state.isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                    }`}
-                >
-                    <nav className="py-4 border-t border-gray-200">
-                        <ul className="flex flex-col gap-4">
-                            {renderText.map((text, index) => (
-                                <li key={`mobile-${text.ru}-${index}`}>
-                                    <a
-                                        href={text.link}
-                                        onClick={handleAnchorClick}
-                                        className="flex flex-col px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors"
-                                    >
-                                        <span className="text-base font-semibold text-gray-900">{text.kg}</span>
-                                        <span className="text-sm text-gray-600">{text.ru}</span>
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-        </header>
-    );
+            <NavigationMenuItem className="flex items-center gap-12">
+              <Link to="#" aria-label="WhatsApp">
+                <img
+                  src={icWhatsapp}
+                  alt="whatsapp"
+                  className="w-9 h-9 md:w-10 md:h-10 transition-transform hover:scale-110"
+                />
+              </Link>
+
+              <button
+                onClick={toggleMenu}
+                className="sm:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                aria-label="Toggle menu"
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+
+        <div
+          className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+            isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <nav className="py-4 border-t border-gray-200">
+            <ul className="flex flex-col gap-4">
+              {renderText.map((text, index) => (
+                <li key={`mobile-${text.ru}-${index}`}>
+                  <Link
+                    to={text.link}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex flex-col px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="text-base font-semibold text-gray-900">{text.kg}</span>
+                    <span className="text-sm text-gray-600">{text.ru}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+  );
 };
 
 export default UserToolbar;

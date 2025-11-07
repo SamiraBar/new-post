@@ -1,14 +1,14 @@
 export interface Admin {
-    _id: string;
-    email: string;
-    token: string;
+  _id: string;
+  email: string;
+  token: string;
 }
 
 export interface GlobalError {
-    error: string;
+  error: string;
 }
 
 export interface LoginMutation {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 }
