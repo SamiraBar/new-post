@@ -1,21 +1,34 @@
 import mongoose from "mongoose";
 
+export interface ISender extends mongoose.Document {
+    fullName: string;
+    phoneNumber: string;
+    city: string;
+    address: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 const SenderSchema = new mongoose.Schema({
-    title: {
+    fullName: {
         type: String,
-        required: true,
-        unique: true,
-        validate: {
-            validator: async (value: string) => {
-                const sender = await Sender.findOne({ title: value });
-                if (sender) return false;
-                return true;
-            },
-            message: "Sender title is unique",
-        }
+        required: [true, 'ФИО отправителя обязательное поле']
     },
-    description: String,
+    phoneNumber: {
+        type: String,
+        required: [true, 'Телефон отправителя обязательное поле'],
+    },
+    city: {
+        type: String,
+        required: [true, 'Город отправителя обязательное поле']
+    },
+    address: {
+        type: String,
+        required: [true, 'Адрес отправителя обязательное поле']
+    }
+}, {
+    timestamps: true
 });
 
-const Sender = mongoose.model('Sender', SenderSchema);
+const Sender = mongoose.model<ISender>('Sender', SenderSchema);
 export default Sender;
