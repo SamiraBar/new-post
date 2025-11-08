@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        primary: ['Quicksand', 'sans-serif'],
+        primary: ['Noto Sans', 'Arial', 'sans-serif'],
       },
     },
   },
