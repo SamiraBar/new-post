@@ -11,7 +11,7 @@ const AboutCompany = () => {
 
         <CardHeader className="text-center md:text-left">
           <CardTitle className="text-2xl md:text-3xl font-semibold mb-3">
-            Биз жонундо / О компании
+            Биз жөнүндө / О компании
           </CardTitle>
           <Separator className="bg-amber-600 mb-4" />
         </CardHeader>

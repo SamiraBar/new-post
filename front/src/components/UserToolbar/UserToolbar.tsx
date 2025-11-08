@@ -12,8 +12,8 @@ import icWhatsapp from "../../assets/cosialIcons/WhatsApp1.png";
 import icInstagram from "../../assets/cosialIcons/Instagram1.png";
 
 const renderText: { kg: string; ru: string; link: string }[] = [
-  { kg: "Маанилуу маалымат", ru: "Важная информация", link: "#important-info" },
-  { kg: "Биз жонундо", ru: "О компании", link: "#about" },
+  { kg: "Маанилүү маалымат", ru: "Важная информация", link: "#important-info" },
+  { kg: "Биз жөнүндө", ru: "О компании", link: "#about" },
   { kg: "Байланыштар", ru: "Контакты", link: "#" },
 ];
 
@@ -36,7 +36,7 @@ const UserToolbar = () => {
     setState(prev => ({ ...prev, isMenuOpen: false }));
 
   return (
-    <header className="w-full bg-white shadow-sm sticky top-0 z-5">
+    <header className="w-full bg-white shadow-sm sticky top-0 z-50 font-medium">
       <div className="container mx-auto px-4">
         <NavigationMenu className="w-full py-3 md:py-4 max-w-none [&>div]:w-full">
           <NavigationMenuList className="w-full max-w-none gap-12 m-0">
@@ -59,28 +59,23 @@ const UserToolbar = () => {
                       onMouseEnter={() => handleMouseEnter(index)}
                       onMouseLeave={handleMouseLeave}
                       onClick={handleAnchorClick}
-                      className="group flex flex-col items-center text-center transition-colors cursor-pointer"
+                      className={`group flex flex-col items-center text-center transition-colors cursor-pointer font-semibold ${
+                        state.hoveredIndex === index ? "text-[#FF4F00]" : "text-black"
+                      }`}
                     >
-                      <span
-                        className={`sm:text-sm md:text-lg lg:text-xl font-semibold leading-tight transition-colors ${
-                          state.hoveredIndex === index ? "text-[#FF4F00]" : "text-black"
-                        }`}
-                      >
-                        {text.kg}
-                      </span>
-                      <span
-                        className={`sm:text-xs md:text-sm lg:text-lg transition-colors ${
-                          state.hoveredIndex === index ? "text-[#FF4F00]" : "text-gray-600"
-                        }`}
-                      >
-                        {text.ru}
-                      </span>
+      <span className="sm:text-sm md:text-lg lg:text-xl leading-tight">
+        {text.kg}
+      </span>
+                      <span className="sm:text-sm md:text-lg lg:text-xl leading-tight">
+        {text.ru}
+      </span>
                     </a>
                   </li>
                 ))}
               </ul>
             </NavigationMenuItem>
-            <NavigationMenuItem className="flex items-center gap-12">
+
+            <NavigationMenuItem className="flex items-center gap-8">
               <div className="flex gap-2">
                 <a href="#" aria-label="WhatsApp">
                   <img
@@ -122,8 +117,8 @@ const UserToolbar = () => {
                     onClick={handleAnchorClick}
                     className="flex flex-col px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    <span className="text-base font-semibold text-gray-900">{text.kg}</span>
-                    <span className="text-sm text-gray-600">{text.ru}</span>
+                    <span className="text-base font-bold text-gray-900">{text.kg}</span>
+                    <span className="text-sm font-light text-gray-600">{text.ru}</span>
                   </a>
                 </li>
               ))}
