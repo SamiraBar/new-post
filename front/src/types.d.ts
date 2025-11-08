@@ -12,3 +12,17 @@ export interface LoginMutation {
   email: string;
   password: string;
 }
+
+export interface Office {
+  id: number;
+  name: string;
+  address: string;
+}
+
+export interface CalculatorState {
+  weight: number;
+  value: number;
+  deliveryCost: number;
+  insuranceCost: number;
+  totalCost: number;
+}
