@@ -11,7 +11,7 @@ export interface IParcel extends mongoose.Document {
     recipient: mongoose.Types.ObjectId | IRecipient;
     originCity: string;
     destinationCity: string;
-    status: 'создан' | 'принят' | 'Отправлен в город назначения';
+    status: 'created' | 'in_transit' | 'delivered';
     isPaid: boolean;
     partnerStickerReceived: boolean;
     weight: number;
@@ -25,7 +25,7 @@ export interface IParcel extends mongoose.Document {
 const ParcelSchema = new Schema({
     trackingNumber: {
         type: String,
-        required: [true, 'Трек-номер обязательное поле'],
+        required: [true, 'Tracking number is required'],
         unique: true
     },
     partnerTrackingNumber: {
@@ -58,11 +58,11 @@ const ParcelSchema = new Schema({
     },
     originCity: {
         type: String,
-        required: [true, 'Город отправления обязательное поле']
+        required: [true, 'Origin city is required']
     },
     destinationCity: {
         type: String,
-        required: [true, 'Город назначения обязательное поле']
+        required: [true, 'Destination city is required']
     },
     status: {
         type: String,
@@ -79,13 +79,13 @@ const ParcelSchema = new Schema({
     },
     weight: {
         type: Number,
-        required: [true, 'Вес обязательное поле'],
-        min: [0.1, 'Вес должен быть больше 0']
+        required: [true, 'Weight is required'],
+        min: [0.1, 'Weight must be greater than 0']
     },
     declaredValue: {
         type: Number,
         default: 0,
-        min: [0, 'Оценочная стоимость не может быть отрицательной']
+        min: [0, 'Declared value cannot be negative']
     }
 }, {
     timestamps: true

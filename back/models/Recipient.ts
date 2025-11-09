@@ -11,19 +11,19 @@ export interface IRecipient extends mongoose.Document {
 const RecipientSchema = new mongoose.Schema({
     fullName: {
         type: String,
-        required: [true, 'ФИО получателя обязательное поле']
+        required: [true, 'Recipient full name is required']
     },
     phoneNumber: {
         type: String,
-        required: [true, 'Телефон получателя обязательное поле'],
+        required: [true, 'Recipient phone number is required'],
     },
     email: {
         type: String,
-        required: [true, 'Email получателя обязательное поле']
+        required: [true, 'Recipient email is required']
     },
     address: {
         type: String,
-        required: [true, 'Адрес получателя обязательное поле']
+        required: [true, 'Recipient address is required']
     }
 }, {
     timestamps: true
