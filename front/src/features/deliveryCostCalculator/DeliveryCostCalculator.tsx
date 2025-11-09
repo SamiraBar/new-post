@@ -1,5 +1,4 @@
 import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field.tsx';
-import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
 import { type ChangeEvent, type FormEvent, useCallback, useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input.tsx';
@@ -8,11 +7,11 @@ import {
   ArrowLeft,
   ArrowRight,
   CircleAlert,
-  Clock,
+  Clock, DollarSign,
   HandCoins,
-  MapPin,
+  MapPin, Package,
   SearchIcon,
-  TriangleAlert,
+  TriangleAlert, User, UserCheck,
   Weight
 } from 'lucide-react';
 import TruckIconA from '@/features/deliveryCostCalculator/components/icons/TruckIconA.tsx';
@@ -21,6 +20,10 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import { toast, Toaster } from 'sonner';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group.tsx';
+import { Label } from '@/components/ui/label.tsx';
+import { Checkbox } from '@/components/ui/checkbox.tsx';
+import type { Order } from '@/types';
 
 const cities = ['Bishkek', 'Osh', 'Karakol', 'Naryn'];
 const BASE_PRICE = 600;
@@ -91,38 +94,20 @@ const offices = [
   },
 ];
 
-interface User {
-  name: string;
-  email: string;
-  phone: string;
-}
 
-interface Order {
-  originCity: string;
-  destinationCity: string;
-  originOffice: number;
-  destinationOffice: number;
-  parcelValue: number;
-  parcelWeight: number;
-  deliveryCost: number;
-  insuranceCost: number;
-  totalCost: number;
-  deliveryDate: string;
-  inParcel: string;
-  sender: User | null;
-  receiver: User | null;
-}
 
 const DeliveryCostCalculator = () => {
   const [citySearch, setCitySearch] = useState<{ origin: string, destination: string }>({
     origin: '',
     destination: ''
   });
-
+  const doorDelivery = false;
   const [currentStep, setCurrentStep] = useState(1);
   const [destinationOfficeSearch, setDestinationOfficeSearch] = useState('');
+  const [isAgreed, setIsAgreed] = useState(false);
 
   const [order, setOrder] = useState<Order>({
+
     originCity: '',
     destinationCity: '',
     originOffice: 0,
@@ -143,6 +128,7 @@ const DeliveryCostCalculator = () => {
       name: '',
       email: '',
       phone: '',
+      address: '',
     },
   });
 
@@ -217,10 +203,10 @@ const DeliveryCostCalculator = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!validateOrder()) return;
+    toast.success('Subject submitted successfully');
   };
 
-  const onHandleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const onHandleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 
     const {
       name,
@@ -232,6 +218,25 @@ const DeliveryCostCalculator = () => {
     }));
   };
 
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, userType?: 'sender' | 'receiver') => {
+    const { name, value } = e.target;
+
+    if (userType) {
+      setOrder((prevOrder) => ({
+        ...prevOrder,
+        [userType]: {
+          ...prevOrder[userType],
+          [name]: value
+        }
+      }));
+    } else {
+      setOrder((prevOrder) => ({
+        ...prevOrder,
+        [name]: value
+      }));
+    }
+  };
+
   const handleNext = () => {
     if (currentStep === 1) {
       if (!validateOrder()) return;
@@ -240,16 +245,41 @@ const DeliveryCostCalculator = () => {
       if (!order.originOffice) {
         return toast.error('Жиберүү кеңсесин тандаңыз / Выберите офис отправки');
       }
+      if (doorDelivery) {
+        return setCurrentStep(4);
+      }
       setCurrentStep(3);
     } else if (currentStep === 3) {
+      if (!order.destinationOffice) {
+        return toast.error('Алуучу кеңсесин тандаңыз / Выберите офис получателя');
+      }
       setCurrentStep(4);
     } else if (currentStep === 4) {
+      if (!order.sender.name) {
+        return toast.error('Жиберүүчүнүн атын киргизиңиз / Введите имя отправителя');
+      } else if (!order.sender.email) {
+        return toast.error('Жиберүүчүнүн emailин киргизиңиз / Введите email отправителя');
+      } else if (!order.sender.phone) {
+        return toast.error('Жиберүүчүнүн телефонун киргизиңиз / Введите телефон отправителя');
+      } else if (!order.receiver.name) {
+        return toast.error('Алуучунун атын киргизиңиз / Введите имя получателя');
+      } else if (!order.receiver.email) {
+        return toast.error('Алуучунун emailин киргизиңиз / Введите email получателя');
+      } else if (!order.receiver.phone) {
+        return toast.error('Алуучунун телефонун киргизиңиз / Введите телефон получателя');
+      } else if (doorDelivery && !order.receiver.address) {
+        return toast.error('Алуучунун дарегин киргизиңиз / Введите адрес получателя');      }
       setCurrentStep(5);
+    } else if (currentStep === 5) {
+      // soon
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
+      if (doorDelivery && currentStep === 4) {
+        return setCurrentStep(2);
+      }
       setCurrentStep(currentStep - 1);
     }
   };
@@ -440,6 +470,7 @@ const DeliveryCostCalculator = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5">
         {offices.map((office) => (
           <button
+            type="button"
             key={office.id}
             onClick={() => setOrder(prev => ({
               ...prev,
@@ -474,37 +505,51 @@ const DeliveryCostCalculator = () => {
       <h3 className="text-2xl font-bold text-center mb-8">
         Алуучунун офисин тандоо / Выбрать офис получателя
       </h3>
-      <div>
-        <div>
-          <InputGroup className="bg-white">
-            <InputGroupInput placeholder="Поиск отделения"
-                             onChange={(e: ChangeEvent<HTMLInputElement>) => setDestinationOfficeSearch(e.target.value)}
-                             value={destinationOfficeSearch}/>
-            <InputGroupAddon align="inline-end">
-              <SearchIcon/>
-            </InputGroupAddon>
-          </InputGroup>
-          <ScrollArea className="mt-4 h-[35vh] pr-5">
-            {
-              filteredDestinationOffices.map((office) => (
-                <div
-                  key={office.id}
-                  className="flex items-center gap-2 bg-white mb-1 p-2 rounded-lg cursor-pointer shadow-sm hover:shadow-md transition-shadow duration-300"
-                  onClick={() => setOrder(prev => ({...prev, destinationOffice: office.id}))}
-                >
-                  <Checkbox
-                    className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-0 size-5"
-                    size="size-5"
-                    checked={order.destinationOffice === office.id}
-                  />
-                  <MapPin className="size-4"/>
-                  <div className="text-[16] font-medium">{office.name}</div>
+
+      <InputGroup className="bg-white">
+        <InputGroupInput
+          placeholder="Поиск отделения"
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setDestinationOfficeSearch(e.target.value)}
+          value={destinationOfficeSearch}
+        />
+        <InputGroupAddon align="inline-end">
+          <SearchIcon/>
+        </InputGroupAddon>
+      </InputGroup>
+
+      <ScrollArea className="mt-4 h-[35vh] pr-5">
+        {filteredDestinationOffices.length > 0 ? (
+          <RadioGroup
+            value={order.destinationOffice?.toString()}
+            onValueChange={(value) => setOrder(prev => ({...prev, destinationOffice: Number(value)}))}
+          >
+            {filteredDestinationOffices.map((office) => (
+              <Label
+                key={office.id}
+                htmlFor={`office-${office.id}`}
+                className="flex items-center gap-3 bg-white p-4 rounded-xl cursor-pointer shadow-sm hover:shadow-lg hover:scale-[0.99] transition-all duration-200 mb-1 border-2 border-transparent data-[state=checked]:border-orange-500 data-[state=checked]:bg-orange-50"
+              >
+                <RadioGroupItem
+                  value={office.id.toString()}
+                  id={`office-${office.id}`}
+                  className="border-2 border-gray-300 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+                />
+                <div className="flex items-center gap-2 flex-1">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <MapPin className="size-5 text-orange-600"/>
+                  </div>
+                  <span className="font-medium text-gray-800">{office.name}</span>
                 </div>
-              ))
-            }
-          </ScrollArea>
-        </div>
-      </div>
+              </Label>
+            ))}
+          </RadioGroup>
+        ) : (
+          <div className="text-center text-gray-500 py-8">
+            <MapPin className="size-12 mx-auto mb-2 opacity-30"/>
+            <p>Офис не найден</p>
+          </div>
+        )}
+      </ScrollArea>
     </div>
   );
   const renderStep4 = () => (
@@ -515,22 +560,36 @@ const DeliveryCostCalculator = () => {
       <div>
         <FieldGroup>
           <FieldSet>
-            <div className="grid grid-cols-1 sm:grid-cols-2 grid-c gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FieldGroup className="gap-3">
                 <FieldLabel>Жиберүүчү / Отправитель</FieldLabel>
-                <Input placeholder="Аты-жөнү / ФИО" className="bg-gray-100" />
-                <Input placeholder="Телфон" className="bg-gray-100" required/>
-                <Input placeholder="Email" className="bg-gray-100" required/>
+                <Input placeholder="Аты-жөнү / ФИО" className="bg-gray-100" name="name" onChange={(e) => handleChange(e, 'sender')} value={order.sender.name} />
+                <Input placeholder="Телфон +996" className="bg-gray-100" name="phone" onChange={(e) => handleChange(e, 'sender')} value={order.sender.phone} />
+                <Input placeholder="Email" className="bg-gray-100" name="email" onChange={(e) => handleChange(e, 'sender')} value={order.sender.email} />
               </FieldGroup>
+
               <FieldGroup className="gap-3">
-                <FieldLabel>Жиберүүчү / Отправитель</FieldLabel>
-                <Input placeholder="Аты-жөнү / ФИО" className="bg-gray-100" required/>
-                <Input placeholder="Телфон" className="bg-gray-100" required/>
-                <Input placeholder="Email" className="bg-gray-100" required/>
+                <FieldLabel>Алуучу / Получатель</FieldLabel>
+                <Input placeholder="Аты-жөнү / ФИО" className="bg-gray-100" name="name" onChange={(e) => handleChange(e, 'receiver')} value={order.receiver.name} />
+                <Input placeholder="Телфон +996" className="bg-gray-100" name="phone" onChange={(e) => handleChange(e, 'receiver')} value={order.receiver.phone} />
+                <Input placeholder="Email" className="bg-gray-100" name="email" onChange={(e) => handleChange(e, 'receiver')} value={order.receiver.email} />
+                {doorDelivery && (
+                  <Textarea
+                    placeholder="Алуучунун толук дареги, мисалы: Бишкек шаары, Фрунзе көчөсү, 123-үй Подробный адрес Получателя например: город Белгород, проспект Фрунзе дом 123"
+                    className="bg-gray-100"
+                    name="address"
+                    onChange={(e) => handleChange(e, 'receiver')}
+                    value={order.receiver.address}
+                  />
+                )}
               </FieldGroup>
+
               <Textarea
                 className="col-span-1 sm:col-span-2 w-full bg-gray-100"
-                placeholder="Посылканын ичиндеги тизмеси / Содержимое посылки" required
+                placeholder="Посылканын ичиндеги тизмеси / Содержимое посылки"
+                name="inParcel"
+                onChange={onHandleChange}
+                value={order.inParcel}
               />
             </div>
           </FieldSet>
@@ -540,15 +599,15 @@ const DeliveryCostCalculator = () => {
   );
   const renderStep5 = () => (
     <div className="w-full pt-5">
-      <div className="flex items-center gap-2 p-3 rounded-2xl bg-blue-400/30 border border-yellow-300">
+      <div className="flex items-center gap-2 p-3 rounded-2xl bg-blue-400/30 border border-yellow-300 mb-6">
         <CircleAlert strokeWidth={2.5} className="text-yellow-600 mt-1"/>
         <div>
           <p className="font-medium text-yellow-800">
             Сураныч, алуучунун жана жөнөтүүчүнүн маалыматтарын так текшериңиз.
           </p>
           <p className="text-sm text-gray-700">
-            Башка өлкөгө жөнөткөндө, эгер аты-жөнү туура эмес жазылса, посылканы жеткирүүдөн же берүүдөн баш тартылышы
-            мүмкүн. </p>
+            Башка өлкөгө жөнөткөндө, эгер аты-жөнү туура эмес жазылса, посылканы жеткирүүдөн же берүүдөн баш тартылышы мүмкүн.
+          </p>
           <hr className="my-2 border-yellow-200"/>
           <p className="font-medium text-yellow-800">
             Пожалуйста, проверьте данные получателя и отправителя.
@@ -560,16 +619,122 @@ const DeliveryCostCalculator = () => {
       </div>
 
       <h3 className="text-2xl font-bold text-center mb-8">
-        Подтверждение отправки
+        Маалыматты ырастоо / Подтверждение данных
       </h3>
-      <div>
 
+      <div className="space-y-6">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
+            <MapPin className="text-orange-500"/>
+            Маршрут / Маршрут
+          </h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-gray-500">Кайдан / Откуда</p>
+              <p className="font-semibold">{order.originCity}</p>
+              <p className="text-sm text-gray-600">Офис #{order.originOffice}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Кайда / Куда</p>
+              <p className="font-semibold">{order.destinationCity}</p>
+              {doorDelivery ? (
+                <p className="text-sm text-gray-600">{doorDelivery ? 'Адрес' : 'Офис'} #{order.receiver.address}</p>
+              ) : <p className="text-sm text-gray-600">Офис #{order.destinationOffice}</p>}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
+            <Package className="text-orange-500"/>
+            Посылка туурасында / О посылке
+          </h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-gray-500">Жарыяланган наркы / Объявленная стоимость</p>
+              <p className="font-semibold">{order.parcelValue} сом</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Салмагы / Вес</p>
+              <p className="font-semibold">{order.parcelWeight} кг</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Ичинде / Содержимое</p>
+              <p className="font-semibold">{order.inParcel || 'Не указано'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Жеткирүү датасы / Дата доставки</p>
+              <p className="font-semibold">{order.deliveryDate || 'Не указано'}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
+            <User className="text-orange-500"/>
+            Жиберүүчү / Отправитель
+          </h4>
+          <div className="space-y-2">
+            <div>
+              <p className="text-sm text-gray-500">ФИО</p>
+              <p className="font-semibold">{order.sender.name}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Email</p>
+              <p className="font-semibold">{order.sender.email}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Телефон</p>
+              <p className="font-semibold">{order.sender.phone}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
+            <UserCheck className="text-orange-500"/>
+            Алуучу / Получатель
+          </h4>
+          <div className="space-y-2">
+            <div>
+              <p className="text-sm text-gray-500">ФИО</p>
+              <p className="font-semibold">{order.receiver.name}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Email</p>
+              <p className="font-semibold">{order.receiver.email}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Телефон</p>
+              <p className="font-semibold">{order.receiver.phone}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 shadow-sm border-2 border-orange-300">
+          <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
+            <DollarSign className="text-orange-600"/>
+            Баасы / Стоимость
+          </h4>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <p className="text-gray-700">Доставка</p>
+              <p className="font-semibold">{order.deliveryCost} сом</p>
+            </div>
+            <div className="flex justify-between">
+              <p className="text-gray-700">Страховка</p>
+              <p className="font-semibold">{order.insuranceCost} сом</p>
+            </div>
+            <hr className="border-orange-300"/>
+            <div className="flex justify-between text-xl">
+              <p className="font-bold text-orange-700">Жалпы / Итого</p>
+              <p className="font-bold text-orange-700">{order.totalCost} сом</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
-
-  console.log(order);
-  console.log(currentStep);
 
   return (
     <div className="container" id={'calculator'}>
@@ -579,61 +744,81 @@ const DeliveryCostCalculator = () => {
       </h3>
 
       <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
-        <div className="flex justify-center mb-8">
-          <div className="flex items-center gap-4">
-            <div
-              className={`flex items-center justify-center w-10 h-10 rounded-full ${currentStep >= 1 ? 'bg-orange-500 text-white' : 'bg-gray-300'}`}>
-              1
+        <div className="flex flex-col items-center w-full mb-8 px-4">
+          <div className="relative flex justify-between items-center w-full max-w-2xl">
+            <div className="absolute top-1/2 left-0 w-full h-[3px] bg-gray-200 -translate-y-1/2 rounded-full">
+              <div
+                className="h-[3px] bg-orange-500 rounded-full transition-all duration-500"
+                style={{ width: `${((currentStep - 1) / 4) * 100}%` }}
+              />
             </div>
-            <div className={`w-20 h-1 ${currentStep >= 2 ? 'bg-orange-500' : 'bg-gray-300'}`}></div>
-            <div
-              className={`flex items-center justify-center w-10 h-10 rounded-full ${currentStep >= 2 ? 'bg-orange-500 text-white' : 'bg-gray-300'}`}>
-              2
-            </div>
-            <div className={`w-20 h-1 ${currentStep >= 3 ? 'bg-orange-500' : 'bg-gray-300'}`}></div>
-            <div
-              className={`flex items-center justify-center w-10 h-10 rounded-full ${currentStep >= 3 ? 'bg-orange-500 text-white' : 'bg-gray-300'}`}>
-              3
-            </div>
-            <div className={`w-20 h-1 ${currentStep >= 4 ? 'bg-orange-500' : 'bg-gray-300'}`}></div>
-            <div
-              className={`flex items-center justify-center w-10 h-10 rounded-full ${currentStep >= 4 ? 'bg-orange-500 text-white' : 'bg-gray-300'}`}>
-              4
-            </div>
-            <div className={`w-20 h-1 ${currentStep >= 5 ? 'bg-orange-500' : 'bg-gray-300'}`}></div>
-            <div
-              className={`flex items-center justify-center w-10 h-10 rounded-full ${currentStep >= 5 ? 'bg-orange-500 text-white' : 'bg-gray-300'}`}>
-              5
-            </div>
+            {(doorDelivery ? [1, 2, 3, 4] : [1, 2, 3, 4, 5]).map((step) => (
+              <div key={step} className="relative flex flex-col items-center">
+                <div
+                  className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold text-sm sm:text-base z-10 transition-all duration-300 ${
+                    currentStep >= step
+                      ? 'bg-orange-500 text-white shadow-md scale-105'
+                      : 'bg-gray-300 text-gray-600'
+                  }`}
+                >
+                  {step}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-        <form onSubmit={handleSubmit}>
+
+        <div>
           {currentStep === 1 && renderStep1()}
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
           {currentStep === 4 && renderStep4()}
           {currentStep === 5 && renderStep5()}
           {currentStep > 1 && (
-            <div className="flex justify-between mt-8 px-5">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 px-5">
               <Button
+                type="button"
                 onClick={handleBack}
-                className="flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3"
+                className="flex items-center gap-2 w-full sm:w-auto justify-center bg-gray-500 hover:bg-gray-600 text-white px-6 py-3"
               >
-                <ArrowLeft size={20}/>
+                <ArrowLeft size={20} />
                 <span>Артка / Назад</span>
               </Button>
-
-              {currentStep <= 5 && (
+              {currentStep === 4 && (
+                <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-none">
+                  <Checkbox
+                    checked={isAgreed}
+                    onCheckedChange={() => setIsAgreed(!isAgreed)}
+                  />
+                  <Label className="text-sm text-gray-600 leading-tight">
+                    Мен жеке маалыматтарды иштетүүгө макулмун<br />
+                    Я согласен на обработку персональных данных
+                  </Label>
+                </div>
+              )}
+              {currentStep === 5 ? (
                 <Button
+                  type="button"
+                  disabled={!isAgreed}
+                  className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  onClick={handleSubmit}
+                >
+                  <span>Төлөө / Оплата</span>
+                  <ArrowRight size={20} />
+                </Button>
+              ) : (
+                <Button
+                  type="button"
                   onClick={handleNext}
-                  // disabled={}
-                  className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  disabled={currentStep === 4 && !isAgreed}
+                  className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   <span>{currentStep === 5 ? 'Төлөө / Оплата' : 'Алдыга / Вперед'}</span>
-                  <ArrowRight size={20}/>
+                  <ArrowRight size={20} />
                 </Button>
               )}
             </div>
+
           )}
           {currentStep === 1 && (
             <div className="flex flex-col gap-5 mt-10 text-sm md:text-base px-1 sm:px-5">
@@ -662,7 +847,7 @@ const DeliveryCostCalculator = () => {
               </div>
             </div>
           )}
-        </form>
+        </div>
       </div>
     </div>
   );
