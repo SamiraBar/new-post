@@ -2,6 +2,7 @@ import AdminToolbar from '@/features/AdminPanel/components/AdminToolbar.tsx';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import ParcelsList from '@/features/parcels/ParcelsList';
 
 const AdminPanel = () => {
   const admin = useAdminStore((s) => s.admin);
@@ -14,10 +15,10 @@ const AdminPanel = () => {
   }, [navigate, admin]);
 
   return (
-    <>
+    <div className="container">
       <AdminToolbar />
-      <h1 className={'mx-auto my-10 max-w-6xl'}>Панель администратора</h1>
-    </>
+      <ParcelsList />
+    </div>
   );
 };
 
