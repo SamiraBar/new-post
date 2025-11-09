@@ -1,22 +1,23 @@
-import {Button} from "@/components/ui/button.tsx";
+import { Button } from '@/components/ui/button.tsx';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from "@/components/ui/dialog.tsx";
-import {Label} from "@/components/ui/label";
-import {DatabaseIcon} from "lucide-react";
-import {NavigationMenuItem} from "@/components/ui/navigation-menu.tsx";
-import useFileStore from "@/stores/fileStore/fileStore.ts";
-import {type ChangeEvent} from "react";
-import {toast} from "sonner";
-import FileInput from "../../ui/FileInput.tsx";
+  DialogTrigger,
+} from '@/components/ui/dialog.tsx';
+import { Label } from '@/components/ui/label.tsx';
+import { DatabaseIcon } from 'lucide-react';
+import { NavigationMenuItem } from '@/components/ui/navigation-menu.tsx';
+import useFileStore from '@/stores/fileStore/fileStore.ts';
+import { type ChangeEvent } from 'react';
+import { toast } from 'sonner';
+import FileInput from '../../../components/ui/FileInput.tsx';
 
 const ModalFile = () => {
-  const {handFile, pvzFile, setPvzFile, setHandFile, uploadFiles, loadingPvz, loadingHand} = useFileStore();
+  const { handFile, pvzFile, setPvzFile, setHandFile, uploadFiles, loadingPvz, loadingHand } =
+    useFileStore();
 
   const handlePvzChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
@@ -28,11 +29,11 @@ const ModalFile = () => {
     setHandFile(file);
   };
 
-  const handleUpload = async (type: "PVZ" | "Hand") => {
+  const handleUpload = async (type: 'PVZ' | 'Hand') => {
     toast.promise(uploadFiles(type), {
-      loading: "Отправка...",
-      success: "База успешно обновлена",
-      error: (err) => err instanceof Error ? err.message : "Ошибка отправки",
+      loading: 'Отправка...',
+      success: 'База успешно обновлена',
+      error: (err) => (err instanceof Error ? err.message : 'Ошибка отправки'),
     });
   };
 
@@ -42,9 +43,9 @@ const ModalFile = () => {
         <NavigationMenuItem className="hidden sm:inline-flex">
           <Button
             className="bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700"
-            size={"icon"}
+            size={'icon'}
           >
-            <DatabaseIcon/>
+            <DatabaseIcon />
           </Button>
         </NavigationMenuItem>
       </DialogTrigger>
@@ -59,25 +60,33 @@ const ModalFile = () => {
           <div className="grid gap-3">
             <Label htmlFor="PVZ">Тарифы для доставки в ПВЗ</Label>
             <div className="flex w-full max-w-sm items-center gap-2">
-              <FileInput id="PVZ" name="PVZ" onChange={handlePvzChange} file={pvzFile}/>
+              <FileInput id="PVZ" name="PVZ" onChange={handlePvzChange} file={pvzFile} />
               <Button
-                className={"bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700"}
+                className={
+                  'bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700'
+                }
                 type="button"
                 disabled={loadingPvz}
-                onClick={() => handleUpload("PVZ")}
-              >Отправить </Button>
+                onClick={() => handleUpload('PVZ')}
+              >
+                Отправить{' '}
+              </Button>
             </div>
           </div>
           <div className="grid gap-3">
             <Label htmlFor="Hand">Тарифы для личной доставки</Label>
             <div className="flex w-full max-w-sm items-center gap-2">
-              <FileInput id="Hand" name="Hand" onChange={handleHandChange} file={handFile}/>
+              <FileInput id="Hand" name="Hand" onChange={handleHandChange} file={handFile} />
               <Button
-                className={"bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700"}
+                className={
+                  'bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700'
+                }
                 type="button"
                 disabled={loadingHand}
-                onClick={() => handleUpload("Hand")}
-              >Отправить</Button>
+                onClick={() => handleUpload('Hand')}
+              >
+                Отправить
+              </Button>
             </div>
           </div>
         </div>

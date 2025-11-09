@@ -3,11 +3,8 @@ import { Separator } from '@/components/ui/separator';
 
 const ImportantInfo = () => {
   return (
-    <section
-      id="important-info"
-      className="w-full px-4 py-10 max-w-full sm:max-w-xl md:max-w-5xl mx-auto"
-    >
-      <Card className="flex flex-col p-6 md:p-8 shadow-md rounded-2xl transition-transform transform hover:scale-105">
+    <section id="important-info" className="container">
+      <Card className="flex flex-col p-6 md:p-8 shadow-md rounded-2xl transition-transform transform duration-700 hover:scale-[1.02]">
         <CardHeader className="text-center md:text-left">
           <CardTitle className="text-2xl md:text-3xl font-semibold mb-3">
             Маанилүү маалымат / Важная информация

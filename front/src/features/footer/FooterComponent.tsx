@@ -1,11 +1,10 @@
 import logo from '../../assets/logo/newPostLogo.jpeg';
-import whatsappIcon from '../../assets/cosialIcons/whatsapp.png';
-import instagramIcon from '../../assets/cosialIcons/instagram.png';
-import facebookIcon from '../../assets/cosialIcons/facebook.png';
+import whatsappIcon from '../../assets/cosialIcons/WhatsApp.png';
+import instagramIcon from '../../assets/cosialIcons/Instagram.png';
 
 const FooterComponent = () => {
   return (
-    <footer className="w-full mt-10 py-6 px-4">
+    <footer className="w-full bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.1)] sticky mt-10 py-6">
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
         <div className="flex-shrink-0">
           <img
@@ -22,7 +21,7 @@ const FooterComponent = () => {
           <p>ОСОО “Новая Почта”, г. Бишкек, ул. Льва Толстого 24/1</p>
           <p>
             Телефон:{' '}
-            <a href="tel:+996778465557" className="hover:text-blue-600">
+            <a href="tel:+996778465557" className="hover:text-blue-600 ">
               +996 778 465 557
             </a>
           </p>
@@ -44,7 +43,7 @@ const FooterComponent = () => {
             <img
               src={whatsappIcon}
               alt="WhatsApp"
-              className="rounded-full w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 transition-transform hover:scale-110"
+              className="rounded-full w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 transition-transform duration-700 hover:scale-110"
             />
           </a>
 
@@ -57,20 +56,7 @@ const FooterComponent = () => {
             <img
               src={instagramIcon}
               alt="Instagram"
-              className="rounded-full w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 transition-transform hover:scale-110"
-            />
-          </a>
-
-          <a
-            href="https://www.facebook.com/your_facebook_here"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Facebook"
-          >
-            <img
-              src={facebookIcon}
-              alt="Facebook"
-              className="rounded-full w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 transition-transform hover:scale-110"
+              className="rounded-full w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 transition-transform duration-700 hover:scale-110"
             />
           </a>
         </div>
