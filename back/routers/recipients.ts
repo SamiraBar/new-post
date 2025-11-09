@@ -1,11 +1,11 @@
-import express, { Request, Response } from "express";
+import express, {NextFunction, Request, Response} from "express";
 import Recipient from "../models/Recipient";
 import mongoose from "mongoose";
 import auth from "../middleware/auth";
 
 const recipientsRouter = express.Router();
 
-recipientsRouter.post("/",auth, async (req, res, next) => {
+recipientsRouter.post("/",auth, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { fullName, phoneNumber, email, address } = req.body;
 
@@ -35,7 +35,7 @@ recipientsRouter.post("/",auth, async (req, res, next) => {
     }
 });
 
-recipientsRouter.get("/",auth, async (req, res, next) => {
+recipientsRouter.get("/",auth, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const recipients = await Recipient.find().sort({ createdAt: -1 });
 
@@ -53,7 +53,7 @@ recipientsRouter.get("/",auth, async (req, res, next) => {
     }
 });
 
-recipientsRouter.get("/:id",auth, async (req, res, next) => {
+recipientsRouter.get("/:id",auth, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
 
