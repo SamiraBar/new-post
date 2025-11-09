@@ -2,13 +2,14 @@ import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuList,
-} from '@/components/ui/navigation-menu';
+} from '@/components/ui/navigation-menu.tsx';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { type ChangeEvent, useState } from 'react';
 import logoImage from '@/assets/logo/newPostLogo.jpeg';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
+import ModalFile from '@/features/AdminPanel/components/ModalFile.tsx';
 
 export const AdminToolbar = () => {
   const { logout } = useAdminStore();
@@ -25,11 +26,11 @@ export const AdminToolbar = () => {
   };
 
   return (
-    <NavigationMenu className="mx-auto py-3">
-      <NavigationMenuList className="flex-col sm:flex-row flex-wrap items-center  md:justify-between w-full gap-2.5">
+    <NavigationMenu className="w-full py-3 md:py-4 max-w-none [&>div]:w-full container">
+      <NavigationMenuList className="flex-col sm:flex-row flex-wrap items-center  md:justify-between w-full gap-2.5 py-5">
         <NavigationMenuItem className="flex gap-5">
           <Link to={'/admin'}>
-            <img src={logoImage} alt="logo" style={{ width: '60px', minWidth: '60px' }} />
+            <img src={logoImage} alt="logo" style={{ width: '100px', minWidth: '60px' }} />
           </Link>
 
           <Button className="inline-block sm:hidden bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700">
@@ -45,7 +46,7 @@ export const AdminToolbar = () => {
             placeholder="Трек номер посылки"
             value={search.trackNumber}
             onChange={inputChangeHandler}
-            className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1"
+            className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1 w-64"
           />
         </NavigationMenuItem>
         <NavigationMenuItem>
@@ -56,7 +57,7 @@ export const AdminToolbar = () => {
             placeholder="ФИО отправителя"
             value={search.sender}
             onChange={inputChangeHandler}
-            className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1"
+            className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1 w-64"
           />
         </NavigationMenuItem>
         <NavigationMenuItem>
@@ -67,9 +68,11 @@ export const AdminToolbar = () => {
             placeholder="ФИО получателя"
             value={search.receiver}
             onChange={inputChangeHandler}
-            className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1"
+            className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1 w-64"
           />
         </NavigationMenuItem>
+
+        <ModalFile />
 
         <NavigationMenuItem className="hidden sm:inline-flex">
           <Button

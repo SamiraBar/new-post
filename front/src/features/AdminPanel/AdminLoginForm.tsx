@@ -1,7 +1,13 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button.tsx';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card.tsx';
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field.tsx';
+import { Input } from '@/components/ui/input.tsx';
 import { type ChangeEvent, type FormEvent, useState } from 'react';
 import type { LoginMutation } from '@/types';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
@@ -54,6 +60,7 @@ const AdminLoginForm = () => {
                   value={state.email}
                   placeholder="m@example.com"
                   onChange={inputChangeHandler}
+                  className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1"
                   required
                 />
               </Field>
@@ -69,6 +76,7 @@ const AdminLoginForm = () => {
                   name="password"
                   value={state.password}
                   onChange={inputChangeHandler}
+                  className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1"
                   required
                 />
               </Field>

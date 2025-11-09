@@ -1,4 +1,4 @@
-import AdminToolbar from '@/components/AdminPanel/features/AdminToolbar.tsx';
+import AdminToolbar from '@/features/AdminPanel/components/AdminToolbar.tsx';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
