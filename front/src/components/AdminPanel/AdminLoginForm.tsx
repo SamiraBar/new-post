@@ -64,6 +64,7 @@ const AdminLoginForm = () => {
                   value={state.email}
                   placeholder="m@example.com"
                   onChange={inputChangeHandler}
+                  className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1"
                   required
                 />
               </Field>
@@ -77,7 +78,9 @@ const AdminLoginForm = () => {
                   name="password"
                   value={state.password}
                   onChange={inputChangeHandler}
-                  required />
+                  className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1"
+                  required
+                />
               </Field>
 
               {loginError && (

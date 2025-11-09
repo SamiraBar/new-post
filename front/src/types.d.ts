@@ -1,16 +1,16 @@
 export interface Admin {
-    _id: string;
-    email: string;
-    token: string;
+  _id: string;
+  email: string;
+  token: string;
 }
 
 export interface GlobalError {
-    error: string;
+  error: string;
 }
 
 export interface LoginMutation {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 }
 
 interface Sender {
@@ -40,4 +40,18 @@ interface Order {
   inParcel: string;
   sender: Sender;
   receiver: Receiver;
+}
+
+export interface Office {
+  id: number;
+  name: string;
+  address: string;
+}
+
+export interface CalculatorState {
+  weight: number;
+  value: number;
+  deliveryCost: number;
+  insuranceCost: number;
+  totalCost: number;
 }
