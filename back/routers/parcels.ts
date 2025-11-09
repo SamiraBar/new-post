@@ -1,10 +1,11 @@
 import express from "express";
 import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
+import auth from "../middleware/auth";
 
 const parcelsRouter = express.Router();
 
-parcelsRouter.post("/", async (req, res, next) => {
+parcelsRouter.post("/", auth, async (req, res, next) => {
     try {
         const {
             trackingNumber,
@@ -70,7 +71,7 @@ parcelsRouter.post("/", async (req, res, next) => {
     }
 });
 
-parcelsRouter.get("/", async (req, res, next) => {
+parcelsRouter.get("/",auth, async (req, res, next) => {
     try {
         const parcels = await Parcel.find()
             .populate('sender')
@@ -87,7 +88,7 @@ parcelsRouter.get("/", async (req, res, next) => {
     }
 });
 
-parcelsRouter.get("/:id", async (req, res, next) => {
+parcelsRouter.get("/:id",auth, async (req, res, next) => {
     try {
         const { id } = req.params;
 
@@ -110,7 +111,7 @@ parcelsRouter.get("/:id", async (req, res, next) => {
     }
 });
 
-parcelsRouter.get("/tracking/:trackingNumber", async (req, res, next) => {
+parcelsRouter.get("/tracking/:trackingNumber",auth, async (req, res, next) => {
     try {
         const { trackingNumber } = req.params;
 

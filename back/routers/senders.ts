@@ -1,10 +1,11 @@
 import express from "express";
 import Sender from "../models/Sender";
 import mongoose from "mongoose";
+import auth from "../middleware/auth";
 
 const sendersRouter = express.Router();
 
-sendersRouter.post("/", async (req, res, next) => {
+sendersRouter.post("/",auth, async (req, res, next) => {
     try {
         const { fullName, phoneNumber, email, description } = req.body;
         if (!fullName || !phoneNumber || !email || !description) {
@@ -30,7 +31,7 @@ sendersRouter.post("/", async (req, res, next) => {
     }
 });
 
-sendersRouter.get("/", async (req, res, next) => {
+sendersRouter.get("/",auth, async (req, res, next) => {
     try {
         const senders = await Sender.find().sort({ createdAt: -1 });
 
@@ -44,7 +45,7 @@ sendersRouter.get("/", async (req, res, next) => {
     }
 });
 
-sendersRouter.get("/:id", async (req, res, next) => {
+sendersRouter.get("/:id",auth, async (req, res, next) => {
     try {
         const { id } = req.params;
 

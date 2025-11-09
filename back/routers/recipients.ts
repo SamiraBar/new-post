@@ -1,10 +1,11 @@
 import express, { Request, Response } from "express";
 import Recipient from "../models/Recipient";
 import mongoose from "mongoose";
+import auth from "../middleware/auth";
 
 const recipientsRouter = express.Router();
 
-recipientsRouter.post("/", async (req, res, next) => {
+recipientsRouter.post("/",auth, async (req, res, next) => {
     try {
         const { fullName, phoneNumber, email, address } = req.body;
 
@@ -29,16 +30,12 @@ recipientsRouter.post("/", async (req, res, next) => {
             recipient: newRecipient
         });
 
-    } catch (error: any) {
-        console.error("Error creating recipient:", error);
-        res.status(500).json({
-            error: "Ошибка при создании получателя",
-            details: error.message
-        });
+    } catch (e) {
+        next(e);
     }
 });
 
-recipientsRouter.get("/", async (req, res, next) => {
+recipientsRouter.get("/",auth, async (req, res, next) => {
     try {
         const recipients = await Recipient.find().sort({ createdAt: -1 });
 
@@ -56,7 +53,7 @@ recipientsRouter.get("/", async (req, res, next) => {
     }
 });
 
-recipientsRouter.get("/:id", async (req, res, next) => {
+recipientsRouter.get("/:id",auth, async (req, res, next) => {
     try {
         const { id } = req.params;
 
@@ -72,12 +69,8 @@ recipientsRouter.get("/:id", async (req, res, next) => {
 
         res.status(200).json({ recipient });
 
-    } catch (error: any) {
-        console.error("Error fetching recipient:", error);
-        res.status(500).json({
-            error: "Ошибка при получении получателя",
-            details: error.message
-        });
+    } catch (e) {
+        next(e);
     }
 });
 
