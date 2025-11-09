@@ -525,7 +525,7 @@ const DeliveryCostCalculator = () => {
         {filteredDestinationOffices.length > 0 ? (
           <RadioGroup
             value={order.destinationOffice?.toString()}
-            onValueChange={(value) => setOrder(prev => ({...prev, destinationOffice: Number(value)}))}
+            onValueChange={(value: string) => setOrder(prev => ({...prev, destinationOffice: Number(value)}))}
           >
             {filteredDestinationOffices.map((office) => (
               <Label
