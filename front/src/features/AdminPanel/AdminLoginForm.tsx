@@ -1,36 +1,32 @@
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button.tsx';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import {type ChangeEvent, type FormEvent, useState} from "react";
-import type {LoginMutation} from "@/types";
-import useAdminStore from "@/stores/adminStore/adminStore.ts";
-import {useNavigate} from "react-router-dom";
-import {Alert, AlertTitle} from "@/components/ui/alert.tsx";
-import {AlertCircleIcon} from "lucide-react";
+} from '@/components/ui/card.tsx';
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field.tsx';
+import { Input } from '@/components/ui/input.tsx';
+import { type ChangeEvent, type FormEvent, useState } from 'react';
+import type { LoginMutation } from '@/types';
+import useAdminStore from '@/stores/adminStore/adminStore.ts';
+import { useNavigate } from 'react-router-dom';
+import { Alert, AlertTitle } from '@/components/ui/alert.tsx';
+import { AlertCircleIcon } from 'lucide-react';
 
 const AdminLoginForm = () => {
   const { login, loginError, loginLoading } = useAdminStore();
   const navigate = useNavigate();
   const [state, setState] = useState<LoginMutation>({
-    email: "",
-    password: "",
-  })
+    email: '',
+    password: '',
+  });
 
   const inputChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
+    const { name, value } = e.target;
 
-    setState((prevState) => ({...prevState, [name]: value}));
+    setState((prevState) => ({ ...prevState, [name]: value }));
   };
 
   const submitFormHandler = async (e: FormEvent) => {
@@ -39,24 +35,24 @@ const AdminLoginForm = () => {
     const success = await login(state);
 
     if (success) {
-      navigate("/admin");
+      navigate('/admin');
     }
   };
 
   return (
     <div className="pt-10">
-      <Card className={"max-w-8/12 sm:max-w-6/12 mx-auto"}>
+      <Card className={'max-w-8/12 sm:max-w-6/12 mx-auto'}>
         <CardHeader>
-          <CardTitle className={"text-brand-secondary"}>Вход в админ панель</CardTitle>
-          <CardDescription>
-            Введите свою почту и пароль
-          </CardDescription>
+          <CardTitle className={'text-brand-secondary'}>Вход в админ панель</CardTitle>
+          <CardDescription>Введите свою почту и пароль</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={submitFormHandler}>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="email" className={"text-brand-secondary"}>Почта:</FieldLabel>
+                <FieldLabel htmlFor="email" className={'text-brand-secondary'}>
+                  Почта:
+                </FieldLabel>
                 <Input
                   id="email"
                   type="email"
@@ -70,7 +66,9 @@ const AdminLoginForm = () => {
               </Field>
               <Field>
                 <div className="flex items-center">
-                  <FieldLabel htmlFor="password" className={"text-brand-secondary"}>Пароль:</FieldLabel>
+                  <FieldLabel htmlFor="password" className={'text-brand-secondary'}>
+                    Пароль:
+                  </FieldLabel>
                 </div>
                 <Input
                   id="password"
@@ -93,9 +91,13 @@ const AdminLoginForm = () => {
               <Field>
                 <Button
                   type="submit"
-                  className={"bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700"}
+                  className={
+                    'bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700'
+                  }
                   disabled={loginLoading}
-                >Login</Button>
+                >
+                  Login
+                </Button>
               </Field>
             </FieldGroup>
           </form>
