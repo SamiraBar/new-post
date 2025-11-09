@@ -7,11 +7,14 @@ import {
   ArrowLeft,
   ArrowRight,
   CircleAlert,
-  Clock, DollarSign,
+  Clock,
+  DollarSign,
   HandCoins,
-  MapPin, Package,
+  MapPin,
+  Package,
   SearchIcon,
-  TriangleAlert, User, UserCheck,
+  User,
+  UserCheck,
   Weight
 } from 'lucide-react';
 import TruckIconA from '@/features/deliveryCostCalculator/components/icons/TruckIconA.tsx';
@@ -822,6 +825,7 @@ const DeliveryCostCalculator = () => {
 
           )}
           {currentStep === 1 && <WarningNotices />}
+        </div>
         </div>
       </div>
   );
