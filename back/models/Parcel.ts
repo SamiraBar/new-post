@@ -20,7 +20,6 @@ export interface IParcel extends mongoose.Document {
     recipientFullName?: string;
     recipientPhoneNumber?: string;
     createdAt: Date;
-    updatedAt: Date;
 }
 
 const ParcelSchema = new Schema({

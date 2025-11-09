@@ -3,10 +3,9 @@ import mongoose from "mongoose";
 export interface ISender extends mongoose.Document {
     fullName: string;
     phoneNumber: string;
-    city: string;
-    address: string;
+    email: string;
+    description: string;
     createdAt: Date;
-    updatedAt: Date;
 }
 
 const SenderSchema = new mongoose.Schema({
@@ -18,13 +17,13 @@ const SenderSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Телефон отправителя обязательное поле'],
     },
-    city: {
+    email: {
         type: String,
-        required: [true, 'Город отправителя обязательное поле']
+        required: [true, 'Email отправителя обязательное поле']
     },
-    address: {
+    description: {
         type: String,
-        required: [true, 'Адрес отправителя обязательное поле']
+        required: [true, 'Опишите содержимое посылки']
     }
 }, {
     timestamps: true

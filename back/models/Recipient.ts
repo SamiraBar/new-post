@@ -3,10 +3,9 @@ import mongoose from "mongoose";
 export interface IRecipient extends mongoose.Document {
     fullName: string;
     phoneNumber: string;
-    city: string;
+    email: string;
     address: string;
     createdAt: Date;
-    updatedAt: Date;
 }
 
 const RecipientSchema = new mongoose.Schema({
@@ -18,9 +17,9 @@ const RecipientSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Телефон получателя обязательное поле'],
     },
-    city: {
+    email: {
         type: String,
-        required: [true, 'Город получателя обязательное поле']
+        required: [true, 'Email получателя обязательное поле']
     },
     address: {
         type: String,
