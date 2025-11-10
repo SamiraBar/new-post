@@ -2,7 +2,7 @@ import InfoSendPost from '@/features/infoSendPost/InfoSendPost.tsx';
 import UserToolbar from '@/components/UserToolbar/UserToolbar.tsx';
 import FooterComponent from '@/features/footer/FooterComponent.tsx';
 import DeliveryCostCalculator from '@/features/deliveryCostCalculator/DeliveryCostCalculator.tsx';
-import DeliveryCalculating from '@/features/DeliveryCalculating/DeliveryCalculating.tsx';
+import DeliveryActions from '@/features/deliveryActions/DeliveryActions.tsx';
 import ImportantInfo from '@/features/company-info/ImportantInfo.tsx';
 import AboutCompany from '@/features/company-info/AboutCompany.tsx';
 
@@ -16,7 +16,7 @@ const UserPage = () => {
       </header>
       <main>
         <div className={'mb-15'}>
-          <DeliveryCalculating />
+          <DeliveryActions />
         </div>
         <InfoSendPost />
         <DeliveryCostCalculator />
