@@ -1,17 +1,16 @@
 import mongoose from "mongoose";
-import Sender, { ISender } from "./Sender";
-import Recipient, { IRecipient } from "./Recipient";
+import Contact, { IContact } from "./Contact";
 
 const Schema = mongoose.Schema;
 
 export interface IParcel extends mongoose.Document {
     trackingNumber: string;
     partnerTrackingNumber?: string;
-    sender: mongoose.Types.ObjectId | ISender;
-    recipient: mongoose.Types.ObjectId | IRecipient;
+    sender: mongoose.Types.ObjectId | IContact;
+    recipient: mongoose.Types.ObjectId | IContact;
     originCity: string;
     destinationCity: string;
-    status: 'created' | 'in_transit' | 'delivered';
+    status: 'created' | 'in_transit' | 'delivered' | 'cancelled';
     isPaid: boolean;
     partnerStickerReceived: boolean;
     weight: number;
@@ -34,26 +33,26 @@ const ParcelSchema = new Schema({
     },
     sender: {
         type: Schema.Types.ObjectId,
-        ref: "Sender",
+        ref: "Contact",
         required: true,
         validate: {
             validator: async (value: string) => {
-                const sender = await Sender.findById(value);
-                return !!sender;
+                const contact = await Contact.findById(value);
+                return !!contact && contact.type === 'sender';
             },
-            message: "Sender not found",
+            message: "Sender not found or not a sender type",
         },
     },
     recipient: {
         type: Schema.Types.ObjectId,
-        ref: "Recipient",
+        ref: "Contact",
         required: true,
         validate: {
             validator: async (value: string) => {
-                const recipient = await Recipient.findById(value);
-                return !!recipient;
+                const contact = await Contact.findById(value);
+                return !!contact && contact.type === 'recipient';
             },
-            message: "Recipient not found",
+            message: "Recipient not found or not a recipient type",
         },
     },
     originCity: {
@@ -92,17 +91,17 @@ const ParcelSchema = new Schema({
 });
 
 ParcelSchema.virtual('senderFullName').get(function(this: IParcel) {
-    const sender = this.sender as ISender;
+    const sender = this.sender as IContact;
     return sender.fullName;
 });
 
 ParcelSchema.virtual('recipientFullName').get(function(this: IParcel) {
-    const recipient = this.recipient as IRecipient;
+    const recipient = this.recipient as IContact;
     return recipient.fullName;
 });
 
 ParcelSchema.virtual('recipientPhoneNumber').get(function(this: IParcel) {
-    const recipient = this.recipient as IRecipient;
+    const recipient = this.recipient as IContact;
     return recipient.phoneNumber;
 });
 
