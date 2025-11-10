@@ -27,7 +27,7 @@ export const uploadPrices = async (req: MulterRequest, res: Response, next: Next
 
         const requiredFields = schemaMap[String(type)];
 
-        if (!requiredFields) return res.status(400).json({message: `Unknown type: ${type}`});
+        if (!requiredFields) return res.status(400).json({message: `Неизвестный тип данных: ${type}`});
 
         const firstRow = jsonData[0] || {};
         const keys = Object.keys(firstRow);
@@ -35,7 +35,7 @@ export const uploadPrices = async (req: MulterRequest, res: Response, next: Next
 
         if (missing.length > 0) {
             return res.status(400).json({
-                message: `Wrong files columns "${type}"`,
+                message: `Неверный формат для типа "${type}"`,
                 missingFields: missing,
                 expected: requiredFields,
                 received: keys,
@@ -46,7 +46,7 @@ export const uploadPrices = async (req: MulterRequest, res: Response, next: Next
             Object.values(row).some(v => v !== null && v !== undefined && v !== "")
         );
 
-        if (filteredData.length === 0) return res.status(400).json({message: "Data could not be empty"});
+        if (filteredData.length === 0) return res.status(400).json({message: "Значения не могут быть пустыми"});
 
         if (type === "PVZ") {
             await PriceToPVZ.collection.drop();
@@ -56,7 +56,7 @@ export const uploadPrices = async (req: MulterRequest, res: Response, next: Next
             await PriceToHand.insertMany(jsonData);
         }
 
-        res.status(200).json({message: "Base updated", count: jsonData.length});
+        res.status(200).json({message: "База обновлена", count: jsonData.length});
     } catch (err) {
         console.error(err);
         next(err);
@@ -73,7 +73,7 @@ export const getPrices = async (req: Request, res: Response) => {
             const data = await PriceToHand.find()
             res.send(data);
         } else {
-            return res.status(400).json({message: "No type"});
+            return res.status(400).json({message: "Тип не указан"});
         }
 
     } catch {

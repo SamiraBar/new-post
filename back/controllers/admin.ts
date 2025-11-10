@@ -5,11 +5,11 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
     try {
         const admin = await Admin.findOne({email: req.body.email});
 
-        if (!admin) return res.status(400).send({error: "Wrong credentials."});
+        if (!admin) return res.status(400).send({error: "Неверный логин."});
 
         const isMatch = await admin.checkPassword(req.body.password)
 
-        if (!isMatch) return res.status(400).send({error: "Wrong credentials."});
+        if (!isMatch) return res.status(400).send({error: "Неверный пароль."});
 
         admin.generateToken();
         await admin.save();

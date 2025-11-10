@@ -1,6 +1,8 @@
 import {create} from "zustand";
 import type {FileState} from "@/stores/fileStore/types.ts";
 import {useAdminStore} from "@/stores/adminStore/adminStore.ts";
+import axiosApi from "@/axiosApi.ts";
+import {isAxiosError} from "axios";
 
 
 export const useFileStore = create<FileState>((set, get) => ({
@@ -23,40 +25,31 @@ export const useFileStore = create<FileState>((set, get) => ({
 
     if (typeFile === "PVZ") {
       fileToSend = pvzFile;
-      set({ loadingPvz: true });
+      set({loadingPvz: true});
     } else if (typeFile === "Hand") {
       fileToSend = handFile;
-      set({ loadingHand: true });
+      set({loadingHand: true});
     }
 
     if (!fileToSend) {
-      if (typeFile === "PVZ") set({ loadingPvz: false });
-      if (typeFile === "Hand") set({ loadingHand: false });
-      throw new Error("No file selected");
+      if (typeFile === "PVZ") set({loadingPvz: false});
+      if (typeFile === "Hand") set({loadingHand: false});
+      throw new Error("Файл не выбран");
     }
 
     const formData = new FormData();
     formData.append("data", fileToSend);
 
     try {
-      const res = await fetch(
-        `http://localhost:8000/prices/upload?type=${typeFile}`,
-        {
-          method: "POST",
-          headers: { Authorization: token },
-          body: formData,
-        }
-      );
-
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || "Ошибка загрузки");
+      await axiosApi.post(`/prices/upload?type=${typeFile}`, formData, {headers: {Authorization: token}})
+    } catch (e) {
+      if (isAxiosError(e) && e.response && e.response.status) {
+        console.log(e)
+        throw new Error(e.response.data.message);
       }
-
-      return await res.json();
     } finally {
-      if (typeFile === "PVZ") set({ loadingPvz: false, pvzFile: null });
-      if (typeFile === "Hand") set({ loadingHand: false, handFile: null });
+      if (typeFile === "PVZ") set({loadingPvz: false, pvzFile: null});
+      if (typeFile === "Hand") set({loadingHand: false, handFile: null});
     }
   },
 }));
