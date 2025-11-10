@@ -12,19 +12,19 @@ export interface ISender extends mongoose.Document {
 const SenderSchema = new mongoose.Schema({
     fullName: {
         type: String,
-        required: [true, 'ФИО отправителя обязательное поле']
+        required: [true, 'Sender Name is required']
     },
     phoneNumber: {
         type: String,
-        required: [true, 'Телефон отправителя обязательное поле'],
+        required: [true, 'Sender phone number is required'],
     },
     city: {
         type: String,
-        required: [true, 'Город отправителя обязательное поле']
+        required: [true, 'Sender city is required']
     },
     address: {
         type: String,
-        required: [true, 'Адрес отправителя обязательное поле']
+        required: [true, 'Sender address is required']
     }
 }, {
     timestamps: true
