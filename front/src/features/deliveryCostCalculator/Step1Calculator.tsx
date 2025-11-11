@@ -140,6 +140,14 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                     />
                   </div>
+                  <div className="mt-1">
+                    <p className="text-red-500 text-opacity-80 text-xs sm:text-sm italic">
+                      Посылканын максималдуу баасы - 50000 сом
+                    </p>
+                    <p className="text-red-500 text-opacity-80 text-xs sm:text-sm italic">
+                      Максимальная стоимость посылки - 50000 сом
+                    </p>
+                  </div>
                 </Field>
                 <Field>
                   <FieldLabel>Посылканын салмагы / Вес посылки</FieldLabel>
@@ -159,6 +167,14 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                     />
                   </div>
+                  <div className="mt-1">
+                    <p className="text-red-500 text-opacity-80 text-xs sm:text-sm italic">
+                      Посылканын максималдуу салмагы - 15кг
+                    </p>
+                    <p className="text-red-500 text-opacity-80 text-xs sm:text-sm italic">
+                      Максимальный вес посылки - 15кг
+                    </p>
+                  </div>
                 </Field>
               </FieldGroup>
             </div>
@@ -171,38 +187,12 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
           <div className="flex items-center gap-3">
             <HandCoins className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 text-orange-500" />
             <div>
-              <p className="text-sm md:text-base font-medium">Жеткирүү наркы</p>
+              <p className="text-sm md:text-base font-medium">Жеткирүү баасы</p>
               <p className="text-sm md:text-base text-gray-600">Стоимость доставки</p>
             </div>
           </div>
           <span className="text-2xl md:text-3xl text-orange-500 font-bold">
             {order.deliveryCost.toFixed(0)} сом
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <HandCoins className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 text-blue-500" />
-            <div>
-              <p className="text-sm md:text-base font-medium">Страховка</p>
-              <p className="text-sm md:text-base text-gray-600">Insurance</p>
-            </div>
-          </div>
-          <span className="text-2xl md:text-3xl text-blue-500 font-bold">
-            {order.insuranceCost.toFixed(0)} сом
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between gap-3 border-t-2 border-orange-200 pt-3">
-          <div className="flex items-center gap-3">
-            <HandCoins className="w-6 h-6 md:w-7 md:h-7 flex-shrink-0 text-green-500" />
-            <div>
-              <p className="text-base md:text-lg font-bold">Жалпы сумма</p>
-              <p className="text-sm md:text-base text-gray-600">Общая стоимость</p>
-            </div>
-          </div>
-          <span className="text-2xl md:text-3xl text-green-500 font-bold">
-            {order.totalCost.toFixed(0)} сом
           </span>
         </div>
 

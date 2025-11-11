@@ -2,7 +2,7 @@ import { TriangleAlert } from 'lucide-react';
 
 export const WarningNotices = () => {
   return (
-    <div className="flex flex-col gap-5 mt-10 text-sm md:text-base px-1 sm:px-5">
+    <div className="flex flex-col gap-5 mt-10 text-sm md:text-base px-1">
       <div className="p-5 border rounded-lg shadow-lg flex gap-2 items-center">
         <TriangleAlert className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0" color="orange" />
         <div>
