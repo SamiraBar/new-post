@@ -12,8 +12,9 @@ const ParcelDetails = () => {
       </div>
 
       <Card className="border-gray-300 rounded-md overflow-hidden">
-        <div className="grid grid-cols-12">
-          <div className="col-span-8 border-r border-gray-300">
+        <div className="grid grid-cols-1 md:grid-cols-12">
+
+          <div className="md:col-span-8 border-b md:border-b-0 md:border-r border-gray-300">
             <div className="divide-y divide-gray-200">
               {[
                 ["Трек Номер Новая Почта", "BBU17611911900177"],
@@ -23,34 +24,43 @@ const ParcelDetails = () => {
               ].map(([label, value], i) => (
                 <div
                   key={i}
-                  className="flex justify-between items-center px-4 py-2.5"
+                  className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 px-3 sm:px-4 py-2.5"
                 >
-                  <span className="text-sm text-gray-700">{label}</span>
+            <span className="text-sm text-gray-700 whitespace-nowrap">
+              {label}
+            </span>
                   <div className="flex items-center gap-1.5">
-                    <span className="bg-gray-100 border border-gray-300 px-3 py-1 rounded text-gray-800 text-sm">
-                      {value}
-                    </span>
-                    <Copy size={16} className="text-gray-500 cursor-pointer" />
+              <span className="bg-gray-100 border border-gray-300 px-2 sm:px-3 py-1 rounded text-gray-800 text-xs sm:text-sm break-all max-w-[180px] sm:max-w-none text-right">
+                {value}
+              </span>
+                    <Copy
+                      size={14}
+                      className="text-gray-500 cursor-pointer shrink-0"
+                    />
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="col-span-4 flex flex-col justify-center px-6 py-3">
-            <div className="flex items-center justify-between mb-3">
+          <div className="md:col-span-4 flex flex-col justify-center px-3 sm:px-6 py-3 space-y-2 sm:space-y-3">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-gray-600">
-                <Boxes size={18} />
-                <span className="uppercase text-sm font-medium">КОЛ-ВО МЕСТ</span>
+                <Boxes size={16} className="sm:w-[18px] sm:h-[18px]" />
+                <span className="uppercase text-xs sm:text-sm font-medium">
+            КОЛ-ВО МЕСТ
+          </span>
               </div>
-              <span className="font-bold text-gray-900 text-lg">1</span>
+              <span className="font-bold text-gray-900 text-base sm:text-lg">1</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-gray-600">
-                <Weight size={18} />
-                <span className="uppercase text-sm font-medium">ВЕС, КГ.</span>
+                <Weight size={16} className="sm:w-[18px] sm:h-[18px]" />
+                <span className="uppercase text-xs sm:text-sm font-medium">
+            ВЕС, КГ.
+          </span>
               </div>
-              <span className="font-bold text-gray-900 text-lg">1.3</span>
+              <span className="font-bold text-gray-900 text-base sm:text-lg">1.3</span>
             </div>
           </div>
         </div>
