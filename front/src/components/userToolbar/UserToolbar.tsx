@@ -75,11 +75,11 @@ const UserToolbar = () => {
 
             <NavigationMenuItem className="flex items-center gap-8">
               <div className="flex gap-2">
-                <a href="#" aria-label="WhatsApp">
+                <a href="https://wa.me/996778465557?text=Здравствуйте%2C+у+меня+есть+вопрос" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
                   <img
-                    src={icWhatsapp}
-                    alt="whatsapp"
-                    className="w-9 h-9 md:w-13 md:h-13 transition-transform duration-700 hover:scale-110"
+                      src={icWhatsapp}
+                      alt="whatsapp"
+                      className="w-9 h-9 md:w-13 md:h-13 transition-transform duration-700 hover:scale-110"
                   />
                 </a>
                 <LanguageSwitcher />

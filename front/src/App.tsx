@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import UserPage from './components/UserPage/UserPage';
+import UserPage from '@/components/userPage/UserPage';
 import AdminPanel from '@/features/adminPanel/AdminPanel';
 import AdminLoginForm from '@/features/adminPanel/AdminLoginForm.tsx';
 import { Toaster } from '@/components/ui/sonner';

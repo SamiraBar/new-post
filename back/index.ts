@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import config from "./config";
 import adminsRouter from "./routers/admins";
 import pricesRouter from "./routers/prices";
+import parcelsRouter from "./routers/parcels";
+import contactsRouter from "./routers/contacts";
 
 const app = express();
 const port = 8000;
@@ -13,6 +15,8 @@ app.use(cors());
 
 app.use("/admins", adminsRouter);
 app.use("/prices", pricesRouter);
+app.use("/parcels", parcelsRouter);
+app.use("/contacts", contactsRouter);
 
 const run = async () => {
     await mongoose.connect(config.db);
