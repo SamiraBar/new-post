@@ -10,6 +10,7 @@ import { type ChangeEvent, useState } from 'react';
 import logoImage from '@/assets/logo/newPostLogo.jpeg';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
 import ModalFile from '@/features/AdminPanel/components/ModalFile.tsx';
+import ParcelModal from '@/features/parcels/ParcelModal';
 
 export const AdminToolbar = () => {
   const { logout } = useAdminStore();
@@ -18,11 +19,19 @@ export const AdminToolbar = () => {
     sender: '',
     receiver: '',
   });
+  const [isParcelModalOpen, setIsParcelModalOpen] = useState(false);
 
   const inputChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     setSearch((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && search.trackNumber.trim() !== '') {
+      e.preventDefault();
+      setIsParcelModalOpen(true);
+    }
   };
 
   return (
@@ -46,7 +55,13 @@ export const AdminToolbar = () => {
             placeholder="Трек номер посылки"
             value={search.trackNumber}
             onChange={inputChangeHandler}
+            onKeyDown={handleKeyDown}
             className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1 w-64"
+          />
+          <ParcelModal
+            open={isParcelModalOpen}
+            onOpenChange={setIsParcelModalOpen}
+            trackNumber={search.trackNumber}
           />
         </NavigationMenuItem>
         <NavigationMenuItem>
