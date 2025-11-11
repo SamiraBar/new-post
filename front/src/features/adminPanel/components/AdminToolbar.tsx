@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button.tsx';
 import { type ChangeEvent, useState } from 'react';
 import logoImage from '@/assets/logo/newPostLogo.jpeg';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
-import ModalFile from '@/features/AdminPanel/components/ModalFile.tsx';
+import ModalFile from '@/features/adminPanel/components/ModalFile.tsx';
 
 export const AdminToolbar = () => {
   const { logout } = useAdminStore();
