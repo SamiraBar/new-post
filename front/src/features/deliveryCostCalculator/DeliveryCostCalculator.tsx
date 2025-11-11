@@ -184,23 +184,25 @@ const DeliveryCostCalculator = () => {
     }));
   }, [order.parcelWeight, order.parcelValue, calculateDeliveryCost, calculateInsuranceCost]);
 
+  const { t } = useTranslation();
+
   const validateOrder = () => {
     const validations = [
       {
         field: order.originCity,
-        message: 'Жиберүүчү шаарды тандаңыз / Выберите город отправителя',
+        message: t('deliveryCostCalculator.validateError.cityOfSender'),
       },
       {
         field: order.destinationCity,
-        message: 'Алуучунун шаарын тандаңыз / Выберите город получателя',
+        message: t('deliveryCostCalculator.validateError.cityOfReceiver'),
       },
       {
         field: order.parcelValue,
-        message: 'Посылканын баасын киргизиңиз / Введите цену посылки',
+        message: t('deliveryCostCalculator.validateError.parcelValue'),
       },
       {
         field: order.parcelWeight,
-        message: 'Посылканын салмагын киргизиңиз / Введите вес посылки',
+        message: t('deliveryCostCalculator.validateError.parcelWeight'),
       },
     ];
 
@@ -255,7 +257,7 @@ const DeliveryCostCalculator = () => {
       setCurrentStep(2);
     } else if (currentStep === 2) {
       if (!order.originOffice) {
-        return toast.error('Жиберүү кеңсесин тандаңыз / Выберите офис отправки');
+        return toast.error(t('deliveryCostCalculator.validateError.senderOffice'));
       }
       if (doorDelivery) {
         return setCurrentStep(4);
@@ -263,24 +265,24 @@ const DeliveryCostCalculator = () => {
       setCurrentStep(3);
     } else if (currentStep === 3) {
       if (!order.destinationOffice) {
-        return toast.error('Алуучу кеңсесин тандаңыз / Выберите офис получателя');
+        return toast.error(t('deliveryCostCalculator.validateError.receiverOffice'));
       }
       setCurrentStep(4);
     } else if (currentStep === 4) {
       if (!order.sender.name) {
-        return toast.error('Жиберүүчүнүн атын киргизиңиз / Введите имя отправителя');
+        return toast.error(t('deliveryCostCalculator.validateError.senderName'));
       } else if (!order.sender.email) {
-        return toast.error('Жиберүүчүнүн emailин киргизиңиз / Введите email отправителя');
+        return toast.error(t('deliveryCostCalculator.validateError.senderEmail'));
       } else if (!order.sender.phone) {
-        return toast.error('Жиберүүчүнүн телефонун киргизиңиз / Введите телефон отправителя');
+        return toast.error(t('deliveryCostCalculator.validateError.senderPhone'));
       } else if (!order.receiver.name) {
-        return toast.error('Алуучунун атын киргизиңиз / Введите имя получателя');
+        return toast.error(t('deliveryCostCalculator.validateError.receiverName'));
       } else if (!order.receiver.email) {
-        return toast.error('Алуучунун emailин киргизиңиз / Введите email получателя');
+        return toast.error(t('deliveryCostCalculator.validateError.receiverEmail'));
       } else if (!order.receiver.phone) {
-        return toast.error('Алуучунун телефонун киргизиңиз / Введите телефон получателя');
+        return toast.error(t('deliveryCostCalculator.validateError.receiverPhone'));
       } else if (doorDelivery && !order.receiver.address) {
-        return toast.error('Алуучунун дарегин киргизиңиз / Введите адрес получателя');
+        return toast.error(t('deliveryCostCalculator.validateError.receiverAddress'));
       }
       setCurrentStep(5);
     } else if (currentStep === 5) {
@@ -305,7 +307,7 @@ const DeliveryCostCalculator = () => {
               <div className="flex flex-col gap-6 sm:flex-row sm:gap-10">
                 <FieldGroup className="gap-4">
                   <div className="flex items-center">
-                    <FieldLabel>Жиберүүчү / Отправитель</FieldLabel>
+                    <FieldLabel>{t('deliveryCostCalculator.calculationForm.sender')}</FieldLabel>
                     <span className="w-[140] ml-auto">
                       <TruckIconA />
                     </span>
@@ -321,7 +323,9 @@ const DeliveryCostCalculator = () => {
                     value={order.originCity}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Жиберүүчү шаар / Город отправителя" />
+                      <SelectValue
+                        placeholder={t('deliveryCostCalculator.calculationForm.senderPlaceholder')}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       <Input
@@ -346,7 +350,7 @@ const DeliveryCostCalculator = () => {
 
                 <FieldGroup className="gap-4">
                   <div className="flex items-center justify-between">
-                    <FieldLabel>Алуучу / Получатель</FieldLabel>
+                    <FieldLabel>{t('deliveryCostCalculator.calculationForm.recipient')}</FieldLabel>
                     <span className="w-[140] ml-auto">
                       <TruckIconB />
                     </span>
@@ -362,7 +366,11 @@ const DeliveryCostCalculator = () => {
                     value={order.destinationCity}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Алуучу шаар / Город получателя" />
+                      <SelectValue
+                        placeholder={t(
+                          'deliveryCostCalculator.calculationForm.recipientPlaceholder',
+                        )}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       <Input
@@ -386,7 +394,7 @@ const DeliveryCostCalculator = () => {
 
               <FieldGroup className="flex flex-col sm:flex-row justify-between mt-5 min-w-0">
                 <Field>
-                  <FieldLabel>Посылканын баалуулугу / Ценность посылки</FieldLabel>
+                  <FieldLabel>{t('deliveryCostCalculator.calculationForm.parcelValue')}</FieldLabel>
                   <div className="relative">
                     <Input
                       placeholder="1000"
@@ -404,7 +412,9 @@ const DeliveryCostCalculator = () => {
                   </div>
                 </Field>
                 <Field>
-                  <FieldLabel>Посылканын салмагы / Вес посылки</FieldLabel>
+                  <FieldLabel>
+                    {t('deliveryCostCalculator.calculationForm.parcelWeight')}
+                  </FieldLabel>
                   <div className="relative">
                     <Input
                       placeholder="кг"
@@ -818,8 +828,6 @@ const DeliveryCostCalculator = () => {
       </div>
     </div>
   );
-
-  const { t } = useTranslation();
 
   return (
     <div className="container" id={'calculator'}>

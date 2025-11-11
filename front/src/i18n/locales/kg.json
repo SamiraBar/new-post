@@ -23,6 +23,29 @@
   },
   "deliveryCostCalculator": {
     "title": "Жеткирүү баасын эсептөө калькулятору",
+    "validateError": {
+      "cityOfSender": "Жиберүүчү шаарды тандаңыз",
+      "cityOfReceiver": "Алуучунун шаарын тандаңыз",
+      "parcelValue": "Посылканын баасын киргизиңиз",
+      "parcelWeight": "Посылканын салмагын киргизиңиз",
+      "senderOffice": "Жиберүү кеңсесин тандаңыз",
+      "receiverOffice": "Алуучу кеңсесин тандаңыз",
+      "senderName": "Жиберүүчүнүн атын киргизиңиз",
+      "senderEmail": "Жиберүүчүнүн emailин киргизиңиз",
+      "senderPhone": "Жиберүүчүнүн телефонун киргизиңиз",
+      "receiverName": "Алуучунун атын киргизиңиз",
+      "receiverEmail": "Алуучунун emailин киргизиңиз",
+      "receiverPhone": "Алуучунун телефонун киргизиңиз",
+      "receiverAddress": "Алуучунун дарегин киргизиңиз"
+    },
+    "calculationForm": {
+      "sender": "Жиберүүчү",
+      "senderPlaceholder": "Жиберүүчү шаар",
+      "recipient": "Алуучу",
+      "recipientPlaceholder": "Алуучу шаар",
+      "parcelValue": "Посылканын баалуулугу",
+      "parcelWeight": "Посылканын салмагы"
+    },
     "WarningNotices": {
       "warningPrice": "Посылканын баасын туура көрсөт. Посылка жоголсо, баасын кайтарып беребиз.",
       "warningWeight": "Посылканын салмагын туура көрсөт.",

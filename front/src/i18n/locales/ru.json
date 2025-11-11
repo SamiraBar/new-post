@@ -23,6 +23,29 @@
   },
   "deliveryCostCalculator": {
     "title": "Калькулятор расчёта стоимости доставки",
+    "validateError": {
+      "cityOfSender": "Выберите город отправителя",
+      "cityOfReceiver": "Выберите город получателя",
+      "parcelValue": "Введите цену посылки",
+      "parcelWeight": "Введите вес посылки",
+      "senderOffice": "Выберите офис отправки",
+      "receiverOffice": "Выберите офис получателя",
+      "senderName": "Введите имя отправителя",
+      "senderEmail": "Введите email отправителя",
+      "senderPhone": "Введите телефон отправителя",
+      "receiverName": "Введите имя получателя",
+      "receiverEmail": "Введите email получателя",
+      "receiverPhone": "Введите телефон получателя",
+      "receiverAddress": "Введите адрес получателя"
+    },
+    "calculationForm": {
+      "sender": "Отправитель",
+      "senderPlaceholder": "Город отправителя",
+      "recipient": "Получатель",
+      "recipientPlaceholder": "Город получателя",
+      "parcelValue": "Ценность посылки",
+      "parcelWeight": "Вес посылки"
+    },
     "WarningNotices": {
       "warningPrice": "Указывай стоимость посылки правильно. В случае потери вернем указанную стоимость.",
       "warningWeight": "Правльно указывайте вес посылки.",
