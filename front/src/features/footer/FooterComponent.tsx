@@ -1,10 +1,13 @@
 import logo from '../../assets/logo/newPostLogo.jpeg';
 import whatsappIcon from '../../assets/cosialIcons/WhatsApp.png';
 import instagramIcon from '../../assets/cosialIcons/Instagram.png';
+import { useTranslation } from 'react-i18next';
 
 const FooterComponent = () => {
+  const { t } = useTranslation();
+
   return (
-    <footer className="w-full bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.1)] sticky mt-10 py-6">
+    <footer className="w-full bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.1)] sticky mt-25 py-6">
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
         <div className="flex-shrink-0">
           <img
@@ -17,8 +20,7 @@ const FooterComponent = () => {
         </div>
 
         <div className="text-gray-700 text-sm leading-relaxed md:flex-1 md:px-10">
-          <p>“ЖАНЫ ПОЧТА” ЖЧК Бишкек шаары, Лев Толстой көчөсү, 24/1</p>
-          <p>ОСОО “Новая Почта”, г. Бишкек, ул. Льва Толстого 24/1</p>
+          <p>{t('footer.address')}</p>
           <p>
             Телефон:{' '}
             <a href="tel:+996778465557" className="hover:text-blue-600 ">

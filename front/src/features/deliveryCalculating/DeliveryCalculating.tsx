@@ -7,6 +7,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const DeliveryCalculating = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -24,12 +25,14 @@ const DeliveryCalculating = () => {
     }, 180);
   };
 
+  const { t } = useTranslation();
+
   return (
     <div className="container mx-auto my-10 p-5 max-w-6xl overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4 text-center">
           <h4 className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 flex items-center justify-center mb-1 text-center text-base font-bold px-2 mx-auto">
-            Жеткирүү баасын эсептөө
+            {t('deliveryCalculation.headerCalculation')}
           </h4>
 
           <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -39,7 +42,7 @@ const DeliveryCalculating = () => {
     hover:bg-white hover:text-black rounded-xl
     active:scale-95 active:shadow-lg active:bg-orange-500 transition-all duration-200 shadow-md hover:shadow-lg"
               >
-                Расчитать/Эсептөө
+                {t('deliveryCalculation.buttonCalculation')}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent className="max-w-md mx-auto p-6 sm:p-8 md:p-10 rounded-2xl border-[3px] border-orange-500 bg-white shadow-2xl">
@@ -64,14 +67,7 @@ const DeliveryCalculating = () => {
       text-white group-hover:text-orange-600 transition-colors duration-300
       [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]"
                   >
-                    Посылка беруу пунктка чейин жеткирүү
-                  </span>
-                  <span
-                    className="text-md font-bold text-center leading-tight relative z-10
-      text-white group-hover:text-orange-500 transition-colors duration-300 mt-1
-      [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]"
-                  >
-                    Доставка до пункта выдачи посылок
+                    {t('deliveryCalculation.modal.buttonOne')}
                   </span>
                 </Button>
                 <Button
@@ -94,14 +90,7 @@ const DeliveryCalculating = () => {
       text-white group-hover:text-orange-600 transition-colors duration-300
       [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]"
                   >
-                    Алуучунун уйунө чейин жеткирүү
-                  </span>
-                  <span
-                    className="text-md font-bold text-center leading-tight relative z-10
-      text-white group-hover:text-orange-500 transition-colors duration-300 mt-1
-      [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]"
-                  >
-                    Доставка до двери получателя
+                    {t('deliveryCalculation.modal.buttonTwo')}
                   </span>
                 </Button>
                 <div className="flex flex-col gap-3 mt-4">
@@ -116,19 +105,17 @@ const DeliveryCalculating = () => {
                       setIsDialogOpen(false);
                     }}
                   >
-                    Жабуу / Закрыть
+                    {t('deliveryCalculation.modal.closeButton')}
                   </AlertDialogCancel>
                 </div>
               </div>
             </AlertDialogContent>
           </AlertDialog>
-
-          <p>Рассчитать доставку</p>
         </div>
 
         <div className="space-y-4 text-center">
           <h4 className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 flex items-center justify-center mb-1 text-center text-base font-bold px-2 mx-auto">
-            Посылканы көзөмөлдөө
+            {t('deliveryCalculation.parcelTracking')}
           </h4>
 
           <div className="flex gap-0 w-full max-w-80 sm:max-w-96 md:max-w-110 mx-auto">
@@ -147,7 +134,6 @@ const DeliveryCalculating = () => {
               <Search className="w-8 h-8" />
             </Button>
           </div>
-          <p>Отследить посылку</p>
         </div>
       </div>
     </div>

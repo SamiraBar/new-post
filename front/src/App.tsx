@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UserPage from './components/UserPage/UserPage';
-import AdminPanel from '@/features/AdminPanel/AdminPanel';
-import AdminLoginForm from '@/features/AdminPanel/AdminLoginForm.tsx';
+import AdminPanel from '@/features/adminPanel/AdminPanel';
+import AdminLoginForm from '@/features/adminPanel/AdminLoginForm.tsx';
 import { Toaster } from '@/components/ui/sonner';
 
 const App = () => {
