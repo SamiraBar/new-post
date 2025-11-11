@@ -4,6 +4,22 @@ export interface Admin {
   token: string;
 }
 
+export interface IParcel {
+  _id: string;
+  trackingNumber: string;
+  partnerTrackingNumber: string;
+  senderFullName: string;
+  recipientFullName: string;
+  recipientPhoneNumber: string;
+  originCity: string;
+  destinationCity: string;
+  status: string;
+  createdAt: string;
+  isPaid: boolean;
+  partnerStickerReceived: boolean;
+  weight: number;
+}
+
 export interface GlobalError {
   error: string;
 }
@@ -11,6 +27,35 @@ export interface GlobalError {
 export interface LoginMutation {
   email: string;
   password: string;
+}
+
+interface Sender {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+interface Receiver {
+  name: string;
+  email: string;
+  phone: string;
+  address?: string;
+}
+
+interface Order {
+  originCity: string;
+  destinationCity: string;
+  originOffice: number;
+  destinationOffice: number;
+  parcelValue: number;
+  parcelWeight: number;
+  deliveryCost: number;
+  insuranceCost: number;
+  totalCost: number;
+  deliveryDate: string;
+  inParcel: string;
+  sender: Sender;
+  receiver: Receiver;
 }
 
 export interface Office {

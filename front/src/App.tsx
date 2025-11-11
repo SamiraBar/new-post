@@ -1,19 +1,19 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UserPage from './components/UserPage/UserPage';
-import AdminPanel from './components/AdminPanel/AdminPanel';
-import AdminLoginForm from '@/components/AdminPanel/AdminLoginForm.tsx';
-import {Toaster} from "@/components/ui/sonner";
+import AdminPanel from '@/features/AdminPanel/AdminPanel';
+import AdminLoginForm from '@/features/AdminPanel/AdminLoginForm.tsx';
+import { Toaster } from '@/components/ui/sonner';
 
 const App = () => {
   return (
     <>
-      <Toaster richColors/>
+      <Toaster richColors />
 
       <BrowserRouter>
         <Routes>
-          <Route index element={<UserPage/>}/>
-          <Route path="admin" element={<AdminPanel/>}/>
-          <Route path="admin/login" element={<AdminLoginForm/>}/>
+          <Route index element={<UserPage />} />
+          <Route path="admin" element={<AdminPanel />} />
+          <Route path="admin/login" element={<AdminLoginForm />} />
         </Routes>
       </BrowserRouter>
     </>

@@ -1,20 +1,15 @@
-import { useState } from "react";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuList,
-} from "../ui/navigation-menu";
-import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { useState } from 'react';
+import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from '../ui/navigation-menu';
+import { Link } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 
-import logo from "../../assets/logo/newPostLogo.jpeg";
-import icWhatsapp from "../../assets/cosialIcons/WhatsApp1.png";
-import icInstagram from "../../assets/cosialIcons/Instagram1.png";
+import logo from '../../assets/logo/newPostLogo.jpeg';
+import icWhatsapp from '../../assets/cosialIcons/WhatsApp.png';
 
 const renderText: { kg: string; ru: string; link: string }[] = [
-  { kg: "Маанилүү маалымат", ru: "Важная информация", link: "#important-info" },
-  { kg: "Биз жөнүндө", ru: "О компании", link: "#about" },
-  { kg: "Байланыштар", ru: "Контакты", link: "#" },
+  { kg: 'Маанилүү маалымат', ru: 'Важная информация', link: '#important-info' },
+  { kg: 'Биз жөнүндө', ru: 'О компании', link: '#about' },
+  { kg: 'Байланыштар', ru: 'Контакты', link: '#' },
 ];
 
 const UserToolbar = () => {
@@ -23,17 +18,14 @@ const UserToolbar = () => {
     hoveredIndex: null as number | null,
   });
 
-  const toggleMenu = () =>
-    setState(prev => ({ ...prev, isMenuOpen: !prev.isMenuOpen }));
+  const toggleMenu = () => setState((prev) => ({ ...prev, isMenuOpen: !prev.isMenuOpen }));
 
   const handleMouseEnter = (index: number) =>
-    setState(prev => ({ ...prev, hoveredIndex: index }));
+    setState((prev) => ({ ...prev, hoveredIndex: index }));
 
-  const handleMouseLeave = () =>
-    setState(prev => ({ ...prev, hoveredIndex: null }));
+  const handleMouseLeave = () => setState((prev) => ({ ...prev, hoveredIndex: null }));
 
-  const handleAnchorClick = () =>
-    setState(prev => ({ ...prev, isMenuOpen: false }));
+  const handleAnchorClick = () => setState((prev) => ({ ...prev, isMenuOpen: false }));
 
   return (
     <header className="w-full bg-white shadow-sm sticky top-0 z-50 font-medium">
@@ -59,16 +51,16 @@ const UserToolbar = () => {
                       onMouseEnter={() => handleMouseEnter(index)}
                       onMouseLeave={handleMouseLeave}
                       onClick={handleAnchorClick}
-                      className={`group flex flex-col items-center text-center transition-colors cursor-pointer font-semibold ${
-                        state.hoveredIndex === index ? "text-[#FF4F00]" : "text-black"
+                      className={`group flex flex-col items-center text-center transition-colors duration-800 cursor-pointer font-semibold ${
+                        state.hoveredIndex === index ? 'text-[#FF4F00]' : 'text-black'
                       }`}
                     >
-      <span className="sm:text-sm md:text-lg lg:text-xl leading-tight">
-        {text.kg}
-      </span>
                       <span className="sm:text-sm md:text-lg lg:text-xl leading-tight">
-        {text.ru}
-      </span>
+                        {text.kg}
+                      </span>
+                      <span className="sm:text-sm md:text-lg lg:text-xl leading-tight">
+                        {text.ru}
+                      </span>
                     </a>
                   </li>
                 ))}
@@ -81,14 +73,7 @@ const UserToolbar = () => {
                   <img
                     src={icWhatsapp}
                     alt="whatsapp"
-                    className="w-9 h-9 md:w-10 md:h-10 transition-transform hover:scale-110"
-                  />
-                </a>
-                <a href="#" aria-label="Instagram">
-                  <img
-                    src={icInstagram}
-                    alt="instagram"
-                    className="w-9 h-9 md:w-10 md:h-10 transition-transform hover:scale-110"
+                    className="w-9 h-9 md:w-13 md:h-13 transition-transform duration-700 hover:scale-110"
                   />
                 </a>
               </div>
@@ -105,7 +90,7 @@ const UserToolbar = () => {
 
         <div
           className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-            state.isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            state.isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
           <nav className="py-4 border-t border-gray-200">

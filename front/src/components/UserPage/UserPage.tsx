@@ -15,18 +15,18 @@ const UserPage = () => {
         </h1>
       </header>
       <main>
-        <div className={'pl-2 mb-15'}>
+        <div className={'mb-15'}>
           <DeliveryCalculating />
         </div>
-        <div className={'pl-2'}>
-          <InfoSendPost />
+        <InfoSendPost />
+        <DeliveryCostCalculator />
+        <div className={'mt-4 mb-4 sm:mt-6 sm:mb-6 md:mt-8 md:mb-8 lg:mt-10 lg:mb-10'}>
+          <ImportantInfo />
         </div>
-        <div className={'pl-2'}>
-          <DeliveryCostCalculator />
+        <div className={'mt-4 mb-4 sm:mt-6 sm:mb-6 md:mt-8 md:mb-8 lg:mt-10 lg:mb-10'}>
+          <AboutCompany />
         </div>
-        <ImportantInfo />
-        <AboutCompany />
-        <div className={'pl-2'}>
+        <div className={'sm:mt-6 md:mt-8 lg:mt-10'}>
           <FooterComponent />
         </div>
       </main>
