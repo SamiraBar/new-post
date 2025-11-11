@@ -19,7 +19,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
 
         if (!trackingNumber || !sender || !recipient || !originCity || !destinationCity || !weight) {
             return res.status(400).json({
-                error: "Не все обязательные поля заполнены",
+                error: "Not all required fields are filled",
                 required: ["trackingNumber", "sender", "recipient", "originCity", "destinationCity", "weight"]
             });
         }
@@ -27,15 +27,15 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
         const existingParcel = await Parcel.findOne({ trackingNumber });
         if (existingParcel) {
             return res.status(400).json({
-                error: "Посылка с таким трек-номером уже существует"
+                error: "Parcel with this tracking number already exists"
             });
         }
 
         if (!mongoose.Types.ObjectId.isValid(sender)) {
-            return res.status(400).json({ error: "Некорректный ID отправителя" });
+            return res.status(400).json({ error: "Invalid sender ID" });
         }
         if (!mongoose.Types.ObjectId.isValid(recipient)) {
-            return res.status(400).json({ error: "Некорректный ID получателя" });
+            return res.status(400).json({ error: "Invalid recipient ID" });
         }
 
         const newParcel = new Parcel({
@@ -59,7 +59,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
             .populate('recipient');
 
         res.status(201).json({
-            message: "Посылка успешно создана",
+            message: "Parcel successfully created",
             parcel: populatedParcel
         });
 
@@ -90,7 +90,7 @@ export const getParcelById = async (req: Request, res: Response, next: NextFunct
         const { id } = req.params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ error: "Некорректный ID посылки" });
+            return res.status(400).json({ error: "Invalid parcel ID" });
         }
 
         const parcel = await Parcel.findById(id)
@@ -98,7 +98,7 @@ export const getParcelById = async (req: Request, res: Response, next: NextFunct
             .populate('recipient');
 
         if (!parcel) {
-            return res.status(404).json({ error: "Посылка не найдена" });
+            return res.status(404).json({ error: "Parcel not found" });
         }
 
         res.status(200).json({ parcel });
@@ -117,7 +117,7 @@ export const getParcelByTrackingNumber = async (req: Request, res: Response, nex
             .populate('recipient');
 
         if (!parcel) {
-            return res.status(404).json({ error: "Посылка с таким трек-номером не найдена" });
+            return res.status(404).json({ error: "Parcel with this tracking number not found" });
         }
 
         res.status(200).json({ parcel });
