@@ -17,6 +17,17 @@ const run = async () => {
         email: 'AdminNum1@gmail.com',
         password: 'Qwerty123',
         token: randomUUID(),
+        role: 'superAdmin',
+    },{
+        email: "AdminNum2@gmail.com",
+        password: 'Qwerty123',
+        token: randomUUID(),
+        role: 'admin',
+    },{
+        email: "AdminNum3@gmail.com",
+        password: 'Qwerty123',
+        token: randomUUID(),
+        role: 'admin',
     });
 
     await db.close()
