@@ -1,5 +1,3 @@
-import useParcelsStore from '@/stores/parcelsStore/parcelsStore';
-import { useEffect } from 'react';
 import ParcelItem from './ParcelItem';
 import type { IParcel } from '@/types';
 
