@@ -1,5 +1,5 @@
-import {useRef, useState, type ChangeEvent, type FC, useEffect} from "react";
-import {Input} from "@/components/ui/input";
+import { useRef, useState, type ChangeEvent, type FC, useEffect } from 'react';
+import { Input } from '@/components/ui/input';
 
 interface Props {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -8,9 +8,9 @@ interface Props {
   file?: File | null;
 }
 
-const FileInput: FC<Props> = ({onChange, name, file, id}) => {
+const FileInput: FC<Props> = ({ onChange, name, file, id }) => {
   const ref = useRef<HTMLInputElement | null>(null);
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState('');
 
   const handleClick = () => {
     ref.current?.click();
@@ -18,20 +18,19 @@ const FileInput: FC<Props> = ({onChange, name, file, id}) => {
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
-    setFileName(file ? file.name : "");
+    setFileName(file ? file.name : '');
     onChange(e);
   };
 
   useEffect(() => {
     if (!file) {
-      setFileName("");
-      if (ref.current) ref.current.value = "";
+      setFileName('');
+      if (ref.current) ref.current.value = '';
     }
   }, [file]);
 
   return (
     <div className="flex flex-col gap-1 w-full">
-
       <input
         ref={ref}
         name={name}
