@@ -3,6 +3,7 @@ import useAdminStore from '@/stores/adminStore/adminStore.ts';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import ParcelDetails from '@/features/parcels/admin/ParcelDetails.tsx';
+import ParcelsList from '../parcels/ParcelsList';
 
 const AdminPanel = () => {
   const admin = useAdminStore((s) => s.admin);
@@ -17,7 +18,8 @@ const AdminPanel = () => {
   return (
     <div className="container">
       <AdminToolbar />
-      <ParcelDetails/>
+      <ParcelsList />
+      <ParcelDetails />
     </div>
   );
 };

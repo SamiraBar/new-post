@@ -1,4 +1,11 @@
-import { type ChangeEvent, type FormEvent, type JSX, useCallback, useEffect, useState, } from 'react';
+import {
+  type ChangeEvent,
+  type FormEvent,
+  type JSX,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
@@ -38,12 +45,7 @@ const tariffs = [
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAgreed, setIsAgreed] = useState(false);
-  const {
-    openOrCloseCalcModal,
-    isDoorDelivery,
-    isPickup,
-    clearActions,
-  } = useDeliveryStore();
+  const { openOrCloseCalcModal, isDoorDelivery, isPickup, clearActions } = useDeliveryStore();
   const [order, setOrder] = useState<Order>({
     originCity: '',
     destinationCity: '',
@@ -123,10 +125,7 @@ const DeliveryCostCalculator = () => {
       },
     ];
 
-    for (const {
-      field,
-      message
-    } of validations) {
+    for (const { field, message } of validations) {
       if (!field) {
         toast.error(message);
         return false;
@@ -142,10 +141,7 @@ const DeliveryCostCalculator = () => {
   };
 
   const onHandleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const {
-      name,
-      value
-    } = e.target;
+    const { name, value } = e.target;
     setOrder((prevOrder) => ({
       ...prevOrder,
       [name]: value,
@@ -156,10 +152,7 @@ const DeliveryCostCalculator = () => {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     userType?: 'sender' | 'receiver',
   ) => {
-    const {
-      name,
-      value
-    } = e.target;
+    const { name, value } = e.target;
 
     if (userType) {
       setOrder((prevOrder) => ({
@@ -246,10 +239,10 @@ const DeliveryCostCalculator = () => {
       );
       break;
     case 2:
-      steps = <Step2OfficeSelection order={order} setOrder={setOrder}/>;
+      steps = <Step2OfficeSelection order={order} setOrder={setOrder} />;
       break;
     case 3:
-      steps = <Step3RecipientOfficeSelection order={order} setOrder={setOrder}/>;
+      steps = <Step3RecipientOfficeSelection order={order} setOrder={setOrder} />;
       break;
     case 4:
       steps = (
@@ -262,22 +255,19 @@ const DeliveryCostCalculator = () => {
       );
       break;
     case 5:
-      steps = <Step5Review
-        order={order}
-        doorDelivery={isDoorDelivery}
-      />;
+      steps = <Step5Review order={order} doorDelivery={isDoorDelivery} />;
   }
 
   return (
     <div className="container" id={'calculator'}>
-      <Toaster/>
+      <Toaster />
       <DeliveryModal />
       <h3 className="text-xl font-medium text-center mb-10">
-        Жеткирүү баасын эсептөө калькулятору <br/> Калькулятор расчёта стоимости доставки
+        Жеткирүү баасын эсептөө калькулятору <br /> Калькулятор расчёта стоимости доставки
       </h3>
 
       <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
-        <StepIndicator currentStep={currentStep} doorDelivery={isDoorDelivery}/>
+        <StepIndicator currentStep={currentStep} doorDelivery={isDoorDelivery} />
 
         <div>
           {steps}
@@ -288,16 +278,15 @@ const DeliveryCostCalculator = () => {
                 onClick={handleBack}
                 className="flex items-center gap-2 w-full sm:w-auto justify-center bg-gray-500 hover:bg-gray-600 text-white px-6 py-3"
               >
-                <ArrowLeft size={20}/>
+                <ArrowLeft size={20} />
                 <span>Артка / Назад</span>
               </Button>
               {currentStep === 4 && (
-                <div
-                  className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-none">
-                  <Checkbox checked={isAgreed} onCheckedChange={() => setIsAgreed(!isAgreed)}/>
+                <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-0">
+                  <Checkbox checked={isAgreed} onCheckedChange={() => setIsAgreed(!isAgreed)} />
                   <Label className="text-sm text-gray-600 leading-tight">
                     Мен жеке маалыматтарды иштетүүгө макулмун
-                    <br/>Я согласен на обработку персональных данных
+                    <br />Я согласен на обработку персональных данных
                   </Label>
                 </div>
               )}
@@ -309,7 +298,7 @@ const DeliveryCostCalculator = () => {
                   onClick={handleSubmit}
                 >
                   <span>Төлөө / Оплата</span>
-                  <ArrowRight size={20}/>
+                  <ArrowRight size={20} />
                 </Button>
               ) : (
                 <Button
@@ -319,12 +308,12 @@ const DeliveryCostCalculator = () => {
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   <span>{currentStep === 5 ? 'Төлөө / Оплата' : 'Алдыга / Вперед'}</span>
-                  <ArrowRight size={20}/>
+                  <ArrowRight size={20} />
                 </Button>
               )}
             </div>
           )}
-          {currentStep === 1 && <WarningNotices/>}
+          {currentStep === 1 && <WarningNotices />}
         </div>
       </div>
     </div>
