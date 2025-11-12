@@ -11,19 +11,19 @@ export const useFileStore = create<FileState>((set, get) => ({
   loadingPvz: false,
   loadingHand: false,
 
-  setLoadingPvz: (value: boolean) => set({loadingPvz: value}),
-  setLoadingHand: (value: boolean) => set({loadingHand: value}),
-  setPvzFile: (file) => set({pvzFile: file}),
-  setHandFile: (file) => set({handFile: file}),
+  setLoadingPvz: (value: boolean) => set({ loadingPvz: value }),
+  setLoadingHand: (value: boolean) => set({ loadingHand: value }),
+  setPvzFile: (file) => set({ pvzFile: file }),
+  setHandFile: (file) => set({ handFile: file }),
 
   uploadFiles: async (typeFile: string) => {
-    const {pvzFile, handFile} = get();
+    const { pvzFile, handFile } = get();
 
     const token = useAdminStore.getState().admin!.token;
 
     let fileToSend: File | null = null;
 
-    if (typeFile === "PVZ") {
+    if (typeFile === 'PVZ') {
       fileToSend = pvzFile;
       set({loadingPvz: true});
     } else if (typeFile === "Hand") {
@@ -38,7 +38,7 @@ export const useFileStore = create<FileState>((set, get) => ({
     }
 
     const formData = new FormData();
-    formData.append("data", fileToSend);
+    formData.append('data', fileToSend);
 
     try {
       await axiosApi.post(`/prices/upload?type=${typeFile}`, formData, {headers: {Authorization: token}})

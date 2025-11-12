@@ -18,14 +18,13 @@ const ParcelItem = ({ parcel }: Props) => {
     _id,
     trackingNumber,
     partnerTrackingNumber,
-    senderFullName,
-    recipientFullName,
-    recipientPhoneNumber,
     status,
     createdAt,
     isPaid,
     partnerStickerReceived,
     weight,
+    sender,
+    recipient,
   } = parcel;
 
   const navigate = useNavigate();
@@ -48,15 +47,17 @@ const ParcelItem = ({ parcel }: Props) => {
             <Play size={12} fill="currentColor" />
           </div>
           <p className="font-bold m-0 text-base md:text-lg">{trackingNumber}</p>
-          <p className="font-bold m-0 text-base md:text-lg">{partnerTrackingNumber}</p>
-          <span className="text-gray-500 text-sm">(трек номер партнера)</span>
+          <div className="flex md:flex-row md:items-center gap-3 md:ml-auto sm: flex-col  sm: items-start">
+            <p className="font-bold m-0 text-base md:text-lg">{partnerTrackingNumber}</p>
+            <span className="text-gray-500 text-sm">(трек номер партнера)</span>
+          </div>
         </div>
 
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
             <div className="flex gap-3 md:col-span-2">
               <img src={icCalendar} alt="Calendar icon" className="w-5 h-5" />
-              <div className="flex flex-col gap-0.5 text-sm">
+              <div className="flex flex-col gap-0.5 text-sm ">
                 <span className="font-medium">{dayjs(createdAt).format('DD.MM.YYYY')}</span>
                 <span className="text-gray-600">{dayjs(createdAt).format('HH:mm:ss')}</span>
               </div>
@@ -66,11 +67,11 @@ const ParcelItem = ({ parcel }: Props) => {
               <p className="m-0 text-base whitespace-nowrap">Отправитель:</p>
               <div className="flex items-center gap-2">
                 <img src={icUser} alt="User icon" className="w-5 h-5" />
-                <p className="m-0 font-bold text-base">{senderFullName}</p>
+                <p className="m-0 font-bold text-base">{sender.fullName}</p>
               </div>
             </div>
 
-            <div className="flex justify-between md:justify-end gap-4 md:col-span-5 md:flex-row sm: flex-col">
+            <div className="flex justify-between md:justify-end gap-4 md:col-span-5 md:flex-row sm: flex-col lg:items-center">
               {isPaid && (
                 <div className="flex items-center gap-2">
                   <img src={icBanknote} alt="Banknote icon" className="w-8 h-8 md:w-9 md:h-9" />
@@ -93,7 +94,7 @@ const ParcelItem = ({ parcel }: Props) => {
                 </div>
               )}
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <img src={icWeight} alt="Weight icon" className="w-5 h-5" />
                 <p className="m-0 text-base md:text-lg font-bold whitespace-nowrap">
                   Вес: {weight} кг
@@ -109,14 +110,14 @@ const ParcelItem = ({ parcel }: Props) => {
               <p className="m-0 text-base whitespace-nowrap">Получатель:</p>
               <div className="flex items-center gap-2">
                 <img src={icUser} alt="User icon" className="w-5 h-5" />
-                <p className="m-0 font-bold text-base">{recipientFullName}</p>
+                <p className="m-0 font-bold text-base">{recipient.fullName}</p>
               </div>
             </div>
 
-            <div className="flex justify-between md:justify-end gap-4 md:col-span-5 md:flex-row sm: flex-col">
+            <div className="flex justify-between md:justify-end gap-4 md:col-span-5 md:flex-row sm: flex-col ml-7">
               <div className="flex items-center gap-2 ">
                 <img src={icPhone} alt="Phone icon" className="w-5 h-5" />
-                <p className="m-0 font-bold text-base md:text-lg">{recipientPhoneNumber}</p>
+                <p className="m-0 font-bold text-base md:text-lg">{recipient.phoneNumber}</p>
               </div>
 
               <button
