@@ -18,14 +18,13 @@ const ParcelItem = ({ parcel }: Props) => {
     _id,
     trackingNumber,
     partnerTrackingNumber,
-    senderFullName,
-    recipientFullName,
-    recipientPhoneNumber,
     status,
     createdAt,
     isPaid,
     partnerStickerReceived,
     weight,
+    sender,
+    recipient,
   } = parcel;
 
   const navigate = useNavigate();
@@ -68,7 +67,7 @@ const ParcelItem = ({ parcel }: Props) => {
               <p className="m-0 text-base whitespace-nowrap">Отправитель:</p>
               <div className="flex items-center gap-2">
                 <img src={icUser} alt="User icon" className="w-5 h-5" />
-                <p className="m-0 font-bold text-base">{senderFullName}</p>
+                <p className="m-0 font-bold text-base">{sender.fullName}</p>
               </div>
             </div>
 
@@ -111,14 +110,14 @@ const ParcelItem = ({ parcel }: Props) => {
               <p className="m-0 text-base whitespace-nowrap">Получатель:</p>
               <div className="flex items-center gap-2">
                 <img src={icUser} alt="User icon" className="w-5 h-5" />
-                <p className="m-0 font-bold text-base">{recipientFullName}</p>
+                <p className="m-0 font-bold text-base">{recipient.fullName}</p>
               </div>
             </div>
 
             <div className="flex justify-between md:justify-end gap-4 md:col-span-5 md:flex-row sm: flex-col ml-7">
               <div className="flex items-center gap-2 ">
                 <img src={icPhone} alt="Phone icon" className="w-5 h-5" />
-                <p className="m-0 font-bold text-base md:text-lg">{recipientPhoneNumber}</p>
+                <p className="m-0 font-bold text-base md:text-lg">{recipient.phoneNumber}</p>
               </div>
 
               <button

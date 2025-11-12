@@ -74,10 +74,7 @@ export const createParcel = async (
       .populate("sender")
       .populate("recipient");
 
-    res.status(201).json({
-      message: "Parcel successfully created",
-      parcel: populatedParcel,
-    });
+    res.send(populatedParcel);
   } catch (e) {
     next(e);
   }
@@ -94,10 +91,7 @@ export const getParcels = async (
       .populate("recipient")
       .sort({ createdAt: -1 });
 
-    res.status(200).json({
-      count: parcels.length,
-      parcels,
-    });
+    res.send(parcels);
   } catch (e) {
     next(e);
   }
@@ -123,7 +117,7 @@ export const getParcelById = async (
       return res.status(404).json({ error: "Parcel not found" });
     }
 
-    res.status(200).json({ parcel });
+    res.send(parcel);
   } catch (e) {
     next(e);
   }
@@ -147,7 +141,7 @@ export const getParcelByTrackingNumber = async (
         .json({ error: "Parcel with this tracking number not found" });
     }
 
-    res.status(200).json({ parcel });
+    res.send(parcel);
   } catch (e) {
     next(e);
   }

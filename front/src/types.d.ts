@@ -4,20 +4,48 @@ export interface Admin {
   token: string;
 }
 
+export interface IContact {
+  _id: string;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  address: string;
+  description?: string;
+  type: 'sender' | 'recipient';
+  createdAt: Date;
+}
+
 export interface IParcel {
   _id: string;
   trackingNumber: string;
-  partnerTrackingNumber: string;
-  senderFullName: string;
-  recipientFullName: string;
-  recipientPhoneNumber: string;
+  partnerTrackingNumber?: string;
+  sender: {
+    _id: string;
+    fullName: string;
+    phoneNumber: string;
+    email: string;
+    address: string;
+    description?: string;
+    type: 'sender';
+    createdAt: Date;
+  };
+  recipient: {
+    _id: string;
+    fullName: string;
+    phoneNumber: string;
+    email: string;
+    address: string;
+    description?: string;
+    type: 'recipient';
+    createdAt: Date;
+  };
   originCity: string;
   destinationCity: string;
-  status: string;
-  createdAt: string;
+  status: 'created' | 'in_transit' | 'delivered' | 'cancelled';
   isPaid: boolean;
   partnerStickerReceived: boolean;
   weight: number;
+  createdAt: Date;
 }
 
 export interface GlobalError {
