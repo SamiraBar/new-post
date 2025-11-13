@@ -3,9 +3,9 @@ import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
 
 export const createParcel = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
 ) => {
   try {
     const {
@@ -21,12 +21,12 @@ export const createParcel = async (
     } = req.body;
 
     if (
-      !trackingNumber ||
-      !sender ||
-      !recipient ||
-      !originCity ||
-      !destinationCity ||
-      !weight
+        !trackingNumber ||
+        !sender ||
+        !recipient ||
+        !originCity ||
+        !destinationCity ||
+        !weight
     ) {
       return res.status(400).json({
         error: "Not all required fields are filled",
@@ -38,6 +38,29 @@ export const createParcel = async (
           "destinationCity",
           "weight",
         ],
+      });
+    }
+
+    const weightValue = parseFloat(weight);
+    if (isNaN(weightValue) || weightValue <= 0) {
+      return res.status(400).json({
+        error: "Weight must be a positive number",
+      });
+    }
+
+    const MAX_WEIGHT = 15;
+    if (weightValue > MAX_WEIGHT) {
+      return res.status(400).json({
+        error: `Weight cannot exceed ${MAX_WEIGHT} kg`,
+        maxWeight: MAX_WEIGHT
+      });
+    }
+
+    const MIN_WEIGHT = 0.1;
+    if (weightValue < MIN_WEIGHT) {
+      return res.status(400).json({
+        error: `Weight must be at least ${MIN_WEIGHT} kg`,
+        minWeight: MIN_WEIGHT
       });
     }
 
@@ -62,7 +85,7 @@ export const createParcel = async (
       recipient,
       originCity,
       destinationCity,
-      weight,
+      weight: weightValue,
       isPaid: isPaid || false,
       partnerStickerReceived: partnerStickerReceived || false,
       status: "created",
@@ -71,8 +94,8 @@ export const createParcel = async (
     await newParcel.save();
 
     const populatedParcel = await Parcel.findById(newParcel._id)
-      .populate("sender")
-      .populate("recipient");
+        .populate("sender")
+        .populate("recipient");
 
     res.send(populatedParcel);
   } catch (e) {
