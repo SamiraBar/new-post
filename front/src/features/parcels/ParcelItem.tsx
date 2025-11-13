@@ -29,6 +29,8 @@ const ParcelItem = ({ parcel }: Props) => {
 
   const navigate = useNavigate();
 
+  console.log(parcel);
+
   return (
     <div className="flex flex-col lg:flex-row gap-4 w-full bg-amber-50 p-4 md:p-6 rounded-2xl relative">
       <div className="absolute top-4 right-4 lg:top-6 lg:right-6">

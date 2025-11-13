@@ -9,4 +9,7 @@ export interface ParcelState {
   getParcelLoading: boolean;
   getParcelError: GlobalError | null;
   getParcelById: (id: string) => Promise<boolean>;
+  editParcelStatusLoading: boolean;
+  editParcelStatusError: GlobalError | null;
+  editParcelStatus: (trackingNumber: string, status: string) => Promise<boolean>;
 }

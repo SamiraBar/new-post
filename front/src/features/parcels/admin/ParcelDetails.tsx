@@ -33,7 +33,7 @@ const ParcelDetails = () => {
     <div className="max-w-6xl mx-auto p-6 bg-white space-y-10 text-[15px] text-gray-900">
         <ParcelItem  parcel={parcel} />
         <div className="mt-10">
-        <ParcelStatus currentStep={getStepFromStatus(parcel.status)} />
+        <ParcelStatus currentStep={getStepFromStatus(parcel.status)} trackingNumber={parcel.trackingNumber} />
       </div>
 
       <Card className="border-gray-300 rounded-md overflow-hidden">
