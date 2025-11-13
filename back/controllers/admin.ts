@@ -26,6 +26,7 @@ export const adminCreate = async (req: Request, res: Response, next: NextFunctio
   const adminData: Omit<AdminDef, "token" | "role"> = {
     email: req.body.email,
     password: req.body.password,
+    displayName: req.body.displayName,
   };
 
   try {
@@ -36,8 +37,15 @@ export const adminCreate = async (req: Request, res: Response, next: NextFunctio
     res.send(admin);
   } catch (error) {
     if (error instanceof mongoose.Error.ValidationError) {
-      return res.status(400).send({error});
+      const errors = Object.values(error.errors).map(err => err.message);
+
+      return res.status(400).send({
+        error: {
+          message: errors.join(', ')
+        }
+      });
     }
+
     next(error);
   }
 }
@@ -59,7 +67,7 @@ export const adminDelete = async (req: Request, res: Response, next: NextFunctio
 
 export const allAdmins = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const admins = await Admin.find();
+    const admins = await Admin.find().sort({role: -1});
     res.send(admins);
   } catch (error) {
     next(error)

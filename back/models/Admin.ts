@@ -26,7 +26,7 @@ const AdminSchema = new Schema<AdminDef, AdminModel, AdminMethods>({
           const admin = await Admin.findOne({email: value});
           return Boolean(!admin);
         },
-        message: 'This user already exist'
+        message: 'Пользователь уже существует'
       }
     },
     password: {
@@ -35,10 +35,11 @@ const AdminSchema = new Schema<AdminDef, AdminModel, AdminMethods>({
         validator: (value: string) => {
           return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\S]{8,}$/.test(value);
         },
-        message: 'Password must be at least 8 characters and in both registers'
+        message: 'Пароль должен быть как минимум 8 символов и с заглавными буквами'
       }
     },
     token: {type: String, required: true},
+    displayName: {type: String, required: true},
     role: {type: String, required: true, enum: ["admin", "superAdmin"], default: "admin"},
   }
 )
