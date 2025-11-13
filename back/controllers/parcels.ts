@@ -169,3 +169,47 @@ export const getParcelByTrackingNumber = async (
     next(e);
   }
 };
+
+export const updateParcelStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+  try {
+    const { trackingNumber } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: "Status is required" });
+    }
+
+    const validStatuses = ["created", "accepted", "delivered"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        error: "Invalid status",
+        validStatuses: validStatuses,
+      });
+    }
+
+    const parcel = await Parcel.findOneAndUpdate(
+        { trackingNumber },
+        { status },
+        { new: true, runValidators: true }
+    )
+        .populate("sender")
+        .populate("recipient");
+
+    if (!parcel) {
+      return res.status(404).json({
+        error: "Parcel with this tracking number not found",
+      });
+    }
+
+    res.send({
+      message: "Parcel status updated successfully",
+      parcel,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
