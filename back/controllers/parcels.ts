@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
-import dayjs from "dayjs";
 
 export const createParcel = async (
     req: Request,
@@ -89,7 +88,7 @@ export const createParcel = async (
       weight: weightValue,
       isPaid: isPaid || false,
       partnerStickerReceived: partnerStickerReceived || false,
-      status: "created",
+      status: "draft",
     });
 
     await newParcel.save();
@@ -98,7 +97,10 @@ export const createParcel = async (
         .populate("sender")
         .populate("recipient");
 
-    res.send(populatedParcel);
+    res.status(201).json({
+      message: "Parcel created successfully",
+      parcel: populatedParcel
+    });
   } catch (e) {
     next(e);
   }
@@ -113,7 +115,7 @@ export const getParcels = async (
     const parcels = await Parcel.find()
       .populate("sender")
       .populate("recipient")
-      .sort({ createdAt: -1 });
+      .sort({ draftedAt: -1 })
 
     res.send(parcels);
   } catch (e) {
@@ -169,16 +171,20 @@ export const getParcelByTrackingNumber = async (
       ...parcel.toJSON(),
       timeline: {
         draft: parcel.draftedAt ? {
-          date: dayjs(parcel.draftedAt).format("DD.MM.YYYY HH:mm")
+          date: parcel.draftedAtFormatted,
+          timestamp: parcel.draftedAt
         } : null,
         created: parcel.createdAt ? {
-          date: dayjs(parcel.createdAt).format("DD.MM.YYYY HH:mm")
+          date: parcel.createdAtFormatted,
+          timestamp: parcel.createdAt
         } : null,
         accepted: parcel.acceptedAt ? {
-          date: dayjs(parcel.acceptedAt).format("DD.MM.YYYY HH:mm")
+          date: parcel.acceptedAtFormatted,
+          timestamp: parcel.acceptedAt
         } : null,
         shipped: parcel.shippedAt ? {
-          date: dayjs(parcel.shippedAt).format("DD.MM.YYYY HH:mm")
+          date: parcel.shippedAtFormatted,
+          timestamp: parcel.shippedAt
         } : null,
       },
     };
@@ -202,19 +208,16 @@ export const updateParcelStatus = async (
       return res.status(400).json({ error: "Status is required" });
     }
 
-    const validStatuses = ["created", "accepted", "delivered"];
+    const validStatuses = ["draft", "created", "accepted", "shipped"];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         error: "Invalid status",
         validStatuses: validStatuses,
+        providedStatus: status,
       });
     }
 
-    const parcel = await Parcel.findOneAndUpdate(
-        { trackingNumber },
-        { status },
-        { new: true, runValidators: true }
-    )
+    const parcel = await Parcel.findOne({ trackingNumber })
         .populate("sender")
         .populate("recipient");
 
@@ -223,10 +226,47 @@ export const updateParcelStatus = async (
         error: "Parcel with this tracking number not found",
       });
     }
+    parcel.status = status;
+    await parcel.save();
 
-    res.send({
+    const freshParcel = await Parcel.findById(parcel._id)
+        .populate("sender")
+        .populate("recipient");
+
+    if (!freshParcel) {
+      return res.status(404).json({
+        error: "Parcel not found after update",
+      });
+    }
+
+    let statusDate: string | null = null;
+
+    switch (status) {
+      case "draft":
+        statusDate = freshParcel.draftedAtFormatted || null;
+        break;
+      case "created":
+        statusDate = freshParcel.createdAtFormatted || null;
+        break;
+      case "accepted":
+        statusDate = freshParcel.acceptedAtFormatted || null;
+        break;
+      case "shipped":
+        statusDate = freshParcel.shippedAtFormatted || null;
+        break;
+    }
+
+    const minimalParcel = {
+      trackingNumber: freshParcel.trackingNumber,
+      status: freshParcel.status,
+      statusDate: statusDate,
+      senderName: freshParcel.senderFullName || "",
+      recipientName: freshParcel.recipientFullName || ""
+    };
+
+    res.json({
       message: "Parcel status updated successfully",
-      parcel,
+      parcel: minimalParcel
     });
   } catch (e) {
     next(e);
