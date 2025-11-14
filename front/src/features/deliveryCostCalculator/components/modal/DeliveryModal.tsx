@@ -1,14 +1,12 @@
 import { useEffect } from 'react';
 import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 const DeliveryModal = () => {
-  const {
-    calcModal,
-    openOrCloseCalcModal,
-    selectDoorDelivery,
-    selectPickup,
-  } = useDeliveryStore();
+  const { calcModal, openOrCloseCalcModal, selectDoorDelivery, selectPickup } = useDeliveryStore();
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (calcModal) {
@@ -64,14 +62,7 @@ const DeliveryModal = () => {
                          text-white group-hover:text-orange-600 transition-colors duration-300
                          whitespace-normal break-words"
             >
-              Посылка беруу пунктка чейин жеткирүү
-            </span>
-            <span
-              className="text-sm font-bold text-center leading-tight relative z-10
-                         text-white group-hover:text-orange-500 transition-colors duration-300 mt-1
-                         whitespace-normal break-words"
-            >
-              Доставка до пункта выдачи посылок
+              {t('deliveryCostCalculator.modal.toPoint')}
             </span>
           </Button>
 
@@ -95,14 +86,7 @@ const DeliveryModal = () => {
                          text-white group-hover:text-orange-600 transition-colors duration-300
                          whitespace-normal break-words"
             >
-              Алуучунун уйунө чейин жеткирүү
-            </span>
-            <span
-              className="text-sm font-bold text-center leading-tight relative z-10
-                         text-white group-hover:text-orange-500 transition-colors duration-300 mt-1
-                         whitespace-normal break-words"
-            >
-              Доставка до двери получателя
+              {t('deliveryCostCalculator.modal.toTheDoor')}
             </span>
           </Button>
 
@@ -116,7 +100,7 @@ const DeliveryModal = () => {
                          font-bold"
               onClick={openOrCloseCalcModal}
             >
-              Жабуу / Закрыть
+              {t('deliveryCostCalculator.modal.close')}
             </Button>
           </div>
         </div>

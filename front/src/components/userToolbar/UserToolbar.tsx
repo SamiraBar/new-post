@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
 import logo from '../../assets/logo/newPostLogo.jpeg';
-import icWhatsapp from '../../assets/cosialIcons/WhatsApp.png';
-import LanguageSwitcher from '@/components/UserToolbar/LanguageSwitcher.tsx';
+// import icWhatsapp from '../../assets/cosialIcons/WhatsApp.png';
+import LanguageSwitcher from './LanguageSwitcher.tsx';
 import { useTranslation } from 'react-i18next';
 
 const navigationItems = [
@@ -75,13 +75,18 @@ const UserToolbar = () => {
 
             <NavigationMenuItem className="flex items-center gap-8">
               <div className="flex gap-2">
-                <a href="https://wa.me/996778465557?text=Здравствуйте%2C+у+меня+есть+вопрос" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
-                  <img
-                      src={icWhatsapp}
-                      alt="whatsapp"
-                      className="w-9 h-9 md:w-13 md:h-13 transition-transform duration-700 hover:scale-110"
-                  />
-                </a>
+                {/*<a*/}
+                {/*  href="https://wa.me/996778465557?text=Здравствуйте%2C+у+меня+есть+вопрос"*/}
+                {/*  aria-label="WhatsApp"*/}
+                {/*  target="_blank"*/}
+                {/*  rel="noopener noreferrer"*/}
+                {/*>*/}
+                {/*  <img*/}
+                {/*    src={icWhatsapp}*/}
+                {/*    alt="whatsapp"*/}
+                {/*    className="w-9 h-9 md:w-13 md:h-13 transition-transform duration-700 hover:scale-110"*/}
+                {/*  />*/}
+                {/*</a>*/}
                 <LanguageSwitcher />
               </div>
               <button

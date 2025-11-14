@@ -7,7 +7,10 @@ const FooterComponent = () => {
   const { t } = useTranslation();
 
   return (
-    <footer className="w-full bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.1)] sticky mt-25 py-6">
+    <footer
+      id="contacts"
+      className="w-full bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.1)] sticky mt-25 py-6"
+    >
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
         <div className="flex-shrink-0">
           <img
@@ -37,28 +40,28 @@ const FooterComponent = () => {
 
         <div className="flex justify-center md:justify-end items-center gap-6">
           <a
-              href="https://wa.me/996778465557?text=Здравствуйте%2C+у+меня+есть+вопрос"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="WhatsApp"
+            href="https://wa.me/996778465557?text=Здравствуйте%2C+у+меня+есть+вопрос"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="WhatsApp"
           >
             <img
-                src={whatsappIcon}
-                alt="WhatsApp"
-                className="rounded-full w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 transition-transform duration-700 hover:scale-110"
+              src={whatsappIcon}
+              alt="WhatsApp"
+              className="rounded-full w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 transition-transform duration-700 hover:scale-110"
             />
           </a>
 
           <a
-              href="https://www.instagram.com/newpost.kg/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Instagram"
+            href="https://www.instagram.com/newpost.kg/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
           >
             <img
-                src={instagramIcon}
-                alt="Instagram"
-                className="rounded-full w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 transition-transform duration-700 hover:scale-110"
+              src={instagramIcon}
+              alt="Instagram"
+              className="rounded-full w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 transition-transform duration-700 hover:scale-110"
             />
           </a>
         </div>

@@ -10,8 +10,11 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { useTranslation } from 'react-i18next';
 
 const DeliveryActions = () => {
+  const { t } = useTranslation();
+
   const {
     modalSelectDeliveryVariant,
     openOrCloseModalSelectDeliveryVariant,
@@ -35,9 +38,8 @@ const DeliveryActions = () => {
     <div className="container mx-auto my-10 p-5 max-w-6xl overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4 text-center">
-          <h4
-            className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 flex items-center justify-center mb-1 text-center text-base font-bold px-2 mx-auto">
-            Жеткирүү баасын эсептөө
+          <h4 className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 flex items-center justify-center mb-1 text-center text-base font-bold px-2 mx-auto">
+            {t('deliveryCalculation.headerCalculation')}
           </h4>
 
           <AlertDialog
@@ -50,13 +52,14 @@ const DeliveryActions = () => {
     hover:bg-white hover:text-black rounded-xl
     active:scale-95 active:shadow-lg active:bg-orange-500 transition-all duration-200 shadow-md hover:shadow-lg"
               >
-                Расчитать/Эсептөө
+                {t('deliveryCalculation.buttonCalculation')}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
              max-w-md w-full p-6 sm:p-8 md:p-10 rounded-2xl border-[3px] border-orange-500
-             bg-white shadow-2xl z-50">
+             bg-white shadow-2xl z-50"
+            >
               <div className="flex flex-col gap-4">
                 <VisuallyHidden asChild>
                   <AlertDialogTitle>Диалог</AlertDialogTitle>
@@ -87,14 +90,7 @@ const DeliveryActions = () => {
       text-white group-hover:text-orange-600 transition-colors duration-300
       [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]"
                   >
-                    Посылка беруу пунктка чейин жеткирүү
-                  </span>
-                  <span
-                    className="text-md font-bold text-center leading-tight relative z-10
-      text-white group-hover:text-orange-500 transition-colors duration-300 mt-1
-      [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]"
-                  >
-                    Доставка до пункта выдачи посылок
+                    {t('deliveryCalculation.modal.buttonOne')}
                   </span>
                 </Button>
                 <Button
@@ -120,14 +116,7 @@ const DeliveryActions = () => {
       text-white group-hover:text-orange-600 transition-colors duration-300
       [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]"
                   >
-                    Алуучунун уйунө чейин жеткирүү
-                  </span>
-                  <span
-                    className="text-md font-bold text-center leading-tight relative z-10
-      text-white group-hover:text-orange-500 transition-colors duration-300 mt-1
-      [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]"
-                  >
-                    Доставка до двери получателя
+                    {t('deliveryCalculation.modal.buttonTwo')}
                   </span>
                 </Button>
                 <div className="flex flex-col gap-3 mt-4">
@@ -142,20 +131,17 @@ const DeliveryActions = () => {
                       openOrCloseModalSelectDeliveryVariant();
                     }}
                   >
-                    Жабуу / Закрыть
+                    {t('deliveryCalculation.modal.closeButton')}
                   </AlertDialogCancel>
                 </div>
               </div>
             </AlertDialogContent>
           </AlertDialog>
-
-          <p>Рассчитать доставку</p>
         </div>
 
         <div className="space-y-4 text-center">
-          <h4
-            className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 flex items-center justify-center mb-1 text-center text-base font-bold px-2 mx-auto">
-            Посылканы көзөмөлдөө
+          <h4 className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 flex items-center justify-center mb-1 text-center text-base font-bold px-2 mx-auto">
+            {t('deliveryCalculation.parcelTracking')}
           </h4>
 
           <div className="flex gap-0 w-full max-w-80 sm:max-w-96 md:max-w-110 mx-auto">
@@ -171,10 +157,9 @@ const DeliveryActions = () => {
                   hover:bg-orange-400 hover:border-orange-500
                   active:scale-95 active:shadow-lg active:bg-orange-500 transition-all duration-200 h-11 shadow-md hover:shadow-lg"
             >
-              <Search className="w-8 h-8"/>
+              <Search className="w-8 h-8" />
             </Button>
           </div>
-          <p>Отследить посылку</p>
         </div>
       </div>
     </div>

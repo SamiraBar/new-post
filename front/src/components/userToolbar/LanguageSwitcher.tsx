@@ -21,8 +21,6 @@ const LanguageSwitcher = () => {
       </button>
 
       <div className="hidden sm:flex items-center gap-3">
-        <span className="text-sm font-semibold uppercase text-gray-700">{currentLang}</span>
-
         <button
           role="switch"
           aria-checked={isKyrgyz}
@@ -42,6 +40,9 @@ const LanguageSwitcher = () => {
             )}
           />
         </button>
+        <span className="text-sm font-semibold uppercase text-gray-700 w-[20px] mr-5">
+          {currentLang}
+        </span>
       </div>
     </div>
   );
