@@ -1,16 +1,18 @@
 import { create } from 'zustand';
 import axiosApi from '@/axiosApi.ts';
 import type { AdminState } from '@/stores/adminStore/types.ts';
-import type { Admin } from '@/types';
-import axios from 'axios';
+import type { Admin, AdminMutation } from '@/types';
+import axios, { isAxiosError } from 'axios';
 import { persist } from 'zustand/middleware';
 
 export const useAdminStore = create<AdminState>()(
   persist(
     (set) => ({
+      allAdmins: null,
       admin: null,
       loginLoading: false,
       loginError: null,
+      createAdminError: null,
 
       async login(data) {
         try {
@@ -33,6 +35,36 @@ export const useAdminStore = create<AdminState>()(
         } finally {
           set({ loginLoading: false });
         }
+      },
+
+      async getAllAdmins() {
+        const token = useAdminStore.getState().admin!.token;
+        const { data: allAdmins } = await axiosApi.get<Admin[]>('/admins/', {headers: {Authorization: token}});
+        set({ allAdmins });
+      },
+
+      async createAdmin(data: AdminMutation) {
+        try {
+          set({ createAdminError: null });
+          const token = useAdminStore.getState().admin!.token;
+
+          await axiosApi.post('/admins/create', data, {
+            headers: { Authorization: token },
+          });
+
+          return true;
+        } catch (e) {
+          if (isAxiosError(e)) {
+            const errors = e.response?.data?.error?.message || e.message;
+            set({ createAdminError: errors });
+          }
+          return false;
+        }
+      },
+
+      async deleteAdmin(id: string) {
+        const token = useAdminStore.getState().admin!.token;
+        await axiosApi.delete(`/admins/${id}`, {headers: {Authorization: token}});
       },
 
       async logout() {
