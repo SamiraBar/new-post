@@ -7,11 +7,11 @@ export interface AdminDef {
 }
 
 export interface CourierCityRow {
-    "City Name": string;
-    "Country"?: string;
+    "Название города": string;
+    "Страна"?: string;
 }
 
 export interface PickupCityRow {
-    "City Name": string;
-    "Region"?: string;
+    "Название города": string;
+    "Регион"?: string;
 }
