@@ -1,7 +1,8 @@
 import mongoose, {Model} from "mongoose";
 import {AdminDef} from "../types";
 import bcrypt from "bcrypt";
-import {randomUUID} from "node:crypto";
+import jwt from "jsonwebtoken";
+import {secret} from "../config";
 
 interface AdminMethods {
   checkPassword(password: string): Promise<boolean>;
@@ -67,7 +68,7 @@ AdminSchema.methods.checkPassword = function (password: string) {
 };
 
 AdminSchema.methods.generateToken = function () {
-  this.token = randomUUID();
+  this.token = jwt.sign({id: this._id}, secret, {expiresIn: "2h"});
 }
 
 const Admin = mongoose.model<AdminDef, AdminModel>("Admin", AdminSchema);
