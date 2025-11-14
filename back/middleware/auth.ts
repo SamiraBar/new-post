@@ -12,12 +12,12 @@ const auth = async (expressReq: Request, res: Response, next: NextFunction) => {
 
     const token = req.get('Authorization');
     if (!token) {
-        return res.status(401).send({error: 'No token present'});
+        return res.status(401).send({error: 'Токен отсутствует!'});
     }
 
     const admin = await Admin.findOne({token});
     if (!admin) {
-        return res.status(401).send({error: 'Wrong token!'});
+        return res.status(401).send({error: 'Токен устарел!'});
     }
 
     req.admin = admin;

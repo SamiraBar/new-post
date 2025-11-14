@@ -2,6 +2,14 @@ export interface Admin {
   _id: string;
   email: string;
   token: string;
+  role: string;
+  displayName: string;
+}
+
+export interface AdminMutation {
+  displayName: string;
+  email: string;
+  password: string;
 }
 
 export interface IContact {

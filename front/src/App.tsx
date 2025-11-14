@@ -3,6 +3,7 @@ import UserPage from '@/components/userPage/UserPage';
 import AdminPanel from '@/features/adminPanel/AdminPanel';
 import AdminLoginForm from '@/features/adminPanel/AdminLoginForm.tsx';
 import { Toaster } from '@/components/ui/sonner';
+import AdminModeration from '@/features/adminPanel/AdminModeration.tsx';
 import ParcelDetails from './features/parcels/admin/ParcelDetails';
 
 const App = () => {
@@ -15,6 +16,7 @@ const App = () => {
           <Route index element={<UserPage />} />
           <Route path="admin" element={<AdminPanel />} />
           <Route path="admin/login" element={<AdminLoginForm />} />
+          <Route path="admin/moderation" element={<AdminModeration />} />
           <Route path="parcels/:id" element={<ParcelDetails />} />
         </Routes>
       </BrowserRouter>

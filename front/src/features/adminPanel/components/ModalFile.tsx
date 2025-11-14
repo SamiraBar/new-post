@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/dialog.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import { DatabaseIcon } from 'lucide-react';
-import { NavigationMenuItem } from '@/components/ui/navigation-menu.tsx';
 import useFileStore from '@/stores/fileStore/fileStore.ts';
 import { type ChangeEvent } from 'react';
 import { toast } from 'sonner';
@@ -40,14 +39,10 @@ const ModalFile = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <NavigationMenuItem className="hidden sm:inline-flex">
-          <Button
-            className="bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700"
-            size={'icon'}
-          >
-            <DatabaseIcon />
-          </Button>
-        </NavigationMenuItem>
+        <div className="flex gap-3 items-center w-full">
+          Обновить БД
+          <DatabaseIcon />
+        </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

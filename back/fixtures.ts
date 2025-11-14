@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import config from "./config";
 import Admin from "./models/Admin";
-import { randomUUID } from "node:crypto";
+import {randomUUID} from "node:crypto";
 import Parcel from "./models/Parcel";
 import Contact from "./models/Contact";
 
@@ -17,9 +17,23 @@ const run = async () => {
   }
 
   await Admin.create({
-    email: "AdminNum1@gmail.com",
-    password: "Qwerty123",
+    email: 'AdminNum1@gmail.com',
+    password: 'Qwerty123',
     token: randomUUID(),
+    role: 'superAdmin',
+    displayName: 'Main Admin',
+  }, {
+    email: "AdminNum2@gmail.com",
+    password: 'Qwerty123',
+    token: randomUUID(),
+    role: 'admin',
+    displayName: 'Some Admin',
+  }, {
+    email: "AdminNum3@gmail.com",
+    password: 'Qwerty123',
+    token: randomUUID(),
+    role: 'admin',
+    displayName: 'Post Admin',
   });
 
   const [senderOne, recipientOne, senderTwo, recipientTwo] =
