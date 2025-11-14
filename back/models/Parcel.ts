@@ -1,105 +1,186 @@
 import mongoose from "mongoose";
 import Contact, { IContact } from "./Contact";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const Schema = mongoose.Schema;
 
 export interface IParcel extends mongoose.Document {
-  trackingNumber: string;
-  partnerTrackingNumber?: string;
-  sender: mongoose.Types.ObjectId | IContact;
-  recipient: mongoose.Types.ObjectId | IContact;
-  originCity: string;
-  destinationCity: string;
-  status: "created" | "accepted" | "delivered";
-  isPaid: boolean;
-  partnerStickerReceived: boolean;
-  weight: number;
-  senderFullName?: string;
-  recipientFullName?: string;
-  recipientPhoneNumber?: string;
-  createdAt: Date;
+    trackingNumber: string;
+    partnerTrackingNumber?: string;
+    sender: mongoose.Types.ObjectId | IContact;
+    recipient: mongoose.Types.ObjectId | IContact;
+    originCity: string;
+    destinationCity: string;
+    status: "draft" | "created" | "accepted" | "shipped";
+    isPaid: boolean;
+    partnerStickerReceived: boolean;
+    weight: number;
+    senderFullName?: string;
+    recipientFullName?: string;
+    recipientPhoneNumber?: string;
+
+    draftedAt?: Date;
+    createdAt?: Date;
+    acceptedAt?: Date;
+    shippedAt?: Date;
+
+    draftedAtFormatted?: string;
+    createdAtFormatted?: string;
+    acceptedAtFormatted?: string;
+    shippedAtFormatted?: string;
 }
 
 const ParcelSchema = new Schema(
-  {
-    trackingNumber: {
-      type: String,
-      required: [true, "Tracking number is required"],
-      unique: true,
-    },
-    partnerTrackingNumber: {
-      type: String,
-      default: null,
-    },
-    sender: {
-      type: Schema.Types.ObjectId,
-      ref: "Contact",
-      required: true,
-      validate: {
-        validator: async (value: string) => {
-          const contact = await Contact.findById(value);
-          return !!contact && contact.type === "sender";
+    {
+        trackingNumber: {
+            type: String,
+            required: [true, "Tracking number is required"],
+            unique: true,
         },
-        message: "Sender not found or not a sender type",
-      },
-    },
-    recipient: {
-      type: Schema.Types.ObjectId,
-      ref: "Contact",
-      required: true,
-      validate: {
-        validator: async (value: string) => {
-          const contact = await Contact.findById(value);
-          return !!contact && contact.type === "recipient";
+        partnerTrackingNumber: {
+            type: String,
+            default: null,
         },
-        message: "Recipient not found or not a recipient type",
-      },
+        sender: {
+            type: Schema.Types.ObjectId,
+            ref: "Contact",
+            required: true,
+            validate: {
+                validator: async (value: string) => {
+                    const contact = await Contact.findById(value);
+                    return !!contact && contact.type === "sender";
+                },
+                message: "Sender not found or not a sender type",
+            },
+        },
+        recipient: {
+            type: Schema.Types.ObjectId,
+            ref: "Contact",
+            required: true,
+            validate: {
+                validator: async (value: string) => {
+                    const contact = await Contact.findById(value);
+                    return !!contact && contact.type === "recipient";
+                },
+                message: "Recipient not found or not a recipient type",
+            },
+        },
+        originCity: {
+            type: String,
+            required: [true, "Origin city is required"],
+        },
+        destinationCity: {
+            type: String,
+            required: [true, "Destination city is required"],
+        },
+        status: {
+            type: String,
+            enum: ["draft", "created", "accepted", "shipped"],
+            default: "draft",
+        },
+        isPaid: {
+            type: Boolean,
+            default: false,
+        },
+        partnerStickerReceived: {
+            type: Boolean,
+            default: false,
+        },
+        weight: {
+            type: Number,
+            required: [true, "Weight is required"],
+            min: [0.1, "Weight must be greater than 0"],
+        },
+        draftedAt: {
+            type: Date,
+            default: null,
+        },
+        createdAt: {
+            type: Date,
+            default: null,
+        },
+        acceptedAt: {
+            type: Date,
+            default: null,
+        },
+        shippedAt: {
+            type: Date,
+            default: null,
+        },
     },
-    originCity: {
-      type: String,
-      required: [true, "Origin city is required"],
-    },
-    destinationCity: {
-      type: String,
-      required: [true, "Destination city is required"],
-    },
-    status: {
-      type: String,
-      enum: ["created", "in_transit", "delivered", "cancelled"],
-      default: "created",
-    },
-    isPaid: {
-      type: Boolean,
-      default: false,
-    },
-    partnerStickerReceived: {
-      type: Boolean,
-      default: false,
-    },
-    weight: {
-      type: Number,
-      required: [true, "Weight is required"],
-      min: [0.1, "Weight must be greater than 0"],
-    },
-  },
-  {
-    timestamps: true,
-  }
+    {
+        timestamps: false,
+    }
 );
 
+ParcelSchema.pre("save", function (next) {
+    const now = dayjs().tz("Asia/Bishkek").toDate();
+
+    if (this.status === "draft" && !this.draftedAt) {
+        this.draftedAt = now;
+    }
+
+    if (this.status === "created" && !this.createdAt) {
+        this.createdAt = now;
+    }
+
+    if (this.status === "accepted" && !this.acceptedAt) {
+        this.acceptedAt = now;
+    }
+
+    if (this.status === "shipped" && !this.shippedAt) {
+        this.shippedAt = now;
+    }
+
+    next();
+});
+
+ParcelSchema.virtual("draftedAtFormatted").get(function (this: IParcel) {
+    if (!this.draftedAt) return null;
+    return dayjs(this.draftedAt)
+        .tz("Asia/Bishkek")
+        .format("DD.MM.YYYY HH:mm");
+});
+
+ParcelSchema.virtual("createdAtFormatted").get(function (this: IParcel) {
+    if (!this.createdAt) return null;
+    return dayjs(this.createdAt)
+        .tz("Asia/Bishkek")
+        .format("DD.MM.YYYY HH:mm");
+});
+
+ParcelSchema.virtual("acceptedAtFormatted").get(function (this: IParcel) {
+    if (!this.acceptedAt) return null;
+    return dayjs(this.acceptedAt)
+        .tz("Asia/Bishkek")
+        .format("DD.MM.YYYY HH:mm");
+});
+
+ParcelSchema.virtual("shippedAtFormatted").get(function (this: IParcel) {
+    if (!this.shippedAt) return null;
+    return dayjs(this.shippedAt)
+        .tz("Asia/Bishkek")
+        .format("DD.MM.YYYY HH:mm");
+});
+
 ParcelSchema.virtual("senderFullName").get(function (this: IParcel) {
-  const sender = this.sender as IContact;
-  return sender.fullName;
+    const sender = this.sender as IContact;
+    return sender.fullName;
 });
 
 ParcelSchema.virtual("recipientFullName").get(function (this: IParcel) {
-  const recipient = this.recipient as IContact;
-  return recipient.fullName;
+    const recipient = this.recipient as IContact;
+    return recipient.fullName;
 });
 
 ParcelSchema.virtual("recipientPhoneNumber").get(function (this: IParcel) {
-  const recipient = this.recipient as IContact;
-  return recipient.phoneNumber;
+    const recipient = this.recipient as IContact;
+    return recipient.phoneNumber;
 });
 
 ParcelSchema.set("toJSON", { virtuals: true });

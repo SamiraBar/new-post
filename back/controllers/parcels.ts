@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
+import dayjs from "dayjs";
 
 export const createParcel = async (
     req: Request,
@@ -147,24 +148,42 @@ export const getParcelById = async (
 };
 
 export const getParcelByTrackingNumber = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
 ) => {
   try {
     const { trackingNumber } = req.params;
 
     const parcel = await Parcel.findOne({ trackingNumber })
-      .populate("sender")
-      .populate("recipient");
+        .populate("sender")
+        .populate("recipient");
 
     if (!parcel) {
-      return res
-        .status(404)
-        .json({ error: "Parcel with this tracking number not found" });
+      return res.status(404).json({
+        error: "Parcel with this tracking number not found",
+      });
     }
 
-    res.send(parcel);
+    const response = {
+      ...parcel.toJSON(),
+      timeline: {
+        draft: parcel.draftedAt ? {
+          date: dayjs(parcel.draftedAt).format("DD.MM.YYYY HH:mm")
+        } : null,
+        created: parcel.createdAt ? {
+          date: dayjs(parcel.createdAt).format("DD.MM.YYYY HH:mm")
+        } : null,
+        accepted: parcel.acceptedAt ? {
+          date: dayjs(parcel.acceptedAt).format("DD.MM.YYYY HH:mm")
+        } : null,
+        shipped: parcel.shippedAt ? {
+          date: dayjs(parcel.shippedAt).format("DD.MM.YYYY HH:mm")
+        } : null,
+      },
+    };
+
+    res.send(response);
   } catch (e) {
     next(e);
   }
