@@ -3,7 +3,6 @@ import axiosApi from '@/axiosApi.ts';
 import axios, { isAxiosError } from 'axios';
 import type { ParcelState } from './types';
 import type { IParcel } from '@/types';
-import { useAdminStore } from '../adminStore/adminStore';
 
 export const useParcelsStore = create<ParcelState>()((set) => ({
   parcels: [],
@@ -16,19 +15,12 @@ export const useParcelsStore = create<ParcelState>()((set) => ({
   editParcelStatusError: null,
 
   async getParcels() {
-    const token = useAdminStore.getState().admin?.token;
-    if (!token) {
-      set({getParcelsError: {error: 'Invalid user token'}});
-      return false;
-    }
     try {
       set({
         getParcelsLoading: true,
         getParcelsError: null
       });
-      const {data} = await axiosApi.get<IParcel[]>('/parcels', {
-        headers: {Authorization: token},
-      });
+      const {data} = await axiosApi.get<IParcel[]>('/parcels');
       set({parcels: data});
       return true;
     } catch (e: unknown) {
@@ -49,20 +41,12 @@ export const useParcelsStore = create<ParcelState>()((set) => ({
   },
 
   async getParcelById(id: string) {
-    const token = useAdminStore.getState().admin?.token;
-    if (!token) {
-      set({getParcelError: {error: 'Invalid user token'}});
-      return false;
-    }
-
     try {
       set({
         getParcelLoading: true,
         getParcelError: null
       });
-      const {data} = await axiosApi.get<IParcel>(`/parcels/${id}`, {
-        headers: {Authorization: token},
-      });
+      const {data} = await axiosApi.get<IParcel>(`/parcels/${id}`);
       set({parcel: data});
       return true;
     } catch (e: unknown) {
@@ -91,12 +75,11 @@ export const useParcelsStore = create<ParcelState>()((set) => ({
         message: string;
         parcel: IParcel
       }>(`/parcels/tracking/${trackingNumber}/status`, {status});
-      if (data) {
-        set({
-          editParcelStatusLoading: false,
-          parcel: data.parcel
-        });
-      }
+      set({
+        editParcelStatusLoading: false,
+        parcel: data.parcel
+      });
+      return true;
     } catch (e) {
       if (isAxiosError(e) && e.response) {
         set({

@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button.tsx';
 import { useState } from 'react';
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore.ts';
+import dayjs from 'dayjs';
 
 interface StatusStep {
   id: number;
@@ -47,7 +48,7 @@ const steps: StatusStep[] = [
     label: 'Отправлен',
     icon: <Truck className="w-5 h-5 text-gray-400"/>,
     color: 'text-gray-400',
-    statusValue: 'in_transit'
+    statusValue: 'shipped'
   },
   {
     id: 5,
@@ -80,25 +81,40 @@ const steps: StatusStep[] = [
 ];
 
 interface ParcelStatusProps {
-  currentStep: number;
+  status: string;
   trackingNumber: string;
+  draftedAt?: string;
+  createdAt?: string;
+  acceptedAt?: string;
+  shippedAt?: string;
 }
 
-const ParcelStatus = ({currentStep, trackingNumber}: ParcelStatusProps) => {
+const ParcelStatus = ({
+                        status,
+                        trackingNumber,
+                        draftedAt,
+                        createdAt,
+                        acceptedAt,
+                        shippedAt
+                      }: ParcelStatusProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [status, setStatus] = useState<number | null>();
+  const [newStatus, setNewStatus] = useState<string | null>(null);
   const {editParcelStatus} = useParcelsStore();
 
+  const getCurrentStep = (statusValue: string) => {
+    const step = steps.find(s => s.statusValue === statusValue);
+    return step ? step.id : 1;
+  };
+
+  const currentStep = getCurrentStep(newStatus || status);
+
   const save = async () => {
-    if (!status || !trackingNumber) return;
+    if (!newStatus || !trackingNumber) return;
 
-    const selectedStep = steps.find(step => step.id === status);
-    if (!selectedStep) return;
-
-    await editParcelStatus(trackingNumber, selectedStep.statusValue);
+    await editParcelStatus(trackingNumber, newStatus);
     setIsEditing(false);
-    setStatus(null);
-  }
+    setNewStatus(null);
+  };
 
   return (
     <div className="w-full bg-white border rounded-md shadow-sm py-5 px-4 sm:px-6 flex flex-col items-center relative">
@@ -106,7 +122,7 @@ const ParcelStatus = ({currentStep, trackingNumber}: ParcelStatusProps) => {
         <span
           className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-100 text-red-600 text-xs font-medium rounded px-2 py-1">
         Выберите статус!
-    </span>
+        </span>
       )}
 
       <div className="absolute top-2 right-2 z-20 flex space-x-2">
@@ -117,7 +133,7 @@ const ParcelStatus = ({currentStep, trackingNumber}: ParcelStatusProps) => {
               size="icon"
               className="size-5"
               onClick={save}
-              disabled={!status}
+              disabled={!newStatus}
             >
               <Save/>
             </Button>
@@ -129,7 +145,7 @@ const ParcelStatus = ({currentStep, trackingNumber}: ParcelStatusProps) => {
           className="size-5"
           onClick={() => {
             setIsEditing(!isEditing);
-            setStatus(null);
+            setNewStatus(null);
           }}
         >
           {
@@ -148,22 +164,22 @@ const ParcelStatus = ({currentStep, trackingNumber}: ParcelStatusProps) => {
           <div
             className="absolute top-4 left-0 h-[2px] bg-[#22c55e] z-0 transition-all duration-500"
             style={{
-              width: `${(((status ?? currentStep) - 1) / (steps.length - 1)) * 100}%`,
+              width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
             }}
           />
 
           <div className="relative flex justify-between w-full px-3 sm:px-0 z-10">
             {steps.map((step) => (
               <div
-                onClick={() => isEditing && setStatus(step.id)}
+                onClick={() => isEditing && setNewStatus(step.statusValue)}
                 key={step.id}
                 className={`flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-300 ${
-                  step.id <= (status ?? currentStep)
+                  step.id <= currentStep
                     ? 'bg-[#22c55e] border-[#22c55e]'
                     : 'bg-[#d3d3d3] border-[#d3d3d3]'
-                }`}
+                } ${isEditing ? 'cursor-pointer hover:scale-110' : ''}`}
               >
-                {step.id <= (status ?? currentStep) && <Check className="w-5 h-5 text-white"/>}
+                {step.id <= currentStep && <Check className="w-5 h-5 text-white"/>}
               </div>
             ))}
           </div>
@@ -174,22 +190,31 @@ const ParcelStatus = ({currentStep, trackingNumber}: ParcelStatusProps) => {
                 key={step.id}
                 className="flex flex-col items-center text-center w-16 sm:w-20 shrink-0"
               >
-                <div className={`${step.id <= (status ?? currentStep) ? step.color : 'text-gray-400'}`}>
+                <div className={`${step.id <= currentStep ? step.color : 'text-gray-400'}`}>
                   {step.icon}
                 </div>
-                <p
-                  className={`text-[11px] sm:text-xs mt-1 font-medium ${
-                    step.id <= (status ?? currentStep) ? step.color : 'text-gray-400'
+                <div
+                  className={`text-[11px] sm:text-xs mt-1 font-medium flex flex-col items-center ${
+                    step.id <= currentStep ? step.color : 'text-gray-400'
                   }`}
                 >
-                  {step.label}
-                </p>
+                  <div>
+                    {step.label}
+                  </div>
+                  <div>
+                    {step.statusValue === 'draft' ? dayjs(draftedAt).format('DD.MM.YYYY HH:mm') : null}
+                    {step.statusValue === 'created' ? createdAt ? dayjs(createdAt).format('DD.MM.YYYY HH:mm') : null : null}
+                    {step.statusValue === 'accepted' ? acceptedAt ? dayjs(acceptedAt).format('DD.MM.YYYY HH:mm') : null : null}
+                    {step.statusValue === 'shipped' ? shippedAt ? dayjs(shippedAt).format('DD.MM.YYYY HH:mm') : null : null}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
-    </div>  );
+    </div>
+  );
 };
 
 export default ParcelStatus;
