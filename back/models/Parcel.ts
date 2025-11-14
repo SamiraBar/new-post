@@ -10,7 +10,7 @@ export interface IParcel extends mongoose.Document {
   recipient: mongoose.Types.ObjectId | IContact;
   originCity: string;
   destinationCity: string;
-  status: "created" | "in_transit" | "delivered" | "cancelled";
+  status: "created" | "accepted" | "delivered";
   isPaid: boolean;
   partnerStickerReceived: boolean;
   weight: number;
