@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import type { Order } from '@/types';
 import type { ChangeEvent, FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   order: Order;
@@ -15,24 +16,26 @@ interface Props {
 }
 
 const Step4SenderRecipientForm: FC<Props> = ({
-                                               order,
-                                               onHandleChange,
-                                               handleChange,
-                                               doorDelivery
-                                             }) => {
+  order,
+  onHandleChange,
+  handleChange,
+  doorDelivery,
+}) => {
+  const { t } = useTranslation();
+
   return (
     <div className="w-full pt-5">
       <h3 className="text-2xl font-bold text-center mb-8">
-        Жиберүүчүнүн жана алуучунун маалыматы / Данные отправителя и получателя
+        {t('deliveryCostCalculator.stepForForm.title')}
       </h3>
       <div>
         <FieldGroup>
           <FieldSet>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FieldGroup className="gap-3">
-                <FieldLabel>Жиберүүчү / Отправитель</FieldLabel>
+                <FieldLabel>{t('deliveryCostCalculator.stepForForm.inputOneTitle')}</FieldLabel>
                 <Input
-                  placeholder="Аты-жөнү / ФИО"
+                  placeholder={t('deliveryCostCalculator.stepForForm.inputName')}
                   className="bg-gray-100"
                   name="name"
                   onChange={(e) => handleChange(e, 'sender')}
@@ -54,23 +57,21 @@ const Step4SenderRecipientForm: FC<Props> = ({
                   onChange={(e) => handleChange(e, 'sender')}
                   value={order.sender.email}
                 />
-                {
-                  doorDelivery && (
-                    <Textarea
-                      className="col-span-1 sm:col-span-2 w-full bg-gray-100"
-                      placeholder="Посылканын ичиндеги тизмеси / Содержимое посылки"
-                      name="inParcel"
-                      onChange={onHandleChange}
-                      value={order.inParcel}
-                    />
-                  )
-                }
+                {doorDelivery && (
+                  <Textarea
+                    className="col-span-1 sm:col-span-2 w-full bg-gray-100"
+                    placeholder={t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
+                    name="inParcel"
+                    onChange={onHandleChange}
+                    value={order.inParcel}
+                  />
+                )}
               </FieldGroup>
 
               <FieldGroup className="gap-3">
-                <FieldLabel>Алуучу / Получатель</FieldLabel>
+                <FieldLabel>{t('deliveryCostCalculator.stepForForm.inputTwoTitle')}</FieldLabel>
                 <Input
-                  placeholder="Аты-жөнү / ФИО"
+                  placeholder={t('deliveryCostCalculator.stepForForm.inputName')}
                   className="bg-gray-100"
                   name="name"
                   onChange={(e) => handleChange(e, 'receiver')}
@@ -94,7 +95,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
                 />
                 {doorDelivery && (
                   <Textarea
-                    placeholder="Алуучунун толук дареги, мисалы: Бишкек шаары, Фрунзе көчөсү, 123-үй Подробный адрес Получателя например: город Белгород, проспект Фрунзе дом 123"
+                    placeholder={t('deliveryCostCalculator.stepForForm.inputTwoText')}
                     className="bg-gray-100"
                     name="address"
                     onChange={(e) => handleChange(e, 'receiver')}
@@ -103,16 +104,15 @@ const Step4SenderRecipientForm: FC<Props> = ({
                 )}
               </FieldGroup>
 
-              {
-                !doorDelivery && (
-                  <Textarea
+              {!doorDelivery && (
+                <Textarea
                   className="col-span-1 sm:col-span-2 w-full bg-gray-100"
-                  placeholder="Посылканын ичиндеги тизмеси / Содержимое посылки"
+                  placeholder={t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
                   name="inParcel"
                   onChange={onHandleChange}
                   value={order.inParcel}
-                />)
-              }
+                />
+              )}
             </div>
           </FieldSet>
         </FieldGroup>

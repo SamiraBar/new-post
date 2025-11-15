@@ -21,6 +21,7 @@ import Step4SenderRecipientForm from '@/features/deliveryCostCalculator/Step4Sen
 import Step5Review from '@/features/deliveryCostCalculator/Step5Review.tsx';
 import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 import DeliveryModal from '@/features/deliveryCostCalculator/components/modal/DeliveryModal.tsx';
+import { useTranslation } from 'react-i18next';
 
 const BASE_PRICE = 600;
 const tariffs = [
@@ -69,7 +70,6 @@ const DeliveryCostCalculator = () => {
       phone: '',
       address: '',
     },
-    deliveryType: 'courier',
   });
 
   const calculateDeliveryCost = useCallback(
@@ -106,23 +106,25 @@ const DeliveryCostCalculator = () => {
     }));
   }, [order.parcelWeight, order.parcelValue, calculateDeliveryCost, calculateInsuranceCost]);
 
+  const { t } = useTranslation();
+
   const validateOrder = () => {
     const validations = [
       {
         field: order.originCity,
-        message: 'Жиберүүчү шаарды тандаңыз / Выберите город отправителя',
+        message: t('deliveryCostCalculator.validateError.cityOfSender'),
       },
       {
         field: order.destinationCity,
-        message: 'Алуучунун шаарын тандаңыз / Выберите город получателя',
+        message: t('deliveryCostCalculator.validateError.cityOfReceiver'),
       },
       {
         field: order.parcelValue,
-        message: 'Посылканын баасын киргизиңиз / Введите цену посылки',
+        message: t('deliveryCostCalculator.validateError.parcelValue'),
       },
       {
         field: order.parcelWeight,
-        message: 'Посылканын салмагын киргизиңиз / Введите вес посылки',
+        message: t('deliveryCostCalculator.validateError.parcelWeight'),
       },
     ];
 
@@ -181,7 +183,7 @@ const DeliveryCostCalculator = () => {
       }
     } else if (currentStep === 2) {
       if (!order.originOffice) {
-        return toast.error('Жиберүү кеңсесин тандаңыз / Выберите офис отправки');
+        return toast.error(t('deliveryCostCalculator.validateError.senderOffice'));
       }
       if (isDoorDelivery) {
         return setCurrentStep(4);
@@ -189,24 +191,24 @@ const DeliveryCostCalculator = () => {
       setCurrentStep(3);
     } else if (currentStep === 3) {
       if (!order.destinationOffice) {
-        return toast.error('Алуучу кеңсесин тандаңыз / Выберите офис получателя');
+        return toast.error(t('deliveryCostCalculator.validateError.receiverOffice'));
       }
       setCurrentStep(4);
     } else if (currentStep === 4) {
       if (!order.sender.name) {
-        return toast.error('Жиберүүчүнүн атын киргизиңиз / Введите имя отправителя');
+        return toast.error(t('deliveryCostCalculator.validateError.senderName'));
       } else if (!order.sender.email) {
-        return toast.error('Жиберүүчүнүн emailин киргизиңиз / Введите email отправителя');
+        return toast.error(t('deliveryCostCalculator.validateError.senderEmail'));
       } else if (!order.sender.phone) {
-        return toast.error('Жиберүүчүнүн телефонун киргизиңиз / Введите телефон отправителя');
+        return toast.error(t('deliveryCostCalculator.validateError.senderPhone'));
       } else if (!order.receiver.name) {
-        return toast.error('Алуучунун атын киргизиңиз / Введите имя получателя');
+        return toast.error(t('deliveryCostCalculator.validateError.receiverName'));
       } else if (!order.receiver.email) {
-        return toast.error('Алуучунун emailин киргизиңиз / Введите email получателя');
+        return toast.error(t('deliveryCostCalculator.validateError.receiverEmail'));
       } else if (!order.receiver.phone) {
-        return toast.error('Алуучунун телефонун киргизиңиз / Введите телефон получателя');
+        return toast.error(t('deliveryCostCalculator.validateError.receiverPhone'));
       } else if (isDoorDelivery && !order.receiver.address) {
-        return toast.error('Алуучунун дарегин киргизиңиз / Введите адрес получателя');
+        return toast.error(t('deliveryCostCalculator.validateError.receiverAddress'));
       }
       setCurrentStep(5);
     } else if (currentStep === 5) {
@@ -263,9 +265,7 @@ const DeliveryCostCalculator = () => {
     <div className="container" id={'calculator'}>
       <Toaster />
       <DeliveryModal />
-      <h3 className="text-xl font-medium text-center mb-10">
-        Жеткирүү баасын эсептөө калькулятору <br /> Калькулятор расчёта стоимости доставки
-      </h3>
+      <h3 className="text-xl font-medium text-center mb-10">{t('deliveryCostCalculator.title')}</h3>
 
       <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
         <StepIndicator currentStep={currentStep} doorDelivery={isDoorDelivery} />
@@ -280,14 +280,13 @@ const DeliveryCostCalculator = () => {
                 className="flex items-center gap-2 w-full sm:w-auto justify-center bg-gray-500 hover:bg-gray-600 text-white px-6 py-3"
               >
                 <ArrowLeft size={20} />
-                <span>Артка / Назад</span>
+                <span>{t('deliveryCostCalculator.buttons.back')}</span>
               </Button>
               {currentStep === 4 && (
-                <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-0">
+                <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-none">
                   <Checkbox checked={isAgreed} onCheckedChange={() => setIsAgreed(!isAgreed)} />
                   <Label className="text-sm text-gray-600 leading-tight">
-                    Мен жеке маалыматтарды иштетүүгө макулмун
-                    <br />Я согласен на обработку персональных данных
+                    {t('deliveryCostCalculator.buttons.agreement')}
                   </Label>
                 </div>
               )}
@@ -298,7 +297,7 @@ const DeliveryCostCalculator = () => {
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   onClick={handleSubmit}
                 >
-                  <span>Төлөө / Оплата</span>
+                  <span>{t('deliveryCostCalculator.buttons.pay')}</span>
                   <ArrowRight size={20} />
                 </Button>
               ) : (
@@ -308,7 +307,11 @@ const DeliveryCostCalculator = () => {
                   disabled={currentStep === 4 && !isAgreed}
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                  <span>{currentStep === 5 ? 'Төлөө / Оплата' : 'Алдыга / Вперед'}</span>
+                  <span>
+                    {currentStep === 5
+                      ? t('deliveryCostCalculator.buttons.agreement')
+                      : t('deliveryCostCalculator.buttons.forward')}
+                  </span>
                   <ArrowRight size={20} />
                 </Button>
               )}

@@ -1,6 +1,7 @@
 import { offices } from '@/constants.ts';
 import type { Order } from '@/types';
 import type { Dispatch, FC, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   order: Order;
@@ -8,10 +9,12 @@ interface Props {
 }
 
 const Step2OfficeSelection: FC<Props> = ({ order, setOrder }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="w-full pt-5">
       <h3 className="text-2xl font-bold text-center mb-8">
-        Жиберүү кеңсесин тандаңыз / Выберите офис отправки
+        {t('deliveryCostCalculator.stepTwoForm.title')}
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5">
@@ -43,7 +46,9 @@ const Step2OfficeSelection: FC<Props> = ({ order, setOrder }) => {
                   order.originOffice === office.id ? 'text-orange-600' : 'text-gray-500'
                 }`}
               >
-                {order.originOffice === office.id ? '✓ Таңдалды / Выбран' : 'Тандоо / Выбрать'}
+                {order.originOffice === office.id
+                  ? '✓ ' + t('deliveryCostCalculator.stepTwoForm.checkSelected')
+                  : t('deliveryCostCalculator.stepTwoForm.checkSelect')}
               </div>
             </div>
           </button>
