@@ -69,6 +69,7 @@ const DeliveryCostCalculator = () => {
       phone: '',
       address: '',
     },
+    deliveryType: 'courier',
   });
 
   const calculateDeliveryCost = useCallback(

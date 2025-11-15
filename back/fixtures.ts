@@ -4,7 +4,36 @@ import Admin from "./models/Admin";
 import {randomUUID} from "node:crypto";
 import Parcel from "./models/Parcel";
 import Contact from "./models/Contact";
+import XLSX from "xlsx";
+import CourierCity from "./models/CourierCity";
+import PickupCity from "./models/PickupCity";
+import {CourierCityRow, PickupCityRow} from "./types";
+import path from "path";
 
+const importCities = async (filePath: string, type: "courier" | "pickup") => {
+    const workbook = XLSX.readFile(filePath);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+    if (type === "courier") {
+        const data = XLSX.utils.sheet_to_json<CourierCityRow>(sheet);
+
+        for (const row of data) {
+            await CourierCity.create({
+                nameCity: row["Название города"],
+                country: row["Страна"] || "",
+            });
+        }
+    } else if (type === "pickup") {
+        const data = XLSX.utils.sheet_to_json<PickupCityRow>(sheet);
+
+        for (const row of data) {
+            await PickupCity.create({
+                name: row["Название города"],
+                region: row["Регион"] || "",
+            });
+        }
+    }
+};
 const run = async () => {
   await mongoose.connect(config.db);
   const db = mongoose.connection;
@@ -12,6 +41,8 @@ const run = async () => {
   try {
     await db.dropCollection("admins");
     await db.dropCollection("parcels");
+    await db.dropCollection("couriercities");
+    await db.dropCollection("pickupcities");
     await db.dropCollection("contacts");
   } catch (e) {
     console.log("No collection, skipping", e);
@@ -112,6 +143,11 @@ const run = async () => {
     }
   ]);
 
+    const courierFile = path.join(__dirname, "public/files/Список_городов_Е_КИТ_и_ПВЗ_5POST_051125.xlsx");
+    const pickupFile = path.join(__dirname, "public/files/Список_городов_Е_КИТ_и_ПВЗ_5POST_051125_2_Курьер_доставка_до_двери.xlsx");
+
+    await importCities(courierFile, "courier");
+    await importCities(pickupFile, "pickup");
   await db.close();
 };
 
