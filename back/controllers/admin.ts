@@ -7,11 +7,11 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
   try {
     const admin = await Admin.findOne({email: req.body.email});
 
-    if (!admin) return res.status(400).send({error: "Неверный логин."});
+    if (!admin) return res.status(400).send({error: "Invalid login"});
 
     const isMatch = await admin.checkPassword(req.body.password)
 
-    if (!isMatch) return res.status(400).send({error: "Неверный пароль."});
+    if (!isMatch) return res.status(400).send({error: "Wrong password"});
 
     admin.generateToken();
     await admin.save();
@@ -54,12 +54,12 @@ export const adminDelete = async (req: Request, res: Response, next: NextFunctio
   try {
     const removeUser = await Admin.findById(req.params.id);
 
-    if (!removeUser) return res.status(404).send({error: "Пользователя не существует"});
+    if (!removeUser) return res.status(404).send({error: "User is not found"});
 
-    if (removeUser.role === "superAdmin") return res.status(400).send({error: "Нельзя удалить супер Админа"});
+    if (removeUser.role === "superAdmin") return res.status(400).send({error: "Cannot delete super admin"});
 
     await Admin.findByIdAndDelete(req.params.id)
-    res.send({message: "Пользователь удалён из базы:"});
+    res.send({message: "User is deleted"});
   } catch (error) {
     next(error)
   }

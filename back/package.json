@@ -15,6 +15,7 @@
     "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.19",
     "express": "^5.1.0",
     "mongoose": "^8.19.2",
     "multer": "^2.0.2",
@@ -23,8 +24,8 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
-    "@types/node": "^24.9.2",
     "@types/multer": "^2.0.0",
+    "@types/node": "^24.9.2",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
