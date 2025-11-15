@@ -12,17 +12,6 @@ export interface AdminMutation {
   password: string;
 }
 
-export interface IContact {
-  _id: string;
-  fullName: string;
-  phoneNumber: string;
-  email: string;
-  address: string;
-  description?: string;
-  type: 'sender' | 'recipient';
-  createdAt: Date;
-}
-
 export interface IParcel {
   _id: string;
   trackingNumber: string;
@@ -78,7 +67,9 @@ interface Receiver {
   address?: string;
 }
 
-interface Order {
+export type DeliveryType = 'courier' | 'pickup';
+
+export interface Order {
   originCity: string;
   destinationCity: string;
   originOffice: number;
@@ -92,18 +83,17 @@ interface Order {
   inParcel: string;
   sender: Sender;
   receiver: Receiver;
+  deliveryType: DeliveryType;
 }
 
-export interface Office {
-  id: number;
+export interface CourierCity {
+  _id: string;
+  nameCity: string;
+  country?: string;
+}
+
+export interface PickupCity {
+  _id: string;
   name: string;
-  address: string;
-}
-
-export interface CalculatorState {
-  weight: number;
-  value: number;
-  deliveryCost: number;
-  insuranceCost: number;
-  totalCost: number;
+  region?: string;
 }
