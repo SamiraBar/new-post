@@ -6,15 +6,17 @@ const axiosApi = axios.create({
   baseURL: API_URL,
 });
 
-axiosApi.interceptors.request.use((config) => {
-  const token = useAdminStore.getState().admin?.token;
-
-  if (token) {
-    config.headers.Authorization = token;
-  }
-
-  return config;
-});
+axiosApi.interceptors.request.use(
+  (config) => {
+    const token = useAdminStore.getState().admin?.token;
+    if (token) {
+      config.headers.Authorization = token;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  });
 
 axiosApi.interceptors.response.use(
   (response) => response,

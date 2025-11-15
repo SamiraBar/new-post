@@ -98,7 +98,7 @@ const ParcelSchema = new Schema(
         },
         draftedAt: {
             type: Date,
-            default: null,
+            default: Date.now,
         },
         createdAt: {
             type: Date,

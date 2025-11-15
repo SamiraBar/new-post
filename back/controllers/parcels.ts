@@ -266,7 +266,7 @@ export const updateParcelStatus = async (
 
     res.json({
       message: "Parcel status updated successfully",
-      parcel: minimalParcel
+      parcel: freshParcel
     });
   } catch (e) {
     next(e);
