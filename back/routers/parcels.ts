@@ -18,6 +18,6 @@ parcelsRouter.get("/:id",auth, getParcelById);
 
 parcelsRouter.get("/tracking/:trackingNumber",auth, getParcelByTrackingNumber);
 
-parcelsRouter.put("/tracking/:trackingNumber/status", auth, updateParcelStatus);
+parcelsRouter.patch("/tracking/:trackingNumber/status", auth, updateParcelStatus);
 
 export default parcelsRouter;

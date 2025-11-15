@@ -1,3 +1,5 @@
+import {JwtPayload} from "jsonwebtoken";
+
 export interface AdminDef {
   email: string;
   password: string;
@@ -14,4 +16,8 @@ export interface CourierCityRow {
 export interface PickupCityRow {
     "Название города": string;
     "Регион"?: string;
+}
+
+interface JwtAdminPayload extends JwtPayload {
+  id: string;
 }

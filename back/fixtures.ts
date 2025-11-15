@@ -43,6 +43,7 @@ const run = async () => {
     await db.dropCollection("parcels");
     await db.dropCollection("couriercities");
     await db.dropCollection("pickupcities");
+    await db.dropCollection("contacts");
   } catch (e) {
     console.log("No collection, skipping", e);
   }
@@ -68,50 +69,45 @@ const run = async () => {
   });
 
   const [senderOne, recipientOne, senderTwo, recipientTwo] =
-    await Contact.create(
-      {
-        fullName: "Иванов Петр Сергеевич",
-        phoneNumber: "+996 732 274 412",
-        email: "sender1@gmail.com",
-        address: "daslfw",
-        description: "alfwi",
-        type: "sender",
-        createdAt: "2025-08-11T10:16:31.775Z",
-      },
-      {
-        fullName: "Сидоров Женя Александрович",
-        phoneNumber: "+996 500 274 458",
-        email: "recipient1@gmail.com",
-        address: "daslfw123",
-        description: "alfwiasdawf",
-        type: "recipient",
-        createdAt: "2025-02-11T10:21:31.775Z",
-      },
-
-      {
-        fullName: "Калиев Арсен Нурланович",
-        phoneNumber: "+996 500 987 454",
-        email: "sender2@gmail.com",
-        address: "daslfw12323",
-        description: "alfwiasdawf",
-        type: "sender",
-        createdAt: "2025-05-11T10:20:31.775Z",
-      },
-      {
-        fullName: "Петрова Алина Дмитриевна",
-        phoneNumber: "+996 557 890 223",
-        email: "recipient1@gmail.com",
-        address: "daslfw123451",
-        description: "alfwiasdfgwf",
-        type: "recipient",
-        createdAt: "2024-02-11T10:17:11.775Z",
-      }
-    );
+      await Contact.create(
+          {
+            fullName: "Иванов Петр Сергеевич",
+            phoneNumber: "+996 732 274 412",
+            email: "sender1@gmail.com",
+            address: "г. Бишкек, ул. Чуй 123",
+            description: "Одежда и обувь",
+            type: "sender",
+          },
+          {
+            fullName: "Сидоров Женя Александрович",
+            phoneNumber: "+996 500 274 458",
+            email: "recipient1@gmail.com",
+            address: "г. Москва, ул. Ленина 45",
+            description: "Одежда и обувь",
+            type: "recipient",
+          },
+          {
+            fullName: "Калиев Арсен Нурланович",
+            phoneNumber: "+996 500 987 454",
+            email: "sender2@gmail.com",
+            address: "г. Ош, ул. Московская 67",
+            description: "Электроника",
+            type: "sender",
+          },
+          {
+            fullName: "Петрова Алина Дмитриевна",
+            phoneNumber: "+996 557 890 223",
+            email: "recipient2@gmail.com",
+            address: "г. Санкт-Петербург, Невский пр. 89",
+            description: "Электроника",
+            type: "recipient",
+          }
+      );
 
   await Parcel.create([
     {
       trackingNumber: "KGZ-312-SLFKDJEWSL",
-      partnerTrackingNumber: "№LSDFKJEWXOXS",
+      partnerTrackingNumber: "LSDFKJEWXOXS",
       sender: senderOne._id,
       recipient: recipientOne._id,
       originCity: "Бишкек",
@@ -120,21 +116,31 @@ const run = async () => {
       isPaid: false,
       partnerStickerReceived: false,
       weight: 0.6,
-      createdAt: "2025-09-11T10:16:37.775Z",
     },
     {
       trackingNumber: "KGZ-478-QWERTYUIOP",
-      partnerTrackingNumber: "№PLKJHGFDSA",
+      partnerTrackingNumber: "PLKJHGFDSA",
       sender: senderTwo._id,
       recipient: recipientTwo._id,
       originCity: "Ош",
       destinationCity: "Санкт-Петербург",
-      status: "in_transit",
-      createdAt: "2025-09-13T14:22:10.123Z",
+      status: "accepted",
       isPaid: true,
       partnerStickerReceived: true,
       weight: 1.25,
     },
+    {
+      trackingNumber: "KGZ-999-TESTTRACK",
+      partnerTrackingNumber: "TEST123456",
+      sender: senderOne._id,
+      recipient: recipientTwo._id,
+      originCity: "Бишкек",
+      destinationCity: "Ош",
+      status: "draft",
+      isPaid: false,
+      partnerStickerReceived: false,
+      weight: 2.1,
+    }
   ]);
 
     const courierFile = path.join(__dirname, "public/files/Список_городов_Е_КИТ_и_ПВЗ_5POST_051125.xlsx");

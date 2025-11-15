@@ -38,11 +38,14 @@ export interface IParcel {
   };
   originCity: string;
   destinationCity: string;
-  status: 'created' | 'in_transit' | 'delivered' | 'cancelled';
+  status: 'draft' | 'created' | 'accepted' | 'shipped';
   isPaid: boolean;
   partnerStickerReceived: boolean;
   weight: number;
-  createdAt: Date;
+  draftedAt: string;
+  createdAt?: string;
+  acceptedAt?: string;
+  shippedAt?: string;
 }
 
 export interface GlobalError {
