@@ -16,7 +16,25 @@ axiosApi.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  });
+
+axiosApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      const msg = error.response.data?.error;
+
+      if (msg === 'Токен устарел!' || msg === 'Токен недействителен или истёк!') {
+        const { admin, logout } = useAdminStore.getState();
+
+        if (admin) logout();
+
+        window.location.href = '/admin/login';
+      }
+    }
+
+    return Promise.reject(error);
+  },
 );
 
 export default axiosApi;

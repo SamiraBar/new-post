@@ -38,19 +38,15 @@ export const useAdminStore = create<AdminState>()(
       },
 
       async getAllAdmins() {
-        const token = useAdminStore.getState().admin!.token;
-        const { data: allAdmins } = await axiosApi.get<Admin[]>('/admins/', {headers: {Authorization: token}});
+        const { data: allAdmins } = await axiosApi.get<Admin[]>('/admins/');
         set({ allAdmins });
       },
 
       async createAdmin(data: AdminMutation) {
         try {
           set({ createAdminError: null });
-          const token = useAdminStore.getState().admin!.token;
 
-          await axiosApi.post('/admins/create', data, {
-            headers: { Authorization: token },
-          });
+          await axiosApi.post('/admins/create', data);
 
           return true;
         } catch (e) {
@@ -63,8 +59,7 @@ export const useAdminStore = create<AdminState>()(
       },
 
       async deleteAdmin(id: string) {
-        const token = useAdminStore.getState().admin!.token;
-        await axiosApi.delete(`/admins/${id}`, {headers: {Authorization: token}});
+        await axiosApi.delete(`/admins/${id}`);
       },
 
       async logout() {
