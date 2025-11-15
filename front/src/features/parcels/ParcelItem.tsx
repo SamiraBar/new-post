@@ -1,7 +1,8 @@
 import type { IParcel } from '@/types';
 import {
   Barcode,
-  Building2, Check,
+  Building2,
+  Check,
   CheckCircle2,
   Ellipsis,
   Map,
@@ -10,7 +11,7 @@ import {
   Package,
   Play,
   StickyNote,
-  Truck
+  Truck,
 } from 'lucide-react';
 import dayjs from 'dayjs';
 
@@ -23,45 +24,44 @@ import { useNavigate } from 'react-router-dom';
 
 const steps = [
   {
-    icon: <FileText size={25}/>,
+    icon: <FileText size={25} />,
     statusValue: 'draft',
   },
   {
-    icon: <Package size={25} className="text-blue-500"/>,
+    icon: <Package size={25} className="text-blue-500" />,
     statusValue: 'created',
   },
   {
-    icon: <CheckCircle2 size={25} className="text-fuchsia-500"/>,
+    icon: <CheckCircle2 size={25} className="text-fuchsia-500" />,
     statusValue: 'accepted',
   },
   {
-    icon: <Truck size={25} className="text-gray-400"/>,
+    icon: <Truck size={25} className="text-gray-400" />,
     statusValue: 'shipped',
   },
   {
-    icon: <Map size={25} className="text-orange-700"/>,
+    icon: <Map size={25} className="text-orange-700" />,
     statusValue: 'in_country',
   },
   {
-    icon: <Building2 size={25} className="text-orange-500"/>,
+    icon: <Building2 size={25} className="text-orange-500" />,
     statusValue: 'in_city',
   },
   {
-    icon: <MapPin size={25} className="text-lime-600"/>,
+    icon: <MapPin size={25} className="text-lime-600" />,
     statusValue: 'at_pickup_point',
   },
   {
-    icon: <Check size={25} className="text-green-600"/>,
+    icon: <Check size={25} className="text-green-600" />,
     statusValue: 'delivered',
   },
 ];
-
 
 interface Props {
   parcel: IParcel;
 }
 
-const ParcelItem = ({parcel}: Props) => {
+const ParcelItem = ({ parcel }: Props) => {
   const {
     _id,
     trackingNumber,
@@ -80,9 +80,8 @@ const ParcelItem = ({parcel}: Props) => {
   return (
     <div className="flex flex-col lg:flex-row gap-4 w-full bg-amber-50 p-4 md:p-6 rounded-2xl relative">
       <div className="absolute top-4 right-4 lg:top-6 lg:right-6">
-        <div
-          className="size-4 md:w-20 md:h-20 rounded-full border-4 border-orange-500  flex items-center justify-center">
-          {steps.find(step => step.statusValue === status)?.icon}
+        <div className="w-16 h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-full border-4 border-orange-500 flex items-center justify-center">
+          {steps.find((step) => step.statusValue === status)?.icon}
         </div>
       </div>
 
@@ -92,8 +91,8 @@ const ParcelItem = ({parcel}: Props) => {
             KG312-1
           </span>
           <div className="flex gap-1">
-            <Play size={12} fill="currentColor"/>
-            <Play size={12} fill="currentColor"/>
+            <Play size={12} fill="currentColor" />
+            <Play size={12} fill="currentColor" />
           </div>
           <p className="font-bold m-0 text-base md:text-lg">{trackingNumber}</p>
           <div className="flex md:flex-row md:items-center gap-3 md:ml-auto sm: flex-col  sm: items-start">
@@ -105,7 +104,7 @@ const ParcelItem = ({parcel}: Props) => {
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
             <div className="flex gap-3 md:col-span-2">
-              <img src={icCalendar} alt="Calendar icon" className="w-5 h-5"/>
+              <img src={icCalendar} alt="Calendar icon" className="w-5 h-5" />
               <div className="flex flex-col gap-0.5 text-sm ">
                 <span className="font-medium">{dayjs(draftedAt).format('DD.MM.YYYY')}</span>
                 <span className="text-gray-600">{dayjs(draftedAt).format('HH:mm:ss')}</span>
@@ -115,23 +114,22 @@ const ParcelItem = ({parcel}: Props) => {
             <div className="flex gap-3 md:col-span-5 md:flex-row sm: flex-col">
               <p className="m-0 text-base whitespace-nowrap">Отправитель:</p>
               <div className="flex items-center gap-2">
-                <img src={icUser} alt="User icon" className="w-5 h-5"/>
+                <img src={icUser} alt="User icon" className="w-5 h-5" />
                 <p className="m-0 font-bold text-base">{sender.fullName}</p>
               </div>
             </div>
 
-            <div
-              className="flex justify-between md:justify-end gap-4 md:col-span-5 md:flex-row sm: flex-col lg:items-center">
+            <div className="flex justify-between md:justify-end gap-4 md:col-span-5 md:flex-row sm: flex-col lg:items-center">
               {isPaid && (
                 <div className="flex items-center gap-2">
-                  <img src={icBanknote} alt="Banknote icon" className="w-8 h-8 md:w-9 md:h-9"/>
+                  <img src={icBanknote} alt="Banknote icon" className="w-8 h-8 md:w-9 md:h-9" />
 
                   {partnerStickerReceived && (
                     <a
                       href="#"
                       className="p-2 rounded-lg hover:bg-amber-100 transition-colors hover:scale-110 duration-300"
                     >
-                      <StickyNote color="#6b6b6b" strokeWidth={3} size={24}/>
+                      <StickyNote color="#6b6b6b" strokeWidth={3} size={24} />
                     </a>
                   )}
 
@@ -139,13 +137,13 @@ const ParcelItem = ({parcel}: Props) => {
                     href="#"
                     className="p-2 rounded-lg hover:bg-amber-100 transition-colors hover:scale-110 duration-300"
                   >
-                    <Barcode color="#6b6b6b" strokeWidth={3} size={24}/>
+                    <Barcode color="#6b6b6b" strokeWidth={3} size={24} />
                   </a>
                 </div>
               )}
 
               <div className="flex gap-2 items-center">
-                <img src={icWeight} alt="Weight icon" className="w-5 h-5"/>
+                <img src={icWeight} alt="Weight icon" className="w-5 h-5" />
                 <p className="m-0 text-base md:text-lg font-bold whitespace-nowrap">
                   Вес: {weight} кг
                 </p>
@@ -159,14 +157,14 @@ const ParcelItem = ({parcel}: Props) => {
             <div className="flex gap-3 md:col-span-5 md:flex-row sm: flex-col">
               <p className="m-0 text-base whitespace-nowrap">Получатель:</p>
               <div className="flex items-center gap-2">
-                <img src={icUser} alt="User icon" className="w-5 h-5"/>
+                <img src={icUser} alt="User icon" className="w-5 h-5" />
                 <p className="m-0 font-bold text-base">{recipient.fullName}</p>
               </div>
             </div>
 
-            <div className="flex justify-between md:justify-end gap-4 md:col-span-5 md:flex-row sm: flex-col ml-7">
+            <div className="flex justify-between md:justify-end gap-4 md:col-span-5 md:flex-row sm: flex-col md:ml-7">
               <div className="flex items-center gap-2 ">
-                <img src={icPhone} alt="Phone icon" className="w-5 h-5"/>
+                <img src={icPhone} alt="Phone icon" className="w-5 h-5" />
                 <p className="m-0 font-bold text-base md:text-lg">{recipient.phoneNumber}</p>
               </div>
 
@@ -176,7 +174,7 @@ const ParcelItem = ({parcel}: Props) => {
                 }}
                 className="p-2 rounded-lg hover:bg-amber-100 transition-colors cursor-pointer duration-300 self-start"
               >
-                <Ellipsis color="#6b6b6b" strokeWidth={3} size={24}/>
+                <Ellipsis color="#6b6b6b" strokeWidth={3} size={24} />
               </button>
             </div>
           </div>

@@ -1,12 +1,17 @@
 import AdminToolbar from '@/features/adminPanel/components/AdminToolbar.tsx';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import ParcelsList from '../parcels/ParcelsList';
 
 const AdminPanel = () => {
   const admin = useAdminStore((s) => s.admin);
   const navigate = useNavigate();
+  const [searchFilters, setSearchFilters] = useState({
+    trackingNumber: '',
+    sender: '',
+    recipient: '',
+  });
 
   useEffect(() => {
     if (!admin) {
@@ -16,8 +21,8 @@ const AdminPanel = () => {
 
   return (
     <div className="container">
-      <AdminToolbar />
-      <ParcelsList />
+      <AdminToolbar searchFilters={searchFilters} onSearchChange={setSearchFilters} />
+      <ParcelsList searchFilters={searchFilters} />
     </div>
   );
 };
