@@ -77,22 +77,7 @@ export const useTrackingStore = create<TrackingStore>((set, get) => ({
 
     set({ isLoading: true });
 
-    // Имитация запроса к бэкенду
     await new Promise((resolve) => setTimeout(resolve, 800));
-
-    // ЗДЕСЬ В БУДУЩЕМ БУДЕТ РЕАЛЬНЫЙ API ЗАПРОС:
-    // try {
-    //   const response = await fetch(`/api/tracking/${trackNumber}`);
-    //   if (!response.ok) {
-    //     throw new Error('Посылка не найдена');
-    //   }
-    //   const data = await response.json();
-    //   set({ parcelInfo: data, isModalOpen: true, isLoading: false });
-    //   toast.success('Посылка табылды / Посылка найдена');
-    // } catch (error) {
-    //   toast.error('Посылка табылган жок / Посылка не найдена');
-    //   set({ isLoading: false });
-    // }
 
     const parcelInfo = MOCK_DATA[trackNumber];
 
