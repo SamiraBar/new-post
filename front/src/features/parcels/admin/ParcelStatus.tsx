@@ -6,7 +6,10 @@ import {
   Map,
   Building2,
   MapPin,
-  CheckCircle2, SquarePen, Save, X,
+  CheckCircle2,
+  SquarePen,
+  Save,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
 import { useState } from 'react';
@@ -25,58 +28,58 @@ const steps: StatusStep[] = [
   {
     id: 1,
     label: 'Черновик',
-    icon: <FileText className="w-5 h-5"/>,
+    icon: <FileText className="w-5 h-5" />,
     color: 'text-gray-400',
-    statusValue: 'draft'
+    statusValue: 'draft',
   },
   {
     id: 2,
     label: 'Создан',
-    icon: <Package className="w-5 h-5 text-blue-500"/>,
+    icon: <Package className="w-5 h-5 text-blue-500" />,
     color: 'text-blue-500',
-    statusValue: 'created'
+    statusValue: 'created',
   },
   {
     id: 3,
     label: 'Принят',
-    icon: <CheckCircle2 className="w-5 h-5 text-fuchsia-500"/>,
+    icon: <CheckCircle2 className="w-5 h-5 text-fuchsia-500" />,
     color: 'text-fuchsia-500',
-    statusValue: 'accepted'
+    statusValue: 'accepted',
   },
   {
     id: 4,
     label: 'Отправлен',
-    icon: <Truck className="w-5 h-5 text-gray-400"/>,
+    icon: <Truck className="w-5 h-5 text-gray-400" />,
     color: 'text-gray-400',
-    statusValue: 'shipped'
+    statusValue: 'shipped',
   },
   {
     id: 5,
     label: 'В стране',
-    icon: <Map className="w-5 h-5 text-orange-700"/>,
+    icon: <Map className="w-5 h-5 text-orange-700" />,
     color: 'text-orange-700',
-    statusValue: 'in_country'
+    statusValue: 'in_country',
   },
   {
     id: 6,
     label: 'В городе',
-    icon: <Building2 className="w-5 h-5 text-orange-500"/>,
+    icon: <Building2 className="w-5 h-5 text-orange-500" />,
     color: 'text-orange-500',
-    statusValue: 'in_city'
+    statusValue: 'in_city',
   },
   {
     id: 7,
     label: 'На ПВЗ',
-    icon: <MapPin className="w-5 h-5 text-lime-600"/>,
+    icon: <MapPin className="w-5 h-5 text-lime-600" />,
     color: 'text-lime-600',
-    statusValue: 'at_pickup_point'
+    statusValue: 'at_pickup_point',
   },
   {
     id: 8,
     label: 'Выдано',
-    icon: <Check className="w-5 h-5 text-green-600"/>,
+    icon: <Check className="w-5 h-5 text-green-600" />,
     color: 'text-green-600',
-    statusValue: 'delivered'
+    statusValue: 'delivered',
   },
 ];
 
@@ -90,19 +93,19 @@ interface ParcelStatusProps {
 }
 
 const ParcelStatus = ({
-                        status,
-                        trackingNumber,
-                        draftedAt,
-                        createdAt,
-                        acceptedAt,
-                        shippedAt
-                      }: ParcelStatusProps) => {
+  status,
+  trackingNumber,
+  draftedAt,
+  createdAt,
+  acceptedAt,
+  shippedAt,
+}: ParcelStatusProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newStatus, setNewStatus] = useState<string | null>(null);
-  const {editParcelStatus} = useParcelsStore();
+  const { editParcelStatus } = useParcelsStore();
 
   const getCurrentStep = (statusValue: string) => {
-    const step = steps.find(s => s.statusValue === statusValue);
+    const step = steps.find((s) => s.statusValue === statusValue);
     return step ? step.id : 1;
   };
 
@@ -119,26 +122,23 @@ const ParcelStatus = ({
   return (
     <div className="w-full bg-white border rounded-md shadow-sm py-5 px-4 sm:px-6 flex flex-col items-center relative">
       {isEditing && (
-        <span
-          className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-100 text-red-600 text-xs font-medium rounded px-2 py-1">
-        Выберите статус!
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-100 text-red-600 text-xs font-medium rounded px-2 py-1">
+          Выберите статус!
         </span>
       )}
 
       <div className="absolute top-2 right-2 z-20 flex space-x-2">
-        {
-          isEditing && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-5"
-              onClick={save}
-              disabled={!newStatus}
-            >
-              <Save/>
-            </Button>
-          )
-        }
+        {isEditing && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-5"
+            onClick={save}
+            disabled={!newStatus}
+          >
+            <Save />
+          </Button>
+        )}
         <Button
           variant="outline"
           size="icon"
@@ -148,19 +148,12 @@ const ParcelStatus = ({
             setNewStatus(null);
           }}
         >
-          {
-            isEditing ? (
-              <X/>
-            ) : (
-              <SquarePen/>
-            )
-          }
+          {isEditing ? <X /> : <SquarePen />}
         </Button>
       </div>
       <div className="relative w-full overflow-x-auto scrollbar-hide">
         <div className="relative min-w-[800px] sm:min-w-[1000px] md:min-w-0 mx-auto flex flex-col items-center">
-
-          <div className="absolute top-4 left-0 w-full h-[2px] bg-[#d3d3d3] z-0"/>
+          <div className="absolute top-4 left-0 w-full h-[2px] bg-[#d3d3d3] z-0" />
           <div
             className="absolute top-4 left-0 h-[2px] bg-[#22c55e] z-0 transition-all duration-500"
             style={{
@@ -179,7 +172,7 @@ const ParcelStatus = ({
                     : 'bg-[#d3d3d3] border-[#d3d3d3]'
                 } ${isEditing ? 'cursor-pointer hover:scale-110' : ''}`}
               >
-                {step.id <= currentStep && <Check className="w-5 h-5 text-white"/>}
+                {step.id <= currentStep && <Check className="w-5 h-5 text-white" />}
               </div>
             ))}
           </div>
@@ -198,14 +191,26 @@ const ParcelStatus = ({
                     step.id <= currentStep ? step.color : 'text-gray-400'
                   }`}
                 >
+                  <div>{step.label}</div>
                   <div>
-                    {step.label}
-                  </div>
-                  <div>
-                    {step.statusValue === 'draft' ? dayjs(draftedAt).format('DD.MM.YYYY HH:mm') : null}
-                    {step.statusValue === 'created' ? createdAt ? dayjs(createdAt).format('DD.MM.YYYY HH:mm') : null : null}
-                    {step.statusValue === 'accepted' ? acceptedAt ? dayjs(acceptedAt).format('DD.MM.YYYY HH:mm') : null : null}
-                    {step.statusValue === 'shipped' ? shippedAt ? dayjs(shippedAt).format('DD.MM.YYYY HH:mm') : null : null}
+                    {step.statusValue === 'draft'
+                      ? dayjs(draftedAt).format('DD.MM.YYYY HH:mm')
+                      : null}
+                    {step.statusValue === 'created'
+                      ? createdAt
+                        ? dayjs(createdAt).format('DD.MM.YYYY HH:mm')
+                        : null
+                      : null}
+                    {step.statusValue === 'accepted'
+                      ? acceptedAt
+                        ? dayjs(acceptedAt).format('DD.MM.YYYY HH:mm')
+                        : null
+                      : null}
+                    {step.statusValue === 'shipped'
+                      ? shippedAt
+                        ? dayjs(shippedAt).format('DD.MM.YYYY HH:mm')
+                        : null
+                      : null}
                   </div>
                 </div>
               </div>
