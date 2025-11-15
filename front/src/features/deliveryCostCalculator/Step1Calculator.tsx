@@ -1,4 +1,11 @@
-import { type ChangeEvent, type Dispatch, type FC, type SetStateAction, useState } from 'react';
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type FC,
+  type SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
 import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field.tsx';
 import TruckIconA from '@/features/deliveryCostCalculator/components/icons/TruckIconA.tsx';
 import {
@@ -12,7 +19,8 @@ import { Input } from '@/components/ui/input.tsx';
 import TruckIconB from '@/features/deliveryCostCalculator/components/icons/TruckIconB.tsx';
 import { Clock, HandCoins, Weight } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
-import type { Order } from '@/types';
+import type { Order} from '@/types';
+import useCitiesStore from '@/stores/citiesStore/citiesStore.ts';
 import { cities } from '@/constants.ts';
 import { useTranslation } from 'react-i18next';
 
@@ -24,15 +32,25 @@ interface Props {
 }
 
 const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNext }) => {
-  const [citySearch, setCitySearch] = useState<{ origin: string; destination: string }>({
-    origin: '',
-    destination: '',
-  });
+  const { courierCities, pickupCities, getCities } = useCitiesStore();
+
+  useEffect(() => {
+    getCities();
+  }, [getCities]);
+
+  const [citySearch, setCitySearch] = useState({ origin: '', destination: '' });
+
   const filteredOriginCities = cities.filter((c) =>
     c.toLowerCase().includes(citySearch.origin.toLowerCase()),
   );
-  const filteredDestinationCities = cities.filter((c) =>
-    c.toLowerCase().includes(citySearch.destination.toLowerCase()),
+
+  const destinationCities =
+    order.deliveryType === 'courier'
+      ? courierCities.map((c) => ({ id: c._id, name: c.nameCity }))
+      : pickupCities.map((c) => ({ id: c._id, name: c.name }));
+
+  const filteredDestinationCities = destinationCities.filter((c) =>
+    c.name.toLowerCase().includes(citySearch.destination.toLowerCase()),
   );
 
   const { t } = useTranslation();
@@ -44,6 +62,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
           <FieldSet>
             <div>
               <div className="flex flex-col gap-6 sm:flex-row sm:gap-10">
+
                 <FieldGroup className="gap-4">
                   <div className="flex items-center">
                     <FieldLabel>{t('deliveryCostCalculator.stepOneForm.sender')}</FieldLabel>
@@ -54,10 +73,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                   <Select
                     required
                     onValueChange={(value) =>
-                      setOrder((prev) => ({
-                        ...prev,
-                        originCity: value,
-                      }))
+                      setOrder((prev) => ({ ...prev, originCity: value }))
                     }
                     value={order.originCity}
                   >
@@ -79,7 +95,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                         className="w-full"
                       />
                       {filteredOriginCities.map((city) => (
-                        <SelectItem value={city} key={city}>
+                        <SelectItem key={city} value={city}>
                           {city}
                         </SelectItem>
                       ))}
@@ -97,10 +113,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                   <Select
                     required
                     onValueChange={(value) =>
-                      setOrder((prev) => ({
-                        ...prev,
-                        destinationCity: value,
-                      }))
+                      setOrder((prev) => ({ ...prev, destinationCity: value }))
                     }
                     value={order.destinationCity}
                   >
@@ -120,8 +133,8 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                         }
                       />
                       {filteredDestinationCities.map((city) => (
-                        <SelectItem value={city} key={city}>
-                          {city}
+                        <SelectItem key={city.id} value={city.name}>
+                          {city.name}
                         </SelectItem>
                       ))}
                     </SelectContent>

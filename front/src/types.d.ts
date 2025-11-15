@@ -2,22 +2,50 @@ export interface Admin {
   _id: string;
   email: string;
   token: string;
+  role: string;
+  displayName: string;
+}
+
+export interface AdminMutation {
+  displayName: string;
+  email: string;
+  password: string;
 }
 
 export interface IParcel {
   _id: string;
   trackingNumber: string;
-  partnerTrackingNumber: string;
-  senderFullName: string;
-  recipientFullName: string;
-  recipientPhoneNumber: string;
+  partnerTrackingNumber?: string;
+  sender: {
+    _id: string;
+    fullName: string;
+    phoneNumber: string;
+    email: string;
+    address: string;
+    description?: string;
+    type: 'sender';
+    createdAt: Date;
+  };
+  recipient: {
+    _id: string;
+    fullName: string;
+    phoneNumber: string;
+    email: string;
+    address: string;
+    description?: string;
+    type: 'recipient';
+    createdAt: Date;
+  };
   originCity: string;
   destinationCity: string;
-  status: string;
-  createdAt: string;
+  status: 'draft' | 'created' | 'accepted' | 'shipped';
   isPaid: boolean;
   partnerStickerReceived: boolean;
   weight: number;
+  draftedAt: string;
+  createdAt?: string;
+  acceptedAt?: string;
+  shippedAt?: string;
 }
 
 export interface GlobalError {
@@ -42,7 +70,9 @@ interface Receiver {
   address?: string;
 }
 
-interface Order {
+export type DeliveryType = 'courier' | 'pickup';
+
+export interface Order {
   originCity: string;
   destinationCity: string;
   originOffice: number;
@@ -56,18 +86,17 @@ interface Order {
   inParcel: string;
   sender: Sender;
   receiver: Receiver;
+  deliveryType: DeliveryType;
 }
 
-export interface Office {
-  id: number;
+export interface CourierCity {
+  _id: string;
+  nameCity: string;
+  country?: string;
+}
+
+export interface PickupCity {
+  _id: string;
   name: string;
-  address: string;
-}
-
-export interface CalculatorState {
-  weight: number;
-  value: number;
-  deliveryCost: number;
-  insuranceCost: number;
-  totalCost: number;
+  region?: string;
 }
