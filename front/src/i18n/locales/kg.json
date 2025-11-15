@@ -12,6 +12,13 @@
       "buttonOne": "Посылка беруу пунктка чейин жеткирүү",
       "buttonTwo": "Алуучунун уйунө чейин жеткирүү",
       "closeButton": "Жабуу"
+    },
+    "trackingSearch": {
+      "status": "Посылка абалы",
+      "currentStatus": "Учурдагы абалы",
+      "departurePoint": "Кетүү пункту",
+      "pickUpPoint": "Кабыл алуу пункту",
+      "history": "Байкоо тарыхы"
     }
   },
   "infoSendPost": {

@@ -71,7 +71,7 @@ export const useTrackingStore = create<TrackingStore>((set, get) => ({
     const { trackNumber } = get();
 
     if (!trackNumber.trim()) {
-      toast.error('Трек-номерди киргизиңиз / Введите трек-номер');
+      toast.error('Введите трек-номер');
       return;
     }
 
@@ -87,12 +87,10 @@ export const useTrackingStore = create<TrackingStore>((set, get) => ({
         isModalOpen: true,
         isLoading: false,
       });
-      toast.success('Посылка табылды / Посылка найдена');
+      toast.success('Посылка найдена');
     } else {
       set({ isLoading: false });
-      toast.error(
-        'Посылка табылган жок. / Посылка не найдена. Попробуйте: KGZ-312-123456 или KGZ-312-654321',
-      );
+      toast.error('Посылка не найдена');
     }
   },
 

@@ -12,6 +12,13 @@
       "buttonOne": "Доставка до пункта выдачи посылок",
       "buttonTwo": "Доставка до двери получателя",
       "closeButton": "Закрыть"
+    },
+    "trackingSearch": {
+      "status": "Статус посылки",
+      "currentStatus": "Текущий статус",
+      "departurePoint": "Пункт отправления",
+      "pickUpPoint": "Пункт выдачи",
+      "history": "История отслеживания"
     }
   },
   "infoSendPost": {

@@ -2,8 +2,11 @@ import { Button } from '@/components/ui/button';
 import { Search, X, Package, MapPin, Calendar, CheckCircle2, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTrackingStore } from '@/stores/trackingStore/trackingStore';
+import { useTranslation } from 'react-i18next';
 
 const TrackingSearch = () => {
+  const { t } = useTranslation();
+
   const {
     trackNumber,
     parcelInfo,
@@ -28,7 +31,7 @@ const TrackingSearch = () => {
     <>
       <div className="space-y-4 text-center">
         <h4 className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 flex items-center justify-center mb-1 text-center text-base font-bold px-2 mx-auto">
-          Посылканы көзөмөлдөө
+          {t('deliveryCalculation.trackingSearch.parcelTracking')}
         </h4>
 
         <div className="flex gap-0 w-full max-w-80 sm:max-w-96 md:max-w-110 mx-auto">
@@ -67,7 +70,9 @@ const TrackingSearch = () => {
               <div className="flex items-center gap-3">
                 <Package className="w-8 h-8" />
                 <div>
-                  <DialogTitle className="text-2xl font-bold">Статус посылки</DialogTitle>
+                  <DialogTitle className="text-2xl font-bold">
+                    {t('deliveryCalculation.trackingSearch.status')}
+                  </DialogTitle>
                   <p className="text-orange-100 text-sm font-mono mt-1">
                     {parcelInfo?.trackNumber}
                   </p>
@@ -100,7 +105,9 @@ const TrackingSearch = () => {
                     }`}
                   />
                   <div>
-                    <p className="text-sm text-gray-600">Текущий статус</p>
+                    <p className="text-sm text-gray-600">
+                      {t('deliveryCalculation.trackingSearch.currentStatus')}
+                    </p>
                     <p
                       className={`text-lg font-bold ${
                         parcelInfo.isDelivered ? 'text-green-700' : 'text-blue-700'
@@ -117,7 +124,9 @@ const TrackingSearch = () => {
                   <div className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-orange-600 mt-1" />
                     <div>
-                      <p className="text-sm text-gray-600 font-semibold mb-1">Пункт отправления</p>
+                      <p className="text-sm text-gray-600 font-semibold mb-1">
+                        {t('deliveryCalculation.trackingSearch.departurePoint')}
+                      </p>
                       <p className="font-bold text-gray-800">{parcelInfo.sender.location}</p>
                       <p className="text-sm text-gray-600 mt-1">{parcelInfo.sender.address}</p>
                     </div>
@@ -128,7 +137,9 @@ const TrackingSearch = () => {
                   <div className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-green-600 mt-1" />
                     <div>
-                      <p className="text-sm text-gray-600 font-semibold mb-1">Пункт выдачи</p>
+                      <p className="text-sm text-gray-600 font-semibold mb-1">
+                        {t('deliveryCalculation.trackingSearch.pickUpPoint')}
+                      </p>
                       <p className="font-bold text-gray-800">{parcelInfo.recipient.location}</p>
                       <p className="text-sm text-gray-600 mt-1">{parcelInfo.recipient.address}</p>
                     </div>
@@ -139,7 +150,7 @@ const TrackingSearch = () => {
               <div>
                 <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-orange-600" />
-                  История отслеживания
+                  {t('deliveryCalculation.trackingSearch.history')}
                 </h3>
 
                 <div className="relative">
