@@ -2,26 +2,26 @@ import { Router } from "express";
 import CourierCity from "../models/CourierCity";
 import PickupCity from "../models/PickupCity";
 
-const router = Router();
+const citiesRouter = Router();
 
-router.get("/courier-cities", async (req, res) => {
+citiesRouter.get("/courier-cities", async (req, res) => {
     try {
         const cities = await CourierCity.find().sort({ nameCity: 1 });
         res.json(cities);
     } catch (error) {
-        console.error("Ошибка при получении городов курьеров:", error);
-        res.status(500).json({ message: "Ошибка при получении городов курьеров" });
+        console.error("Error receiving city couriers:", error);
+        res.status(500).json({ message: "Error receiving courier cities" });
     }
 });
 
-router.get("/pickup-cities", async (req, res) => {
+citiesRouter.get("/pickup-cities", async (req, res) => {
     try {
         const cities = await PickupCity.find().sort({ name: 1 });
         res.json(cities);
     } catch (error) {
-        console.error("Ошибка при получении городов ПВЗ:", error);
-        res.status(500).json({ message: "Ошибка при получении городов ПВЗ" });
+        console.error("Error while getting pickup point cities:", error);
+        res.status(500).json({ message: "Error while getting pickup point cities" });
     }
 });
 
-export default router;
+export default citiesRouter;
