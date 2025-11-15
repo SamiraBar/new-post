@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button.tsx';
 import type { Order} from '@/types';
 import useCitiesStore from '@/stores/citiesStore/citiesStore.ts';
 import { cities } from '@/constants.ts';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   order: Order;
@@ -52,6 +53,8 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
     c.name.toLowerCase().includes(citySearch.destination.toLowerCase()),
   );
 
+  const { t } = useTranslation();
+
   return (
     <div className="w-full lg:flex pt-5">
       <div className="border p-5 rounded-lg w-full shadow-lg">
@@ -62,7 +65,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
 
                 <FieldGroup className="gap-4">
                   <div className="flex items-center">
-                    <FieldLabel>Жиберүүчү / Отправитель</FieldLabel>
+                    <FieldLabel>{t('deliveryCostCalculator.stepOneForm.sender')}</FieldLabel>
                     <span className="w-[140] ml-auto">
                       <TruckIconA />
                     </span>
@@ -75,7 +78,9 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     value={order.originCity}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Жиберүүчү шаар / Город отправителя" />
+                      <SelectValue
+                        placeholder={t('deliveryCostCalculator.stepOneForm.senderPlaceholder')}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       <Input
@@ -100,7 +105,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
 
                 <FieldGroup className="gap-4">
                   <div className="flex items-center justify-between">
-                    <FieldLabel>Алуучу / Получатель</FieldLabel>
+                    <FieldLabel>{t('deliveryCostCalculator.stepOneForm.recipient')}</FieldLabel>
                     <span className="w-[140] ml-auto">
                       <TruckIconB />
                     </span>
@@ -113,7 +118,9 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     value={order.destinationCity}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Алуучу шаар / Город получателя" />
+                      <SelectValue
+                        placeholder={t('deliveryCostCalculator.stepOneForm.recipientPlaceholder')}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       <Input
@@ -137,7 +144,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
 
               <FieldGroup className="flex flex-col sm:flex-row justify-between mt-5 min-w-0">
                 <Field>
-                  <FieldLabel>Посылканын баалуулугу / Ценность посылки</FieldLabel>
+                  <FieldLabel>{t('deliveryCostCalculator.stepOneForm.parcelValue')}</FieldLabel>
                   <div className="relative">
                     <Input
                       placeholder="1000"
@@ -155,15 +162,12 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                   </div>
                   <div className="mt-1">
                     <p className="text-red-500 text-opacity-80 text-xs sm:text-sm italic">
-                      Посылканын максималдуу баасы - 50000 сом
-                    </p>
-                    <p className="text-red-500 text-opacity-80 text-xs sm:text-sm italic">
-                      Максимальная стоимость посылки - 50000 сом
+                      {t('deliveryCostCalculator.stepOneForm.maxPrice')} - 50000 сом
                     </p>
                   </div>
                 </Field>
                 <Field>
-                  <FieldLabel>Посылканын салмагы / Вес посылки</FieldLabel>
+                  <FieldLabel>{t('deliveryCostCalculator.stepOneForm.parcelWeight')}</FieldLabel>
                   <div className="relative">
                     <Input
                       placeholder="кг"
@@ -182,10 +186,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                   </div>
                   <div className="mt-1">
                     <p className="text-red-500 text-opacity-80 text-xs sm:text-sm italic">
-                      Посылканын максималдуу салмагы - 15кг
-                    </p>
-                    <p className="text-red-500 text-opacity-80 text-xs sm:text-sm italic">
-                      Максимальный вес посылки - 15кг
+                      {t('deliveryCostCalculator.stepOneForm.maxWeight')} - 15кг
                     </p>
                   </div>
                 </Field>
@@ -200,8 +201,9 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
           <div className="flex items-center gap-3">
             <HandCoins className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 text-orange-500" />
             <div>
-              <p className="text-sm md:text-base font-medium">Жеткирүү баасы</p>
-              <p className="text-sm md:text-base text-gray-600">Стоимость доставки</p>
+              <p className="text-sm md:text-base font-medium">
+                {t('deliveryCostCalculator.stepOneForm.sum')}
+              </p>
             </div>
           </div>
           <span className="text-2xl md:text-3xl text-orange-500 font-bold">
@@ -213,13 +215,15 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
           <div className="flex items-center gap-3">
             <Clock className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 text-orange-500" />
             <div>
-              <p className="text-sm md:text-base font-medium">Жеткирүү убактысы</p>
-              <p className="text-sm md:text-base text-gray-600">Время доставки</p>
+              <p className="text-sm md:text-base font-medium">
+                {t('deliveryCostCalculator.stepOneForm.time')}
+              </p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-lg md:text-xl font-semibold">10 - Күн</p>
-            <p className="text-sm text-gray-600">Дней</p>
+            <p className="text-lg md:text-xl font-semibold">
+              10 - {t('deliveryCostCalculator.stepOneForm.day')}
+            </p>
           </div>
         </div>
 
@@ -228,8 +232,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
           onClick={handleNext}
         >
           <div className="text-center">
-            <div>Посылканы онлайн каттоо</div>
-            <div>Оформить посылку онлайн</div>
+            <div>{t('deliveryCostCalculator.buttons.design')}</div>
           </div>
         </Button>
       </div>

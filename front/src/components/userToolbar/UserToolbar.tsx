@@ -4,12 +4,14 @@ import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
 import logo from '../../assets/logo/newPostLogo.jpeg';
-import icWhatsapp from '../../assets/cosialIcons/WhatsApp.png';
+// import icWhatsapp from '../../assets/cosialIcons/WhatsApp.png';
+import LanguageSwitcher from './LanguageSwitcher.tsx';
+import { useTranslation } from 'react-i18next';
 
-const renderText: { kg: string; ru: string; link: string }[] = [
-  { kg: 'Маанилүү маалымат', ru: 'Важная информация', link: '#important-info' },
-  { kg: 'Биз жөнүндө', ru: 'О компании', link: '#about' },
-  { kg: 'Байланыштар', ru: 'Контакты', link: '#' },
+const navigationItems = [
+  { key: 'nav.importantInfo', link: '#important-info' },
+  { key: 'nav.about', link: '#about' },
+  { key: 'nav.contacts', link: '#contacts' },
 ];
 
 const UserToolbar = () => {
@@ -18,14 +20,21 @@ const UserToolbar = () => {
     hoveredIndex: null as number | null,
   });
 
+  const { t } = useTranslation();
+
   const toggleMenu = () => setState((prev) => ({ ...prev, isMenuOpen: !prev.isMenuOpen }));
 
-  const handleMouseEnter = (index: number) =>
+  const handleMouseEnter = (index: number) => {
     setState((prev) => ({ ...prev, hoveredIndex: index }));
+  };
 
-  const handleMouseLeave = () => setState((prev) => ({ ...prev, hoveredIndex: null }));
+  const handleMouseLeave = () => {
+    setState((prev) => ({ ...prev, hoveredIndex: null }));
+  };
 
-  const handleAnchorClick = () => setState((prev) => ({ ...prev, isMenuOpen: false }));
+  const handleAnchorClick = () => {
+    setState((prev) => ({ ...prev, isMenuOpen: false }));
+  };
 
   return (
     <header className="w-full bg-white shadow-sm sticky top-0 z-50 font-medium">
@@ -44,10 +53,10 @@ const UserToolbar = () => {
 
             <NavigationMenuItem className="hidden sm:block flex-1">
               <ul className="flex items-center justify-center gap-6 md:gap-12">
-                {renderText.map((text, index) => (
-                  <li key={`${text.ru}-${index}`}>
+                {navigationItems.map((item, index) => (
+                  <li key={`${item.key}-${index}`}>
                     <a
-                      href={text.link}
+                      href={item.link}
                       onMouseEnter={() => handleMouseEnter(index)}
                       onMouseLeave={handleMouseLeave}
                       onClick={handleAnchorClick}
@@ -56,10 +65,7 @@ const UserToolbar = () => {
                       }`}
                     >
                       <span className="sm:text-sm md:text-lg lg:text-xl leading-tight">
-                        {text.kg}
-                      </span>
-                      <span className="sm:text-sm md:text-lg lg:text-xl leading-tight">
-                        {text.ru}
+                        {t(item.key)}
                       </span>
                     </a>
                   </li>
@@ -69,13 +75,19 @@ const UserToolbar = () => {
 
             <NavigationMenuItem className="flex items-center gap-8">
               <div className="flex gap-2">
-                <a href="https://wa.me/996778465557?text=Здравствуйте%2C+у+меня+есть+вопрос" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
-                  <img
-                      src={icWhatsapp}
-                      alt="whatsapp"
-                      className="w-9 h-9 md:w-13 md:h-13 transition-transform duration-700 hover:scale-110"
-                  />
-                </a>
+                {/*<a*/}
+                {/*  href="https://wa.me/996778465557?text=Здравствуйте%2C+у+меня+есть+вопрос"*/}
+                {/*  aria-label="WhatsApp"*/}
+                {/*  target="_blank"*/}
+                {/*  rel="noopener noreferrer"*/}
+                {/*>*/}
+                {/*  <img*/}
+                {/*    src={icWhatsapp}*/}
+                {/*    alt="whatsapp"*/}
+                {/*    className="w-9 h-9 md:w-13 md:h-13 transition-transform duration-700 hover:scale-110"*/}
+                {/*  />*/}
+                {/*</a>*/}
+                <LanguageSwitcher />
               </div>
               <button
                 onClick={toggleMenu}
@@ -95,15 +107,14 @@ const UserToolbar = () => {
         >
           <nav className="py-4 border-t border-gray-200">
             <ul className="flex flex-col gap-4">
-              {renderText.map((text, index) => (
-                <li key={`mobile-${text.ru}-${index}`}>
+              {navigationItems.map((item, index) => (
+                <li key={`mobile-${item.key}-${index}`}>
                   <a
-                    href={text.link}
+                    href={item.link}
                     onClick={handleAnchorClick}
                     className="flex flex-col px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    <span className="text-base font-bold text-gray-900">{text.kg}</span>
-                    <span className="text-sm font-light text-gray-600">{text.ru}</span>
+                    <span className="text-base font-bold text-gray-900">{t(item.key)}</span>
                   </a>
                 </li>
               ))}

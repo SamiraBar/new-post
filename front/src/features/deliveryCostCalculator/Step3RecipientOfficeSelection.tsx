@@ -6,6 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import { offices } from '@/constants.ts';
 import type { Order } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   order: Order;
@@ -18,10 +19,12 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
     c.name.toLowerCase().includes(destinationOfficeSearch.toLowerCase()),
   );
 
+  const { t } = useTranslation();
+
   return (
     <div className="w-full pt-5">
       <h3 className="text-2xl font-bold text-center mb-8">
-        Алуучунун офисин тандоо / Выбрать офис получателя
+        {t('deliveryCostCalculator.stepTheeForm.title')}
       </h3>
 
       <InputGroup className="bg-white">
@@ -68,7 +71,7 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
         ) : (
           <div className="text-center text-gray-500 py-8">
             <MapPin className="size-12 mx-auto mb-2 opacity-30" />
-            <p>Офис не найден</p>
+            <p>{t('deliveryCostCalculator.stepTheeForm.notFound')}</p>
           </div>
         )}
       </ScrollArea>
