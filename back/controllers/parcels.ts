@@ -167,29 +167,7 @@ export const getParcelByTrackingNumber = async (
       });
     }
 
-    const response = {
-      ...parcel.toJSON(),
-      timeline: {
-        draft: parcel.draftedAt ? {
-          date: parcel.draftedAtFormatted,
-          timestamp: parcel.draftedAt
-        } : null,
-        created: parcel.createdAt ? {
-          date: parcel.createdAtFormatted,
-          timestamp: parcel.createdAt
-        } : null,
-        accepted: parcel.acceptedAt ? {
-          date: parcel.acceptedAtFormatted,
-          timestamp: parcel.acceptedAt
-        } : null,
-        shipped: parcel.shippedAt ? {
-          date: parcel.shippedAtFormatted,
-          timestamp: parcel.shippedAt
-        } : null,
-      },
-    };
-
-    res.send(response);
+    res.send(parcel);
   } catch (e) {
     next(e);
   }
@@ -238,31 +216,6 @@ export const updateParcelStatus = async (
         error: "Parcel not found after update",
       });
     }
-
-    let statusDate: string | null = null;
-
-    switch (status) {
-      case "draft":
-        statusDate = freshParcel.draftedAtFormatted || null;
-        break;
-      case "created":
-        statusDate = freshParcel.createdAtFormatted || null;
-        break;
-      case "accepted":
-        statusDate = freshParcel.acceptedAtFormatted || null;
-        break;
-      case "shipped":
-        statusDate = freshParcel.shippedAtFormatted || null;
-        break;
-    }
-
-    const minimalParcel = {
-      trackingNumber: freshParcel.trackingNumber,
-      status: freshParcel.status,
-      statusDate: statusDate,
-      senderName: freshParcel.senderFullName || "",
-      recipientName: freshParcel.recipientFullName || ""
-    };
 
     res.json({
       message: "Parcel status updated successfully",
