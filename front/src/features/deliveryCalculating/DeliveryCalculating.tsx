@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button.tsx';
-import { Search } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -11,6 +10,7 @@ import {
 import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useTranslation } from 'react-i18next';
+import TrackingSearch from '@/features/deliveryCalculating/components/TrackingSearch.tsx';
 
 const DeliveryActions = () => {
   const { t } = useTranslation();
@@ -144,21 +144,8 @@ const DeliveryActions = () => {
             {t('deliveryCalculation.parcelTracking')}
           </h4>
 
-          <div className="flex gap-0 w-full max-w-80 sm:max-w-96 md:max-w-110 mx-auto">
-            <input
-              type="text"
-              placeholder="Трек-номер..."
-              className="flex-1 p-2 rounded-l-xl border-2 border-orange-500 border-r-0
-               focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500
-               transition-all duration-200 shadow-md"
-            />
-            <Button
-              className="bg-orange-500 text-white border-2 border-orange-500 rounded-l-none rounded-r-xl
-                  hover:bg-orange-400 hover:border-orange-500
-                  active:scale-95 active:shadow-lg active:bg-orange-500 transition-all duration-200 h-11 shadow-md hover:shadow-lg"
-            >
-              <Search className="w-8 h-8" />
-            </Button>
+          <div>
+            <TrackingSearch />
           </div>
         </div>
       </div>

@@ -1,23 +1,27 @@
 import express from "express";
 import auth from "../middleware/auth";
 import {
-    createParcel,
-    getParcelById,
-    getParcelByTrackingNumber,
-    getParcels,
-    updateParcelStatus
+  createParcel,
+  getParcelById,
+  getParcelByTrackingNumber,
+  getParcels,
+  updateParcelStatus,
 } from "../controllers/parcels";
 
 const parcelsRouter = express.Router();
 
-parcelsRouter.post("/", auth, createParcel);
+parcelsRouter.post("/", createParcel);
 
-parcelsRouter.get("/",auth, getParcels);
+parcelsRouter.get("/track/:trackingNumber", getParcelByTrackingNumber);
 
-parcelsRouter.get("/:id",auth, getParcelById);
+parcelsRouter.get("/", auth, getParcels);
 
-parcelsRouter.get("/tracking/:trackingNumber",auth, getParcelByTrackingNumber);
+parcelsRouter.get("/:id", auth, getParcelById);
 
-parcelsRouter.patch("/tracking/:trackingNumber/status", auth, updateParcelStatus);
+parcelsRouter.patch(
+  "/tracking/:trackingNumber/status",
+  auth,
+  updateParcelStatus,
+);
 
 export default parcelsRouter;

@@ -30,10 +30,6 @@ const TrackingSearch = () => {
   return (
     <>
       <div className="space-y-4 text-center">
-        <h4 className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 flex items-center justify-center mb-1 text-center text-base font-bold px-2 mx-auto">
-          {t('deliveryCalculation.trackingSearch.parcelTracking')}
-        </h4>
-
         <div className="flex gap-0 w-full max-w-80 sm:max-w-96 md:max-w-110 mx-auto">
           <input
             type="text"
@@ -64,8 +60,8 @@ const TrackingSearch = () => {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={closeModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0">
-          <DialogHeader className="sticky top-0 bg-gradient-to-r from-orange-500 to-amber-500 text-white p-6 rounded-t-lg z-10">
+        <DialogContent className=" max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0 m-1 sm:m-0 w-[calc(100%-2rem)] sm:w-full">
+          <DialogHeader className="sticky top-0 bg-gradient-to-r from-orange-500 to-amber-500 text-white p-6 rounded-t-lg z-10 sm:p-6 ">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Package className="w-8 h-8" />
@@ -135,7 +131,7 @@ const TrackingSearch = () => {
 
                 <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-green-200">
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-green-600 mt-1" />
+                    <MapPin className="w-7 h-7 text-green-600" />
                     <div>
                       <p className="text-sm text-gray-600 font-semibold mb-1">
                         {t('deliveryCalculation.trackingSearch.pickUpPoint')}

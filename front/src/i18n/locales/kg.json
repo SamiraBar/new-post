@@ -19,6 +19,18 @@
       "departurePoint": "Кетүү пункту",
       "pickUpPoint": "Кабыл алуу пункту",
       "history": "Байкоо тарыхы"
+    },
+    "statuses": {
+      "draft": "Долбоор",
+      "created": "Түзүлдү",
+      "accepted": "Кампага кабыл алынды",
+      "shipped": "Жөнөтүлдү / Жеткирилди"
+    },
+    "toast": {
+      "enterTrackNumber": "Трек-номерди киргизиңиз",
+      "parcelFound": "Посылка табылды",
+      "parcelNotFound": "Посылка табылган жок",
+      "errorOccurred": "Катачылык кетти"
     }
   },
   "infoSendPost": {

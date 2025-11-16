@@ -1,21 +1,41 @@
 export interface TrackingStatus {
-  date: string;
-  time: string;
   status: string;
+  date: string;
+  time?: string;
   location?: string;
 }
 
 export interface ParcelInfo {
-  trackNumber: string;
+  _id: string;
+  trackingNumber: string;
+  partnerTrackingNumber?: string;
   sender: {
-    location: string;
+    _id: string;
+    fullName: string;
+    phoneNumber: string;
+    email: string;
     address: string;
   };
   recipient: {
-    location: string;
+    _id: string;
+    fullName: string;
+    phoneNumber: string;
+    email: string;
     address: string;
   };
-  statuses: TrackingStatus[];
-  currentStatus: string;
-  isDelivered: boolean;
+  originCity: string;
+  destinationCity: string;
+  status: 'draft' | 'created' | 'accepted' | 'shipped';
+  weight: number;
+  isPaid: boolean;
+  partnerStickerReceived: boolean;
+  timeline: {
+    draft: { date: string; timestamp: Date } | null;
+    created: { date: string; timestamp: Date } | null;
+    accepted: { date: string; timestamp: Date } | null;
+    shipped: { date: string; timestamp: Date } | null;
+  };
+  senderFullName?: string;
+  recipientFullName?: string;
+  recipientPhoneNumber?: string;
 }
