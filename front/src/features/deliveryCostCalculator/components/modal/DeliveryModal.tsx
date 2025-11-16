@@ -2,13 +2,13 @@ import { useEffect } from 'react';
 import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 import { Button } from '@/components/ui/button';
 
-const DeliveryModal = () => {
-  const {
-    calcModal,
-    openOrCloseCalcModal,
-    selectDoorDelivery,
-    selectPickup,
-  } = useDeliveryStore();
+interface DeliveryModalProps {
+  setOrderDeliveryType: (type: 'PVZ' | 'Hand') => void;
+}
+
+const DeliveryModal = ({ setOrderDeliveryType }: DeliveryModalProps) => {
+  const { calcModal, openOrCloseCalcModal, selectDoorDelivery, selectPickup } =
+    useDeliveryStore();
 
   useEffect(() => {
     if (calcModal) {
@@ -23,12 +23,16 @@ const DeliveryModal = () => {
 
   if (!calcModal) return null;
 
-  const handlePickup = () => {
+  const handlePVZ = () => {
     selectPickup();
+    setOrderDeliveryType('PVZ');
+    openOrCloseCalcModal();
   };
 
-  const handleDoor = () => {
+  const handleHand = () => {
     selectDoorDelivery();
+    setOrderDeliveryType('Hand');
+    openOrCloseCalcModal();
   };
 
   return (
@@ -43,7 +47,6 @@ const DeliveryModal = () => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col gap-4">
-          {/* Кнопка доставки в пункт выдачи */}
           <Button
             className="w-full h-auto min-h-16 border-2 border-orange-500 bg-orange-500 text-white
                        hover:bg-white hover:text-orange-600 rounded-xl
@@ -51,26 +54,21 @@ const DeliveryModal = () => {
                        flex flex-col items-center justify-center py-3 px-4 relative overflow-hidden
                        group transform hover:-translate-y-1
                        shadow-lg hover:shadow-xl shadow-orange-500/20 hover:shadow-orange-500/30"
-            onClick={handlePickup}
+            onClick={handlePVZ}
           >
             <div
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
                          -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%]
                          transition-transform duration-700"
             ></div>
-
-            <span
-              className="text-base font-bold text-center leading-tight
-                         text-white group-hover:text-orange-600 transition-colors duration-300
-                         whitespace-normal break-words"
-            >
+            <span className="text-base font-bold text-center leading-tight
+                             text-white group-hover:text-orange-600 transition-colors duration-300
+                             whitespace-normal break-words">
               Посылка беруу пунктка чейин жеткирүү
             </span>
-            <span
-              className="text-sm font-bold text-center leading-tight relative z-10
-                         text-white group-hover:text-orange-500 transition-colors duration-300 mt-1
-                         whitespace-normal break-words"
-            >
+            <span className="text-sm font-bold text-center leading-tight relative z-10
+                             text-white group-hover:text-orange-500 transition-colors duration-300 mt-1
+                             whitespace-normal break-words">
               Доставка до пункта выдачи посылок
             </span>
           </Button>
@@ -82,26 +80,21 @@ const DeliveryModal = () => {
                        flex flex-col items-center justify-center py-3 px-4 relative overflow-hidden
                        group transform hover:-translate-y-1
                        shadow-lg hover:shadow-xl shadow-amber-500/20 hover:shadow-amber-500/30"
-            onClick={handleDoor}
+            onClick={handleHand}
           >
             <div
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
                          -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%]
                          transition-transform duration-700"
             ></div>
-
-            <span
-              className="text-base font-bold text-center leading-tight relative z-10
-                         text-white group-hover:text-orange-600 transition-colors duration-300
-                         whitespace-normal break-words"
-            >
+            <span className="text-base font-bold text-center leading-tight relative z-10
+                             text-white group-hover:text-orange-600 transition-colors duration-300
+                             whitespace-normal break-words">
               Алуучунун уйунө чейин жеткирүү
             </span>
-            <span
-              className="text-sm font-bold text-center leading-tight relative z-10
-                         text-white group-hover:text-orange-500 transition-colors duration-300 mt-1
-                         whitespace-normal break-words"
-            >
+            <span className="text-sm font-bold text-center leading-tight relative z-10
+                             text-white group-hover:text-orange-500 transition-colors duration-300 mt-1
+                             whitespace-normal break-words">
               Доставка до двери получателя
             </span>
           </Button>

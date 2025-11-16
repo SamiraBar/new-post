@@ -6,4 +6,6 @@ export interface FileState {
   loadingPvz: boolean;
   loadingHand: boolean;
   uploadFiles: (typeFile: string) => Promise<void>;
+  loadingCities: boolean;
+  getCities: (type: "PVZ" | "Hand") => Promise<void>;
 }

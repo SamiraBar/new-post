@@ -262,7 +262,7 @@ const DeliveryCostCalculator = () => {
   return (
     <div className="container" id={'calculator'}>
       <Toaster />
-      <DeliveryModal />
+      <DeliveryModal setOrderDeliveryType={(type) => setOrder(prev => ({ ...prev, deliveryType: type }))} />
       <h3 className="text-xl font-medium text-center mb-10">
         Жеткирүү баасын эсептөө калькулятору <br /> Калькулятор расчёта стоимости доставки
       </h3>

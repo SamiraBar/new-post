@@ -67,7 +67,7 @@ interface Receiver {
   address?: string;
 }
 
-export type DeliveryType = 'courier' | 'pickup';
+export type DeliveryType = 'courier' | 'PVZ' | 'Hand';
 
 export interface Order {
   originCity: string;
@@ -86,14 +86,3 @@ export interface Order {
   deliveryType: DeliveryType;
 }
 
-export interface CourierCity {
-  _id: string;
-  nameCity: string;
-  country?: string;
-}
-
-export interface PickupCity {
-  _id: string;
-  name: string;
-  region?: string;
-}
