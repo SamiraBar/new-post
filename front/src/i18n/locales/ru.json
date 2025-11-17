@@ -19,6 +19,18 @@
       "departurePoint": "Пункт отправления",
       "pickUpPoint": "Пункт выдачи",
       "history": "История отслеживания"
+    },
+    "statuses": {
+      "draft": "Черновик",
+      "created": "Создана",
+      "accepted": "Принята на складе",
+      "shipped": "Отправлена / Доставлена"
+    },
+    "toast": {
+      "enterTrackNumber": "Введите трек-номер",
+      "parcelFound": "Посылка найдена",
+      "parcelNotFound": "Посылка не найдена",
+      "errorOccurred": "Произошла ошибка"
     }
   },
   "infoSendPost": {

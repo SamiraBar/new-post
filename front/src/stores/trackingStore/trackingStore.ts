@@ -1,10 +1,26 @@
 import { create } from 'zustand';
 import { toast } from 'sonner';
-import type { ParcelInfo } from './types';
+import type { ParcelInfo, TrackingStatus } from './types.ts';
+import i18n from '../../i18n/i18n.ts';
+
+interface FormattedParcelInfo {
+  trackNumber: string;
+  currentStatus: string;
+  isDelivered: boolean;
+  sender: {
+    location: string;
+    address: string;
+  };
+  recipient: {
+    location: string;
+    address: string;
+  };
+  statuses: TrackingStatus[];
+}
 
 interface TrackingStore {
   trackNumber: string;
-  parcelInfo: ParcelInfo | null;
+  parcelInfo: FormattedParcelInfo | null;
   isModalOpen: boolean;
   isLoading: boolean;
 
@@ -13,50 +29,61 @@ interface TrackingStore {
   closeModal: () => void;
 }
 
-const MOCK_DATA: Record<string, ParcelInfo> = {
-  'KGZ-312-123456': {
-    trackNumber: 'KGZ-312-123456',
+const API_URL = 'http://localhost:8000';
+
+const getStatusTranslation = (status: string): string => {
+  return i18n.t(`deliveryCalculation.statuses.${status}`);
+};
+
+const formatParcelData = (data: ParcelInfo): FormattedParcelInfo => {
+  const statuses: TrackingStatus[] = [];
+
+  if (data.timeline.draft) {
+    statuses.push({
+      status: getStatusTranslation('draft'),
+      date: data.timeline.draft.date,
+      location: data.originCity,
+    });
+  }
+
+  if (data.timeline.created) {
+    statuses.push({
+      status: getStatusTranslation('created'),
+      date: data.timeline.created.date,
+      location: data.originCity,
+    });
+  }
+
+  if (data.timeline.accepted) {
+    statuses.push({
+      status: getStatusTranslation('accepted'),
+      date: data.timeline.accepted.date,
+      location: 'Склад обработки',
+    });
+  }
+
+  if (data.timeline.shipped) {
+    statuses.push({
+      status: getStatusTranslation('shipped'),
+      date: data.timeline.shipped.date,
+      location: data.destinationCity,
+    });
+  }
+
+  return {
+    trackNumber: data.trackingNumber,
+    currentStatus: getStatusTranslation(data.status),
+    isDelivered: data.status === 'shipped',
     sender: {
-      location: 'Бишкек',
-      address: 'ул. Толстого 24/1',
+      location: data.originCity,
+      address: data.sender.address,
     },
     recipient: {
-      location: 'Белгород',
-      address: 'проспект Славы, дом 129',
+      location: data.destinationCity,
+      address: data.recipient.address,
     },
-    currentStatus: 'Выдано',
-    isDelivered: true,
-    statuses: [
-      { date: '05 ноября 2025', time: '14:18', status: 'Создан' },
-      { date: '05 ноября 2025', time: '18:14', status: 'Принят на доставку' },
-      { date: '06 ноября 2025', time: '18:14', status: 'Отправлен в город назначения' },
-      { date: '11 ноября 2025', time: '18:14', status: 'На складе в стране назначения' },
-      { date: '12 ноября 2025', time: '18:14', status: 'В пути в город назначения' },
-      { date: '14 ноября 2025', time: '18:14', status: 'В городе назначения' },
-      { date: '15 ноября 2025', time: '18:14', status: 'На выдаче в ПВЗ' },
-      { date: '16 ноября 2025', time: '18:14', status: 'Выдано' },
-    ],
-  },
-  'KGZ-312-654321': {
-    trackNumber: 'KGZ-312-654321',
-    sender: {
-      location: 'Ош',
-      address: 'ул. Ленина 45',
-    },
-    recipient: {
-      location: 'Москва',
-      address: 'ул. Тверская 12',
-    },
-    currentStatus: 'В пути в город назначения',
-    isDelivered: false,
-    statuses: [
-      { date: '10 ноября 2025', time: '09:30', status: 'Создан' },
-      { date: '10 ноября 2025', time: '15:45', status: 'Принят на доставку' },
-      { date: '11 ноября 2025', time: '13:00', status: 'Отправлен в город назначения' },
-      { date: '13 ноября 2025', time: '14:30', status: 'На складе в стране назначения' },
-      { date: '14 ноября 2025', time: '15:40', status: 'В пути в город назначения' },
-    ],
-  },
+    statuses,
+  };
 };
 
 export const useTrackingStore = create<TrackingStore>((set, get) => ({
@@ -71,26 +98,45 @@ export const useTrackingStore = create<TrackingStore>((set, get) => ({
     const { trackNumber } = get();
 
     if (!trackNumber.trim()) {
-      toast.error('Введите трек-номер');
+      toast.error(i18n.t('deliveryCalculation.toast.enterTrackNumber'));
       return;
     }
 
     set({ isLoading: true });
 
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      const response = await fetch(`${API_URL}/parcels/track/${trackNumber}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    const parcelInfo = MOCK_DATA[trackNumber];
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Parcel not found');
+        }
+        throw new Error('Error loading data');
+      }
 
-    if (parcelInfo) {
+      const data: ParcelInfo = await response.json();
+      const formattedData = formatParcelData(data);
+
       set({
-        parcelInfo,
+        parcelInfo: formattedData,
         isModalOpen: true,
         isLoading: false,
       });
-      toast.success('Посылка найдена');
-    } else {
+
+      toast.success(i18n.t('deliveryCalculation.toast.parcelFound'));
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Parcel not found') {
+        toast.error(i18n.t('deliveryCalculation.toast.parcelNotFound'));
+      } else {
+        toast.error(i18n.t('deliveryCalculation.toast.errorOccurred'));
+      }
+
       set({ isLoading: false });
-      toast.error('Посылка не найдена');
     }
   },
 
