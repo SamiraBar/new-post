@@ -1,6 +1,22 @@
 import { NextFunction, Request, Response } from "express";
 import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
+import Contact from "../models/Contact";
+
+async function findContactIds(type: 'sender' | 'recipient', searchName: string): Promise<mongoose.Types.ObjectId[]> {
+  const regex = new RegExp(searchName, 'i');
+  const contacts = await Contact.find({
+    type: type,
+    fullName: regex
+  }).select('_id');
+
+  return contacts.map(contact => contact._id as mongoose.Types.ObjectId);
+}
+
+type MongoQuery = {
+  sender?: { $in: mongoose.Types.ObjectId[] };
+  recipient?: { $in: mongoose.Types.ObjectId[] };
+};
 
 export const createParcel = async (
     req: Request,
@@ -20,24 +36,28 @@ export const createParcel = async (
       partnerStickerReceived,
     } = req.body;
 
-    if (
-        !trackingNumber ||
-        !sender ||
-        !recipient ||
-        !originCity ||
-        !destinationCity ||
-        !weight
-    ) {
+    if (!trackingNumber || !originCity || !destinationCity || !weight) {
       return res.status(400).json({
         error: "Not all required fields are filled",
-        required: [
-          "trackingNumber",
-          "sender",
-          "recipient",
-          "originCity",
-          "destinationCity",
-          "weight",
-        ],
+        required: ["trackingNumber", "originCity", "destinationCity", "weight"],
+      });
+    }
+
+    if (!sender || !recipient) {
+      return res.status(400).json({
+        error: "Sender and recipient data are required"
+      });
+    }
+
+    if (!sender.fullName || !sender.phoneNumber || !sender.email || !sender.description) {
+      return res.status(400).json({
+        error: "Not all required sender fields are filled"
+      });
+    }
+
+    if (!recipient.fullName || !recipient.phoneNumber || !recipient.email || !recipient.description) {
+      return res.status(400).json({
+        error: "Not all required recipient fields are filled"
       });
     }
 
@@ -48,41 +68,26 @@ export const createParcel = async (
       });
     }
 
-    const MAX_WEIGHT = 15;
-    if (weightValue > MAX_WEIGHT) {
-      return res.status(400).json({
-        error: `Weight cannot exceed ${MAX_WEIGHT} kg`,
-        maxWeight: MAX_WEIGHT
-      });
-    }
-
-    const MIN_WEIGHT = 0.1;
-    if (weightValue < MIN_WEIGHT) {
-      return res.status(400).json({
-        error: `Weight must be at least ${MIN_WEIGHT} kg`,
-        minWeight: MIN_WEIGHT
-      });
-    }
-
     const existingParcel = await Parcel.findOne({ trackingNumber });
     if (existingParcel) {
       return res.status(400).json({
         error: "Parcel with this tracking number already exists",
       });
     }
+    const newSender = await Contact.create({
+      ...sender,
+      type: 'sender'
+    });
 
-    if (!mongoose.Types.ObjectId.isValid(sender)) {
-      return res.status(400).json({ error: "Invalid sender ID" });
-    }
-    if (!mongoose.Types.ObjectId.isValid(recipient)) {
-      return res.status(400).json({ error: "Invalid recipient ID" });
-    }
-
+    const newRecipient = await Contact.create({
+      ...recipient,
+      type: 'recipient'
+    });
     const newParcel = new Parcel({
       trackingNumber,
       partnerTrackingNumber,
-      sender,
-      recipient,
+      sender: newSender._id,
+      recipient: newRecipient._id,
       originCity,
       destinationCity,
       weight: weightValue,
@@ -107,43 +112,43 @@ export const createParcel = async (
 };
 
 export const getParcels = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
+    req: Request,
+    res: Response,
+    next: NextFunction
 ) => {
   try {
-    const parcels = await Parcel.find()
-      .populate("sender")
-      .populate("recipient")
-      .sort({ draftedAt: -1 })
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
 
-    res.send(parcels);
-  } catch (e) {
-    next(e);
-  }
-};
+    let query: MongoQuery = {};
 
-export const getParcelById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: "Invalid parcel ID" });
+    if (req.query.sender && typeof req.query.sender === 'string' && req.query.sender.trim() !== '') {
+      const senderIds = await findContactIds('sender', req.query.sender.trim());
+      query.sender = { $in: senderIds.length > 0 ? senderIds : [] };
     }
 
-    const parcel = await Parcel.findById(id)
-      .populate("sender")
-      .populate("recipient");
-
-    if (!parcel) {
-      return res.status(404).json({ error: "Parcel not found" });
+    if (req.query.recipient && typeof req.query.recipient === 'string' && req.query.recipient.trim() !== '') {
+      const recipientIds = await findContactIds('recipient', req.query.recipient.trim());
+      query.recipient = { $in: recipientIds.length > 0 ? recipientIds : [] };
     }
 
-    res.send(parcel);
+    const parcels = await Parcel.find(query)
+        .populate("sender")
+        .populate("recipient")
+        .sort({ draftedAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+    const total = await Parcel.countDocuments(query);
+    const hasMore = page * limit < total;
+
+    res.send({
+      parcels,
+      hasMore,
+      currentPage: page,
+      total
+    });
   } catch (e) {
     next(e);
   }
@@ -167,29 +172,7 @@ export const getParcelByTrackingNumber = async (
       });
     }
 
-    const response = {
-      ...parcel.toJSON(),
-      timeline: {
-        draft: parcel.draftedAt ? {
-          date: parcel.draftedAtFormatted,
-          timestamp: parcel.draftedAt
-        } : null,
-        created: parcel.createdAt ? {
-          date: parcel.createdAtFormatted,
-          timestamp: parcel.createdAt
-        } : null,
-        accepted: parcel.acceptedAt ? {
-          date: parcel.acceptedAtFormatted,
-          timestamp: parcel.acceptedAt
-        } : null,
-        shipped: parcel.shippedAt ? {
-          date: parcel.shippedAtFormatted,
-          timestamp: parcel.shippedAt
-        } : null,
-      },
-    };
-
-    res.send(response);
+    res.send(parcel);
   } catch (e) {
     next(e);
   }
@@ -238,31 +221,6 @@ export const updateParcelStatus = async (
         error: "Parcel not found after update",
       });
     }
-
-    let statusDate: string | null = null;
-
-    switch (status) {
-      case "draft":
-        statusDate = freshParcel.draftedAtFormatted || null;
-        break;
-      case "created":
-        statusDate = freshParcel.createdAtFormatted || null;
-        break;
-      case "accepted":
-        statusDate = freshParcel.acceptedAtFormatted || null;
-        break;
-      case "shipped":
-        statusDate = freshParcel.shippedAtFormatted || null;
-        break;
-    }
-
-    const minimalParcel = {
-      trackingNumber: freshParcel.trackingNumber,
-      status: freshParcel.status,
-      statusDate: statusDate,
-      senderName: freshParcel.senderFullName || "",
-      recipientName: freshParcel.recipientFullName || ""
-    };
 
     res.json({
       message: "Parcel status updated successfully",

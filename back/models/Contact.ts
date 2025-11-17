@@ -23,10 +23,6 @@ const ContactSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Email is required']
     },
-    address: {
-        type: String,
-        required: [true, 'Address is required']
-    },
     description: {
         type: String,
         required: true

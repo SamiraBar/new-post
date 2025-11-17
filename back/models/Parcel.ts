@@ -28,11 +28,6 @@ export interface IParcel extends mongoose.Document {
     createdAt?: Date;
     acceptedAt?: Date;
     shippedAt?: Date;
-
-    draftedAtFormatted?: string;
-    createdAtFormatted?: string;
-    acceptedAtFormatted?: string;
-    shippedAtFormatted?: string;
 }
 
 const ParcelSchema = new Schema(
@@ -138,34 +133,6 @@ ParcelSchema.pre("save", function (next) {
     }
 
     next();
-});
-
-ParcelSchema.virtual("draftedAtFormatted").get(function (this: IParcel) {
-    if (!this.draftedAt) return null;
-    return dayjs(this.draftedAt)
-        .tz("Asia/Bishkek")
-        .format("DD.MM.YYYY HH:mm");
-});
-
-ParcelSchema.virtual("createdAtFormatted").get(function (this: IParcel) {
-    if (!this.createdAt) return null;
-    return dayjs(this.createdAt)
-        .tz("Asia/Bishkek")
-        .format("DD.MM.YYYY HH:mm");
-});
-
-ParcelSchema.virtual("acceptedAtFormatted").get(function (this: IParcel) {
-    if (!this.acceptedAt) return null;
-    return dayjs(this.acceptedAt)
-        .tz("Asia/Bishkek")
-        .format("DD.MM.YYYY HH:mm");
-});
-
-ParcelSchema.virtual("shippedAtFormatted").get(function (this: IParcel) {
-    if (!this.shippedAt) return null;
-    return dayjs(this.shippedAt)
-        .tz("Asia/Bishkek")
-        .format("DD.MM.YYYY HH:mm");
 });
 
 ParcelSchema.virtual("senderFullName").get(function (this: IParcel) {
