@@ -70,6 +70,7 @@ const DeliveryCostCalculator = () => {
       phone: '',
       address: '',
     },
+    deliveryType: 'pickup',
   });
 
   const calculateDeliveryCost = useCallback(

@@ -1,55 +1,105 @@
-import {create} from "zustand";
-import type {FileState} from "@/stores/fileStore/types.ts";
-import {useAdminStore} from "@/stores/adminStore/adminStore.ts";
+import { create } from "zustand";
+import type { FileState } from "@/stores/fileStore/types.ts";
+import { useAdminStore } from "@/stores/adminStore/adminStore.ts";
 import axiosApi from "@/axiosApi.ts";
-import {isAxiosError} from "axios";
+import { isAxiosError } from "axios";
 
+interface PriceItem {
+  city: string;
+  region?: string;
+  country?: string;
+}
 
-export const useFileStore = create<FileState>((set, get) => ({
+const useFileStore = create<
+  FileState & {
+  citiesPVZ: PriceItem[];
+  citiesHand: PriceItem[];
+  loadingCities: boolean;
+  getCities: (type: "PVZ" | "Hand") => Promise<void>;
+}
+>((set, get) => ({
   pvzFile: null,
   handFile: null,
-  loadingPvz: false,
-  loadingHand: false,
 
-  setLoadingPvz: (value: boolean) => set({ loadingPvz: value }),
-  setLoadingHand: (value: boolean) => set({ loadingHand: value }),
   setPvzFile: (file) => set({ pvzFile: file }),
   setHandFile: (file) => set({ handFile: file }),
 
-  uploadFiles: async (typeFile: string) => {
-    const { pvzFile, handFile } = get();
+  loadingPvz: false,
+  loadingHand: false,
 
+  uploadFiles: async (typeFile: "PVZ" | "Hand") => {
+    const { pvzFile, handFile } = get();
     const token = useAdminStore.getState().admin!.token;
 
     let fileToSend: File | null = null;
 
-    if (typeFile === 'PVZ') {
+    if (typeFile === "PVZ") {
       fileToSend = pvzFile;
-      set({loadingPvz: true});
-    } else if (typeFile === "Hand") {
+      set({ loadingPvz: true });
+    } else {
       fileToSend = handFile;
-      set({loadingHand: true});
+      set({ loadingHand: true });
     }
 
     if (!fileToSend) {
-      if (typeFile === "PVZ") set({loadingPvz: false});
-      if (typeFile === "Hand") set({loadingHand: false});
-      throw new Error("Файл не выбран");
+      if (typeFile === "PVZ") set({ loadingPvz: false });
+      else set({ loadingHand: false });
+      throw new Error("File not selected");
     }
 
     const formData = new FormData();
-    formData.append('data', fileToSend);
+    formData.append("data", fileToSend);
 
     try {
-      await axiosApi.post(`/prices/upload?type=${typeFile}`, formData, {headers: {Authorization: token}})
+      await axiosApi.post(`/prices/upload?type=${typeFile}`, formData, {
+        headers: { Authorization: token },
+      });
     } catch (e) {
-      if (isAxiosError(e) && e.response && e.response.status) {
-        console.log(e)
+      if (isAxiosError(e) && e.response) {
         throw new Error(e.response.data.message);
       }
     } finally {
-      if (typeFile === "PVZ") set({loadingPvz: false, pvzFile: null});
-      if (typeFile === "Hand") set({loadingHand: false, handFile: null});
+      if (typeFile === "PVZ") {
+        set({ loadingPvz: false, pvzFile: null });
+      } else {
+        set({ loadingHand: false, handFile: null });
+      }
+    }
+  },
+
+  citiesPVZ: [],
+  citiesHand: [],
+  loadingCities: false,
+
+  getCities: async (type: "PVZ" | "Hand") => {
+    set({ loadingCities: true });
+
+    try {
+      const response = await axiosApi.get<PriceItem[]>("/prices", {
+        params: { type },
+      });
+
+      const formatted = response.data.map((c) => ({
+        city: c.city,
+        region: c.region,
+        country: c.country,
+      }));
+
+      if (type === "PVZ") {
+        set({ citiesPVZ: formatted });
+      } else {
+        set({ citiesHand: formatted });
+      }
+    } catch (e) {
+      console.error(e);
+
+      if (type === "PVZ") {
+        set({ citiesPVZ: [] });
+      } else {
+        set({ citiesHand: [] });
+      }
+    } finally {
+      set({ loadingCities: false });
     }
   },
 }));
