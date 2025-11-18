@@ -4,20 +4,29 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 
 const DeliveryModal = () => {
-  const { calcModal, openOrCloseCalcModal, selectDoorDelivery, selectPickup } = useDeliveryStore();
+  const {
+    calcModal,
+    openOrCloseCalcModal,
+    selectDoorDelivery,
+    selectPickup,
+    fetchPricing,
+    selectedPrice,
+  } = useDeliveryStore();
 
   const { t } = useTranslation();
+
 
   useEffect(() => {
     if (calcModal) {
       document.body.style.overflow = 'hidden';
+      fetchPricing();
     } else {
       document.body.style.overflow = '';
     }
     return () => {
       document.body.style.overflow = '';
     };
-  }, [calcModal]);
+  }, [calcModal, fetchPricing]);
 
   if (!calcModal) return null;
 
@@ -41,7 +50,6 @@ const DeliveryModal = () => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col gap-4">
-          {/* Кнопка доставки в пункт выдачи */}
           <Button
             className="w-full h-auto min-h-16 border-2 border-orange-500 bg-orange-500 text-white
                        hover:bg-white hover:text-orange-600 rounded-xl
@@ -64,8 +72,10 @@ const DeliveryModal = () => {
             >
               {t('deliveryCostCalculator.modal.toPoint')}
             </span>
+            <span className="text-sm font-semibold mt-1 text-white group-hover:text-orange-600">
+              {selectedPrice && '₽ ' + selectedPrice}
+            </span>
           </Button>
-
           <Button
             className="w-full h-auto min-h-16 border-2 border-orange-500 bg-gradient-to-br from-orange-500 to-amber-500 text-white
                        hover:bg-gradient-to-br hover:from-white hover:to-orange-50 hover:text-orange-600 rounded-xl
@@ -87,6 +97,9 @@ const DeliveryModal = () => {
                          whitespace-normal break-words"
             >
               {t('deliveryCostCalculator.modal.toTheDoor')}
+            </span>
+            <span className="text-sm font-semibold mt-1 text-white group-hover:text-orange-600">
+              {selectedPrice && '₽ ' + selectedPrice}
             </span>
           </Button>
 
