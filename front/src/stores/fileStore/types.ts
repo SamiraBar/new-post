@@ -5,5 +5,5 @@ export interface FileState {
   setHandFile: (file: File | null) => void;
   loadingPvz: boolean;
   loadingHand: boolean;
-  uploadFiles: (typeFile: string) => Promise<void>;
+  uploadFiles: (typeFile: "PVZ" | "Hand") => Promise<void>;
 }
