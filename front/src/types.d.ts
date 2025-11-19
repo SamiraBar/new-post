@@ -63,11 +63,15 @@ interface Sender {
   phone: string;
 }
 
-interface Receiver {
+export interface Receiver {
   name: string;
   email: string;
   phone: string;
   address?: string;
+  city?: string;
+  street?: string;
+  house?: string;
+  apartment?: string;
 }
 
 export type DeliveryType = "courier" | "pickup";
