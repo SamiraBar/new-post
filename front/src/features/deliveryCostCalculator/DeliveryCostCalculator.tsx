@@ -11,7 +11,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 import { Label } from '@/components/ui/label.tsx';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
-import type { Order, DeliveryType } from '@/types';
+import type { Order } from '@/types';
 import { WarningNotices } from './WarningNotices';
 import { StepIndicator } from '@/features/deliveryCostCalculator/StepIndicator.tsx';
 import Step1Calculator from '@/features/deliveryCostCalculator/Step1Calculator.tsx';
@@ -34,7 +34,17 @@ const tariffs = [
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAgreed, setIsAgreed] = useState(false);
-  const { openOrCloseCalcModal, isDoorDelivery, isPickup, clearActions } = useDeliveryStore();
+  const { t } = useTranslation();
+
+  const {
+    openOrCloseCalcModal,
+    isDoorDelivery,
+    isPickup,
+    selectPickup,
+    selectDoorDelivery,
+    clearActions,
+  } = useDeliveryStore();
+
   const [order, setOrder] = useState<Order>({
     originCity: '',
     destinationCity: '',
@@ -52,7 +62,12 @@ const DeliveryCostCalculator = () => {
     deliveryType: 'pickup',
   });
 
-  const { t } = useTranslation();
+  useEffect(() => {
+    setOrder((prev) => ({
+      ...prev,
+      deliveryType: isPickup ? 'pickup' : 'courier',
+    }));
+  }, [isPickup, isDoorDelivery]);
 
   const calculateDeliveryCost = useCallback(
     (weight: number) => {
@@ -174,10 +189,6 @@ const DeliveryCostCalculator = () => {
       break;
   }
 
-  const toggleDeliveryType = (type: DeliveryType) => {
-    setOrder((prev) => ({ ...prev, deliveryType: type }));
-  };
-
   return (
     <div className="container" id="calculator">
       <Toaster />
@@ -186,20 +197,28 @@ const DeliveryCostCalculator = () => {
       <h3 className="text-xl font-medium text-center mb-4">{t('deliveryCostCalculator.title')}</h3>
 
       <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
-        <p className="text-lg font-medium text-gray-700">
-          Выберите тип доставки:
-        </p>
+        <p className="text-lg font-medium text-gray-700">Выберите тип доставки:</p>
+
         <Button
-          variant={order.deliveryType === 'pickup' ? 'default' : 'outline'}
-          onClick={() => toggleDeliveryType('pickup')}
-          className="px-6 py-2"
+          onClick={selectPickup}
+          className={`
+            px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
+            active:scale-95 active:shadow-lg
+            ${isPickup ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
+            hover:bg-white hover:text-orange-500
+          `}
         >
           ПВЗ
         </Button>
+
         <Button
-          variant={order.deliveryType === 'courier' ? 'default' : 'outline'}
-          onClick={() => toggleDeliveryType('courier')}
-          className="px-6 py-2"
+          onClick={selectDoorDelivery}
+          className={`
+            px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
+            active:scale-95 active:shadow-lg
+            ${isDoorDelivery ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
+            hover:bg-white hover:text-orange-500
+          `}
         >
           Курьер
         </Button>
