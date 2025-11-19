@@ -34,6 +34,7 @@ interface Props {
 const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNext }) => {
   const { citiesPVZ, citiesHand, getCities, loadingCities } = useFileStore();
   const [citySearch, setCitySearch] = useState({ origin: "", destination: "" });
+  const { t } = useTranslation();
 
   useEffect(() => {
     const type: "PVZ" | "Hand" = order.deliveryType === "courier" ? "Hand" : "PVZ";
@@ -51,7 +52,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
     c.city.toLowerCase().includes(citySearch.destination.toLowerCase())
   );
 
-  const { t } = useTranslation();
+  const selectedPrice = order.totalCost || 0;
 
   return (
     <div className="w-full lg:flex pt-5">
@@ -69,7 +70,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                   </div>
                   <Select
                     required
-                    onValueChange={(value) =>
+                    onValueChange={(value: string) =>
                       setOrder((prev) => ({ ...prev, originCity: value }))
                     }
                     value={order.originCity}
@@ -86,10 +87,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                         name="origin"
                         value={citySearch.origin}
                         onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                          setCitySearch((prev) => ({
-                            ...prev,
-                            origin: e.target.value,
-                          }))
+                          setCitySearch((prev) => ({ ...prev, origin: e.target.value }))
                         }
                         className="w-full"
                       />
@@ -101,6 +99,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     </SelectContent>
                   </Select>
                 </FieldGroup>
+
                 <FieldGroup className="gap-4">
                   <div className="flex items-center justify-between">
                     <FieldLabel>{t("deliveryCostCalculator.stepOneForm.recipient")}</FieldLabel>
@@ -111,7 +110,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                   <Select
                     required
                     disabled={loadingCities || recipientCities.length === 0}
-                    onValueChange={(value) =>
+                    onValueChange={(value: string) =>
                       setOrder((prev) => ({ ...prev, destinationCity: value }))
                     }
                     value={order.destinationCity}
@@ -129,10 +128,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                       <Input
                         value={citySearch.destination}
                         onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                          setCitySearch((prev) => ({
-                            ...prev,
-                            destination: e.target.value,
-                          }))
+                          setCitySearch((prev) => ({ ...prev, destination: e.target.value }))
                         }
                       />
                       {filteredDestinationCities.map((city, index) => (
@@ -144,6 +140,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                   </Select>
                 </FieldGroup>
               </div>
+
               <FieldGroup className="flex flex-col sm:flex-row justify-between mt-5 min-w-0">
                 <Field>
                   <FieldLabel>{t("deliveryCostCalculator.stepOneForm.parcelValue")}</FieldLabel>
@@ -166,6 +163,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     {t("deliveryCostCalculator.stepOneForm.maxPrice")} - 50000 сом
                   </div>
                 </Field>
+
                 <Field>
                   <FieldLabel>{t("deliveryCostCalculator.stepOneForm.parcelWeight")}</FieldLabel>
                   <div className="relative">
@@ -193,6 +191,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
           </FieldSet>
         </FieldGroup>
       </div>
+
       <div className="shadow-lg border flex flex-col gap-4 p-5 rounded-lg w-full mt-5 lg:mt-0 lg:ml-5 lg:w-1/2">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -204,7 +203,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
             </div>
           </div>
           <span className="text-2xl md:text-3xl text-orange-500 font-bold">
-            {order.deliveryCost.toFixed(0)} сом
+            {selectedPrice.toFixed(0)} сом
           </span>
         </div>
 
@@ -228,7 +227,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
           className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-5 md:py-6 mt-2 text-sm md:text-base font-medium transition-colors"
           onClick={handleNext}
         >
-          {t("deliveryCostCalculator.buttons.design")}
+          {t("deliveryCostCalculator.buttons.forward")}
         </Button>
       </div>
     </div>
