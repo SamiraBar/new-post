@@ -1,78 +1,21 @@
 import { offices } from '@/constants.ts';
 import type { Order } from '@/types';
 import type { Dispatch, FC, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   order: Order;
   setOrder: Dispatch<SetStateAction<Order>>;
+  handleNext: () => void;
 }
 
-const Step2OfficeSelection: FC<Props> = ({ order, setOrder }) => {
-  if (order.deliveryType === 'courier') {
-    return (
-      <div className="w-full pt-5">
-        <h3 className="text-2xl font-bold text-center mb-8">
-          Введите адрес получателя
-        </h3>
-
-        <div className="flex flex-col gap-4 px-5">
-          <input
-            type="text"
-            placeholder="Город"
-            value={order.receiver.city || order.destinationCity || ''}
-            onChange={(e) =>
-              setOrder((prev) => ({
-                ...prev,
-                receiver: { ...prev.receiver, city: e.target.value },
-              }))
-            }
-            className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-          />
-          <input
-            type="text"
-            placeholder="Улица"
-            value={order.receiver.street || ''}
-            onChange={(e) =>
-              setOrder((prev) => ({
-                ...prev,
-                receiver: { ...prev.receiver, street: e.target.value },
-              }))
-            }
-            className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-          />
-          <input
-            type="text"
-            placeholder="Дом"
-            value={order.receiver.house || ''}
-            onChange={(e) =>
-              setOrder((prev) => ({
-                ...prev,
-                receiver: { ...prev.receiver, house: e.target.value },
-              }))
-            }
-            className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-          />
-          <input
-            type="text"
-            placeholder="Квартира (если есть)"
-            value={order.receiver.apartment || ''}
-            onChange={(e) =>
-              setOrder((prev) => ({
-                ...prev,
-                receiver: { ...prev.receiver, apartment: e.target.value },
-              }))
-            }
-            className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-          />
-        </div>
-      </div>
-    );
-  }
+const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
+  const { t } = useTranslation();
 
   return (
     <div className="w-full pt-5">
       <h3 className="text-2xl font-bold text-center mb-8">
-        Выберите офис отправки
+        {t('deliveryCostCalculator.stepTwoForm.title')}
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5">
@@ -105,7 +48,6 @@ const Step2OfficeSelection: FC<Props> = ({ order, setOrder }) => {
                   order.originOffice === office.id ? 'text-orange-600' : 'text-gray-500'
                 }`}
               >
-                {order.originOffice === office.id ? '✓ выбран' : 'Выбрать'}
               </div>
             </div>
           </button>
@@ -115,4 +57,4 @@ const Step2OfficeSelection: FC<Props> = ({ order, setOrder }) => {
   );
 };
 
-export default Step2OfficeSelection;
+export default Step2SenderOfficeSelection;
