@@ -3,14 +3,17 @@ import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
 import Contact from "../models/Contact";
 
-async function findContactIds(type: 'sender' | 'recipient', searchName: string): Promise<mongoose.Types.ObjectId[]> {
-  const regex = new RegExp(searchName, 'i');
+async function findContactIds(
+  type: "sender" | "recipient",
+  searchName: string,
+): Promise<mongoose.Types.ObjectId[]> {
+  const regex = new RegExp(searchName, "i");
   const contacts = await Contact.find({
     type: type,
-    fullName: regex
-  }).select('_id');
+    fullName: regex,
+  }).select("_id");
 
-  return contacts.map(contact => contact._id as mongoose.Types.ObjectId);
+  return contacts.map((contact) => contact._id as mongoose.Types.ObjectId);
 }
 
 type MongoQuery = {
@@ -19,9 +22,9 @@ type MongoQuery = {
 };
 
 export const createParcel = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
   try {
     const {
@@ -45,19 +48,29 @@ export const createParcel = async (
 
     if (!sender || !recipient) {
       return res.status(400).json({
-        error: "Sender and recipient data are required"
+        error: "Sender and recipient data are required",
       });
     }
 
-    if (!sender.fullName || !sender.phoneNumber || !sender.email || !sender.description) {
+    if (
+      !sender.fullName ||
+      !sender.phoneNumber ||
+      !sender.email ||
+      !sender.description
+    ) {
       return res.status(400).json({
-        error: "Not all required sender fields are filled"
+        error: "Not all required sender fields are filled",
       });
     }
 
-    if (!recipient.fullName || !recipient.phoneNumber || !recipient.email || !recipient.description) {
+    if (
+      !recipient.fullName ||
+      !recipient.phoneNumber ||
+      !recipient.email ||
+      !recipient.description
+    ) {
       return res.status(400).json({
-        error: "Not all required recipient fields are filled"
+        error: "Not all required recipient fields are filled",
       });
     }
 
@@ -76,12 +89,12 @@ export const createParcel = async (
     }
     const newSender = await Contact.create({
       ...sender,
-      type: 'sender'
+      type: "sender",
     });
 
     const newRecipient = await Contact.create({
       ...recipient,
-      type: 'recipient'
+      type: "recipient",
     });
     const newParcel = new Parcel({
       trackingNumber,
@@ -99,12 +112,12 @@ export const createParcel = async (
     await newParcel.save();
 
     const populatedParcel = await Parcel.findById(newParcel._id)
-        .populate("sender")
-        .populate("recipient");
+      .populate("sender")
+      .populate("recipient");
 
     res.status(201).json({
       message: "Parcel created successfully",
-      parcel: populatedParcel
+      parcel: populatedParcel,
     });
   } catch (e) {
     next(e);
@@ -112,9 +125,9 @@ export const createParcel = async (
 };
 
 export const getParcels = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -123,22 +136,33 @@ export const getParcels = async (
 
     let query: MongoQuery = {};
 
-    if (req.query.sender && typeof req.query.sender === 'string' && req.query.sender.trim() !== '') {
-      const senderIds = await findContactIds('sender', req.query.sender.trim());
+    if (
+      req.query.sender &&
+      typeof req.query.sender === "string" &&
+      req.query.sender.trim() !== ""
+    ) {
+      const senderIds = await findContactIds("sender", req.query.sender.trim());
       query.sender = { $in: senderIds.length > 0 ? senderIds : [] };
     }
 
-    if (req.query.recipient && typeof req.query.recipient === 'string' && req.query.recipient.trim() !== '') {
-      const recipientIds = await findContactIds('recipient', req.query.recipient.trim());
+    if (
+      req.query.recipient &&
+      typeof req.query.recipient === "string" &&
+      req.query.recipient.trim() !== ""
+    ) {
+      const recipientIds = await findContactIds(
+        "recipient",
+        req.query.recipient.trim(),
+      );
       query.recipient = { $in: recipientIds.length > 0 ? recipientIds : [] };
     }
 
     const parcels = await Parcel.find(query)
-        .populate("sender")
-        .populate("recipient")
-        .sort({ draftedAt: -1 })
-        .skip(skip)
-        .limit(limit);
+      .populate("sender")
+      .populate("recipient")
+      .sort({ draftedAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     const total = await Parcel.countDocuments(query);
     const hasMore = page * limit < total;
@@ -147,7 +171,7 @@ export const getParcels = async (
       parcels,
       hasMore,
       currentPage: page,
-      total
+      total,
     });
   } catch (e) {
     next(e);
@@ -155,16 +179,16 @@ export const getParcels = async (
 };
 
 export const getParcelByTrackingNumber = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
   try {
     const { trackingNumber } = req.params;
 
     const parcel = await Parcel.findOne({ trackingNumber })
-        .populate("sender")
-        .populate("recipient");
+      .populate("sender")
+      .populate("recipient");
 
     if (!parcel) {
       return res.status(404).json({
@@ -179,9 +203,9 @@ export const getParcelByTrackingNumber = async (
 };
 
 export const updateParcelStatus = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
   try {
     const { trackingNumber } = req.params;
@@ -201,8 +225,8 @@ export const updateParcelStatus = async (
     }
 
     const parcel = await Parcel.findOne({ trackingNumber })
-        .populate("sender")
-        .populate("recipient");
+      .populate("sender")
+      .populate("recipient");
 
     if (!parcel) {
       return res.status(404).json({
@@ -213,8 +237,8 @@ export const updateParcelStatus = async (
     await parcel.save();
 
     const freshParcel = await Parcel.findById(parcel._id)
-        .populate("sender")
-        .populate("recipient");
+      .populate("sender")
+      .populate("recipient");
 
     if (!freshParcel) {
       return res.status(404).json({
@@ -224,7 +248,7 @@ export const updateParcelStatus = async (
 
     res.json({
       message: "Parcel status updated successfully",
-      parcel: freshParcel
+      parcel: freshParcel,
     });
   } catch (e) {
     next(e);

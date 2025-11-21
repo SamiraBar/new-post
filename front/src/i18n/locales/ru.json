@@ -20,6 +20,7 @@
       "pickUpPoint": "Пункт выдачи",
       "history": "История отслеживания"
     },
+    "inTransit": "В пути",
     "statuses": {
       "draft": "Черновик",
       "created": "Создана",

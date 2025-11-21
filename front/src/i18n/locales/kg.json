@@ -20,6 +20,7 @@
       "pickUpPoint": "Кабыл алуу пункту",
       "history": "Байкоо тарыхы"
     },
+    "inTransit": "Жолдо",
     "statuses": {
       "draft": "Долбоор",
       "created": "Түзүлдү",

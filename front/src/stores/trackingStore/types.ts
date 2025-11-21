@@ -29,12 +29,17 @@ export interface ParcelInfo {
   weight: number;
   isPaid: boolean;
   partnerStickerReceived: boolean;
-  timeline: {
-    draft: { date: string; timestamp: Date } | null;
-    created: { date: string; timestamp: Date } | null;
-    accepted: { date: string; timestamp: Date } | null;
-    shipped: { date: string; timestamp: Date } | null;
-  };
+
+  draftedAt?: Date | null;
+  createdAt?: Date | null;
+  acceptedAt?: Date | null;
+  shippedAt?: Date | null;
+
+  draftedAtFormatted?: string | null;
+  createdAtFormatted?: string | null;
+  acceptedAtFormatted?: string | null;
+  shippedAtFormatted?: string | null;
+
   senderFullName?: string;
   recipientFullName?: string;
   recipientPhoneNumber?: string;

@@ -131,7 +131,7 @@ const TrackingSearch = () => {
 
                 <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-green-200">
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-7 h-7 text-green-600" />
+                    <MapPin className="w-5 h-5 text-green-600 mt-1" />
                     <div>
                       <p className="text-sm text-gray-600 font-semibold mb-1">
                         {t('deliveryCalculation.trackingSearch.pickUpPoint')}
