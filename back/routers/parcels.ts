@@ -1,8 +1,7 @@
 import express from "express";
 import auth from "../middleware/auth";
 import {
-  createParcel,
-  getParcelById,
+  createParcel, getParcelById,
   getParcelByTrackingNumber,
   getParcels,
   updateParcelStatus,
@@ -12,11 +11,11 @@ const parcelsRouter = express.Router();
 
 parcelsRouter.post("/", createParcel);
 
+parcelsRouter.get("/:id", getParcelById);
+
 parcelsRouter.get("/track/:trackingNumber", getParcelByTrackingNumber);
 
 parcelsRouter.get("/", auth, getParcels);
-
-parcelsRouter.get("/:id", auth, getParcelById);
 
 parcelsRouter.patch(
   "/tracking/:trackingNumber/status",
