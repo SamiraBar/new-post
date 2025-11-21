@@ -154,6 +154,32 @@ export const getParcels = async (
   }
 };
 
+export const getParcelById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({ error: "Invalid parcel ID" });
+        }
+
+        const parcel = await Parcel.findById(id)
+            .populate("sender")
+            .populate("recipient");
+
+        if (!parcel) {
+            return res.status(404).json({ error: "Parcel not found" });
+        }
+
+        res.json(parcel);
+    } catch (e) {
+        next(e);
+    }
+};
+
 export const getParcelByTrackingNumber = async (
     req: Request,
     res: Response,

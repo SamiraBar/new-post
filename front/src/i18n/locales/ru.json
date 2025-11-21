@@ -33,6 +33,13 @@
       "errorOccurred": "Произошла ошибка"
     }
   },
+  "delivery": {
+    "chooseType": "Выберите тип доставки:",
+    "pickup": "ПВЗ",
+    "pickupFull": "Доставка в ПВЗ",
+    "courier": "Курьер",
+    "courierFull": "Курьерская доставка"
+  },
   "infoSendPost": {
     "title": "Как отправить посылку?",
     "subtitleOne": "Оформи\nпосылку онлайн",
@@ -93,6 +100,13 @@
       "inputOneParcelContent": "Содержимое посылки",
       "inputTwoTitle": "Получатель",
       "inputTwoText": "Подробный адрес Получателя например: город Белгород, проспект Фрунзе дом 123"
+    },
+    "courierFields": {
+      "title": "Введите адрес получателя",
+      "cityPlaceholder": "Город",
+      "streetPlaceholder": "Улица",
+      "housePlaceholder": "Дом",
+      "apartmentPlaceholder": "Квартира (если есть)"
     },
     "stepFive": {
       "title": "Подтверждение данных",

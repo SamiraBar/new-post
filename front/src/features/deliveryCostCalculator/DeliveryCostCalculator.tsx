@@ -11,17 +11,17 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 import { Label } from '@/components/ui/label.tsx';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
-import type { Order, DeliveryType } from '@/types';
+import type { Order } from '@/types';
 import { WarningNotices } from './WarningNotices';
 import { StepIndicator } from '@/features/deliveryCostCalculator/StepIndicator.tsx';
 import Step1Calculator from '@/features/deliveryCostCalculator/Step1Calculator.tsx';
-import Step2OfficeSelection from '@/features/deliveryCostCalculator/Step2OfficeSelection.tsx';
 import Step3RecipientOfficeSelection from '@/features/deliveryCostCalculator/Step3RecipientOfficeSelection.tsx';
 import Step4SenderRecipientForm from '@/features/deliveryCostCalculator/Step4SenderRecipientForm.tsx';
 import Step5Review from '@/features/deliveryCostCalculator/Step5Review.tsx';
 import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 import DeliveryModal from '@/features/deliveryCostCalculator/components/modal/DeliveryModal.tsx';
 import { useTranslation } from 'react-i18next';
+import Step2SenderOfficeSelection from './Step2OfficeSelection';
 
 const BASE_PRICE = 600;
 const tariffs = [
@@ -34,7 +34,17 @@ const tariffs = [
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAgreed, setIsAgreed] = useState(false);
-  const { openOrCloseCalcModal, isDoorDelivery, isPickup, clearActions } = useDeliveryStore();
+  const { t } = useTranslation();
+
+  const {
+    openOrCloseCalcModal,
+    isDoorDelivery,
+    isPickup,
+    selectPickup,
+    selectDoorDelivery,
+    clearActions,
+  } = useDeliveryStore();
+
   const [order, setOrder] = useState<Order>({
     originCity: '',
     destinationCity: '',
@@ -52,7 +62,12 @@ const DeliveryCostCalculator = () => {
     deliveryType: 'pickup',
   });
 
-  const { t } = useTranslation();
+  useEffect(() => {
+    setOrder((prev) => ({
+      ...prev,
+      deliveryType: isPickup ? 'pickup' : 'courier',
+    }));
+  }, [isPickup, isDoorDelivery]);
 
   const calculateDeliveryCost = useCallback(
     (weight: number) => {
@@ -130,10 +145,12 @@ const DeliveryCostCalculator = () => {
       else setCurrentStep(2);
     } else if (currentStep === 2) {
       if (!order.originOffice) return toast.error(t('deliveryCostCalculator.validateError.senderOffice'));
-      if (isDoorDelivery) return setCurrentStep(4);
+      if (isDoorDelivery) return setCurrentStep(3);
       setCurrentStep(3);
     } else if (currentStep === 3) {
-      if (!order.destinationOffice) return toast.error(t('deliveryCostCalculator.validateError.receiverOffice'));
+      if (!isDoorDelivery && !order.destinationOffice) {
+        return toast.error(t('deliveryCostCalculator.validateError.receiverOffice'));
+      }
       setCurrentStep(4);
     } else if (currentStep === 4) {
       if (!order.sender.name) return toast.error(t('deliveryCostCalculator.validateError.senderName'));
@@ -149,7 +166,6 @@ const DeliveryCostCalculator = () => {
 
   const handleBack = () => {
     if (currentStep > 1) {
-      if (isDoorDelivery && currentStep === 4) return setCurrentStep(2);
       if (currentStep === 2) clearActions();
       setCurrentStep(currentStep - 1);
     }
@@ -161,7 +177,11 @@ const DeliveryCostCalculator = () => {
       steps = <Step1Calculator order={order} setOrder={setOrder} onHandleChange={onHandleChange} handleNext={handleNext} />;
       break;
     case 2:
-      steps = <Step2OfficeSelection order={order} setOrder={setOrder} />;
+      steps = <Step2SenderOfficeSelection
+        order={order}
+        setOrder={setOrder}
+        handleNext={() => setCurrentStep(3)}
+      />;
       break;
     case 3:
       steps = <Step3RecipientOfficeSelection order={order} setOrder={setOrder} />;
@@ -174,10 +194,6 @@ const DeliveryCostCalculator = () => {
       break;
   }
 
-  const toggleDeliveryType = (type: DeliveryType) => {
-    setOrder((prev) => ({ ...prev, deliveryType: type }));
-  };
-
   return (
     <div className="container" id="calculator">
       <Toaster />
@@ -187,23 +203,34 @@ const DeliveryCostCalculator = () => {
 
       <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
         <p className="text-lg font-medium text-gray-700">
-          Выберите тип доставки:
+          {t("delivery.chooseType")}
         </p>
+
         <Button
-          variant={order.deliveryType === 'pickup' ? 'default' : 'outline'}
-          onClick={() => toggleDeliveryType('pickup')}
-          className="px-6 py-2"
+          onClick={selectPickup}
+          className={`
+      px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
+      active:scale-95 active:shadow-lg
+      ${isPickup ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
+      hover:bg-white hover:text-orange-500
+    `}
         >
-          ПВЗ
+          {t("delivery.pickup")}
         </Button>
+
         <Button
-          variant={order.deliveryType === 'courier' ? 'default' : 'outline'}
-          onClick={() => toggleDeliveryType('courier')}
-          className="px-6 py-2"
+          onClick={selectDoorDelivery}
+          className={`
+      px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
+      active:scale-95 active:shadow-lg
+      ${isDoorDelivery ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
+      hover:bg-white hover:text-orange-500
+    `}
         >
-          Курьер
+          {t("delivery.courier")}
         </Button>
       </div>
+
 
       <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
         <StepIndicator currentStep={currentStep} doorDelivery={isDoorDelivery} />
@@ -244,7 +271,7 @@ const DeliveryCostCalculator = () => {
                 <Button
                   type="button"
                   onClick={handleNext}
-                  disabled={currentStep === 4 && !isAgreed}
+                  disabled={currentStep === 2 && !order.originOffice}
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   <span>{t('deliveryCostCalculator.buttons.forward')}</span>
