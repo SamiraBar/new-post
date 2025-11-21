@@ -8,16 +8,6 @@ export interface AdminDef {
   displayName: string;
 }
 
-export interface CourierCityRow {
-    "Название города": string;
-    "Страна"?: string;
-}
-
-export interface PickupCityRow {
-    "Название города": string;
-    "Регион"?: string;
-}
-
 interface JwtAdminPayload extends JwtPayload {
   id: string;
 }

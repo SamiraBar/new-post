@@ -63,14 +63,18 @@ interface Sender {
   phone: string;
 }
 
-interface Receiver {
+export interface Receiver {
   name: string;
   email: string;
   phone: string;
   address?: string;
+  city?: string;
+  street?: string;
+  house?: string;
+  apartment?: string;
 }
 
-export type DeliveryType = 'courier' | 'pickup';
+export type DeliveryType = "courier" | "pickup";
 
 export interface Order {
   originCity: string;
@@ -87,16 +91,4 @@ export interface Order {
   sender: Sender;
   receiver: Receiver;
   deliveryType: DeliveryType;
-}
-
-export interface CourierCity {
-  _id: string;
-  nameCity: string;
-  country?: string;
-}
-
-export interface PickupCity {
-  _id: string;
-  name: string;
-  region?: string;
 }
