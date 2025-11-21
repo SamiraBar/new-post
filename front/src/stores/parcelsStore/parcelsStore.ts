@@ -2,11 +2,12 @@ import { create } from 'zustand';
 import axiosApi from '@/axiosApi.ts';
 import axios, { isAxiosError } from 'axios';
 import type { ParcelState } from './types';
-import type { IParcel } from '@/types';
+import type { IParcel, PaginatedParcelsResponse } from '@/types';
 
-export const useParcelsStore = create<ParcelState>()((set) => ({
+export const useParcelsStore = create<ParcelState>()((set, getState) => ({
   parcels: [],
   parcel: null,
+  parcelsResponse: null,
   getParcelsLoading: false,
   getParcelsError: null,
   getParcelLoading: false,
@@ -14,14 +15,30 @@ export const useParcelsStore = create<ParcelState>()((set) => ({
   editParcelStatusLoading: false,
   editParcelStatusError: null,
 
-  async getParcels() {
+  async getParcels(p: number) {
     try {
       set({
         getParcelsLoading: true,
         getParcelsError: null
       });
-      const {data} = await axiosApi.get<IParcel[]>('/parcels');
-      set({parcels: data});
+      const {data} = await axiosApi.get<PaginatedParcelsResponse>('/parcels?page=' + p);
+
+      if (data.parcels && data.parcels.length > 0) {
+        const current = getState().parcels || [];
+
+        const newParcels = data.parcels.filter(
+          (p) => !current.some((c) => c._id === p._id)
+        );
+
+        if (newParcels.length > 0) {
+          set((state) => ({
+            parcels: [...(state.parcels ?? []), ...newParcels],
+            parcelsResponse: data,
+          }));
+        }
+      }
+
+
       return true;
     } catch (e: unknown) {
       let errorMessage = '';
@@ -49,7 +66,7 @@ export const useParcelsStore = create<ParcelState>()((set) => ({
       const {data} = await axiosApi.get<IParcel>(`/parcels/${id}`);
       set({parcel: data});
       return true;
-    } catch (e: unknown) {
+    } catch (e) {
       let errorMessage = '';
       if (axios.isAxiosError(e)) {
         errorMessage = e.response?.data?.error || e.message;

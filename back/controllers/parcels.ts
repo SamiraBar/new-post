@@ -118,7 +118,7 @@ export const getParcels = async (
 ) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = 10;
+    const limit = 3;
     const skip = (page - 1) * limit;
 
     let query: MongoQuery = {};
@@ -153,6 +153,7 @@ export const getParcels = async (
     next(e);
   }
 };
+
 
 export const getParcelById = async (
     req: Request,

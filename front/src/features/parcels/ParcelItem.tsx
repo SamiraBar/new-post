@@ -78,7 +78,7 @@ const ParcelItem = ({parcel}: Props) => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 w-full bg-amber-50 p-4 md:p-6 rounded-2xl relative">
+    <div className="flex flex-col lg:flex-row gap-4 w-full bg-amber-50 p-4 md:p-6 rounded-2xl relative mb-1">
       <div className="absolute top-4 right-4 lg:top-6 lg:right-6">
         <div
           className="size-4 md:w-20 md:h-20 rounded-full border-4 border-orange-500  flex items-center justify-center">

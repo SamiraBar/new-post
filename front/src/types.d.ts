@@ -92,3 +92,11 @@ export interface Order {
   receiver: Receiver;
   deliveryType: DeliveryType;
 }
+
+export interface PaginatedParcelsResponse {
+  parcels: IParcel[];
+  hasMore: boolean;
+  currentPage: number;
+  total: number;
+}
+

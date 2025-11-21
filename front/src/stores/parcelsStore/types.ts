@@ -1,11 +1,12 @@
-import type { GlobalError, IParcel } from '@/types';
+import type { GlobalError, IParcel, PaginatedParcelsResponse } from '@/types';
 
 export interface ParcelState {
   parcels: IParcel[] | null;
   parcel: IParcel | null;
+  parcelsResponse: PaginatedParcelsResponse | null;
   getParcelsLoading: boolean;
   getParcelsError: GlobalError | null;
-  getParcels: () => Promise<boolean>;
+  getParcels: (p: number) => Promise<boolean>;
   getParcelLoading: boolean;
   getParcelError: GlobalError | null;
   getParcelById: (id: string) => Promise<boolean>;
