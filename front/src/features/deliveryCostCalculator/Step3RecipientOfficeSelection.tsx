@@ -86,7 +86,7 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
       ) : (
         <>
           <h3 className="text-2xl font-bold text-center mb-8">
-            {t('deliveryCostCalculator.stepTheeForm.title')}
+            {t('deliveryCostCalculator.stepThreeForm.title')}
           </h3>
 
           <InputGroup className="bg-white">
