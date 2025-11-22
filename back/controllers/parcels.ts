@@ -268,7 +268,16 @@ export const updateParcelStatus = async (
       return res.status(400).json({ error: "Status is required" });
     }
 
-    const validStatuses = ["draft", "created", "accepted", "shipped"];
+    const validStatuses = [
+      "draft",
+      "created",
+      "accepted",
+      "shipped",
+      "in_country",
+      "in_city",
+      "at_pickup_point",
+      "delivered",
+    ];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         error: "Invalid status",

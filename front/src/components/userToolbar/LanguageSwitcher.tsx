@@ -9,7 +9,7 @@ const LanguageSwitcher = () => {
   };
 
   const isKyrgyz = i18n.language === 'kg';
-  const currentLang = isKyrgyz ? 'ҚЫР' : 'РУС';
+  const currentLang = isKyrgyz ? 'КЫР' : 'РУС';
 
   return (
     <div className="flex items-center gap-3">
@@ -27,7 +27,7 @@ const LanguageSwitcher = () => {
           onClick={() => changeLanguage(isKyrgyz ? 'ru' : 'kg')}
           className={cn(
             'relative inline-flex h-7 w-14 sm:h-8 sm:w-16 items-center rounded-full border-2 border-gray-200',
-            'shadow-sm hover:shadow-md transition-all duration-600 ease-in-out focus:outline-none',
+            'shadow-sm hover:shadow-md transition-all duration-600 ease-in-out focus:outline-none cursor-pointer',
             isKyrgyz ? 'bg-[#FF4F00]' : 'bg-white',
           )}
         >

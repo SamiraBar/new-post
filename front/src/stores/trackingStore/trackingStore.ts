@@ -3,6 +3,10 @@ import { toast } from 'sonner';
 import type { ParcelInfo, TrackingStatus } from './types.ts';
 import i18n from '../../i18n/i18n.ts';
 
+const getStatusTranslation = (status: string): string => {
+  return i18n.t(`deliveryCalculation.statuses.${status}`);
+};
+
 interface FormattedParcelInfo {
   trackNumber: string;
   currentStatus: string;
@@ -31,43 +35,109 @@ interface TrackingStore {
 
 const API_URL = 'http://localhost:8000';
 
-const getStatusTranslation = (status: string): string => {
-  return i18n.t(`deliveryCalculation.statuses.${status}`);
+const formatDate = (date: Date | string | null | undefined): string | null => {
+  if (!date) return null;
+
+  const d = new Date(date);
+
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+
+  return `${day}.${month}.${year} ${hours}:${minutes}`;
 };
 
 const formatParcelData = (data: ParcelInfo): FormattedParcelInfo => {
   const statuses: TrackingStatus[] = [];
 
-  if (data.timeline.draft) {
-    statuses.push({
-      status: getStatusTranslation('draft'),
-      date: data.timeline.draft.date,
-      location: data.originCity,
-    });
+  if (data.draftedAt) {
+    const formattedDate = formatDate(data.draftedAt);
+    if (formattedDate) {
+      statuses.push({
+        status: getStatusTranslation('draft'),
+        date: formattedDate,
+        location: data.originCity,
+      });
+    }
   }
 
-  if (data.timeline.created) {
-    statuses.push({
-      status: getStatusTranslation('created'),
-      date: data.timeline.created.date,
-      location: data.originCity,
-    });
+  if (data.createdAt) {
+    const formattedDate = formatDate(data.createdAt);
+    if (formattedDate) {
+      statuses.push({
+        status: getStatusTranslation('created'),
+        date: formattedDate,
+        location: data.originCity,
+      });
+    }
   }
 
-  if (data.timeline.accepted) {
-    statuses.push({
-      status: getStatusTranslation('accepted'),
-      date: data.timeline.accepted.date,
-      location: 'Склад обработки',
-    });
+  if (data.acceptedAt) {
+    const formattedDate = formatDate(data.acceptedAt);
+    if (formattedDate) {
+      statuses.push({
+        status: getStatusTranslation('accepted'),
+        date: formattedDate,
+        location: data.originCity,
+      });
+    }
   }
 
-  if (data.timeline.shipped) {
-    statuses.push({
-      status: getStatusTranslation('shipped'),
-      date: data.timeline.shipped.date,
-      location: data.destinationCity,
-    });
+  if (data.shippedAt) {
+    const formattedDate = formatDate(data.shippedAt);
+    if (formattedDate) {
+      statuses.push({
+        status: getStatusTranslation('shipped'),
+        date: formattedDate,
+        location: i18n.t('deliveryCalculation.inTransit'),
+      });
+    }
+  }
+
+  if (data.inCountryAt) {
+    const formattedDate = formatDate(data.inCountryAt);
+    if (formattedDate) {
+      statuses.push({
+        status: getStatusTranslation('in_country'),
+        date: formattedDate,
+        location: i18n.t('deliveryCalculation.customsClearance'),
+      });
+    }
+  }
+
+  if (data.inCityAt) {
+    const formattedDate = formatDate(data.inCityAt);
+    if (formattedDate) {
+      statuses.push({
+        status: getStatusTranslation('in_city'),
+        date: formattedDate,
+        location: data.destinationCity,
+      });
+    }
+  }
+
+  if (data.atPickupPointAt) {
+    const formattedDate = formatDate(data.atPickupPointAt);
+    if (formattedDate) {
+      statuses.push({
+        status: getStatusTranslation('at_pickup_point'),
+        date: formattedDate,
+        location: `${data.destinationCity} - ${i18n.t('deliveryCalculation.pickupPointInDevelopment')}`,
+      });
+    }
+  }
+
+  if (data.deliveredAt) {
+    const formattedDate = formatDate(data.deliveredAt);
+    if (formattedDate) {
+      statuses.push({
+        status: getStatusTranslation('delivered'),
+        date: formattedDate,
+        location: data.destinationCity,
+      });
+    }
   }
 
   return {
