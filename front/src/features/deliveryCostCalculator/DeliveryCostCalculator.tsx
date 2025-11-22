@@ -49,7 +49,7 @@ const DeliveryCostCalculator = () => {
     clearActions,
   } = useDeliveryStore();
 
-  const { createParcel, createParcelError } = useParcelsStore();
+  const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
 
   const [order, setOrder] = useState<Order>({
     originCity: '',
@@ -326,7 +326,7 @@ const DeliveryCostCalculator = () => {
               {currentStep === 5 ? (
                 <Button
                   type="button"
-                  // disabled={createParcelLoading}
+                  disabled={createParcelLoading}
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   onClick={handleSubmit}
                 >

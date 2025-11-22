@@ -84,12 +84,6 @@ export const createParcel = async (
 
     const trackingNumber = await generateTrackingNumber();
 
-    // const existingParcel = await Parcel.findOne({ trackingNumber });
-    // if (existingParcel) {
-    //   return res.status(400).json({
-    //     error: "Parcel with this tracking number already exists",
-    //   });
-    // }
     const newSender = await Contact.create({
       ...sender,
       type: "sender",
