@@ -54,6 +54,12 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
 
   const selectedPrice = order.totalCost || 0;
 
+  const isNextDisabled =
+    !order.originCity ||
+    !order.destinationCity ||
+    !order.parcelValue ||
+    !order.parcelWeight;
+
   return (
     <div className="w-full lg:flex pt-5">
       <div className="border p-5 rounded-lg w-full shadow-lg">
@@ -152,7 +158,11 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                       min={0}
                       className="w-full pr-8"
                       value={order.parcelValue || ""}
-                      onChange={onHandleChange}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        if (value > 50000) return;
+                        onHandleChange(e);
+                      }}
                     />
                     <HandCoins
                       size={20}
@@ -175,7 +185,11 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                       step={0.1}
                       className="w-full pr-8"
                       value={order.parcelWeight || ""}
-                      onChange={onHandleChange}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        if (value > 15) return;
+                        onHandleChange(e);
+                      }}
                     />
                     <Weight
                       size={20}
@@ -224,7 +238,10 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
         </div>
 
         <Button
-          className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-5 md:py-6 mt-2 text-sm md:text-base font-medium transition-colors"
+          disabled={isNextDisabled}
+          className={`bg-orange-500 hover:bg-orange-600 text-white px-5 py-5 md:py-6 mt-2 text-sm md:text-base font-medium transition-colors
+    ${isNextDisabled ? "opacity-50 cursor-not-allowed" : ""}
+  `}
           onClick={handleNext}
         >
           {t("deliveryCostCalculator.buttons.forward")}
