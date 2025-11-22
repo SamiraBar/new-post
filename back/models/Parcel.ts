@@ -28,6 +28,19 @@ export interface IParcel extends mongoose.Document {
   createdAt?: Date;
   acceptedAt?: Date;
   shippedAt?: Date;
+  inCountryAt?: Date;
+  inCityAt?: Date;
+  atPickupPointAt?: Date;
+  deliveredAt?: Date;
+
+  draftedAtFormatted?: string;
+  createdAtFormatted?: string;
+  acceptedAtFormatted?: string;
+  shippedAtFormatted?: string;
+  inCountryAtFormatted?: string;
+  inCityAtFormatted?: string;
+  atPickupPointAtFormatted?: string;
+  deliveredAtFormatted?: string;
 }
 
 const ParcelSchema = new Schema(
@@ -75,7 +88,16 @@ const ParcelSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["draft", "created", "accepted", "shipped"],
+      enum: [
+        "draft",
+        "created",
+        "accepted",
+        "shipped",
+        "in_country",
+        "in_city",
+        "at_pickup_point",
+        "delivered",
+      ],
       default: "draft",
     },
     isPaid: {
@@ -107,6 +129,22 @@ const ParcelSchema = new Schema(
       type: Date,
       default: null,
     },
+    inCountryAt: {
+      type: Date,
+      default: null,
+    },
+    inCityAt: {
+      type: Date,
+      default: null,
+    },
+    atPickupPointAt: {
+      type: Date,
+      default: null,
+    },
+    deliveredAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: false,
@@ -132,7 +170,41 @@ ParcelSchema.pre("save", function (next) {
     this.shippedAt = now;
   }
 
+  if (this.status === "in_country" && !this.inCountryAt) {
+    this.inCountryAt = now;
+  }
+
+  if (this.status === "in_city" && !this.inCityAt) {
+    this.inCityAt = now;
+  }
+
+  if (this.status === "at_pickup_point" && !this.atPickupPointAt) {
+    this.atPickupPointAt = now;
+  }
+
+  if (this.status === "delivered" && !this.deliveredAt) {
+    this.deliveredAt = now;
+  }
+
   next();
+});
+
+const dateFields = [
+  "draftedAt",
+  "createdAt",
+  "acceptedAt",
+  "shippedAt",
+  "inCountryAt",
+  "inCityAt",
+  "atPickupPointAt",
+  "deliveredAt",
+] as const;
+
+dateFields.forEach((field) => {
+  ParcelSchema.virtual(`${field}Formatted`).get(function (this: IParcel) {
+    if (!this[field]) return null;
+    return dayjs(this[field]).tz("Asia/Bishkek").format("DD.MM.YYYY HH:mm");
+  });
 });
 
 ParcelSchema.virtual("senderFullName").get(function (this: IParcel) {
@@ -148,11 +220,6 @@ ParcelSchema.virtual("recipientFullName").get(function (this: IParcel) {
 ParcelSchema.virtual("recipientPhoneNumber").get(function (this: IParcel) {
   const recipient = this.recipient as IContact;
   return recipient.phoneNumber;
-});
-
-ParcelSchema.virtual("draftedAtFormatted").get(function (this: IParcel) {
-  if (!this.draftedAt) return null;
-  return dayjs(this.draftedAt).tz("Asia/Bishkek").format("DD.MM.YYYY HH:mm");
 });
 
 ParcelSchema.set("toJSON", { virtuals: true });

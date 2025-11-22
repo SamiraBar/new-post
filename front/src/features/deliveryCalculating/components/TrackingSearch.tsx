@@ -160,9 +160,9 @@ const TrackingSearch = () => {
                       return (
                         <div key={index} className="relative pl-12">
                           <div
-                            className={`absolute left-0 w-10 h-10 rounded-full border-4 ${
+                            className={`absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border-4 ${
                               isLast
-                                ? 'bg-green-500 border-green-200'
+                                ? 'bg-green-500 border-green-200 animate-pulse shadow-lg shadow-green-500/50'
                                 : isFirst
                                   ? 'bg-orange-500 border-orange-200'
                                   : 'bg-orange-400 border-orange-100'
@@ -174,7 +174,7 @@ const TrackingSearch = () => {
                           <div
                             className={`p-4 rounded-lg border-2 transition-all ${
                               isLast
-                                ? 'bg-green-50 border-green-300 shadow-lg'
+                                ? 'bg-green-50 border-green-300 shadow-lg animate-pulse'
                                 : 'bg-white border-gray-200 hover:border-orange-300 hover:shadow-md'
                             }`}
                           >

@@ -21,11 +21,17 @@
       "history": "Байкоо тарыхы"
     },
     "inTransit": "Жолдо",
+    "customsClearance": "Бажыдан өттү",
+    "pickupPointInDevelopment": "ПВЗ дареги (иштелип жатат)",
     "statuses": {
       "draft": "Долбоор",
       "created": "Түзүлдү",
       "accepted": "Кампага кабыл алынды",
-      "shipped": "Жөнөтүлдү / Жеткирилди"
+      "shipped": "Жөнөтүлдү",
+      "in_country": "Өлкөдө",
+      "in_city": "Шаарда",
+      "at_pickup_point": "ПВЗ'да",
+      "delivered": "Берилди"
     },
     "toast": {
       "enterTrackNumber": "Трек-номерди киргизиңиз",

@@ -3,6 +3,10 @@ import { toast } from 'sonner';
 import type { ParcelInfo, TrackingStatus } from './types.ts';
 import i18n from '../../i18n/i18n.ts';
 
+const getStatusTranslation = (status: string): string => {
+  return i18n.t(`deliveryCalculation.statuses.${status}`);
+};
+
 interface FormattedParcelInfo {
   trackNumber: string;
   currentStatus: string;
@@ -30,10 +34,6 @@ interface TrackingStore {
 }
 
 const API_URL = 'http://localhost:8000';
-
-const getStatusTranslation = (status: string): string => {
-  return i18n.t(`deliveryCalculation.statuses.${status}`);
-};
 
 const formatDate = (date: Date | string | null | undefined): string | null => {
   if (!date) return null;
@@ -80,7 +80,7 @@ const formatParcelData = (data: ParcelInfo): FormattedParcelInfo => {
       statuses.push({
         status: getStatusTranslation('accepted'),
         date: formattedDate,
-        location: i18n.t('deliveryCalculation.inTransit'),
+        location: data.originCity,
       });
     }
   }
@@ -90,6 +90,50 @@ const formatParcelData = (data: ParcelInfo): FormattedParcelInfo => {
     if (formattedDate) {
       statuses.push({
         status: getStatusTranslation('shipped'),
+        date: formattedDate,
+        location: i18n.t('deliveryCalculation.inTransit'),
+      });
+    }
+  }
+
+  if (data.inCountryAt) {
+    const formattedDate = formatDate(data.inCountryAt);
+    if (formattedDate) {
+      statuses.push({
+        status: getStatusTranslation('in_country'),
+        date: formattedDate,
+        location: i18n.t('deliveryCalculation.customsClearance'),
+      });
+    }
+  }
+
+  if (data.inCityAt) {
+    const formattedDate = formatDate(data.inCityAt);
+    if (formattedDate) {
+      statuses.push({
+        status: getStatusTranslation('in_city'),
+        date: formattedDate,
+        location: data.destinationCity,
+      });
+    }
+  }
+
+  if (data.atPickupPointAt) {
+    const formattedDate = formatDate(data.atPickupPointAt);
+    if (formattedDate) {
+      statuses.push({
+        status: getStatusTranslation('at_pickup_point'),
+        date: formattedDate,
+        location: `${data.destinationCity} - ${i18n.t('deliveryCalculation.pickupPointInDevelopment')}`,
+      });
+    }
+  }
+
+  if (data.deliveredAt) {
+    const formattedDate = formatDate(data.deliveredAt);
+    if (formattedDate) {
+      statuses.push({
+        status: getStatusTranslation('delivered'),
         date: formattedDate,
         location: data.destinationCity,
       });

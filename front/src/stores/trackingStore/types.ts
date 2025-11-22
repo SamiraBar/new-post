@@ -25,7 +25,15 @@ export interface ParcelInfo {
   };
   originCity: string;
   destinationCity: string;
-  status: 'draft' | 'created' | 'accepted' | 'shipped';
+  status:
+    | 'draft'
+    | 'created'
+    | 'accepted'
+    | 'shipped'
+    | 'in_country'
+    | 'in_city'
+    | 'at_pickup_point'
+    | 'delivered';
   weight: number;
   isPaid: boolean;
   partnerStickerReceived: boolean;
@@ -34,6 +42,10 @@ export interface ParcelInfo {
   createdAt?: Date | null;
   acceptedAt?: Date | null;
   shippedAt?: Date | null;
+  inCountryAt?: Date | null;
+  inCityAt?: Date | null;
+  atPickupPointAt?: Date | null;
+  deliveredAt?: Date | null;
 
   draftedAtFormatted?: string | null;
   createdAtFormatted?: string | null;
