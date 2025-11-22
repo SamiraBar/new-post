@@ -6,7 +6,7 @@ import {
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { type ChangeEvent, useState } from 'react';
+import { type ChangeEvent, useCallback, useEffect, useState } from 'react';
 import logoImage from '@/assets/logo/newPostLogo.jpeg';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
 import ModalFile from '@/features/adminPanel/components/ModalFile.tsx';
@@ -17,6 +17,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import useParcelsStore from '@/stores/parcelsStore/parcelsStore';
+
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
 
 export const AdminToolbar = () => {
   const { logout } = useAdminStore();
@@ -26,12 +43,24 @@ export const AdminToolbar = () => {
     sender: '',
     recipient: '',
   });
+  const { setSearchFilters } = useParcelsStore();
 
-  const inputChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+  const debouncedTrackingNumber = useDebounce(search.trackingNumber, 500);
+  const debouncedSender = useDebounce(search.sender, 500);
+  const debouncedRecipient = useDebounce(search.recipient, 500);
+
+  useEffect(() => {
+    setSearchFilters({
+      trackingNumber: debouncedTrackingNumber,
+      sender: debouncedSender,
+      recipient: debouncedRecipient,
+    });
+  }, [debouncedTrackingNumber, debouncedSender, debouncedRecipient, setSearchFilters]);
+
+  const inputChangeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
     setSearch((prevState) => ({ ...prevState, [name]: value }));
-  };
+  }, []);
 
   const isSuperAdmin = admin?.role === 'superAdmin';
 
