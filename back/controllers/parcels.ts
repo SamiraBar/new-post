@@ -5,7 +5,7 @@ import Contact from "../models/Contact";
 
 async function findContactIds(
   type: "sender" | "recipient",
-  searchName: string,
+  searchName: string
 ): Promise<mongoose.Types.ObjectId[]> {
   const regex = new RegExp(searchName, "i");
   const contacts = await Contact.find({
@@ -17,6 +17,7 @@ async function findContactIds(
 }
 
 type MongoQuery = {
+  trackingNumber?: RegExp;
   sender?: { $in: mongoose.Types.ObjectId[] };
   recipient?: { $in: mongoose.Types.ObjectId[] };
 };
@@ -24,7 +25,7 @@ type MongoQuery = {
 export const createParcel = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const {
@@ -127,7 +128,7 @@ export const createParcel = async (
 export const getParcels = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -137,12 +138,29 @@ export const getParcels = async (
     let query: MongoQuery = {};
 
     if (
+      req.query.trackingNumber &&
+      typeof req.query.trackingNumber === "string" &&
+      req.query.trackingNumber.trim() !== ""
+    ) {
+      query.trackingNumber = new RegExp(req.query.trackingNumber.trim(), "i");
+    }
+
+    if (
       req.query.sender &&
       typeof req.query.sender === "string" &&
       req.query.sender.trim() !== ""
     ) {
       const senderIds = await findContactIds("sender", req.query.sender.trim());
-      query.sender = { $in: senderIds.length > 0 ? senderIds : [] };
+      if (senderIds.length > 0) {
+        query.sender = { $in: senderIds };
+      } else {
+        return res.send({
+          parcels: [],
+          hasMore: false,
+          currentPage: page,
+          total: 0,
+        });
+      }
     }
 
     if (
@@ -152,9 +170,18 @@ export const getParcels = async (
     ) {
       const recipientIds = await findContactIds(
         "recipient",
-        req.query.recipient.trim(),
+        req.query.recipient.trim()
       );
-      query.recipient = { $in: recipientIds.length > 0 ? recipientIds : [] };
+      if (recipientIds.length > 0) {
+        query.recipient = { $in: recipientIds };
+      } else {
+        return res.send({
+          parcels: [],
+          hasMore: false,
+          currentPage: page,
+          total: 0,
+        });
+      }
     }
 
     const parcels = await Parcel.find(query)
@@ -178,10 +205,36 @@ export const getParcels = async (
   }
 };
 
+export const getParcelById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({ error: "Invalid parcel ID" });
+        }
+
+        const parcel = await Parcel.findById(id)
+            .populate("sender")
+            .populate("recipient");
+
+        if (!parcel) {
+            return res.status(404).json({ error: "Parcel not found" });
+        }
+
+        res.json(parcel);
+    } catch (e) {
+        next(e);
+    }
+};
+
 export const getParcelByTrackingNumber = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const { trackingNumber } = req.params;
@@ -205,7 +258,7 @@ export const getParcelByTrackingNumber = async (
 export const updateParcelStatus = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const { trackingNumber } = req.params;

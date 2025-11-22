@@ -38,7 +38,21 @@
       "parcelFound": "Посылка табылды",
       "parcelNotFound": "Посылка табылган жок",
       "errorOccurred": "Катачылык кетти"
+    },
+    "courierFields": {
+      "title": "Алуучунун дарегин киргизиңиз",
+      "cityPlaceholder": "Шаар",
+      "streetPlaceholder": "Көчө",
+      "housePlaceholder": "Үй",
+      "apartmentPlaceholder": "Квартира (эгер бар болсо)"
     }
+  },
+  "delivery": {
+    "chooseType": "Жеткирүү түрүн тандаңыз:",
+    "pickup": "ПВЗ",
+    "pickupFull": "ПВЗге жеткирүү",
+    "courier": "Курьер",
+    "courierFull": "Курьер аркылуу жеткирүү"
   },
   "infoSendPost": {
     "title": "Посылканы кантип жиберсе болот?",
