@@ -74,7 +74,7 @@ const ParcelsList = () => {
 
   return (
     <div className="container flex flex-col gap-6">
-      {parcels.parcels.map((parcel) => {
+      {parcels.map((parcel) => {
         return <ParcelItem key={parcel._id} parcel={parcel} />;
       })}
     </div>
