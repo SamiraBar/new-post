@@ -4,6 +4,13 @@ import axios, { isAxiosError } from 'axios';
 import type { ParcelState } from './types';
 import type { IParcel } from '@/types';
 
+interface parcelData {
+  parcels: IParcel[];
+  currentPage: number;
+  hasMore: boolean;
+  total: number;
+}
+
 export const useParcelsStore = create<ParcelState>()((set) => ({
   parcels: [],
   parcel: null,
@@ -18,10 +25,10 @@ export const useParcelsStore = create<ParcelState>()((set) => ({
     try {
       set({
         getParcelsLoading: true,
-        getParcelsError: null
+        getParcelsError: null,
       });
-      const {data} = await axiosApi.get<IParcel[]>('/parcels');
-      set({parcels: data});
+      const { data } = await axiosApi.get<parcelData>('/parcels');
+      set({ parcels: data.parcels });
       return true;
     } catch (e: unknown) {
       let errorMessage = '';
@@ -33,10 +40,10 @@ export const useParcelsStore = create<ParcelState>()((set) => ({
       } else if (typeof e === 'string') {
         errorMessage = e;
       }
-      set({getParcelsError: {error: errorMessage}});
+      set({ getParcelsError: { error: errorMessage } });
       return false;
     } finally {
-      set({getParcelsLoading: false});
+      set({ getParcelsLoading: false });
     }
   },
 
@@ -44,10 +51,10 @@ export const useParcelsStore = create<ParcelState>()((set) => ({
     try {
       set({
         getParcelLoading: true,
-        getParcelError: null
+        getParcelError: null,
       });
-      const {data} = await axiosApi.get<IParcel>(`/parcels/${id}`);
-      set({parcel: data});
+      const { data } = await axiosApi.get<IParcel>(`/parcels/${id}`);
+      set({ parcel: data });
       return true;
     } catch (e: unknown) {
       let errorMessage = '';
@@ -58,39 +65,38 @@ export const useParcelsStore = create<ParcelState>()((set) => ({
       } else if (typeof e === 'string') {
         errorMessage = e;
       }
-      set({getParcelError: {error: errorMessage}});
+      set({ getParcelError: { error: errorMessage } });
       return false;
     } finally {
-      set({getParcelLoading: false});
+      set({ getParcelLoading: false });
     }
   },
 
   async editParcelStatus(trackingNumber: string, status: string) {
     set({
       editParcelStatusLoading: true,
-      editParcelStatusError: null
+      editParcelStatusError: null,
     });
     try {
-      const {data} = await axiosApi.patch<{
+      const { data } = await axiosApi.patch<{
         message: string;
-        parcel: IParcel
-      }>(`/parcels/tracking/${trackingNumber}/status`, {status});
+        parcel: IParcel;
+      }>(`/parcels/tracking/${trackingNumber}/status`, { status });
       set({
         editParcelStatusLoading: false,
-        parcel: data.parcel
+        parcel: data.parcel,
       });
       return true;
     } catch (e) {
       if (isAxiosError(e) && e.response) {
         set({
           editParcelStatusError: e.response.data.error,
-          editParcelStatusLoading: false
+          editParcelStatusLoading: false,
         });
       }
     }
     return false;
-  }
+  },
 }));
-
 
 export default useParcelsStore;
