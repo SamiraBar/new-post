@@ -15,21 +15,13 @@ import type { Order } from '@/types';
 import { WarningNotices } from './WarningNotices';
 import { StepIndicator } from '@/features/deliveryCostCalculator/StepIndicator.tsx';
 import Step1Calculator from '@/features/deliveryCostCalculator/Step1Calculator.tsx';
+import Step2SenderOfficeSelection from './Step2OfficeSelection';
 import Step3RecipientOfficeSelection from '@/features/deliveryCostCalculator/Step3RecipientOfficeSelection.tsx';
 import Step4SenderRecipientForm from '@/features/deliveryCostCalculator/Step4SenderRecipientForm.tsx';
 import Step5Review from '@/features/deliveryCostCalculator/Step5Review.tsx';
 import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 import DeliveryModal from '@/features/deliveryCostCalculator/components/modal/DeliveryModal.tsx';
 import { useTranslation } from 'react-i18next';
-import Step2SenderOfficeSelection from './Step2OfficeSelection';
-
-const BASE_PRICE = 600;
-const tariffs = [
-  { maxWeight: 3, pricePerKg: 125 },
-  { maxWeight: 6, pricePerKg: 135 },
-  { maxWeight: 12, pricePerKg: 140 },
-  { maxWeight: 15, pricePerKg: 145 },
-];
 
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -43,6 +35,8 @@ const DeliveryCostCalculator = () => {
     selectPickup,
     selectDoorDelivery,
     clearActions,
+    selectedPrice,
+    fetchPricing,
   } = useDeliveryStore();
 
   const [order, setOrder] = useState<Order>({
@@ -63,6 +57,10 @@ const DeliveryCostCalculator = () => {
   });
 
   useEffect(() => {
+    fetchPricing();
+  }, [fetchPricing]);
+
+  useEffect(() => {
     setOrder((prev) => ({
       ...prev,
       deliveryType: isPickup ? 'pickup' : 'courier',
@@ -72,10 +70,9 @@ const DeliveryCostCalculator = () => {
   const calculateDeliveryCost = useCallback(
     (weight: number) => {
       if (weight <= 0) return 0;
-      const tariff = tariffs.find((t) => weight <= t.maxWeight) || tariffs[tariffs.length - 1];
-      return Math.max(BASE_PRICE + (weight - 1) * tariff.pricePerKg, BASE_PRICE);
+      return weight * selectedPrice;
     },
-    []
+    [selectedPrice]
   );
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
@@ -145,8 +142,7 @@ const DeliveryCostCalculator = () => {
       else setCurrentStep(2);
     } else if (currentStep === 2) {
       if (!order.originOffice) return toast.error(t('deliveryCostCalculator.validateError.senderOffice'));
-      if (isDoorDelivery) return setCurrentStep(3);
-      setCurrentStep(3);
+      setCurrentStep(isDoorDelivery ? 3 : 3);
     } else if (currentStep === 3) {
       if (!isDoorDelivery && !order.destinationOffice) {
         return toast.error(t('deliveryCostCalculator.validateError.receiverOffice'));
@@ -202,18 +198,16 @@ const DeliveryCostCalculator = () => {
       <h3 className="text-xl font-medium text-center mb-4">{t('deliveryCostCalculator.title')}</h3>
 
       <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
-        <p className="text-lg font-medium text-gray-700">
-          {t("delivery.chooseType")}
-        </p>
+        <p className="text-lg font-medium text-gray-700">{t("delivery.chooseType")}</p>
 
         <Button
           onClick={selectPickup}
           className={`
-      px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
-      active:scale-95 active:shadow-lg
-      ${isPickup ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
-      hover:bg-white hover:text-orange-500
-    `}
+            px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
+            active:scale-95 active:shadow-lg
+            ${isPickup ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
+            hover:bg-white hover:text-orange-500
+          `}
         >
           {t("delivery.pickup")}
         </Button>
@@ -221,16 +215,15 @@ const DeliveryCostCalculator = () => {
         <Button
           onClick={selectDoorDelivery}
           className={`
-      px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
-      active:scale-95 active:shadow-lg
-      ${isDoorDelivery ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
-      hover:bg-white hover:text-orange-500
-    `}
+            px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
+            active:scale-95 active:shadow-lg
+            ${isDoorDelivery ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
+            hover:bg-white hover:text-orange-500
+          `}
         >
           {t("delivery.courier")}
         </Button>
       </div>
-
 
       <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
         <StepIndicator currentStep={currentStep} doorDelivery={isDoorDelivery} />
