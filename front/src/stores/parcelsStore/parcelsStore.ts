@@ -11,7 +11,18 @@ interface parcelData {
   total: number;
 }
 
-export const useParcelsStore = create<ParcelState>()((set) => ({
+interface SearchFilters {
+  trackingNumber?: string;
+  sender?: string;
+  recipient?: string;
+}
+
+interface ExtendedParcelState extends ParcelState {
+  searchFilters: SearchFilters;
+  setSearchFilters: (filters: SearchFilters) => void;
+}
+
+export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
   parcels: [],
   parcel: null,
   getParcelsLoading: false,
@@ -20,6 +31,12 @@ export const useParcelsStore = create<ParcelState>()((set) => ({
   getParcelError: null,
   editParcelStatusLoading: false,
   editParcelStatusError: null,
+  searchFilters: {},
+
+  setSearchFilters(filters: SearchFilters) {
+    set({ searchFilters: filters });
+    get().getParcels();
+  },
 
   async getParcels() {
     try {
@@ -27,7 +44,24 @@ export const useParcelsStore = create<ParcelState>()((set) => ({
         getParcelsLoading: true,
         getParcelsError: null,
       });
-      const { data } = await axiosApi.get<parcelData>('/parcels');
+
+      const params = new URLSearchParams();
+      const { searchFilters } = get();
+
+      if (searchFilters.trackingNumber && searchFilters.trackingNumber.trim()) {
+        params.append('trackingNumber', searchFilters.trackingNumber.trim());
+      }
+      if (searchFilters.sender && searchFilters.sender.trim()) {
+        params.append('sender', searchFilters.sender.trim());
+      }
+      if (searchFilters.recipient && searchFilters.recipient.trim()) {
+        params.append('recipient', searchFilters.recipient.trim());
+      }
+
+      const queryString = params.toString();
+      const url = queryString ? `/parcels?${queryString}` : '/parcels';
+
+      const { data } = await axiosApi.get<parcelData>(url);
       set({ parcels: data.parcels });
       return true;
     } catch (e: unknown) {
