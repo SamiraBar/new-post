@@ -22,6 +22,8 @@ import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 import DeliveryModal from '@/features/deliveryCostCalculator/components/modal/DeliveryModal.tsx';
 import { useTranslation } from 'react-i18next';
 import Step2SenderOfficeSelection from './Step2OfficeSelection';
+import useParcelsStore from "@/stores/parcelsStore/parcelsStore.ts";
+import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
 
 const BASE_PRICE = 600;
 const tariffs = [
@@ -34,6 +36,8 @@ const tariffs = [
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAgreed, setIsAgreed] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [createdTrackingNumber, setCreatedTrackingNumber] = useState('');
   const { t } = useTranslation();
 
   const {
@@ -44,6 +48,8 @@ const DeliveryCostCalculator = () => {
     selectDoorDelivery,
     clearActions,
   } = useDeliveryStore();
+
+  const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
 
   const [order, setOrder] = useState<Order>({
     originCity: '',
@@ -113,9 +119,63 @@ const DeliveryCostCalculator = () => {
     return true;
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    toast.success(String(order));
+
+    if (!isAgreed) {
+      toast.error(t('deliveryCostCalculator.validateError.agreement'));
+      return;
+    }
+
+    if (!order.sender.name || !order.sender.email || !order.sender.phone) {
+      toast.error(t('deliveryCostCalculator.validateError.senderData'));
+      return;
+    }
+
+    if (!order.receiver.name || !order.receiver.email || !order.receiver.phone) {
+      toast.error(t('deliveryCostCalculator.validateError.receiverData'));
+      return;
+    }
+
+    if (isDoorDelivery && !order.receiver.address) {
+      toast.error(t('deliveryCostCalculator.validateError.receiverAddress'));
+      return;
+    }
+
+    const trackingNumber = await createParcel(order);
+
+    if (trackingNumber) {
+      setCreatedTrackingNumber(trackingNumber);
+      setShowSuccessModal(true);
+
+      setOrder({
+        originCity: '',
+        destinationCity: '',
+        originOffice: 0,
+        destinationOffice: 0,
+        parcelValue: 0,
+        parcelWeight: 0,
+        deliveryCost: 0,
+        insuranceCost: 0,
+        totalCost: 0,
+        deliveryDate: '',
+        inParcel: '',
+        sender: { name: '', email: '', phone: '' },
+        receiver: { name: '', email: '', phone: '', address: '' },
+        deliveryType: 'pickup',
+      });
+
+      setCurrentStep(1);
+      setIsAgreed(false);
+      clearActions();
+    } else {
+      toast.error(createParcelError?.error || t('deliveryCostCalculator.error.failedToCreate') || 'Не удалось создать посылку');
+    }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    setCreatedTrackingNumber('');
   };
 
   const onHandleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -199,6 +259,12 @@ const DeliveryCostCalculator = () => {
       <Toaster />
       <DeliveryModal />
 
+      <ParcelSuccessModal
+          isOpen={showSuccessModal}
+          onClose={handleCloseSuccessModal}
+          trackingNumber={createdTrackingNumber}
+      />
+
       <h3 className="text-xl font-medium text-center mb-4">{t('deliveryCostCalculator.title')}</h3>
 
       <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
@@ -260,7 +326,7 @@ const DeliveryCostCalculator = () => {
               {currentStep === 5 ? (
                 <Button
                   type="button"
-                  disabled={!isAgreed}
+                  disabled={createParcelLoading}
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   onClick={handleSubmit}
                 >
