@@ -6,10 +6,9 @@ import {
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { type ChangeEvent, useState } from 'react';
+import { type ChangeEvent, useCallback, useEffect, useState } from 'react';
 import logoImage from '@/assets/logo/newPostLogo.jpeg';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
-import ParcelModal from '@/features/parcels/ParcelModal';
 import ModalFile from '@/features/adminPanel/components/ModalFile.tsx';
 import {
   DropdownMenu,
@@ -18,31 +17,52 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import useParcelsStore from '@/stores/parcelsStore/parcelsStore';
+
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
 
 export const AdminToolbar = () => {
   const { logout } = useAdminStore();
   const admin = useAdminStore((s) => s.admin);
   const [search, setSearch] = useState({
-    trackNumber: '',
+    trackingNumber: '',
     sender: '',
-    receiver: '',
+    recipient: '',
   });
-  const [isParcelModalOpen, setIsParcelModalOpen] = useState(false);
+  const { setSearchFilters } = useParcelsStore();
 
-  const inputChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+  const debouncedTrackingNumber = useDebounce(search.trackingNumber, 500);
+  const debouncedSender = useDebounce(search.sender, 500);
+  const debouncedRecipient = useDebounce(search.recipient, 500);
+
+  useEffect(() => {
+    setSearchFilters({
+      trackingNumber: debouncedTrackingNumber,
+      sender: debouncedSender,
+      recipient: debouncedRecipient,
+    });
+  }, [debouncedTrackingNumber, debouncedSender, debouncedRecipient, setSearchFilters]);
+
+  const inputChangeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
     setSearch((prevState) => ({ ...prevState, [name]: value }));
-  };
+  }, []);
 
   const isSuperAdmin = admin?.role === 'superAdmin';
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && search.trackNumber.trim() !== '') {
-      e.preventDefault();
-      setIsParcelModalOpen(true);
-    }
-  };
 
   return (
     <NavigationMenu className="py-3 md:py-4 [&>div]:w-full container">
@@ -71,18 +91,12 @@ export const AdminToolbar = () => {
           <NavigationMenuItem className="flex-1">
             <Input
               type="search"
-              name="trackNumber"
-              id="trackNumber"
+              name="trackingNumber"
+              id="trackingNumber"
               placeholder="Трек номер посылки"
-              value={search.trackNumber}
+              value={search.trackingNumber}
               onChange={inputChangeHandler}
-              onKeyDown={handleKeyDown}
               className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1 w-full"
-            />
-            <ParcelModal
-              open={isParcelModalOpen}
-              onOpenChange={setIsParcelModalOpen}
-              trackNumber={search.trackNumber}
             />
           </NavigationMenuItem>
           <NavigationMenuItem className="flex-1">
@@ -99,10 +113,10 @@ export const AdminToolbar = () => {
           <NavigationMenuItem className="flex-1">
             <Input
               type="search"
-              name="receiver"
-              id="receiver"
+              name="recipient"
+              id="recipient"
               placeholder="ФИО получателя"
-              value={search.receiver}
+              value={search.recipient}
               onChange={inputChangeHandler}
               className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1 w-full"
             />

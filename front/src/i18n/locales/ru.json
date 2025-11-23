@@ -20,11 +20,18 @@
       "pickUpPoint": "Пункт выдачи",
       "history": "История отслеживания"
     },
+    "inTransit": "В пути",
+    "customsClearance": "Прошла таможню",
+    "pickupPointInDevelopment": "Адрес ПВЗ (в разработке)",
     "statuses": {
       "draft": "Черновик",
       "created": "Создана",
       "accepted": "Принята на складе",
-      "shipped": "Отправлена / Доставлена"
+      "shipped": "Отправлена",
+      "in_country": "В стране",
+      "in_city": "В городе",
+      "at_pickup_point": "На ПВЗ",
+      "delivered": "Выдано"
     },
     "toast": {
       "enterTrackNumber": "Введите трек-номер",

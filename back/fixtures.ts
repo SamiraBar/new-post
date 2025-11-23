@@ -356,6 +356,37 @@ const run = async () => {
     }
   ]);
 
+  const fullHistoryParcel = new Parcel({
+    trackingNumber: "KGZ-FULL-HISTORY-2025",
+    partnerTrackingNumber: "FULL-TRACK-001",
+    sender: senderOne._id,
+    recipient: recipientTwo._id,
+    originCity: "Бишкек",
+    destinationCity: "Москва",
+    status: "delivered",
+    isPaid: true,
+    partnerStickerReceived: true,
+    weight: 2.5,
+  });
+
+  await fullHistoryParcel.save();
+
+  await Parcel.updateOne(
+    { _id: fullHistoryParcel._id },
+    {
+      $set: {
+        draftedAt: new Date("2025-11-15T10:00:00Z"),
+        createdAt: new Date("2025-11-15T11:30:00Z"),
+        acceptedAt: new Date("2025-11-16T09:00:00Z"),
+        shippedAt: new Date("2025-11-16T14:00:00Z"),
+        inCountryAt: new Date("2025-11-17T08:00:00Z"),
+        inCityAt: new Date("2025-11-18T10:00:00Z"),
+        atPickupPointAt: new Date("2025-11-18T15:00:00Z"),
+        deliveredAt: new Date("2025-11-19T11:00:00Z"),
+      },
+    },
+  );
+
   await db.close();
 };
 
