@@ -22,17 +22,8 @@ import Step5Review from '@/features/deliveryCostCalculator/Step5Review.tsx';
 import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 import DeliveryModal from '@/features/deliveryCostCalculator/components/modal/DeliveryModal.tsx';
 import { useTranslation } from 'react-i18next';
-import Step2SenderOfficeSelection from './Step2OfficeSelection';
 import useParcelsStore from "@/stores/parcelsStore/parcelsStore.ts";
 import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
-
-const BASE_PRICE = 600;
-const tariffs = [
-  { maxWeight: 3, pricePerKg: 125 },
-  { maxWeight: 6, pricePerKg: 135 },
-  { maxWeight: 12, pricePerKg: 140 },
-  { maxWeight: 15, pricePerKg: 145 },
-];
 
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);

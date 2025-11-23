@@ -100,3 +100,10 @@ export interface PaginatedParcelsResponse {
   total: number;
 }
 
+export interface PaginatedParcelsResponse {
+  parcels: IParcel[];
+  hasMore: boolean;
+  currentPage: number;
+  total: number;
+}
+

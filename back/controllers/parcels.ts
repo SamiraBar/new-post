@@ -129,7 +129,7 @@ export const getParcels = async (
 ) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = 3;
+    const limit = 10;
     const skip = (page - 1) * limit;
 
     let query: MongoQuery = {};
