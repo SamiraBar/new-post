@@ -202,6 +202,7 @@ export const getParcels = async (
   }
 };
 
+
 export const getParcelById = async (
     req: Request,
     res: Response,

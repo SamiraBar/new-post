@@ -2,14 +2,7 @@ import { create } from 'zustand';
 import axiosApi from '@/axiosApi.ts';
 import axios, { isAxiosError } from 'axios';
 import type { ParcelState } from './types';
-import type {IParcel, Order} from '@/types';
-
-interface parcelData {
-  parcels: IParcel[];
-  currentPage: number;
-  hasMore: boolean;
-  total: number;
-}
+import type { IParcel, Order, PaginatedParcelsResponse } from '@/types';
 
 interface SearchFilters {
   trackingNumber?: string;
@@ -31,6 +24,7 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
   parcel: null,
   getParcelsLoading: false,
   getParcelsError: null,
+  parcelsResponse: null,
   getParcelLoading: false,
   getParcelError: null,
   editParcelStatusLoading: false,
@@ -42,51 +36,65 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
 
   setSearchFilters(filters: SearchFilters) {
     set({ searchFilters: filters });
-    get().getParcels();
+    get().getParcels(1);
   },
 
-  async getParcels() {
+  async getParcels(page: number) {
     try {
       set({
         getParcelsLoading: true,
         getParcelsError: null,
       });
 
-      const params = new URLSearchParams();
       const { searchFilters } = get();
+      const params = new URLSearchParams();
 
-      if (searchFilters.trackingNumber && searchFilters.trackingNumber.trim()) {
-        params.append('trackingNumber', searchFilters.trackingNumber.trim());
+      if (searchFilters.trackingNumber?.trim()) {
+        params.append("trackingNumber", searchFilters.trackingNumber.trim());
       }
-      if (searchFilters.sender && searchFilters.sender.trim()) {
-        params.append('sender', searchFilters.sender.trim());
+      if (searchFilters.sender?.trim()) {
+        params.append("sender", searchFilters.sender.trim());
       }
-      if (searchFilters.recipient && searchFilters.recipient.trim()) {
-        params.append('recipient', searchFilters.recipient.trim());
+      if (searchFilters.recipient?.trim()) {
+        params.append("recipient", searchFilters.recipient.trim());
       }
 
-      const queryString = params.toString();
-      const url = queryString ? `/parcels?${queryString}` : '/parcels';
+      params.append("page", String(page));
 
-      const { data } = await axiosApi.get<parcelData>(url);
-      set({ parcels: data.parcels });
+      const url = `/parcels?${params.toString()}`;
+
+      const { data } = await axiosApi.get<PaginatedParcelsResponse>(url);
+
+      const current = get().parcels || [];
+
+      const newParcels = data.parcels.filter(
+        (p) => !current.some((c) => c._id === p._id)
+      );
+
+      set((state) => ({
+        parcels: [...(state.parcels ?? []), ...newParcels],
+        parcelsResponse: data,
+      }));
+
       return true;
     } catch (e: unknown) {
-      let errorMessage = '';
+      let errorMessage = "";
 
       if (axios.isAxiosError(e)) {
         errorMessage = e.response?.data?.error || e.message;
       } else if (e instanceof Error) {
         errorMessage = e.message;
-      } else if (typeof e === 'string') {
+      } else if (typeof e === "string") {
         errorMessage = e;
       }
+
       set({ getParcelsError: { error: errorMessage } });
       return false;
     } finally {
       set({ getParcelsLoading: false });
     }
   },
+
 
   async getParcelById(id: string) {
     try {
@@ -181,7 +189,7 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         createdTrackingNumber: data.trackingNumber,
       });
 
-      get().getParcels();
+      get().getParcels(1);
 
       return data.trackingNumber;
     } catch (e: unknown) {
