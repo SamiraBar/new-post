@@ -103,9 +103,16 @@
       "checkSelect": "Тандоо",
       "checkSelected": "Таңдалды"
     },
-    "stepTheeForm": {
+    "stepThreeForm": {
       "title": "Алуучунун офисин тандоо",
       "notFound": "Кеңсе табылган жок"
+    },
+    "courierFields": {
+      "title": "Алуучунун дарегин киргизиңиз",
+      "cityPlaceholder": "Шаар",
+      "streetPlaceholder": "Көчө",
+      "housePlaceholder": "Үй",
+      "apartmentPlaceholder": "Квартира (эгер бар болсо)"
     },
     "stepForForm": {
       "title": "Жиберүүчүнүн жана алуучунун маалыматы",
