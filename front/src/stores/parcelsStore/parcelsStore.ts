@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import axiosApi from '@/axiosApi.ts';
 import axios, { isAxiosError } from 'axios';
 import type { ParcelState } from './types';
-import type { IParcel } from '@/types';
+import type {IParcel, Order} from '@/types';
 
 interface parcelData {
   parcels: IParcel[];
@@ -20,6 +20,10 @@ interface SearchFilters {
 interface ExtendedParcelState extends ParcelState {
   searchFilters: SearchFilters;
   setSearchFilters: (filters: SearchFilters) => void;
+  createParcelLoading: boolean;
+  createParcelError: { error: string } | null;
+  createdTrackingNumber: string | null;
+  createParcel: (order: Order) => Promise<string | null>;
 }
 
 export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
@@ -31,6 +35,9 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
   getParcelError: null,
   editParcelStatusLoading: false,
   editParcelStatusError: null,
+  createParcelLoading: false,
+  createParcelError: null,
+  createdTrackingNumber: null,
   searchFilters: {},
 
   setSearchFilters(filters: SearchFilters) {
@@ -130,6 +137,71 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       }
     }
     return false;
+  },
+
+  async createParcel(order: Order) {
+    set({
+      createParcelLoading: true,
+      createParcelError: null,
+      createdTrackingNumber: null,
+    });
+
+    try {
+        const parcelData = {
+        partnerTrackingNumber: null,
+        sender: {
+          fullName: order.sender.name,
+          phoneNumber: order.sender.phone,
+          email: order.sender.email,
+          description: order.inParcel || 'No description',
+        },
+        recipient: {
+          fullName: order.receiver.name,
+          phoneNumber: order.receiver.phone,
+          email: order.receiver.email,
+          address: order.receiver.address || '',
+          description: 'Recipient',
+        },
+        originCity: order.originCity,
+        destinationCity: order.destinationCity,
+        weight: order.parcelWeight,
+        isPaid: false,
+        partnerStickerReceived: false,
+      };
+
+      const { data } = await axiosApi.post<{
+        message: string;
+        parcel: IParcel;
+        trackingNumber: string;
+      }>('/parcels', parcelData);
+
+      set({
+        createParcelLoading: false,
+        parcel: data.parcel,
+        createdTrackingNumber: data.trackingNumber,
+      });
+
+      get().getParcels();
+
+      return data.trackingNumber;
+    } catch (e: unknown) {
+      let errorMessage = 'Failed to create parcel';
+
+      if (axios.isAxiosError(e)) {
+        errorMessage = e.response?.data?.error || e.message;
+      } else if (e instanceof Error) {
+        errorMessage = e.message;
+      } else if (typeof e === 'string') {
+        errorMessage = e;
+      }
+
+      set({
+        createParcelError: { error: errorMessage },
+        createParcelLoading: false,
+      });
+
+      return null;
+    }
   },
 }));
 

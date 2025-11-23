@@ -50,11 +50,15 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
 
   fetchPricing: async () => {
     try {
-      const response = await axiosApi.get('/parcels/pricing');
-      const pricing = response.data;
+      const response = await axiosApi.get('/prices', { params: { type: 'PVZ' } });
+      const pvzPrice = response.data.length ? response.data[0].basePrice : 0;
+
+      const responseDoor = await axiosApi.get('/prices', { params: { type: 'Hand' } });
+      const doorPrice = responseDoor.data.length ? responseDoor.data[0].basePrice : 0;
+
       set({
-        pricing,
-        selectedPrice: get().isPickup ? pricing.pvz : pricing.door,
+        pricing: { pvz: pvzPrice, door: doorPrice },
+        selectedPrice: get().isPickup ? pvzPrice : doorPrice,
       });
     } catch (error) {
       console.error('Failed to fetch pricing', error);

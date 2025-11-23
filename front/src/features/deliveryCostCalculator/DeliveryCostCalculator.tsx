@@ -15,6 +15,7 @@ import type { Order } from '@/types';
 import { WarningNotices } from './WarningNotices';
 import { StepIndicator } from '@/features/deliveryCostCalculator/StepIndicator.tsx';
 import Step1Calculator from '@/features/deliveryCostCalculator/Step1Calculator.tsx';
+import Step2SenderOfficeSelection from './Step2OfficeSelection';
 import Step3RecipientOfficeSelection from '@/features/deliveryCostCalculator/Step3RecipientOfficeSelection.tsx';
 import Step4SenderRecipientForm from '@/features/deliveryCostCalculator/Step4SenderRecipientForm.tsx';
 import Step5Review from '@/features/deliveryCostCalculator/Step5Review.tsx';
@@ -22,6 +23,8 @@ import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 import DeliveryModal from '@/features/deliveryCostCalculator/components/modal/DeliveryModal.tsx';
 import { useTranslation } from 'react-i18next';
 import Step2SenderOfficeSelection from './Step2OfficeSelection';
+import useParcelsStore from "@/stores/parcelsStore/parcelsStore.ts";
+import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
 
 const BASE_PRICE = 600;
 const tariffs = [
@@ -34,6 +37,8 @@ const tariffs = [
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAgreed, setIsAgreed] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [createdTrackingNumber, setCreatedTrackingNumber] = useState('');
   const { t } = useTranslation();
 
   const {
@@ -43,7 +48,11 @@ const DeliveryCostCalculator = () => {
     selectPickup,
     selectDoorDelivery,
     clearActions,
+    selectedPrice,
+    fetchPricing,
   } = useDeliveryStore();
+
+  const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
 
   const [order, setOrder] = useState<Order>({
     originCity: '',
@@ -63,6 +72,10 @@ const DeliveryCostCalculator = () => {
   });
 
   useEffect(() => {
+    fetchPricing();
+  }, [fetchPricing]);
+
+  useEffect(() => {
     setOrder((prev) => ({
       ...prev,
       deliveryType: isPickup ? 'pickup' : 'courier',
@@ -72,10 +85,9 @@ const DeliveryCostCalculator = () => {
   const calculateDeliveryCost = useCallback(
     (weight: number) => {
       if (weight <= 0) return 0;
-      const tariff = tariffs.find((t) => weight <= t.maxWeight) || tariffs[tariffs.length - 1];
-      return Math.max(BASE_PRICE + (weight - 1) * tariff.pricePerKg, BASE_PRICE);
+      return weight * selectedPrice;
     },
-    []
+    [selectedPrice]
   );
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
@@ -113,9 +125,63 @@ const DeliveryCostCalculator = () => {
     return true;
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    toast.success(String(order));
+
+    if (!isAgreed) {
+      toast.error(t('deliveryCostCalculator.validateError.agreement'));
+      return;
+    }
+
+    if (!order.sender.name || !order.sender.email || !order.sender.phone) {
+      toast.error(t('deliveryCostCalculator.validateError.senderData'));
+      return;
+    }
+
+    if (!order.receiver.name || !order.receiver.email || !order.receiver.phone) {
+      toast.error(t('deliveryCostCalculator.validateError.receiverData'));
+      return;
+    }
+
+    if (isDoorDelivery && !order.receiver.address) {
+      toast.error(t('deliveryCostCalculator.validateError.receiverAddress'));
+      return;
+    }
+
+    const trackingNumber = await createParcel(order);
+
+    if (trackingNumber) {
+      setCreatedTrackingNumber(trackingNumber);
+      setShowSuccessModal(true);
+
+      setOrder({
+        originCity: '',
+        destinationCity: '',
+        originOffice: 0,
+        destinationOffice: 0,
+        parcelValue: 0,
+        parcelWeight: 0,
+        deliveryCost: 0,
+        insuranceCost: 0,
+        totalCost: 0,
+        deliveryDate: '',
+        inParcel: '',
+        sender: { name: '', email: '', phone: '' },
+        receiver: { name: '', email: '', phone: '', address: '' },
+        deliveryType: 'pickup',
+      });
+
+      setCurrentStep(1);
+      setIsAgreed(false);
+      clearActions();
+    } else {
+      toast.error(createParcelError?.error || t('deliveryCostCalculator.error.failedToCreate') || 'Не удалось создать посылку');
+    }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    setCreatedTrackingNumber('');
   };
 
   const onHandleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -145,8 +211,7 @@ const DeliveryCostCalculator = () => {
       else setCurrentStep(2);
     } else if (currentStep === 2) {
       if (!order.originOffice) return toast.error(t('deliveryCostCalculator.validateError.senderOffice'));
-      if (isDoorDelivery) return setCurrentStep(3);
-      setCurrentStep(3);
+      setCurrentStep(isDoorDelivery ? 3 : 3);
     } else if (currentStep === 3) {
       if (!isDoorDelivery && !order.destinationOffice) {
         return toast.error(t('deliveryCostCalculator.validateError.receiverOffice'));
@@ -199,21 +264,25 @@ const DeliveryCostCalculator = () => {
       <Toaster />
       <DeliveryModal />
 
+      <ParcelSuccessModal
+          isOpen={showSuccessModal}
+          onClose={handleCloseSuccessModal}
+          trackingNumber={createdTrackingNumber}
+      />
+
       <h3 className="text-xl font-medium text-center mb-4">{t('deliveryCostCalculator.title')}</h3>
 
       <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
-        <p className="text-lg font-medium text-gray-700">
-          {t("delivery.chooseType")}
-        </p>
+        <p className="text-lg font-medium text-gray-700">{t("delivery.chooseType")}</p>
 
         <Button
           onClick={selectPickup}
           className={`
-      px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
-      active:scale-95 active:shadow-lg
-      ${isPickup ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
-      hover:bg-white hover:text-orange-500
-    `}
+            px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
+            active:scale-95 active:shadow-lg
+            ${isPickup ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
+            hover:bg-white hover:text-orange-500
+          `}
         >
           {t("delivery.pickup")}
         </Button>
@@ -221,16 +290,15 @@ const DeliveryCostCalculator = () => {
         <Button
           onClick={selectDoorDelivery}
           className={`
-      px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
-      active:scale-95 active:shadow-lg
-      ${isDoorDelivery ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
-      hover:bg-white hover:text-orange-500
-    `}
+            px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
+            active:scale-95 active:shadow-lg
+            ${isDoorDelivery ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
+            hover:bg-white hover:text-orange-500
+          `}
         >
           {t("delivery.courier")}
         </Button>
       </div>
-
 
       <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
         <StepIndicator currentStep={currentStep} doorDelivery={isDoorDelivery} />
@@ -260,7 +328,7 @@ const DeliveryCostCalculator = () => {
               {currentStep === 5 ? (
                 <Button
                   type="button"
-                  disabled={!isAgreed}
+                  disabled={createParcelLoading}
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   onClick={handleSubmit}
                 >

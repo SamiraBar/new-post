@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
 import Contact from "../models/Contact";
+import {generateTrackingNumber} from "../utils/generateTrackingNumber";
 
 async function findContactIds(
   type: "sender" | "recipient",
@@ -29,7 +30,6 @@ export const createParcel = async (
 ) => {
   try {
     const {
-      trackingNumber,
       partnerTrackingNumber,
       sender,
       recipient,
@@ -40,10 +40,10 @@ export const createParcel = async (
       partnerStickerReceived,
     } = req.body;
 
-    if (!trackingNumber || !originCity || !destinationCity || !weight) {
+    if (!originCity || !destinationCity || !weight) {
       return res.status(400).json({
         error: "Not all required fields are filled",
-        required: ["trackingNumber", "originCity", "destinationCity", "weight"],
+        required: ["originCity", "destinationCity", "weight"],
       });
     }
 
@@ -82,12 +82,8 @@ export const createParcel = async (
       });
     }
 
-    const existingParcel = await Parcel.findOne({ trackingNumber });
-    if (existingParcel) {
-      return res.status(400).json({
-        error: "Parcel with this tracking number already exists",
-      });
-    }
+    const trackingNumber = await generateTrackingNumber();
+
     const newSender = await Contact.create({
       ...sender,
       type: "sender",
@@ -119,6 +115,7 @@ export const createParcel = async (
     res.status(201).json({
       message: "Parcel created successfully",
       parcel: populatedParcel,
+      trackingNumber,
     });
   } catch (e) {
     next(e);

@@ -118,4 +118,66 @@ export const getPrices = async (req: Request, res: Response) => {
   } catch {
     res.sendStatus(500);
   }
-}
+};
+export const calculatePrice = async (req: Request, res: Response) => {
+    try {
+        const { type, city, weight } = req.query;
+
+        if (!type || !city || !weight) {
+            return res.status(400).json({ message: "type, city и weight обязательны" });
+        }
+
+        const numericWeight = Number(weight);
+        if (isNaN(numericWeight) || numericWeight <= 0) {
+            return res.status(400).json({ message: "Неверный формат веса" });
+        }
+
+        if (type === "PVZ") {
+            const priceData = await PriceToPVZ.findOne({ city });
+            if (!priceData) return res.status(404).json({ message: "Город не найден в тарифах" });
+
+            let price = priceData.basePrice;
+
+            if (numericWeight > 1) {
+                const extra = numericWeight - 1;
+
+                if (numericWeight <= 3) {
+                    price += extra * priceData.pricePerOneLessThree;
+                } else if (numericWeight <= 6) {
+                    price += 2 * priceData.pricePerOneLessThree +
+                        (numericWeight - 3) * priceData.pricePerOneLessSix;
+                } else if (numericWeight <= 12) {
+                    price += 2 * priceData.pricePerOneLessThree +
+                        3 * priceData.pricePerOneLessSix +
+                        (numericWeight - 6) * priceData.pricePerOneLessTwelve;
+                } else if (numericWeight <= 15) {
+                    price += 2 * priceData.pricePerOneLessThree +
+                        3 * priceData.pricePerOneLessSix +
+                        6 * priceData.pricePerOneLessTwelve +
+                        (numericWeight - 12) * priceData.pricePerOneLessFifteen;
+                }
+            }
+
+            return res.json({ totalCost: price });
+        }
+
+        if (type === "Hand") {
+            const priceData = await Price.findOne({ city });
+            if (!priceData) return res.status(404).json({ message: "Город не найден в тарифах" });
+
+            let price = priceData.basePrice;
+
+            if (numericWeight > 1) {
+                price += (numericWeight - 1) * priceData.pricePerOneKg;
+            }
+
+            return res.json({ totalCost: price });
+        }
+
+        return res.status(400).json({ message: "Неизвестный тип тарифа" });
+
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+};
