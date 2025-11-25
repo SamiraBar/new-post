@@ -65,16 +65,23 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
 
       const { data } = await axiosApi.get<PaginatedParcelsResponse>(url);
 
-      const current = get().parcels || [];
+      if (page === 1) {
+        set({
+          parcels: data.parcels,
+          parcelsResponse: data,
+        });
+      } else {
+        const current = get().parcels || [];
+        const newParcels = data.parcels.filter(
+          (p) => !current.some((c) => c._id === p._id)
+        );
 
-      const newParcels = data.parcels.filter(
-        (p) => !current.some((c) => c._id === p._id)
-      );
+        set((state) => ({
+          parcels: [...(state.parcels ?? []), ...newParcels],
+          parcelsResponse: data,
+        }));
 
-      set((state) => ({
-        parcels: [...(state.parcels ?? []), ...newParcels],
-        parcelsResponse: data,
-      }));
+      }
 
       return true;
     } catch (e: unknown) {

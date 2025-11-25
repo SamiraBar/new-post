@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Boxes, Copy, Mail, MapPin, Package, Phone, User, Weight } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft, Boxes, Copy, Mail, MapPin, Package, Phone, User, Weight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import ParcelStatus from '@/features/parcels/admin/ParcelStatus';
 import useParcelsStore from '../../../stores/parcelsStore/parcelsStore.ts';
@@ -29,6 +29,13 @@ const ParcelDetails = () => {
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white space-y-10 text-[15px] text-gray-900">
       <ParcelItem parcel={parcel}/>
+      <Link
+        to="/admin"
+        className="text-gray-600 hover:text-black transition flex items-center gap-1 text-sm font-semibold"
+      >
+        <ArrowLeft size={16} />
+        <span>список посылок</span>
+      </Link>
       <div className="mt-10">
         <ParcelStatus
           status={parcel.status}

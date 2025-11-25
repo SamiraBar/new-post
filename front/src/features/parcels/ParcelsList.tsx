@@ -113,7 +113,7 @@ const ParcelsList = () => {
 
   return (
     <div className="h-[calc(100vh-100px)] flex flex-col bg-gradient-to-br from-gray-50 to-gray-100/30">
-      <div className="px-6 py-2.5 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-20 shadow-sm">
+      <div className="px-6 py-2.5 bg-white/80 backdrop-blur-sm sticky top-0 z-20">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-gray-900">
@@ -130,7 +130,7 @@ const ParcelsList = () => {
       </div>
 
       <ScrollArea className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto space-y-2">
+        <div className="space-y-2 pb-6">
           {parcels.map((parcel) => (
             <ParcelItem key={parcel._id} parcel={parcel} />
           ))}
