@@ -158,7 +158,7 @@ const ParcelItem = ({parcel}: Props) => {
 
               <div className="flex gap-3 md:col-span-5 md:flex-row sm: flex-col">
                 <p className="m-0 text-base whitespace-nowrap">Получатель:</p>
-                <div className="flex items-center gap-2 pl-[9px]">
+                <div className="flex items-center gap-2 pl-[10px]">
                   <img src={icUser} alt="User icon" className="w-5 h-5"/>
                   <p className="m-0 font-bold text-base">{recipient.fullName}</p>
                 </div>
