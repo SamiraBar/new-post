@@ -183,7 +183,7 @@ const ParcelStatus = ({
           </Button>
         </div>
 
-        <div className="relative w-full overflow-x-auto scrollbar-hide">
+        <div className="relative w-full overflow-x-auto scrollbar-hide pt-4.5">
           <div className="relative min-w-[1000px] sm:min-w-[1200px] md:min-w-0 mx-auto flex flex-col items-center">
 
             <div className="absolute top-6 left-10 right-10 h-1 bg-gray-200 rounded-full z-0" />
