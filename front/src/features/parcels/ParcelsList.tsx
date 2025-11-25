@@ -130,7 +130,7 @@ const ParcelsList = () => {
       </div>
 
       <ScrollArea className="flex-1 overflow-y-auto">
-        <div className="space-y-2">
+        <div className="space-y-2 pb-6">
           {parcels.map((parcel) => (
             <ParcelItem key={parcel._id} parcel={parcel} />
           ))}
