@@ -4,6 +4,7 @@ export interface Admin {
   token: string;
   role: string;
   displayName: string;
+  isActive: boolean;
 }
 
 export interface AdminMutation {
