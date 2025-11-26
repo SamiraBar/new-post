@@ -12,7 +12,7 @@ const ParcelsList = () => {
     getParcels,
     getParcelsLoading,
     getParcelsError,
-    searchFilters
+    searchFilters,
   } = useParcelsStore();
 
   useEffect(() => {
@@ -27,11 +27,8 @@ const ParcelsList = () => {
     }
   };
 
-
   const isSearchActive =
-    searchFilters.trackingNumber ||
-    searchFilters.sender ||
-    searchFilters.recipient;
+    searchFilters.trackingNumber || searchFilters.sender || searchFilters.recipient;
 
   const hasMore = parcelsResponse?.hasMore ?? false;
 
@@ -50,15 +47,13 @@ const ParcelsList = () => {
   if (getParcelsError && (!parcels || parcels.length === 0)) {
     return (
       <div className="container flex justify-center py-12">
-        <Alert className="max-w-md border-red-200 bg-gradient-to-br from-red-50 to-red-100/50 shadow-lg">
+        <Alert className="max-w-md border-red-200 bg-linear-to-br from-red-50 to-red-100/50 shadow-lg">
           <div className="flex items-start gap-3">
             <div className="bg-red-100 p-2 rounded-full">
               <XCircle className="h-5 w-5 text-red-600" />
             </div>
             <div className="flex-1">
-              <AlertTitle className="text-red-900 font-semibold mb-1">
-                Ошибка загрузки
-              </AlertTitle>
+              <AlertTitle className="text-red-900 font-semibold mb-1">Ошибка загрузки</AlertTitle>
               <AlertDescription className="text-red-700">
                 {getParcelsError.error ||
                   'Не удалось загрузить список посылок. Попробуйте обновить страницу.'}
@@ -73,7 +68,7 @@ const ParcelsList = () => {
   if (!parcels || parcels.length === 0) {
     return (
       <div className="container flex justify-center py-12">
-        <Alert className="max-w-md border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100/50 shadow-lg">
+        <Alert className="max-w-md border-gray-200 bg-linear-to-br from-gray-50 to-gray-100/50 shadow-lg">
           <div className="flex items-start gap-3">
             {isSearchActive ? (
               <>
@@ -95,9 +90,7 @@ const ParcelsList = () => {
                   <Package className="h-5 w-5 text-gray-600" />
                 </div>
                 <div className="flex-1">
-                  <AlertTitle className="text-gray-900 font-semibold mb-1">
-                    Посылок нет
-                  </AlertTitle>
+                  <AlertTitle className="text-gray-900 font-semibold mb-1">Посылок нет</AlertTitle>
                   <AlertDescription className="text-gray-700">
                     В системе пока нет ни одной посылки.
                   </AlertDescription>
@@ -110,21 +103,16 @@ const ParcelsList = () => {
     );
   }
 
-
   return (
-    <div className="h-[calc(100vh-100px)] flex flex-col bg-gradient-to-br from-gray-50 to-gray-100/30">
+    <div className="h-[calc(100vh-100px)] flex flex-col bg-linear-to-br from-gray-50 to-gray-100/30">
       <div className="px-6 py-2.5 bg-white/80 backdrop-blur-sm sticky top-0 z-20">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">
-              Управление посылками
-            </h2>
+            <h2 className="text-base font-semibold text-gray-900">Управление посылками</h2>
           </div>
           <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5 flex items-center gap-2">
             <p className="text-xs text-blue-600 font-medium">Всего:</p>
-            <p className="text-lg font-bold text-blue-700">
-              {parcelsResponse?.total || 0}
-            </p>
+            <p className="text-lg font-bold text-blue-700">{parcelsResponse?.total || 0}</p>
           </div>
         </div>
       </div>
@@ -142,13 +130,13 @@ const ParcelsList = () => {
               onClick={handleLoadMore}
               disabled={getParcelsLoading}
               className="group relative px-8 py-3 bg-white text-gray-700 rounded-xl
-                       hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50
+                       hover:bg-linear-to-r hover:from-blue-50 hover:to-indigo-50
                        border-2 border-gray-200 hover:border-blue-300
                        disabled:opacity-50 disabled:cursor-not-allowed
                        transition-all duration-300 font-medium shadow-md hover:shadow-xl
                        min-w-[180px] overflow-hidden"
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+              <span className="absolute inset-0 bg-linear-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
               {getParcelsLoading ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
@@ -157,9 +145,7 @@ const ParcelsList = () => {
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   <Package className="w-5 h-5 group-hover:text-blue-600 transition-colors" />
-                  <span className="group-hover:text-blue-600 transition-colors">
-                    Загрузить ещё
-                  </span>
+                  <span className="group-hover:text-blue-600 transition-colors">Загрузить ещё</span>
                 </span>
               )}
             </button>
