@@ -1,10 +1,16 @@
 import path from "path";
+import dotenv from "dotenv";
 
-export const secret = "admin_potato_secret"
+dotenv.config();
+
+export const secret = process.env.JWT_SECRET || "admin_potato_secret"
+
+const DEFAULT_DB = 'mongodb://localhost:27017/new-post';
+const dbUri = process.env.MONGO_URI || DEFAULT_DB;
 
 const config = {
     publicPath: path.join(__dirname, 'public'),
-    db: 'mongodb://localhost/new-post',
+    db: dbUri,
 };
 
 export default config;

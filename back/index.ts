@@ -18,7 +18,7 @@ app.use("/parcels", parcelsRouter);
 
 const run = async () => {
     await mongoose.connect(config.db);
-    app.listen(port, () => {
+    app.listen(port, "0.0.0.0", () => {
         console.log(`Server on port ${port}`);
     });
 };

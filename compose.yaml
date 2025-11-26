@@ -1,0 +1,49 @@
+services:
+  back:
+    build:
+      context: ./back
+    depends_on:
+      - new-post-database
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+    ports:
+      - 8000:8000
+      - 35728:35728
+    develop:
+      watch:
+        - path: ./back/package.json
+          action: rebuild
+        - path: ./back
+          target: /usr/src/back
+          action: sync
+
+  front:
+    build:
+      context: ./front
+    depends_on:
+      - back
+    environment:
+      NODE_ENV: production
+    ports:
+      - 5173:5173
+      - 35729:35729
+    develop:
+      watch:
+        - path: ./front/package.json
+          action: rebuild
+        - path: ./front
+          target: /usr/src/front
+          action: sync
+
+
+  new-post-database:
+    image: mongo:8
+    volumes:
+      - database:/data/db
+    ports:
+      - 27017:27017
+
+volumes:
+  database:
