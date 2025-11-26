@@ -13,7 +13,6 @@ import { Label } from '@/components/ui/label.tsx';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import type { Order } from '@/types';
 import { WarningNotices } from './WarningNotices';
-import { StepIndicator } from '@/features/deliveryCostCalculator/StepIndicator.tsx';
 import Step1Calculator from '@/features/deliveryCostCalculator/Step1Calculator.tsx';
 import Step2SenderOfficeSelection from './Step2OfficeSelection';
 import Step3RecipientOfficeSelection from '@/features/deliveryCostCalculator/Step3RecipientOfficeSelection.tsx';
@@ -24,6 +23,8 @@ import DeliveryModal from '@/features/deliveryCostCalculator/components/modal/De
 import { useTranslation } from 'react-i18next';
 import useParcelsStore from "@/stores/parcelsStore/parcelsStore.ts";
 import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
+import { validateStep1, validateStep2, validateStep3, validateStep4 } from '@/lib/validation';
+import {StepIndicator} from "@/features/deliveryCostCalculator/StepIndicator.tsx";
 
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -62,6 +63,37 @@ const DeliveryCostCalculator = () => {
     deliveryType: 'pickup',
   });
 
+  const canProceedToStep2 = () => {
+    return !validateStep1(order);
+  };
+
+  const canProceedToStep3 = () => {
+    return !validateStep2(order);
+  };
+
+  const canProceedToStep4 = () => {
+    return !validateStep3(order, isDoorDelivery);
+  };
+
+  const canProceedToStep5 = () => {
+    return !validateStep4(order, isDoorDelivery);
+  };
+
+  const getNextButtonDisabled = () => {
+    switch (currentStep) {
+      case 1:
+        return !canProceedToStep2();
+      case 2:
+        return !canProceedToStep3();
+      case 3:
+        return !canProceedToStep4();
+      case 4:
+        return !canProceedToStep5();
+      default:
+        return false;
+    }
+  };
+
   useEffect(() => {
     fetchPricing();
   }, [fetchPricing]);
@@ -74,11 +106,11 @@ const DeliveryCostCalculator = () => {
   }, [isPickup, isDoorDelivery]);
 
   const calculateDeliveryCost = useCallback(
-    (weight: number) => {
-      if (weight <= 0) return 0;
-      return weight * selectedPrice;
-    },
-    [selectedPrice]
+      (weight: number) => {
+        if (weight <= 0) return 0;
+        return weight * selectedPrice;
+      },
+      [selectedPrice]
   );
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
@@ -99,23 +131,6 @@ const DeliveryCostCalculator = () => {
     }));
   }, [order.parcelWeight, order.parcelValue, calculateDeliveryCost, calculateInsuranceCost]);
 
-  const validateOrder = () => {
-    const validations = [
-      { field: order.originCity, message: t('deliveryCostCalculator.validateError.cityOfSender') },
-      { field: order.destinationCity, message: t('deliveryCostCalculator.validateError.cityOfReceiver') },
-      { field: order.parcelValue, message: t('deliveryCostCalculator.validateError.parcelValue') },
-      { field: order.parcelWeight, message: t('deliveryCostCalculator.validateError.parcelWeight') },
-    ];
-
-    for (const { field, message } of validations) {
-      if (!field) {
-        toast.error(message);
-        return false;
-      }
-    }
-    return true;
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -124,18 +139,9 @@ const DeliveryCostCalculator = () => {
       return;
     }
 
-    if (!order.sender.name || !order.sender.email || !order.sender.phone) {
-      toast.error(t('deliveryCostCalculator.validateError.senderData'));
-      return;
-    }
-
-    if (!order.receiver.name || !order.receiver.email || !order.receiver.phone) {
-      toast.error(t('deliveryCostCalculator.validateError.receiverData'));
-      return;
-    }
-
-    if (isDoorDelivery && !order.receiver.address) {
-      toast.error(t('deliveryCostCalculator.validateError.receiverAddress'));
+    const step4Error = validateStep4(order, isDoorDelivery);
+    if (step4Error) {
+      toast.error(step4Error);
       return;
     }
 
@@ -181,8 +187,8 @@ const DeliveryCostCalculator = () => {
   };
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    userType?: 'sender' | 'receiver'
+      e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+      userType?: 'sender' | 'receiver'
   ) => {
     const { name, value } = e.target;
     if (userType) {
@@ -196,27 +202,51 @@ const DeliveryCostCalculator = () => {
   };
 
   const handleNext = () => {
-    if (currentStep === 1) {
-      if (!validateOrder()) return;
-      if (!isDoorDelivery && !isPickup) openOrCloseCalcModal();
-      else setCurrentStep(2);
-    } else if (currentStep === 2) {
-      if (!order.originOffice) return toast.error(t('deliveryCostCalculator.validateError.senderOffice'));
-      setCurrentStep(isDoorDelivery ? 3 : 3);
-    } else if (currentStep === 3) {
-      if (!isDoorDelivery && !order.destinationOffice) {
-        return toast.error(t('deliveryCostCalculator.validateError.receiverOffice'));
-      }
-      setCurrentStep(4);
-    } else if (currentStep === 4) {
-      if (!order.sender.name) return toast.error(t('deliveryCostCalculator.validateError.senderName'));
-      if (!order.sender.email) return toast.error(t('deliveryCostCalculator.validateError.senderEmail'));
-      if (!order.sender.phone) return toast.error(t('deliveryCostCalculator.validateError.senderPhone'));
-      if (!order.receiver.name) return toast.error(t('deliveryCostCalculator.validateError.receiverName'));
-      if (!order.receiver.email) return toast.error(t('deliveryCostCalculator.validateError.receiverEmail'));
-      if (!order.receiver.phone) return toast.error(t('deliveryCostCalculator.validateError.receiverPhone'));
-      if (isDoorDelivery && !order.receiver.address) return toast.error(t('deliveryCostCalculator.validateError.receiverAddress'));
-      setCurrentStep(5);
+    let error: string | null = null;
+
+    switch (currentStep) {
+      case 1:
+        error = validateStep1(order);
+        if (error) {
+          toast.error(error);
+          return;
+        }
+        if (!isDoorDelivery && !isPickup) {
+          openOrCloseCalcModal();
+        } else {
+          setCurrentStep(2);
+        }
+        break;
+
+      case 2:
+        error = validateStep2(order);
+        if (error) {
+          toast.error(error);
+          return;
+        }
+        setCurrentStep(3);
+        break;
+
+      case 3:
+        error = validateStep3(order, isDoorDelivery);
+        if (error) {
+          toast.error(error);
+          return;
+        }
+        setCurrentStep(4);
+        break;
+
+      case 4:
+        error = validateStep4(order, isDoorDelivery);
+        if (error) {
+          toast.error(error);
+          return;
+        }
+        setCurrentStep(5);
+        break;
+
+      default:
+        setCurrentStep(currentStep + 1);
     }
   };
 
@@ -230,120 +260,145 @@ const DeliveryCostCalculator = () => {
   let steps: JSX.Element | null = null;
   switch (currentStep) {
     case 1:
-      steps = <Step1Calculator order={order} setOrder={setOrder} onHandleChange={onHandleChange} handleNext={handleNext} />;
+      steps = <Step1Calculator
+          order={order}
+          setOrder={setOrder}
+          onHandleChange={onHandleChange}
+          handleNext={handleNext}
+      />;
       break;
     case 2:
       steps = <Step2SenderOfficeSelection
-        order={order}
-        setOrder={setOrder}
-        handleNext={() => setCurrentStep(3)}
+          order={order}
+          setOrder={setOrder}
+          handleNext={() => setCurrentStep(3)}
       />;
       break;
     case 3:
-      steps = <Step3RecipientOfficeSelection order={order} setOrder={setOrder} />;
+      steps = <Step3RecipientOfficeSelection
+          order={order}
+          setOrder={setOrder}
+      />;
       break;
     case 4:
-      steps = <Step4SenderRecipientForm order={order} onHandleChange={onHandleChange} handleChange={handleChange} doorDelivery={isDoorDelivery} />;
+      steps = <Step4SenderRecipientForm
+          order={order}
+          onHandleChange={onHandleChange}
+          handleChange={handleChange}
+          doorDelivery={isDoorDelivery}
+      />;
       break;
     case 5:
-      steps = <Step5Review order={order} doorDelivery={isDoorDelivery} />;
+      steps = <Step5Review
+          order={order}
+          doorDelivery={isDoorDelivery}
+      />;
       break;
   }
 
   return (
-    <div className="container" id="calculator">
-      <Toaster />
-      <DeliveryModal />
+      <div className="container" id="calculator">
+        <Toaster />
+        <DeliveryModal />
 
-      <ParcelSuccessModal
-          isOpen={showSuccessModal}
-          onClose={handleCloseSuccessModal}
-          trackingNumber={createdTrackingNumber}
-      />
+        <ParcelSuccessModal
+            isOpen={showSuccessModal}
+            onClose={handleCloseSuccessModal}
+            trackingNumber={createdTrackingNumber}
+        />
 
-      <h3 className="text-xl font-medium text-center mb-4">{t('deliveryCostCalculator.title')}</h3>
+        <h3 className="text-xl font-medium text-center mb-4">{t('deliveryCostCalculator.title')}</h3>
 
-      <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
-        <p className="text-lg font-medium text-gray-700">{t("delivery.chooseType")}</p>
+        <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
+          <p className="text-lg font-medium text-gray-700">{t("delivery.chooseType")}</p>
 
-        <Button
-          onClick={selectPickup}
-          className={`
+          <Button
+              onClick={selectPickup}
+              className={`
             px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
             active:scale-95 active:shadow-lg
             ${isPickup ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
             hover:bg-white hover:text-orange-500
           `}
-        >
-          {t("delivery.pickup")}
-        </Button>
+          >
+            {t("delivery.pickup")}
+          </Button>
 
-        <Button
-          onClick={selectDoorDelivery}
-          className={`
+          <Button
+              onClick={selectDoorDelivery}
+              className={`
             px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
             active:scale-95 active:shadow-lg
             ${isDoorDelivery ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
             hover:bg-white hover:text-orange-500
           `}
-        >
-          {t("delivery.courier")}
-        </Button>
-      </div>
+          >
+            {t("delivery.courier")}
+          </Button>
+        </div>
 
-      <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
-        <StepIndicator currentStep={currentStep} doorDelivery={isDoorDelivery} />
-        <div>
-          {steps}
+        <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
+          <StepIndicator currentStep={currentStep}/>
+          <div>
+            {steps}
 
-          {currentStep > 1 && (
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 px-5">
-              <Button
-                type="button"
-                onClick={handleBack}
-                className="flex items-center gap-2 w-full sm:w-auto justify-center bg-gray-500 hover:bg-gray-600 text-white px-6 py-3"
-              >
-                <ArrowLeft size={20} />
-                <span>{t('deliveryCostCalculator.buttons.back')}</span>
-              </Button>
+            {currentStep > 1 && (
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 px-5">
+                  <Button
+                      type="button"
+                      onClick={handleBack}
+                      className="flex items-center gap-2 w-full sm:w-auto justify-center bg-gray-500 hover:bg-gray-600 text-white px-6 py-3"
+                  >
+                    <ArrowLeft size={20} />
+                    <span>{t('deliveryCostCalculator.buttons.back')}</span>
+                  </Button>
 
-              {currentStep === 4 && (
-                <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-none">
-                  <Checkbox checked={isAgreed} onCheckedChange={() => setIsAgreed(!isAgreed)} />
-                  <Label className="text-sm text-gray-600 leading-tight">
-                    {t('deliveryCostCalculator.buttons.agreement')}
-                  </Label>
+                  {currentStep === 4 && (
+                      <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-none">
+                        <Checkbox
+                            checked={isAgreed}
+                            onCheckedChange={() => setIsAgreed(!isAgreed)}
+                            className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+                        />
+                        <Label className="text-sm text-gray-600 leading-tight cursor-pointer">
+                          {t('deliveryCostCalculator.buttons.agreement')}
+                        </Label>
+                      </div>
+                  )}
+
+                  {currentStep === 5 ? (
+                      <Button
+                          type="button"
+                          disabled={createParcelLoading || !isAgreed}
+                          className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                          onClick={handleSubmit}
+                      >
+                  <span>
+                    {createParcelLoading
+                        ? t('deliveryCostCalculator.buttons.creating')
+                        : t('deliveryCostCalculator.buttons.pay')
+                    }
+                  </span>
+                        <ArrowRight size={20} />
+                      </Button>
+                  ) : (
+                      <Button
+                          type="button"
+                          onClick={handleNext}
+                          disabled={getNextButtonDisabled()}
+                          className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        <span>{t('deliveryCostCalculator.buttons.forward')}</span>
+                        <ArrowRight size={20} />
+                      </Button>
+                  )}
                 </div>
-              )}
+            )}
 
-              {currentStep === 5 ? (
-                <Button
-                  type="button"
-                  disabled={createParcelLoading}
-                  className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  onClick={handleSubmit}
-                >
-                  <span>{t('deliveryCostCalculator.buttons.pay')}</span>
-                  <ArrowRight size={20} />
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  onClick={handleNext}
-                  disabled={currentStep === 2 && !order.originOffice}
-                  className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  <span>{t('deliveryCostCalculator.buttons.forward')}</span>
-                  <ArrowRight size={20} />
-                </Button>
-              )}
-            </div>
-          )}
-
-          {currentStep === 1 && <WarningNotices />}
+            {currentStep === 1 && <WarningNotices />}
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 
