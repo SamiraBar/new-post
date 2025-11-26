@@ -104,9 +104,19 @@
       "checkSelected": "Таңдалды"
     },
     "stepThreeForm": {
-      "title": "Алуучунун офисин тандоо",
-      "notFound": "Кеңсе табылган жок"
+      "title": "Алуучунун ПВЗ пунктун тандаңыз",
+      "subtitle": "Картадан ыңгайлуу ПВЗ тапсаңыз болот же тизмеден тандаңыз",
+      "searchPlaceholder": "ПВЗ издөө",
+      "filterCash": "Накталай төлөм",
+      "filterCard": "Карта менен төлөө",
+      "filterFitting": "Өлчөп көрүү мүмкүнчүлүгү",
+      "chipCash": "Накталай",
+      "chipCard": "Карта",
+      "chipFitting": "Өлчөп көрүү",
+      "unnamedPoint": "ПВЗ пункту",
+      "notFound": "ПВЗ табылган жок"
     },
+
     "courierFields": {
       "title": "Алуучунун дарегин киргизиңиз",
       "cityPlaceholder": "Шаар",

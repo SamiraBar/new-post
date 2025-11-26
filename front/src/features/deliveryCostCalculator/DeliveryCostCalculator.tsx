@@ -57,6 +57,11 @@ const DeliveryCostCalculator = () => {
     totalCost: 0,
     deliveryDate: '',
     inParcel: '',
+    destinationPvzCode: '',
+    destinationPvzName: '',
+    destinationPvzAddress: '',
+    destinationPvzPhone: '',
+    destinationPvzWorktime: '',
     sender: { name: '', email: '', phone: '' },
     receiver: { name: '', email: '', phone: '', address: '' },
     deliveryType: 'pickup',
@@ -204,7 +209,7 @@ const DeliveryCostCalculator = () => {
       if (!order.originOffice) return toast.error(t('deliveryCostCalculator.validateError.senderOffice'));
       setCurrentStep(isDoorDelivery ? 3 : 3);
     } else if (currentStep === 3) {
-      if (!isDoorDelivery && !order.destinationOffice) {
+      if (!isDoorDelivery && !order.destinationPvzCode) {
         return toast.error(t('deliveryCostCalculator.validateError.receiverOffice'));
       }
       setCurrentStep(4);

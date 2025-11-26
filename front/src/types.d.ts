@@ -89,6 +89,13 @@ export interface Order {
   deliveryDate: string;
   inParcel: string;
   sender: Sender;
+
+  destinationPvzCode?: string;
+  destinationPvzName?: string;
+  destinationPvzAddress?: string;
+  destinationPvzPhone?: string;
+  destinationPvzWorktime?: string;
+
   receiver: Receiver;
   deliveryType: DeliveryType;
 }
@@ -107,3 +114,54 @@ export interface PaginatedParcelsResponse {
   total: number;
 }
 
+export type MeasoftSelectedPvzData = {
+  code: string;
+  name: string;
+  address: string;
+  phone: string;
+  worktime: string;
+  maxweight: string;
+  parentname?: string;
+};
+
+export type MeasoftConfigParams = {
+  mapBlock: string;
+  client_id: string;
+  client_code?: string;
+  lang?: "ru" | "en";
+  showMapButton?: "0" | "1" | "2";
+  showMapButtonCaption?: string;
+  centerCoords?: readonly [string, string] | readonly string[];
+  mapSize?: { width: string | number; height: string | number };
+  townBlock?: string;
+  townRegexp?: string;
+  filter?: {
+    acceptcash?: "YES" | "";
+    acceptcard?: "YES" | "";
+    acceptfitting?: "YES" | "";
+    acceptindividuals?: "YES" | "";
+    maxweight?: number;
+    store?: string | number;
+  };
+  allowedFilterParams?: Array<
+      "acceptcash" | "acceptcard" | "acceptfitting" | "store"
+  >;
+  choicePvzCallback?: (pvzCode: string) => void;
+};
+
+export type MeasoftMapGlobal = {
+  config: (params: Partial<MeasoftConfigParams>) => MeasoftMapGlobal;
+  init: (loadStores?: number) => void;
+  open?: (mode?: string) => void;
+  showMap?: (loadStores?: number) => void;
+  clear?: () => void;
+  close?: () => void;
+  getSelectedPvzData: () => MeasoftSelectedPvzData;
+  applyFilter?: (param: string, value: string, manualLoadStore?: number) => void;
+};
+
+declare global {
+  interface Window {
+    measoftMap?: MeasoftMapGlobal;
+  }
+}

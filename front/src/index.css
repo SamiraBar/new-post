@@ -152,3 +152,19 @@ button {
 html {
   scroll-behavior: smooth;
 }
+
+#pvz_map_container {
+  position: relative !important;
+  inset: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+}
+
+#map_content_block {
+  position: relative !important;
+  width: 100% !important;
+  height: calc(100% - 90px) !important;
+  max-height: none !important;
+}

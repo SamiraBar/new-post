@@ -5,6 +5,7 @@ import config from "./config";
 import adminsRouter from "./routers/admins";
 import pricesRouter from "./routers/prices";
 import parcelsRouter from "./routers/parcels";
+import pvzRouter from "./routers/pvz";
 
 const app = express();
 const port = 8000;
@@ -15,6 +16,7 @@ app.use(cors());
 app.use("/admins", adminsRouter);
 app.use("/prices", pricesRouter);
 app.use("/parcels", parcelsRouter);
+app.use("/pvz", pvzRouter);
 
 const run = async () => {
     await mongoose.connect(config.db);
