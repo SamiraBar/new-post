@@ -6,6 +6,7 @@ export interface AdminDef {
   token: string;
   role: string;
   displayName: string;
+  isActive: boolean;
 }
 
 interface JwtAdminPayload extends JwtPayload {

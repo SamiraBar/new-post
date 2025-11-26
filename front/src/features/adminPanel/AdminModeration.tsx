@@ -34,20 +34,18 @@ const AdminModeration = () => {
   const navigate = useNavigate();
 
   const [openModal, setOpenModal] = useState(false);
-
-  useEffect(() => {
-    if (!admin || admin.role !== 'superAdmin') {
-      navigate('/admin');
-    }
-
-    void getAllAdmins();
-  }, [navigate, admin, getAllAdmins]);
-
   const [newAdmin, setNewAdmin] = useState<AdminMutation>({
     displayName: '',
     email: '',
     password: '',
   });
+
+  useEffect(() => {
+    if (!admin || admin.role !== 'superAdmin') {
+      navigate('/admin');
+    }
+    void getAllAdmins();
+  }, [navigate, admin, getAllAdmins]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -61,9 +59,7 @@ const AdminModeration = () => {
 
   const submitFormHandler = async (e: FormEvent) => {
     e.preventDefault();
-
     const success = await createAdmin(newAdmin);
-
     if (success) {
       await getAllAdmins();
       setNewAdmin({ displayName: '', email: '', password: '' });
@@ -71,41 +67,24 @@ const AdminModeration = () => {
     }
   };
 
+  const onlineAdmins = allAdmins?.filter((a) => a.isActive) || [];
+
   return (
-    <div className="container">
-      <div
-        className="
-          grid
-          grid-cols-[auto_1fr]
-          sm:grid-cols-[auto_auto]
-          grid-rows-[auto_auto]
-          md:grid-cols-[auto_1fr_auto]
-          md:grid-rows-1
-          gap-3 py-8"
-      >
+    <div className="container mx-auto pt-20 flex flex-col gap-6">
+      <div className="flex mt-5 items-center justify-between mb-8">
         <Link to="/admin">
           <Button variant="outline" size="icon" className="rounded-full">
             <ChevronLeft />
           </Button>
         </Link>
 
-        <h1
-          className="
-            text-2xl font-bold
-            text-center
-            col-span-2
-            order-3
-            md:order-none
-            md:col-span-1
-            md:justify-self-center
-          "
-        >
+        <h1 className="text-2xl font-bold text-center flex-1 mx-4">
           Управление администраторами
         </h1>
 
         <Dialog open={openModal} onOpenChange={setOpenModal}>
           <DialogTrigger asChild>
-            <Button className="bg-brand hover:bg-amber-600 transition duration-300  md:row-end">
+            <Button className="bg-brand hover:bg-amber-600 transition duration-300">
               Добавить администратора
             </Button>
           </DialogTrigger>
@@ -149,14 +128,12 @@ const AdminModeration = () => {
                   required
                 />
               </div>
-
               {createAdminError && (
                 <Alert variant="destructive" className="w-full">
                   <AlertCircleIcon />
                   <AlertDescription>{createAdminError}</AlertDescription>
                 </Alert>
               )}
-
               <Button
                 type="submit"
                 className="w-full bg-brand hover:bg-amber-600 transition duration-300"
@@ -168,44 +145,64 @@ const AdminModeration = () => {
         </Dialog>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {allAdmins?.map((admin) => (
-          <Card key={admin._id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <CardTitle>{admin.displayName}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p className="text-sm text-muted-foreground">{admin.email}</p>
-              <p className="text-xs text-gray-500 uppercase">{admin.role}</p>
-              {admin.role === 'superAdmin' ? null : (
-                <div className="flex gap-2 pt-2">
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive">Удалить</Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Вы уверены что хотите удалить администратора - {admin.displayName}?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Это действие необратимо. Вы моментально удалите профиль из базы данных
-                          системы.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Нет</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(admin._id)}>
-                          Да
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="md:w-1/4 flex flex-col gap-4">
+          <div className="bg-gray-50 p-4 rounded-lg shadow-md">
+            <h2 className="text-lg font-semibold mb-3">
+              Администраторы онлайн ({onlineAdmins.length})
+            </h2>
+            <ul className="space-y-3">
+              {onlineAdmins.map((a) => (
+                <li key={a._id} className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    {a.displayName[0].toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">{a.displayName}</p>
+                    <p className="text-xs text-gray-500">{a.role}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="flex-1 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {allAdmins?.map((a) => (
+            <Card key={a._id} className="hover:shadow-lg transition-shadow rounded-lg">
+              <CardHeader>
+                <CardTitle>{a.displayName}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-sm text-muted-foreground">{a.email}</p>
+                <p className="text-xs text-gray-500 uppercase">{a.role}</p>
+                {a.role !== 'superAdmin' && (
+                  <div className="flex gap-2 pt-2">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive">Удалить</Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Вы уверены что хотите удалить администратора - {a.displayName}?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Это действие необратимо. Вы моментально удалите профиль из базы данных системы.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Нет</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(a._id)}>Да</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );
