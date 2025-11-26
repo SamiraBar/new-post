@@ -32,7 +32,8 @@ export const validateStep2 = (order: Order): string | null => {
 
 export const validateStep3 = (order: Order, isDoorDelivery: boolean): string | null => {
     if (isDoorDelivery) {
-        if (!order.receiver.city) return 'Укажите город';
+        const city = order.receiver.city || order.destinationCity;
+        if (!city) return 'Укажите город';
         if (!order.receiver.street) return 'Укажите улицу';
         if (!order.receiver.house) return 'Укажите дом';
     } else {

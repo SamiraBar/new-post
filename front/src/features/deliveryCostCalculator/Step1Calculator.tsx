@@ -23,7 +23,8 @@ import type { Order } from "@/types";
 import { cities as senderCities } from "@/constants.ts";
 import useFileStore from "@/stores/fileStore/fileStore.ts";
 import { useTranslation } from "react-i18next";
-import { validateStep1 } from "@/lib/validation";
+import {validateStep1} from "@/lib/validation.ts";
+
 
 interface Props {
   order: Order;
@@ -123,7 +124,6 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                       </SelectContent>
                     </Select>
                   </FieldGroup>
-
                   <FieldGroup className="gap-4">
                     <div className="flex items-center justify-between">
                       <FieldLabel>{t("deliveryCostCalculator.stepOneForm.recipient")}</FieldLabel>
@@ -203,7 +203,6 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                       {t("deliveryCostCalculator.stepOneForm.maxPrice")} - 50000 сом
                     </div>
                   </Field>
-
                   <Field>
                     <div className="flex items-center">
                       <FieldLabel>{t("deliveryCostCalculator.stepOneForm.parcelWeight")}</FieldLabel>
@@ -238,7 +237,6 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     </div>
                   </Field>
                 </FieldGroup>
-
                 {validationError && (
                     <div className="mt-4 p-3 bg-red-50 border border-red-300 rounded-lg">
                       <p className="text-red-600 text-sm font-medium">{validationError}</p>

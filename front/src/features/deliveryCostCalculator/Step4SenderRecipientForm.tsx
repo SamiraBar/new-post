@@ -273,56 +273,84 @@ const Step4SenderRecipientForm: FC<Props> = ({
                       <p className="text-red-500 text-xs mt-1">{fieldErrors['receiver.email']}</p>
                   )}
                 </div>
-
-                {doorDelivery && (
-                    <div>
-                      <div className="flex items-center mb-1">
-                        <FieldLabel className="text-sm">Адрес доставки</FieldLabel>
-                        {isAddressValid ? (
-                            <CheckCircle className="ml-2 text-green-500" size={16} />
-                        ) : (
-                            <XCircle className="ml-2 text-gray-300" size={16} />
-                        )}
-                      </div>
-                      <Textarea
-                          placeholder={t('deliveryCostCalculator.stepForForm.inputTwoText')}
-                          className={`bg-gray-50 ${!isAddressValid && order.receiver.address && 'border-red-300'}`}
-                          name="address"
-                          onChange={(e) => handleFieldChange(e, 'receiver')}
-                          value={order.receiver.address}
-                      />
-                      {fieldErrors.address && (
-                          <p className="text-red-500 text-xs mt-1">{fieldErrors.address}</p>
-                      )}
-                    </div>
-                )}
               </FieldGroup>
             </div>
 
-            <div className="mt-6">
-              <div className="flex items-center mb-1">
-                <FieldLabel className="text-lg font-semibold">Содержимое посылки</FieldLabel>
-                {isInParcelValid ? (
-                    <CheckCircle className="ml-2 text-green-500" size={20} />
-                ) : (
-                    <XCircle className="ml-2 text-gray-300" size={20} />
-                )}
-              </div>
-              <Textarea
-                  className={`w-full bg-gray-50 ${!isInParcelValid && order.inParcel && 'border-red-300'}`}
-                  placeholder={t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
-                  name="inParcel"
-                  onChange={handleFieldChange}
-                  value={order.inParcel}
-                  rows={3}
-              />
-              {fieldErrors.inParcel && (
-                  <p className="text-red-500 text-xs mt-1">{fieldErrors.inParcel}</p>
-              )}
-              <p className="text-gray-500 text-sm mt-1">
-                Опишите что находится в посылке (минимум 3 символа)
-              </p>
-            </div>
+            {doorDelivery ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+                  <div>
+                    <div className="flex items-center mb-1">
+                      <FieldLabel className="text-sm">Адрес доставки</FieldLabel>
+                      {isAddressValid ? (
+                          <CheckCircle className="ml-2 text-green-500" size={16} />
+                      ) : (
+                          <XCircle className="ml-2 text-gray-300" size={16} />
+                      )}
+                    </div>
+                    <Textarea
+                        placeholder={t('deliveryCostCalculator.stepForForm.inputTwoText')}
+                        className={`bg-gray-50 ${!isAddressValid && order.receiver.address && 'border-red-300'}`}
+                        name="address"
+                        onChange={(e) => handleFieldChange(e, 'receiver')}
+                        value={order.receiver.address}
+                        rows={3}
+                    />
+                    {fieldErrors.address && (
+                        <p className="text-red-500 text-xs mt-1">{fieldErrors.address}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex items-center mb-1">
+                      <FieldLabel className="text-sm">Содержимое посылки</FieldLabel>
+                      {isInParcelValid ? (
+                          <CheckCircle className="ml-2 text-green-500" size={16} />
+                      ) : (
+                          <XCircle className="ml-2 text-gray-300" size={16} />
+                      )}
+                    </div>
+                    <Textarea
+                        className={`w-full bg-gray-50 ${!isInParcelValid && order.inParcel && 'border-red-300'}`}
+                        placeholder={t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
+                        name="inParcel"
+                        onChange={handleFieldChange}
+                        value={order.inParcel}
+                        rows={3}
+                    />
+                    {fieldErrors.inParcel && (
+                        <p className="text-red-500 text-xs mt-1">{fieldErrors.inParcel}</p>
+                    )}
+                    <p className="text-gray-500 text-sm mt-1">
+                      Опишите что находится в посылке (минимум 3 символа)
+                    </p>
+                  </div>
+                </div>
+            ) : (
+                <div className="mt-6">
+                  <div className="flex items-center mb-1">
+                    <FieldLabel className="text-lg font-semibold">Содержимое посылки</FieldLabel>
+                    {isInParcelValid ? (
+                        <CheckCircle className="ml-2 text-green-500" size={20} />
+                    ) : (
+                        <XCircle className="ml-2 text-gray-300" size={20} />
+                    )}
+                  </div>
+                  <Textarea
+                      className={`w-full bg-gray-50 ${!isInParcelValid && order.inParcel && 'border-red-300'}`}
+                      placeholder={t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
+                      name="inParcel"
+                      onChange={handleFieldChange}
+                      value={order.inParcel}
+                      rows={3}
+                  />
+                  {fieldErrors.inParcel && (
+                      <p className="text-red-500 text-xs mt-1">{fieldErrors.inParcel}</p>
+                  )}
+                  <p className="text-gray-500 text-sm mt-1">
+                    Опишите что находится в посылке (минимум 3 символа)
+                  </p>
+                </div>
+            )}
           </FieldSet>
         </FieldGroup>
       </div>

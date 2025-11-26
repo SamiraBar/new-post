@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label.tsx';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import type { Order } from '@/types';
 import { WarningNotices } from './WarningNotices';
+import { StepIndicator } from '@/features/deliveryCostCalculator/StepIndicator.tsx';
 import Step1Calculator from '@/features/deliveryCostCalculator/Step1Calculator.tsx';
 import Step2SenderOfficeSelection from './Step2OfficeSelection';
 import Step3RecipientOfficeSelection from '@/features/deliveryCostCalculator/Step3RecipientOfficeSelection.tsx';
@@ -23,8 +24,7 @@ import DeliveryModal from '@/features/deliveryCostCalculator/components/modal/De
 import { useTranslation } from 'react-i18next';
 import useParcelsStore from "@/stores/parcelsStore/parcelsStore.ts";
 import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
-import { validateStep1, validateStep2, validateStep3, validateStep4 } from '@/lib/validation';
-import {StepIndicator} from "@/features/deliveryCostCalculator/StepIndicator.tsx";
+import {validateStep2, validateStep3, validateStep4} from "@/lib/validation.ts";
 
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -63,37 +63,6 @@ const DeliveryCostCalculator = () => {
     deliveryType: 'pickup',
   });
 
-  const canProceedToStep2 = () => {
-    return !validateStep1(order);
-  };
-
-  const canProceedToStep3 = () => {
-    return !validateStep2(order);
-  };
-
-  const canProceedToStep4 = () => {
-    return !validateStep3(order, isDoorDelivery);
-  };
-
-  const canProceedToStep5 = () => {
-    return !validateStep4(order, isDoorDelivery);
-  };
-
-  const getNextButtonDisabled = () => {
-    switch (currentStep) {
-      case 1:
-        return !canProceedToStep2();
-      case 2:
-        return !canProceedToStep3();
-      case 3:
-        return !canProceedToStep4();
-      case 4:
-        return !canProceedToStep5();
-      default:
-        return false;
-    }
-  };
-
   useEffect(() => {
     fetchPricing();
   }, [fetchPricing]);
@@ -131,6 +100,23 @@ const DeliveryCostCalculator = () => {
     }));
   }, [order.parcelWeight, order.parcelValue, calculateDeliveryCost, calculateInsuranceCost]);
 
+  const validateOrder = () => {
+    const validations = [
+      { field: order.originCity, message: t('deliveryCostCalculator.validateError.cityOfSender') },
+      { field: order.destinationCity, message: t('deliveryCostCalculator.validateError.cityOfReceiver') },
+      { field: order.parcelValue, message: t('deliveryCostCalculator.validateError.parcelValue') },
+      { field: order.parcelWeight, message: t('deliveryCostCalculator.validateError.parcelWeight') },
+    ];
+
+    for (const { field, message } of validations) {
+      if (!field) {
+        toast.error(message);
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -139,9 +125,18 @@ const DeliveryCostCalculator = () => {
       return;
     }
 
-    const step4Error = validateStep4(order, isDoorDelivery);
-    if (step4Error) {
-      toast.error(step4Error);
+    if (!order.sender.name || !order.sender.email || !order.sender.phone) {
+      toast.error(t('deliveryCostCalculator.validateError.senderData'));
+      return;
+    }
+
+    if (!order.receiver.name || !order.receiver.email || !order.receiver.phone) {
+      toast.error(t('deliveryCostCalculator.validateError.receiverData'));
+      return;
+    }
+
+    if (isDoorDelivery && !order.receiver.address) {
+      toast.error(t('deliveryCostCalculator.validateError.receiverAddress'));
       return;
     }
 
@@ -201,52 +196,49 @@ const DeliveryCostCalculator = () => {
     }
   };
 
+  const isNextDisabled = () => {
+    if (currentStep === 2) {
+      return !!validateStep2(order);
+    }
+
+    if (currentStep === 3) {
+      return !!validateStep3(order, isDoorDelivery);
+    }
+
+    if (currentStep === 4) return !isAgreed;
+
+    return false;
+  };
+
   const handleNext = () => {
-    let error: string | null = null;
+    if (currentStep === 1) {
+      if (!validateOrder()) return;
+      if (!isDoorDelivery && !isPickup) openOrCloseCalcModal();
+      else setCurrentStep(2);
+    }
 
-    switch (currentStep) {
-      case 1:
-        error = validateStep1(order);
-        if (error) {
-          toast.error(error);
-          return;
-        }
-        if (!isDoorDelivery && !isPickup) {
-          openOrCloseCalcModal();
-        } else {
-          setCurrentStep(2);
-        }
-        break;
+    else if (currentStep === 2) {
+      const error = validateStep2(order);
+      if (error) {
+        return toast.error(error);
+      }
+      setCurrentStep(3);
+    }
 
-      case 2:
-        error = validateStep2(order);
-        if (error) {
-          toast.error(error);
-          return;
-        }
-        setCurrentStep(3);
-        break;
+    else if (currentStep === 3) {
+      const error = validateStep3(order, isDoorDelivery);
+      if (error) {
+        return toast.error(error);
+      }
+      setCurrentStep(4);
+    }
 
-      case 3:
-        error = validateStep3(order, isDoorDelivery);
-        if (error) {
-          toast.error(error);
-          return;
-        }
-        setCurrentStep(4);
-        break;
-
-      case 4:
-        error = validateStep4(order, isDoorDelivery);
-        if (error) {
-          toast.error(error);
-          return;
-        }
-        setCurrentStep(5);
-        break;
-
-      default:
-        setCurrentStep(currentStep + 1);
+    else if (currentStep === 4) {
+      const error = validateStep4(order, isDoorDelivery);
+      if (error) {
+        return toast.error(error);
+      }
+      setCurrentStep(5);
     }
   };
 
@@ -260,12 +252,7 @@ const DeliveryCostCalculator = () => {
   let steps: JSX.Element | null = null;
   switch (currentStep) {
     case 1:
-      steps = <Step1Calculator
-          order={order}
-          setOrder={setOrder}
-          onHandleChange={onHandleChange}
-          handleNext={handleNext}
-      />;
+      steps = <Step1Calculator order={order} setOrder={setOrder} onHandleChange={onHandleChange} handleNext={handleNext} />;
       break;
     case 2:
       steps = <Step2SenderOfficeSelection
@@ -275,24 +262,13 @@ const DeliveryCostCalculator = () => {
       />;
       break;
     case 3:
-      steps = <Step3RecipientOfficeSelection
-          order={order}
-          setOrder={setOrder}
-      />;
+      steps = <Step3RecipientOfficeSelection order={order} setOrder={setOrder} handleNext={() => setCurrentStep(4)}/>;
       break;
     case 4:
-      steps = <Step4SenderRecipientForm
-          order={order}
-          onHandleChange={onHandleChange}
-          handleChange={handleChange}
-          doorDelivery={isDoorDelivery}
-      />;
+      steps = <Step4SenderRecipientForm order={order} onHandleChange={onHandleChange} handleChange={handleChange} doorDelivery={isDoorDelivery} />;
       break;
     case 5:
-      steps = <Step5Review
-          order={order}
-          doorDelivery={isDoorDelivery}
-      />;
+      steps = <Step5Review order={order} doorDelivery={isDoorDelivery} />;
       break;
   }
 
@@ -338,7 +314,7 @@ const DeliveryCostCalculator = () => {
         </div>
 
         <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
-          <StepIndicator currentStep={currentStep}/>
+          <StepIndicator currentStep={currentStep} doorDelivery={isDoorDelivery} />
           <div>
             {steps}
 
@@ -355,12 +331,8 @@ const DeliveryCostCalculator = () => {
 
                   {currentStep === 4 && (
                       <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-none">
-                        <Checkbox
-                            checked={isAgreed}
-                            onCheckedChange={() => setIsAgreed(!isAgreed)}
-                            className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
-                        />
-                        <Label className="text-sm text-gray-600 leading-tight cursor-pointer">
+                        <Checkbox checked={isAgreed} onCheckedChange={() => setIsAgreed(!isAgreed)} />
+                        <Label className="text-sm text-gray-600 leading-tight">
                           {t('deliveryCostCalculator.buttons.agreement')}
                         </Label>
                       </div>
@@ -369,23 +341,18 @@ const DeliveryCostCalculator = () => {
                   {currentStep === 5 ? (
                       <Button
                           type="button"
-                          disabled={createParcelLoading || !isAgreed}
+                          disabled={createParcelLoading}
                           className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                           onClick={handleSubmit}
                       >
-                  <span>
-                    {createParcelLoading
-                        ? t('deliveryCostCalculator.buttons.creating')
-                        : t('deliveryCostCalculator.buttons.pay')
-                    }
-                  </span>
+                        <span>{t('deliveryCostCalculator.buttons.pay')}</span>
                         <ArrowRight size={20} />
                       </Button>
                   ) : (
                       <Button
                           type="button"
                           onClick={handleNext}
-                          disabled={getNextButtonDisabled()}
+                          disabled={isNextDisabled()}
                           className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                       >
                         <span>{t('deliveryCostCalculator.buttons.forward')}</span>
