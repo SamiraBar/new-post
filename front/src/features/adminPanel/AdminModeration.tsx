@@ -39,6 +39,11 @@ const AdminModeration = () => {
     email: '',
     password: '',
   });
+  const [editAdmin, setEditAdmin] = useState<AdminMutation>({
+    displayName: '',
+    email: '',
+    password: '',
+  });
 
   useEffect(() => {
     if (!admin || admin.role !== 'superAdmin') {
@@ -194,6 +199,56 @@ const AdminModeration = () => {
                         <AlertDialogFooter>
                           <AlertDialogCancel>Нет</AlertDialogCancel>
                           <AlertDialogAction onClick={() => handleDelete(a._id)}>Да</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild className="-order-1">
+                        <Button variant="secondary">Редактировать</Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="text-center">
+                            Редактировать
+                          </AlertDialogTitle>
+                          <div className="space-y-4">
+                            <div className="flex flex-col space-y-1">
+                              <label className="text-sm font-medium text-gray-700">Имя</label>
+                              <Input
+                                placeholder="Имя"
+                                value={editAdmin.displayName}
+                                onChange={(e) =>
+                                  setEditAdmin(prev => ({ ...prev, displayName: e.target.value }))
+                                }
+                              />
+                            </div>
+
+                            <div className="flex flex-col space-y-1">
+                              <label className="text-sm font-medium text-gray-700">Почта</label>
+                              <Input
+                                placeholder="Почта"
+                                value={editAdmin.email}
+                                onChange={(e) =>
+                                  setEditAdmin(prev => ({ ...prev, email: e.target.value }))
+                                }
+                              />
+                            </div>
+
+                            <div className="flex flex-col space-y-1">
+                              <label className="text-sm font-medium text-gray-700">Пароль</label>
+                              <Input
+                                placeholder="Пароль"
+                                value={editAdmin.password}
+                                onChange={(e) =>
+                                  setEditAdmin(prev => ({ ...prev, password: e.target.value }))
+                                }
+                              />
+                            </div>
+                          </div>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Отменить изменения</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(a._id)}>Сохранить</AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
