@@ -74,13 +74,37 @@ const DeliveryCostCalculator = () => {
     }));
   }, [isPickup, isDoorDelivery]);
 
-  const calculateDeliveryCost = useCallback(
-      (weight: number) => {
-        if (weight <= 0) return 0;
-        return weight * selectedPrice;
-      },
-      [selectedPrice]
-  );
+  const calculateDeliveryCost = useCallback((weight: number) => {
+    if (weight <= 0) return 0;
+    if (weight > 15) return 0;
+
+    const basePrice = selectedPrice;
+    const roundedWeight = Math.ceil(weight);
+
+    if (roundedWeight <= 1) {
+      return basePrice;
+    }
+
+    const additionalKg = roundedWeight - 1;
+
+    if (isPickup) {
+      let pricePerAdditionalKg = 0;
+
+      if (roundedWeight <= 3) {
+        pricePerAdditionalKg = 125;
+      } else if (roundedWeight <= 6) {
+        pricePerAdditionalKg = 135;
+      } else if (roundedWeight <= 12) {
+        pricePerAdditionalKg = 140;
+      } else {
+        pricePerAdditionalKg = 145;
+      }
+
+      return basePrice + (additionalKg * pricePerAdditionalKg);
+    } else {
+      return basePrice + (additionalKg * 200);
+    }
+  }, [selectedPrice, isPickup]);
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
