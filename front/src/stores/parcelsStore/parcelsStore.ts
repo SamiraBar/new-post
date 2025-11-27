@@ -182,7 +182,8 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         weight: order.parcelWeight,
         isPaid: false,
         partnerStickerReceived: false,
-          deliveryType: order.deliveryType,
+        deliveryType: order.deliveryType,
+        partnerType: order.partnerType,
         };
 
       const { data } = await axiosApi.post<{

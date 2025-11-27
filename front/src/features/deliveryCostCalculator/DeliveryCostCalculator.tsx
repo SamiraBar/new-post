@@ -61,6 +61,7 @@ const DeliveryCostCalculator = () => {
     sender: { name: '', email: '', phone: '' },
     receiver: { name: '', email: '', phone: '', address: '' },
     deliveryType: 'pickup',
+    partnerType: 'E-Kit'
   });
 
   useEffect(() => {
@@ -71,6 +72,7 @@ const DeliveryCostCalculator = () => {
     setOrder((prev) => ({
       ...prev,
       deliveryType: isPickup ? 'pickup' : 'courier',
+      partnerType: isPickup ? 'E-Kit' : 'KCE'
     }));
   }, [isPickup, isDoorDelivery]);
 
@@ -185,6 +187,7 @@ const DeliveryCostCalculator = () => {
         sender: { name: '', email: '', phone: '' },
         receiver: { name: '', email: '', phone: '', address: '' },
         deliveryType: 'pickup',
+        partnerType: "E-Kit"
       });
 
       setCurrentStep(1);

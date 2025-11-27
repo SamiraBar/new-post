@@ -78,6 +78,7 @@ export interface Receiver {
 }
 
 export type DeliveryType = "courier" | "pickup";
+export type PartnerType = "E-Kit" | "KCE";
 
 export interface Order {
   originCity: string;
@@ -94,6 +95,7 @@ export interface Order {
   sender: Sender;
   receiver: Receiver;
   deliveryType: DeliveryType;
+  partnerType: PartnerType;
 }
 
 export interface PaginatedParcelsResponse {
