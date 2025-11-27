@@ -1,8 +1,8 @@
-import { create } from "zustand";
-import type { FileState } from "@/stores/fileStore/types.ts";
-import { useAdminStore } from "@/stores/adminStore/adminStore.ts";
-import axiosApi from "@/axiosApi.ts";
-import { isAxiosError } from "axios";
+import { create } from 'zustand';
+import type { FileState } from '@/stores/fileStore/types.ts';
+import { useAdminStore } from '@/stores/adminStore/adminStore.ts';
+import axiosApi from '@/axiosApi.ts';
+import { isAxiosError } from 'axios';
 
 interface PriceItem {
   city: string;
@@ -12,11 +12,11 @@ interface PriceItem {
 
 const useFileStore = create<
   FileState & {
-  citiesPVZ: PriceItem[];
-  citiesHand: PriceItem[];
-  loadingCities: boolean;
-  getCities: (type: "PVZ" | "Hand") => Promise<void>;
-}
+    citiesPVZ: PriceItem[];
+    citiesHand: PriceItem[];
+    loadingCities: boolean;
+    getCities: (type: 'PVZ' | 'Hand') => Promise<void>;
+  }
 >((set, get) => ({
   pvzFile: null,
   handFile: null,
@@ -27,13 +27,13 @@ const useFileStore = create<
   loadingPvz: false,
   loadingHand: false,
 
-  uploadFiles: async (typeFile: "PVZ" | "Hand") => {
+  uploadFiles: async (typeFile: 'PVZ' | 'Hand') => {
     const { pvzFile, handFile } = get();
     const token = useAdminStore.getState().admin!.token;
 
     let fileToSend: File | null = null;
 
-    if (typeFile === "PVZ") {
+    if (typeFile === 'PVZ') {
       fileToSend = pvzFile;
       set({ loadingPvz: true });
     } else {
@@ -42,13 +42,13 @@ const useFileStore = create<
     }
 
     if (!fileToSend) {
-      if (typeFile === "PVZ") set({ loadingPvz: false });
+      if (typeFile === 'PVZ') set({ loadingPvz: false });
       else set({ loadingHand: false });
-      throw new Error("File not selected");
+      throw new Error('File not selected');
     }
 
     const formData = new FormData();
-    formData.append("data", fileToSend);
+    formData.append('data', fileToSend);
 
     try {
       await axiosApi.post(`/prices/upload?type=${typeFile}`, formData, {
@@ -59,7 +59,7 @@ const useFileStore = create<
         throw new Error(e.response.data.message);
       }
     } finally {
-      if (typeFile === "PVZ") {
+      if (typeFile === 'PVZ') {
         set({ loadingPvz: false, pvzFile: null });
       } else {
         set({ loadingHand: false, handFile: null });
@@ -71,11 +71,11 @@ const useFileStore = create<
   citiesHand: [],
   loadingCities: false,
 
-  getCities: async (type: "PVZ" | "Hand") => {
+  getCities: async (type: 'PVZ' | 'Hand') => {
     set({ loadingCities: true });
 
     try {
-      const response = await axiosApi.get<PriceItem[]>("/prices", {
+      const response = await axiosApi.get<PriceItem[]>('/prices', {
         params: { type },
       });
 
@@ -85,7 +85,7 @@ const useFileStore = create<
         country: c.country,
       }));
 
-      if (type === "PVZ") {
+      if (type === 'PVZ') {
         set({ citiesPVZ: formatted });
       } else {
         set({ citiesHand: formatted });
@@ -93,7 +93,7 @@ const useFileStore = create<
     } catch (e) {
       console.error(e);
 
-      if (type === "PVZ") {
+      if (type === 'PVZ') {
         set({ citiesPVZ: [] });
       } else {
         set({ citiesHand: [] });
