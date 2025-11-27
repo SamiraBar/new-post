@@ -17,6 +17,8 @@ export interface IParcel {
   _id: string;
   trackingNumber: string;
   partnerTrackingNumber?: string;
+  deliveryType: DeliveryType;
+  partnerType: 'E-Kit' | 'KCE';
   sender: {
     _id: string;
     fullName: string;
