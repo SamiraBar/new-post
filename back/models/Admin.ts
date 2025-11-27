@@ -42,6 +42,7 @@ const AdminSchema = new Schema<AdminDef, AdminModel, AdminMethods>({
     token: {type: String, required: true},
     displayName: {type: String, required: true},
     role: {type: String, required: true, enum: ["admin", "superAdmin"], default: "admin"},
+    isActive: {type: Boolean, required: true, default: false}
   }
 )
 

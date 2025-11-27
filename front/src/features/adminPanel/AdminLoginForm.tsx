@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card.tsx';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field.tsx';
 import { Input } from '@/components/ui/input.tsx';
-import { type ChangeEvent, type FormEvent, useState } from 'react';
+import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react';
 import type { LoginMutation } from '@/types';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
 import { useNavigate } from 'react-router-dom';
@@ -38,6 +38,14 @@ const AdminLoginForm = () => {
       navigate('/admin');
     }
   };
+
+  const admin = useAdminStore((s) => s.admin);
+
+  useEffect(() => {
+    if (admin) {
+      navigate('/admin');
+    }
+  }, [admin, navigate]);
 
   return (
     <div className="pt-10">
