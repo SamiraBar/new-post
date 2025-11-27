@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
 import Contact from "../models/Contact";
-import {generateTrackingNumber} from "../utils/generateTrackingNumber";
+import { generateTrackingNumber } from "../utils/generateTrackingNumber";
 
 async function findContactIds(
   type: "sender" | "recipient",
@@ -57,7 +57,8 @@ export const createParcel = async (
       !sender.fullName ||
       !sender.phoneNumber ||
       !sender.email ||
-      !sender.description
+      !sender.description ||
+      !sender.inn_passport
     ) {
       return res.status(400).json({
         error: "Not all required sender fields are filled",
@@ -202,31 +203,30 @@ export const getParcels = async (
   }
 };
 
-
 export const getParcelById = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        if (!mongoose.isValidObjectId(id)) {
-            return res.status(400).json({ error: "Invalid parcel ID" });
-        }
-
-        const parcel = await Parcel.findById(id)
-            .populate("sender")
-            .populate("recipient");
-
-        if (!parcel) {
-            return res.status(404).json({ error: "Parcel not found" });
-        }
-
-        res.json(parcel);
-    } catch (e) {
-        next(e);
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ error: "Invalid parcel ID" });
     }
+
+    const parcel = await Parcel.findById(id)
+      .populate("sender")
+      .populate("recipient");
+
+    if (!parcel) {
+      return res.status(404).json({ error: "Parcel not found" });
+    }
+
+    res.json(parcel);
+  } catch (e) {
+    next(e);
+  }
 };
 
 export const getParcelByTrackingNumber = async (

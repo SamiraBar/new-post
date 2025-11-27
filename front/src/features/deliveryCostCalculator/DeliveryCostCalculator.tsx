@@ -22,7 +22,7 @@ import Step5Review from '@/features/deliveryCostCalculator/Step5Review.tsx';
 import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 import DeliveryModal from '@/features/deliveryCostCalculator/components/modal/DeliveryModal.tsx';
 import { useTranslation } from 'react-i18next';
-import useParcelsStore from "@/stores/parcelsStore/parcelsStore.ts";
+import useParcelsStore from '@/stores/parcelsStore/parcelsStore.ts';
 import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
 
 const DeliveryCostCalculator = () => {
@@ -57,7 +57,7 @@ const DeliveryCostCalculator = () => {
     totalCost: 0,
     deliveryDate: '',
     inParcel: '',
-    sender: { name: '', email: '', phone: '' },
+    sender: { name: '', email: '', phone: '', inn_passport: '' },
     receiver: { name: '', email: '', phone: '', address: '' },
     deliveryType: 'pickup',
   });
@@ -78,7 +78,7 @@ const DeliveryCostCalculator = () => {
       if (weight <= 0) return 0;
       return weight * selectedPrice;
     },
-    [selectedPrice]
+    [selectedPrice],
   );
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
@@ -102,9 +102,15 @@ const DeliveryCostCalculator = () => {
   const validateOrder = () => {
     const validations = [
       { field: order.originCity, message: t('deliveryCostCalculator.validateError.cityOfSender') },
-      { field: order.destinationCity, message: t('deliveryCostCalculator.validateError.cityOfReceiver') },
+      {
+        field: order.destinationCity,
+        message: t('deliveryCostCalculator.validateError.cityOfReceiver'),
+      },
       { field: order.parcelValue, message: t('deliveryCostCalculator.validateError.parcelValue') },
-      { field: order.parcelWeight, message: t('deliveryCostCalculator.validateError.parcelWeight') },
+      {
+        field: order.parcelWeight,
+        message: t('deliveryCostCalculator.validateError.parcelWeight'),
+      },
     ];
 
     for (const { field, message } of validations) {
@@ -124,7 +130,12 @@ const DeliveryCostCalculator = () => {
       return;
     }
 
-    if (!order.sender.name || !order.sender.email || !order.sender.phone) {
+    if (
+      !order.sender.name ||
+      !order.sender.email ||
+      !order.sender.phone ||
+      !order.sender.inn_passport
+    ) {
       toast.error(t('deliveryCostCalculator.validateError.senderData'));
       return;
     }
@@ -157,7 +168,7 @@ const DeliveryCostCalculator = () => {
         totalCost: 0,
         deliveryDate: '',
         inParcel: '',
-        sender: { name: '', email: '', phone: '' },
+        sender: { name: '', email: '', phone: '', inn_passport: '' },
         receiver: { name: '', email: '', phone: '', address: '' },
         deliveryType: 'pickup',
       });
@@ -166,7 +177,11 @@ const DeliveryCostCalculator = () => {
       setIsAgreed(false);
       clearActions();
     } else {
-      toast.error(createParcelError?.error || t('deliveryCostCalculator.error.failedToCreate') || 'Не удалось создать посылку');
+      toast.error(
+        createParcelError?.error ||
+          t('deliveryCostCalculator.error.failedToCreate') ||
+          'Не удалось создать посылку',
+      );
     }
   };
 
@@ -182,7 +197,7 @@ const DeliveryCostCalculator = () => {
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    userType?: 'sender' | 'receiver'
+    userType?: 'sender' | 'receiver',
   ) => {
     const { name, value } = e.target;
     if (userType) {
@@ -201,7 +216,8 @@ const DeliveryCostCalculator = () => {
       if (!isDoorDelivery && !isPickup) openOrCloseCalcModal();
       else setCurrentStep(2);
     } else if (currentStep === 2) {
-      if (!order.originOffice) return toast.error(t('deliveryCostCalculator.validateError.senderOffice'));
+      if (!order.originOffice)
+        return toast.error(t('deliveryCostCalculator.validateError.senderOffice'));
       setCurrentStep(isDoorDelivery ? 3 : 3);
     } else if (currentStep === 3) {
       if (!isDoorDelivery && !order.destinationOffice) {
@@ -209,13 +225,22 @@ const DeliveryCostCalculator = () => {
       }
       setCurrentStep(4);
     } else if (currentStep === 4) {
-      if (!order.sender.name) return toast.error(t('deliveryCostCalculator.validateError.senderName'));
-      if (!order.sender.email) return toast.error(t('deliveryCostCalculator.validateError.senderEmail'));
-      if (!order.sender.phone) return toast.error(t('deliveryCostCalculator.validateError.senderPhone'));
-      if (!order.receiver.name) return toast.error(t('deliveryCostCalculator.validateError.receiverName'));
-      if (!order.receiver.email) return toast.error(t('deliveryCostCalculator.validateError.receiverEmail'));
-      if (!order.receiver.phone) return toast.error(t('deliveryCostCalculator.validateError.receiverPhone'));
-      if (isDoorDelivery && !order.receiver.address) return toast.error(t('deliveryCostCalculator.validateError.receiverAddress'));
+      if (!order.sender.name)
+        return toast.error(t('deliveryCostCalculator.validateError.senderName'));
+      if (!order.sender.email)
+        return toast.error(t('deliveryCostCalculator.validateError.senderEmail'));
+      if (!order.sender.phone)
+        return toast.error(t('deliveryCostCalculator.validateError.senderPhone'));
+      if (!order.sender.inn_passport)
+        return toast.error(t('deliveryCostCalculator.validateError.senderInnPassport'));
+      if (!order.receiver.name)
+        return toast.error(t('deliveryCostCalculator.validateError.receiverName'));
+      if (!order.receiver.email)
+        return toast.error(t('deliveryCostCalculator.validateError.receiverEmail'));
+      if (!order.receiver.phone)
+        return toast.error(t('deliveryCostCalculator.validateError.receiverPhone'));
+      if (isDoorDelivery && !order.receiver.address)
+        return toast.error(t('deliveryCostCalculator.validateError.receiverAddress'));
       setCurrentStep(5);
     }
   };
@@ -230,20 +255,36 @@ const DeliveryCostCalculator = () => {
   let steps: JSX.Element | null = null;
   switch (currentStep) {
     case 1:
-      steps = <Step1Calculator order={order} setOrder={setOrder} onHandleChange={onHandleChange} handleNext={handleNext} />;
+      steps = (
+        <Step1Calculator
+          order={order}
+          setOrder={setOrder}
+          onHandleChange={onHandleChange}
+          handleNext={handleNext}
+        />
+      );
       break;
     case 2:
-      steps = <Step2SenderOfficeSelection
-        order={order}
-        setOrder={setOrder}
-        handleNext={() => setCurrentStep(3)}
-      />;
+      steps = (
+        <Step2SenderOfficeSelection
+          order={order}
+          setOrder={setOrder}
+          handleNext={() => setCurrentStep(3)}
+        />
+      );
       break;
     case 3:
       steps = <Step3RecipientOfficeSelection order={order} setOrder={setOrder} />;
       break;
     case 4:
-      steps = <Step4SenderRecipientForm order={order} onHandleChange={onHandleChange} handleChange={handleChange} doorDelivery={isDoorDelivery} />;
+      steps = (
+        <Step4SenderRecipientForm
+          order={order}
+          onHandleChange={onHandleChange}
+          handleChange={handleChange}
+          doorDelivery={isDoorDelivery}
+        />
+      );
       break;
     case 5:
       steps = <Step5Review order={order} doorDelivery={isDoorDelivery} />;
@@ -256,15 +297,15 @@ const DeliveryCostCalculator = () => {
       <DeliveryModal />
 
       <ParcelSuccessModal
-          isOpen={showSuccessModal}
-          onClose={handleCloseSuccessModal}
-          trackingNumber={createdTrackingNumber}
+        isOpen={showSuccessModal}
+        onClose={handleCloseSuccessModal}
+        trackingNumber={createdTrackingNumber}
       />
 
       <h3 className="text-xl font-medium text-center mb-4">{t('deliveryCostCalculator.title')}</h3>
 
       <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
-        <p className="text-lg font-medium text-gray-700">{t("delivery.chooseType")}</p>
+        <p className="text-lg font-medium text-gray-700">{t('delivery.chooseType')}</p>
 
         <Button
           onClick={selectPickup}
@@ -275,7 +316,7 @@ const DeliveryCostCalculator = () => {
             hover:bg-white hover:text-orange-500
           `}
         >
-          {t("delivery.pickup")}
+          {t('delivery.pickup')}
         </Button>
 
         <Button
@@ -287,7 +328,7 @@ const DeliveryCostCalculator = () => {
             hover:bg-white hover:text-orange-500
           `}
         >
-          {t("delivery.courier")}
+          {t('delivery.courier')}
         </Button>
       </div>
 
@@ -308,7 +349,7 @@ const DeliveryCostCalculator = () => {
               </Button>
 
               {currentStep === 4 && (
-                <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-none">
+                <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-0">
                   <Checkbox checked={isAgreed} onCheckedChange={() => setIsAgreed(!isAgreed)} />
                   <Label className="text-sm text-gray-600 leading-tight">
                     {t('deliveryCostCalculator.buttons.agreement')}

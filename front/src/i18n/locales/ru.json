@@ -73,6 +73,7 @@
       "senderName": "Введите имя отправителя",
       "senderEmail": "Введите email отправителя",
       "senderPhone": "Введите телефон отправителя",
+      "senderInnPassport": "Введите ИНН отправителя",
       "receiverName": "Введите имя получателя",
       "receiverEmail": "Введите email получателя",
       "receiverPhone": "Введите телефон получателя",

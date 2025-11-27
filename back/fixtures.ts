@@ -38,7 +38,7 @@ const run = async () => {
       token: randomUUID(),
       role: "admin",
       displayName: "Post Admin",
-    },
+    }
   );
 
   const [senderOne, recipientOne, senderTwo, recipientTwo] =
@@ -49,6 +49,7 @@ const run = async () => {
         email: "sender1@gmail.com",
         address: "г. Бишкек, ул. Чуй 123",
         description: "Одежда и обувь",
+        inn_passport: "761238476",
         type: "sender",
       },
       {
@@ -57,6 +58,7 @@ const run = async () => {
         email: "recipient1@gmail.com",
         address: "г. Москва, ул. Ленина 45",
         description: "Одежда и обувь",
+        inn_passport: "987123948",
         type: "recipient",
       },
       {
@@ -65,6 +67,7 @@ const run = async () => {
         email: "sender2@gmail.com",
         address: "г. Ош, ул. Московская 67",
         description: "Электроника",
+        inn_passport: "98217341232",
         type: "sender",
       },
       {
@@ -73,8 +76,9 @@ const run = async () => {
         email: "recipient2@gmail.com",
         address: "г. Санкт-Петербург, Невский пр. 89",
         description: "Электроника",
+        inn_passport: "01293547",
         type: "recipient",
-      },
+      }
     );
 
   await Parcel.create([
@@ -353,7 +357,7 @@ const run = async () => {
       isPaid: true,
       partnerStickerReceived: true,
       weight: 2.2,
-    }
+    },
   ]);
 
   const fullHistoryParcel = new Parcel({
@@ -384,7 +388,7 @@ const run = async () => {
         atPickupPointAt: new Date("2025-11-18T15:00:00Z"),
         deliveredAt: new Date("2025-11-19T11:00:00Z"),
       },
-    },
+    }
   );
 
   await db.close();

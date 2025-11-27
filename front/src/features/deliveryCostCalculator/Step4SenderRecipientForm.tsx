@@ -57,6 +57,14 @@ const Step4SenderRecipientForm: FC<Props> = ({
                   onChange={(e) => handleChange(e, 'sender')}
                   value={order.sender.email}
                 />
+                <Input
+                  placeholder="ИНН"
+                  type="string"
+                  className="bg-gray-100"
+                  name="inn_passport"
+                  onChange={(e) => handleChange(e, 'sender')}
+                  value={order.sender.inn_passport}
+                />
                 {doorDelivery && (
                   <Textarea
                     className="col-span-1 sm:col-span-2 w-full bg-gray-100"
@@ -78,7 +86,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
                   value={order.receiver.name}
                 />
                 <Input
-                  placeholder="Телфон +996"
+                  placeholder="Телефон +996"
                   type="number"
                   className="bg-gray-100"
                   name="phone"
@@ -96,7 +104,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
                 {doorDelivery && (
                   <Textarea
                     placeholder={t('deliveryCostCalculator.stepForForm.inputTwoText')}
-                    className="bg-gray-100"
+                    className="bg-gray-100 grow"
                     name="address"
                     onChange={(e) => handleChange(e, 'receiver')}
                     value={order.receiver.address}

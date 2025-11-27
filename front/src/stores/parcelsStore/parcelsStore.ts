@@ -50,16 +50,16 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       const params = new URLSearchParams();
 
       if (searchFilters.trackingNumber?.trim()) {
-        params.append("trackingNumber", searchFilters.trackingNumber.trim());
+        params.append('trackingNumber', searchFilters.trackingNumber.trim());
       }
       if (searchFilters.sender?.trim()) {
-        params.append("sender", searchFilters.sender.trim());
+        params.append('sender', searchFilters.sender.trim());
       }
       if (searchFilters.recipient?.trim()) {
-        params.append("recipient", searchFilters.recipient.trim());
+        params.append('recipient', searchFilters.recipient.trim());
       }
 
-      params.append("page", String(page));
+      params.append('page', String(page));
 
       const url = `/parcels?${params.toString()}`;
 
@@ -72,26 +72,23 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         });
       } else {
         const current = get().parcels || [];
-        const newParcels = data.parcels.filter(
-          (p) => !current.some((c) => c._id === p._id)
-        );
+        const newParcels = data.parcels.filter((p) => !current.some((c) => c._id === p._id));
 
         set((state) => ({
           parcels: [...(state.parcels ?? []), ...newParcels],
           parcelsResponse: data,
         }));
-
       }
 
       return true;
     } catch (e: unknown) {
-      let errorMessage = "";
+      let errorMessage = '';
 
       if (axios.isAxiosError(e)) {
         errorMessage = e.response?.data?.error || e.message;
       } else if (e instanceof Error) {
         errorMessage = e.message;
-      } else if (typeof e === "string") {
+      } else if (typeof e === 'string') {
         errorMessage = e;
       }
 
@@ -101,7 +98,6 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       set({ getParcelsLoading: false });
     }
   },
-
 
   async getParcelById(id: string) {
     try {
@@ -162,13 +158,14 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
     });
 
     try {
-        const parcelData = {
+      const parcelData = {
         partnerTrackingNumber: null,
         sender: {
           fullName: order.sender.name,
           phoneNumber: order.sender.phone,
           email: order.sender.email,
           description: order.inParcel || 'No description',
+          inn_passport: order.sender.inn_passport,
         },
         recipient: {
           fullName: order.receiver.name,
