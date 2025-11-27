@@ -1,7 +1,7 @@
 import express from "express";
-import {pricesUpload} from "../multer";
+import { pricesUpload } from "../multer";
 import auth from "../middleware/auth";
-import {calculatePrice, getPrices, uploadPrices} from "../controllers/prices";
+import { calculatePrice, getPrices, uploadPrices } from "../controllers/prices";
 
 const pricesRouter = express.Router();
 
