@@ -117,6 +117,15 @@ export const adminEdit = async (req: Request, res: Response, next: NextFunction)
     await admin.save();
     res.status(200).send(admin);
   } catch (error) {
+    if (error instanceof mongoose.Error.ValidationError) {
+      const errors = Object.values(error.errors).map(err => err.message);
+
+      return res.status(400).send({
+        error: {
+          message: errors.join(', ')
+        }
+      });
+    }
     next(error);
   }
 };
