@@ -87,25 +87,28 @@ const DeliveryCostCalculator = () => {
       return basePrice;
     }
 
+    let totalCost = basePrice;
     const additionalKg = roundedWeight - 1;
 
     if (isPickup) {
-      let pricePerAdditionalKg = 0;
+      for (let kg = 1; kg <= additionalKg; kg++) {
+        const currentWeight = kg + 1;
 
-      if (roundedWeight <= 3) {
-        pricePerAdditionalKg = 125;
-      } else if (roundedWeight <= 6) {
-        pricePerAdditionalKg = 135;
-      } else if (roundedWeight <= 12) {
-        pricePerAdditionalKg = 140;
-      } else {
-        pricePerAdditionalKg = 145;
+        if (currentWeight <= 3) {
+          totalCost += 125;
+        } else if (currentWeight <= 6) {
+          totalCost += 135;
+        } else if (currentWeight <= 12) {
+          totalCost += 140;
+        } else {
+          totalCost += 145;
+        }
       }
-
-      return basePrice + (additionalKg * pricePerAdditionalKg);
     } else {
       return basePrice + (additionalKg * 200);
     }
+
+    return totalCost;
   }, [selectedPrice, isPickup]);
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
