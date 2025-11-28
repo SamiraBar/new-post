@@ -19,29 +19,14 @@ export interface IParcel {
   partnerTrackingNumber?: string;
   deliveryType: DeliveryType;
   partnerType: 'E-Kit' | 'KCE';
-  sender: {
-    _id: string;
-    fullName: string;
-    phoneNumber: string;
-    email: string;
-    address: string;
-    description?: string;
-    type: 'sender';
-    createdAt: Date;
-  };
-  recipient: {
-    _id: string;
-    fullName: string;
-    phoneNumber: string;
-    email: string;
-    address: string;
-    description?: string;
-    type: 'recipient';
-    createdAt: Date;
-  };
+  sender: IContact;
+  recipient: IContact;
   originCity: string;
   destinationCity: string;
-  status: 'draft' | 'created' | 'accepted' | 'shipped';
+  originOffice?: number;
+  destinationOffice?: number;
+  pvzData?: PvzData;
+  status: 'draft' | 'created' | 'accepted' | 'shipped' | 'in_country' | 'in_city' | 'at_pickup_point' | 'delivered'; // ← ОБНОВИ СТАТУСЫ
   isPaid: boolean;
   partnerStickerReceived: boolean;
   weight: number;
@@ -49,6 +34,58 @@ export interface IParcel {
   createdAt?: string;
   acceptedAt?: string;
   shippedAt?: string;
+  inCountryAt?: string;
+  inCityAt?: string;
+  atPickupPointAt?: string;
+  deliveredAt?: string;
+}
+
+export interface IContact {
+  _id: string;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  address: string;
+  description?: string;
+  type: 'sender' | 'recipient';
+  createdAt: Date;
+  city?: string;
+  street?: string;
+  house?: string;
+  apartment?: string;
+}
+
+export interface CreateParcelData {
+  partnerTrackingNumber: string | null;
+  sender: {
+    fullName: string;
+    phoneNumber: string;
+    email: string;
+    description: string;
+    address: string;
+    city?: string;
+  };
+  recipient: {
+    fullName: string;
+    phoneNumber: string;
+    email: string;
+    address: string;
+    description: string;
+    city: string;
+    street?: string;
+    house?: string;
+    apartment?: string;
+  };
+  originCity: string;
+  destinationCity: string;
+  originOffice: number | null;
+  destinationOffice: number | null;
+  weight: number;
+  isPaid: boolean;
+  partnerStickerReceived: boolean;
+  deliveryType: DeliveryType;
+  partnerType: PartnerType;
+  pvzData?: PvzData;
 }
 
 export interface GlobalError {
@@ -96,6 +133,80 @@ export interface Order {
   receiver: Receiver;
   deliveryType: DeliveryType;
   partnerType: PartnerType;
+
+  pvzData?: PvzData;
+}
+
+export interface PvzData {
+  code: string;
+  name: string;
+  address: string;
+  phone?: string;
+  worktime?: string;
+  maxweight?: string;
+  parentcode?: string;
+  parentname?: string;
+  town?: string;
+  towncode?: string;
+  region?: string;
+  acceptcash?: number;
+  acceptcard?: number;
+}
+
+export interface MeasoftMapConfig {
+  mapBlock: string;
+  client_id: string;
+  client_code: string;
+  mapSize: {
+    width: string;
+    height: string;
+  };
+  centerCoords: [string, string];
+  lang: string;
+  showMapButton: string;
+  showMapButtonCaption: string;
+  filter: PvzFilter;
+  allowedFilterParams: string[];
+  choicePvzCallback: () => void;
+  townBlock: string;
+  windowFixedPosition: string;
+}
+
+export interface PvzFilter {
+  maxweight?: number;
+  acceptcash?: number;
+  acceptcard?: number;
+  acceptfitting?: number;
+}
+
+export interface MeasoftMapProps {
+  order: Order;
+  onPvzSelect: (pvzData: PvzData) => void;
+  clientId?: string;
+  clientCode?: string;
+}
+
+
+export interface MeasoftMapInstance {
+  config: (config: MeasoftMapConfig) => MeasoftMapInstance;
+  init: () => MeasoftMapInstance;
+  close?: () => void;
+}
+
+export interface MeasoftPvzData {
+  code: string;
+  name: string;
+  address: string;
+  phone: string;
+  worktime: string;
+  maxweight: string;
+}
+
+export interface MeasoftMapGlobal {
+  config: (config: MeasoftMapConfig) => MeasoftMapInstance;
+  init: () => MeasoftMapInstance;
+  close?: () => void;
+  getSelectedPvzData: () => MeasoftPvzData | null;
 }
 
 export interface PaginatedParcelsResponse {
@@ -105,10 +216,4 @@ export interface PaginatedParcelsResponse {
   total: number;
 }
 
-export interface PaginatedParcelsResponse {
-  parcels: IParcel[];
-  hasMore: boolean;
-  currentPage: number;
-  total: number;
-}
 

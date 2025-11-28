@@ -8,6 +8,10 @@ export interface IContact extends mongoose.Document {
     description?: string;
     type: 'sender' | 'recipient';
     createdAt: Date;
+    city?: string;
+    street?: string;
+    house?: string;
+    apartment?: string;
 }
 
 const ContactSchema = new mongoose.Schema({
@@ -22,6 +26,26 @@ const ContactSchema = new mongoose.Schema({
     email: {
         type: String,
         required: [true, 'Email is required']
+    },
+    city: {
+        type: String,
+        default: null,
+    },
+    street: {
+        type: String,
+        default: null,
+    },
+    house: {
+        type: String,
+        default: null,
+    },
+    apartment: {
+        type: String,
+        default: null,
+    },
+    address: {
+        type: String,
+        default: null,
     },
     description: {
         type: String,

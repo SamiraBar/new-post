@@ -3,6 +3,7 @@ import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
 import Contact from "../models/Contact";
 import { generateTrackingNumber } from "../utils/generateTrackingNumber";
+import {ParcelCreateData} from "../types";
 
 async function findContactIds(
     type: "sender" | "recipient",
@@ -27,11 +28,14 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
             recipient,
             originCity,
             destinationCity,
+            originOffice,
+            destinationOffice,
             weight,
             isPaid,
             partnerStickerReceived,
             deliveryType,
             partnerType,
+            pvzData,
         } = req.body;
 
         if (!originCity || !destinationCity || !weight) {
@@ -40,12 +44,15 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
                 required: ["originCity", "destinationCity", "weight"],
             });
         }
+
         if (!sender || !recipient) {
             return res.status(400).json({ error: "Sender and recipient data are required" });
         }
+
         if (!sender.fullName || !sender.phoneNumber || !sender.email || !sender.description) {
             return res.status(400).json({ error: "Not all required sender fields are filled" });
         }
+
         if (!recipient.fullName || !recipient.phoneNumber || !recipient.email || !recipient.description) {
             return res.status(400).json({ error: "Not all required recipient fields are filled" });
         }
@@ -57,12 +64,58 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
 
         const validDeliveryTypes = ["pickup", "courier"];
         if (!validDeliveryTypes.includes(deliveryType)) {
-            return res.status(400).json({ error: "Invalid deliveryType", validDeliveryTypes, provided: deliveryType });
+            return res.status(400).json({
+                error: "Invalid deliveryType",
+                validDeliveryTypes,
+                provided: deliveryType
+            });
         }
 
         const validPartnerTypes = ["E-Kit", "KCE"];
         if (!validPartnerTypes.includes(partnerType)) {
-            return res.status(400).json({ error: "Invalid partnerType", validPartnerTypes, provided: partnerType });
+            return res.status(400).json({
+                error: "Invalid partnerType",
+                validPartnerTypes,
+                provided: partnerType
+            });
+        }
+
+        if (deliveryType === "pickup") {
+            if (pvzData) {
+                if (!pvzData.code || !pvzData.name || !pvzData.address) {
+                    return res.status(400).json({
+                        error: "PVZ data is incomplete",
+                        required: ["code", "name", "address"],
+                        provided: pvzData
+                    });
+                }
+
+                if (!destinationOffice && pvzData.code) {
+                    req.body.destinationOffice = parseInt(pvzData.code) || null;
+                }
+
+                if (pvzData.town && !recipient.city) {
+                    recipient.city = pvzData.town;
+                }
+
+                if (pvzData.address && !recipient.address) {
+                    recipient.address = pvzData.address;
+                }
+            } else if (!destinationOffice) {
+                return res.status(400).json({
+                    error: "For pickup delivery, either pvzData or destinationOffice is required"
+                });
+            }
+        }
+
+        if (deliveryType === "courier") {
+            if (!recipient.city || !recipient.street || !recipient.house) {
+                return res.status(400).json({
+                    error: "For courier delivery, recipient address is required",
+                    required: ["city", "street", "house"],
+                    provided: recipient
+                });
+            }
         }
 
         const trackingNumber = await generateTrackingNumber();
@@ -70,24 +123,47 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
         const newSender = await Contact.create({ ...sender, type: "sender" });
         const newRecipient = await Contact.create({ ...recipient, type: "recipient" });
 
-        const newParcel = new Parcel({
+        const parcelData: ParcelCreateData = {
             trackingNumber,
             partnerTrackingNumber,
             sender: newSender._id,
             recipient: newRecipient._id,
             originCity,
             destinationCity,
+            originOffice: originOffice || null,
+            destinationOffice: destinationOffice || req.body.destinationOffice || null,
             weight: weightValue,
             isPaid: isPaid || false,
             partnerStickerReceived: partnerStickerReceived || false,
             status: "draft",
             deliveryType,
             partnerType,
-        });
+        };
 
+        if (pvzData && deliveryType === "pickup") {
+            parcelData.pvzData = {
+                code: pvzData.code,
+                name: pvzData.name,
+                address: pvzData.address,
+                phone: pvzData.phone || null,
+                worktime: pvzData.worktime || null,
+                maxweight: pvzData.maxweight || null,
+                parentcode: pvzData.parentcode || null,
+                parentname: pvzData.parentname || null,
+                town: pvzData.town || null,
+                towncode: pvzData.towncode || null,
+                region: pvzData.region || null,
+                acceptcash: pvzData.acceptcash || 0,
+                acceptcard: pvzData.acceptcard || 0,
+            };
+        }
+
+        const newParcel = new Parcel(parcelData);
         await newParcel.save();
 
-        const populatedParcel = await Parcel.findById(newParcel._id).populate("sender").populate("recipient");
+        const populatedParcel = await Parcel.findById(newParcel._id)
+            .populate("sender")
+            .populate("recipient");
 
         res.status(201).json({
             message: "Parcel created successfully",
@@ -183,4 +259,3 @@ export const updateParcelStatus = async (req: Request, res: Response, next: Next
         next(e);
     }
 };
-

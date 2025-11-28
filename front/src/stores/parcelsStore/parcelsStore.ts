@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import axiosApi from '@/axiosApi.ts';
 import axios, { isAxiosError } from 'axios';
 import type { ParcelState } from './types';
-import type { IParcel, Order, PaginatedParcelsResponse } from '@/types';
+import type {CreateParcelData, IParcel, Order, PaginatedParcelsResponse} from '@/types';
 
 interface SearchFilters {
   trackingNumber?: string;
@@ -162,29 +162,71 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
     });
 
     try {
-        const parcelData = {
+      const parcelData: CreateParcelData = {
         partnerTrackingNumber: null,
         sender: {
           fullName: order.sender.name,
           phoneNumber: order.sender.phone,
           email: order.sender.email,
           description: order.inParcel || 'No description',
+          address: order.originCity,
         },
         recipient: {
           fullName: order.receiver.name,
           phoneNumber: order.receiver.phone,
           email: order.receiver.email,
-          address: order.receiver.address || '',
+          address: '',
           description: 'Recipient',
+          city: order.destinationCity,
         },
         originCity: order.originCity,
         destinationCity: order.destinationCity,
+        originOffice: order.originOffice || null,
+        destinationOffice: order.destinationOffice || null,
         weight: order.parcelWeight,
         isPaid: false,
         partnerStickerReceived: false,
         deliveryType: order.deliveryType,
         partnerType: order.partnerType,
+      };
+
+      if (order.deliveryType === 'courier') {
+        parcelData.recipient = {
+          ...parcelData.recipient,
+          city: order.receiver.city || order.destinationCity,
+          street: order.receiver.street || '',
+          house: order.receiver.house || '',
+          apartment: order.receiver.apartment || '',
+          address: `${order.receiver.city || order.destinationCity}, ${order.receiver.street || ''}, ${order.receiver.house || ''}${order.receiver.apartment ? `, кв. ${order.receiver.apartment}` : ''}`
         };
+      }
+
+
+      if (order.pvzData && order.deliveryType === 'pickup') {
+        parcelData.pvzData = {
+          code: order.pvzData.code,
+          name: order.pvzData.name,
+          address: order.pvzData.address,
+          phone: order.pvzData.phone || undefined,
+          worktime: order.pvzData.worktime || undefined,
+          maxweight: order.pvzData.maxweight || undefined,
+          parentcode: order.pvzData.parentcode || undefined,
+          parentname: order.pvzData.parentname || undefined,
+          town: order.pvzData.town || undefined,
+          towncode: order.pvzData.towncode || undefined,
+          region: order.pvzData.region || undefined,
+          acceptcash: order.pvzData.acceptcash || 0,
+          acceptcard: order.pvzData.acceptcard || 0,
+        };
+
+        parcelData.recipient = {
+          ...parcelData.recipient,
+          address: order.pvzData.address,
+          city: order.pvzData.town || order.destinationCity,
+        };
+      }
+
+      console.log('Sending to backend:', JSON.stringify(parcelData, null, 2));
 
       const { data } = await axiosApi.post<{
         message: string;
