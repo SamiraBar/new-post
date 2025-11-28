@@ -9,11 +9,7 @@ async function findContactIds(
   searchName: string
 ): Promise<mongoose.Types.ObjectId[]> {
   const regex = new RegExp(searchName, "i");
-  const contacts = await Contact.find({
-    type: type,
-    fullName: regex,
-  }).select("_id");
-
+  const contacts = await Contact.find({ type, fullName: regex }).select("_id");
   return contacts.map((contact) => contact._id as mongoose.Types.ObjectId);
 }
 
@@ -38,6 +34,8 @@ export const createParcel = async (
       weight,
       isPaid,
       partnerStickerReceived,
+      deliveryType,
+      partnerType,
     } = req.body;
 
     if (!originCity || !destinationCity || !weight) {
@@ -46,54 +44,65 @@ export const createParcel = async (
         required: ["originCity", "destinationCity", "weight"],
       });
     }
-
     if (!sender || !recipient) {
-      return res.status(400).json({
-        error: "Sender and recipient data are required",
-      });
+      return res
+        .status(400)
+        .json({ error: "Sender and recipient data are required" });
     }
-
     if (
       !sender.fullName ||
       !sender.phoneNumber ||
       !sender.email ||
-      !sender.description ||
-      !sender.inn_passport
+      !sender.description
     ) {
-      return res.status(400).json({
-        error: "Not all required sender fields are filled",
-      });
+      return res
+        .status(400)
+        .json({ error: "Not all required sender fields are filled" });
     }
-
     if (
       !recipient.fullName ||
       !recipient.phoneNumber ||
       !recipient.email ||
       !recipient.description
     ) {
-      return res.status(400).json({
-        error: "Not all required recipient fields are filled",
-      });
+      return res
+        .status(400)
+        .json({ error: "Not all required recipient fields are filled" });
     }
 
     const weightValue = parseFloat(weight);
     if (isNaN(weightValue) || weightValue <= 0) {
+      return res
+        .status(400)
+        .json({ error: "Weight must be a positive number" });
+    }
+
+    const validDeliveryTypes = ["pickup", "courier"];
+    if (!validDeliveryTypes.includes(deliveryType)) {
       return res.status(400).json({
-        error: "Weight must be a positive number",
+        error: "Invalid deliveryType",
+        validDeliveryTypes,
+        provided: deliveryType,
+      });
+    }
+
+    const validPartnerTypes = ["E-Kit", "KCE"];
+    if (!validPartnerTypes.includes(partnerType)) {
+      return res.status(400).json({
+        error: "Invalid partnerType",
+        validPartnerTypes,
+        provided: partnerType,
       });
     }
 
     const trackingNumber = await generateTrackingNumber();
 
-    const newSender = await Contact.create({
-      ...sender,
-      type: "sender",
-    });
-
+    const newSender = await Contact.create({ ...sender, type: "sender" });
     const newRecipient = await Contact.create({
       ...recipient,
       type: "recipient",
     });
+
     const newParcel = new Parcel({
       trackingNumber,
       partnerTrackingNumber,
@@ -105,6 +114,8 @@ export const createParcel = async (
       isPaid: isPaid || false,
       partnerStickerReceived: partnerStickerReceived || false,
       status: "draft",
+      deliveryType,
+      partnerType,
     });
 
     await newParcel.save();
@@ -149,16 +160,14 @@ export const getParcels = async (
       req.query.sender.trim() !== ""
     ) {
       const senderIds = await findContactIds("sender", req.query.sender.trim());
-      if (senderIds.length > 0) {
-        query.sender = { $in: senderIds };
-      } else {
+      if (senderIds.length > 0) query.sender = { $in: senderIds };
+      else
         return res.send({
           parcels: [],
           hasMore: false,
           currentPage: page,
           total: 0,
         });
-      }
     }
 
     if (
@@ -170,16 +179,14 @@ export const getParcels = async (
         "recipient",
         req.query.recipient.trim()
       );
-      if (recipientIds.length > 0) {
-        query.recipient = { $in: recipientIds };
-      } else {
+      if (recipientIds.length > 0) query.recipient = { $in: recipientIds };
+      else
         return res.send({
           parcels: [],
           hasMore: false,
           currentPage: page,
           total: 0,
         });
-      }
     }
 
     const parcels = await Parcel.find(query)
@@ -188,16 +195,10 @@ export const getParcels = async (
       .sort({ draftedAt: -1 })
       .skip(skip)
       .limit(limit);
-
     const total = await Parcel.countDocuments(query);
     const hasMore = page * limit < total;
 
-    res.send({
-      parcels,
-      hasMore,
-      currentPage: page,
-      total,
-    });
+    res.send({ parcels, hasMore, currentPage: page, total });
   } catch (e) {
     next(e);
   }
@@ -210,18 +211,13 @@ export const getParcelById = async (
 ) => {
   try {
     const { id } = req.params;
-
-    if (!mongoose.isValidObjectId(id)) {
+    if (!mongoose.isValidObjectId(id))
       return res.status(400).json({ error: "Invalid parcel ID" });
-    }
 
     const parcel = await Parcel.findById(id)
       .populate("sender")
       .populate("recipient");
-
-    if (!parcel) {
-      return res.status(404).json({ error: "Parcel not found" });
-    }
+    if (!parcel) return res.status(404).json({ error: "Parcel not found" });
 
     res.json(parcel);
   } catch (e) {
@@ -236,16 +232,14 @@ export const getParcelByTrackingNumber = async (
 ) => {
   try {
     const { trackingNumber } = req.params;
-
     const parcel = await Parcel.findOne({ trackingNumber })
       .populate("sender")
       .populate("recipient");
 
-    if (!parcel) {
-      return res.status(404).json({
-        error: "Parcel with this tracking number not found",
-      });
-    }
+    if (!parcel)
+      return res
+        .status(404)
+        .json({ error: "Parcel with this tracking number not found" });
 
     res.send(parcel);
   } catch (e) {
@@ -262,9 +256,7 @@ export const updateParcelStatus = async (
     const { trackingNumber } = req.params;
     const { status } = req.body;
 
-    if (!status) {
-      return res.status(400).json({ error: "Status is required" });
-    }
+    if (!status) return res.status(400).json({ error: "Status is required" });
 
     const validStatuses = [
       "draft",
@@ -276,35 +268,27 @@ export const updateParcelStatus = async (
       "at_pickup_point",
       "delivered",
     ];
-    if (!validStatuses.includes(status)) {
+    if (!validStatuses.includes(status))
       return res.status(400).json({
         error: "Invalid status",
-        validStatuses: validStatuses,
+        validStatuses,
         providedStatus: status,
       });
-    }
 
     const parcel = await Parcel.findOne({ trackingNumber })
       .populate("sender")
       .populate("recipient");
+    if (!parcel)
+      return res
+        .status(404)
+        .json({ error: "Parcel with this tracking number not found" });
 
-    if (!parcel) {
-      return res.status(404).json({
-        error: "Parcel with this tracking number not found",
-      });
-    }
     parcel.status = status;
     await parcel.save();
 
     const freshParcel = await Parcel.findById(parcel._id)
       .populate("sender")
       .populate("recipient");
-
-    if (!freshParcel) {
-      return res.status(404).json({
-        error: "Parcel not found after update",
-      });
-    }
 
     res.json({
       message: "Parcel status updated successfully",

@@ -4,6 +4,7 @@ export interface Admin {
   token: string;
   role: string;
   displayName: string;
+  isActive: boolean;
 }
 
 export interface AdminMutation {
@@ -16,6 +17,8 @@ export interface IParcel {
   _id: string;
   trackingNumber: string;
   partnerTrackingNumber?: string;
+  deliveryType: DeliveryType;
+  partnerType: 'E-Kit' | 'KCE';
   sender: {
     _id: string;
     fullName: string;
@@ -77,6 +80,7 @@ export interface Receiver {
 }
 
 export type DeliveryType = 'courier' | 'pickup';
+export type PartnerType = 'E-Kit' | 'KCE';
 
 export interface Order {
   originCity: string;
@@ -93,6 +97,7 @@ export interface Order {
   sender: Sender;
   receiver: Receiver;
   deliveryType: DeliveryType;
+  partnerType: PartnerType;
 }
 
 export interface PaginatedParcelsResponse {

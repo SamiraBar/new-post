@@ -24,6 +24,7 @@ import DeliveryModal from '@/features/deliveryCostCalculator/components/modal/De
 import { useTranslation } from 'react-i18next';
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore.ts';
 import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
+import { validateStep2, validateStep3, validateStep4 } from '@/lib/validation.ts';
 
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -60,6 +61,7 @@ const DeliveryCostCalculator = () => {
     sender: { name: '', email: '', phone: '', inn_passport: '' },
     receiver: { name: '', email: '', phone: '', address: '' },
     deliveryType: 'pickup',
+    partnerType: 'E-Kit',
   });
 
   useEffect(() => {
@@ -70,15 +72,43 @@ const DeliveryCostCalculator = () => {
     setOrder((prev) => ({
       ...prev,
       deliveryType: isPickup ? 'pickup' : 'courier',
+      partnerType: isPickup ? 'E-Kit' : 'KCE',
     }));
   }, [isPickup, isDoorDelivery]);
 
   const calculateDeliveryCost = useCallback(
     (weight: number) => {
       if (weight <= 0) return 0;
-      return weight * selectedPrice;
+      if (weight > 15) return 0;
+
+      const basePrice = selectedPrice;
+      const roundedWeight = Math.ceil(weight);
+
+      if (roundedWeight <= 1) {
+        return basePrice;
+      }
+
+      const additionalKg = roundedWeight - 1;
+
+      if (isPickup) {
+        let pricePerAdditionalKg = 0;
+
+        if (roundedWeight <= 3) {
+          pricePerAdditionalKg = 125;
+        } else if (roundedWeight <= 6) {
+          pricePerAdditionalKg = 135;
+        } else if (roundedWeight <= 12) {
+          pricePerAdditionalKg = 140;
+        } else {
+          pricePerAdditionalKg = 145;
+        }
+
+        return basePrice + additionalKg * pricePerAdditionalKg;
+      } else {
+        return basePrice + additionalKg * 200;
+      }
     },
-    [selectedPrice],
+    [selectedPrice, isPickup],
   );
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
@@ -171,6 +201,7 @@ const DeliveryCostCalculator = () => {
         sender: { name: '', email: '', phone: '', inn_passport: '' },
         receiver: { name: '', email: '', phone: '', address: '' },
         deliveryType: 'pickup',
+        partnerType: 'E-Kit',
       });
 
       setCurrentStep(1);
@@ -210,37 +241,42 @@ const DeliveryCostCalculator = () => {
     }
   };
 
+  const isNextDisabled = () => {
+    if (currentStep === 2) {
+      return !!validateStep2(order);
+    }
+
+    if (currentStep === 3) {
+      return !!validateStep3(order, isDoorDelivery);
+    }
+
+    if (currentStep === 4) return !isAgreed;
+
+    return false;
+  };
+
   const handleNext = () => {
     if (currentStep === 1) {
       if (!validateOrder()) return;
       if (!isDoorDelivery && !isPickup) openOrCloseCalcModal();
       else setCurrentStep(2);
     } else if (currentStep === 2) {
-      if (!order.originOffice)
-        return toast.error(t('deliveryCostCalculator.validateError.senderOffice'));
-      setCurrentStep(isDoorDelivery ? 3 : 3);
+      const error = validateStep2(order);
+      if (error) {
+        return toast.error(error);
+      }
+      setCurrentStep(3);
     } else if (currentStep === 3) {
-      if (!isDoorDelivery && !order.destinationOffice) {
-        return toast.error(t('deliveryCostCalculator.validateError.receiverOffice'));
+      const error = validateStep3(order, isDoorDelivery);
+      if (error) {
+        return toast.error(error);
       }
       setCurrentStep(4);
     } else if (currentStep === 4) {
-      if (!order.sender.name)
-        return toast.error(t('deliveryCostCalculator.validateError.senderName'));
-      if (!order.sender.email)
-        return toast.error(t('deliveryCostCalculator.validateError.senderEmail'));
-      if (!order.sender.phone)
-        return toast.error(t('deliveryCostCalculator.validateError.senderPhone'));
-      if (!order.sender.inn_passport)
-        return toast.error(t('deliveryCostCalculator.validateError.senderInnPassport'));
-      if (!order.receiver.name)
-        return toast.error(t('deliveryCostCalculator.validateError.receiverName'));
-      if (!order.receiver.email)
-        return toast.error(t('deliveryCostCalculator.validateError.receiverEmail'));
-      if (!order.receiver.phone)
-        return toast.error(t('deliveryCostCalculator.validateError.receiverPhone'));
-      if (isDoorDelivery && !order.receiver.address)
-        return toast.error(t('deliveryCostCalculator.validateError.receiverAddress'));
+      const error = validateStep4(order, isDoorDelivery);
+      if (error) {
+        return toast.error(error);
+      }
       setCurrentStep(5);
     }
   };
@@ -274,7 +310,13 @@ const DeliveryCostCalculator = () => {
       );
       break;
     case 3:
-      steps = <Step3RecipientOfficeSelection order={order} setOrder={setOrder} />;
+      steps = (
+        <Step3RecipientOfficeSelection
+          order={order}
+          setOrder={setOrder}
+          handleNext={() => setCurrentStep(4)}
+        />
+      );
       break;
     case 4:
       steps = (
@@ -371,7 +413,7 @@ const DeliveryCostCalculator = () => {
                 <Button
                   type="button"
                   onClick={handleNext}
-                  disabled={currentStep === 2 && !order.originOffice}
+                  disabled={isNextDisabled()}
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   <span>{t('deliveryCostCalculator.buttons.forward')}</span>
