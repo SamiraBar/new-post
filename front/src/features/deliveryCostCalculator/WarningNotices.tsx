@@ -9,6 +9,14 @@ export const WarningNotices = () => {
       <div className="p-5 border rounded-lg shadow-lg flex gap-2 items-center">
         <TriangleAlert className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0" color="orange" />
         <div>
+          <p className="whitespace-pre-line">
+            {t('deliveryCostCalculator.WarningNotices.warningDelivery')}
+          </p>
+        </div>
+      </div>
+      <div className="p-5 border rounded-lg shadow-lg flex gap-2 items-center">
+        <TriangleAlert className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0" color="orange" />
+        <div>
           <p>{t('deliveryCostCalculator.WarningNotices.warningPrice')}</p>
         </div>
       </div>
