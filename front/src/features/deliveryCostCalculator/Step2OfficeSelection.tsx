@@ -34,21 +34,20 @@ const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
               p-6 border-2 rounded-lg transition-all duration-300 text-left
               hover:shadow-lg hover:border-orange-300 hover:scale-105
               ${
-              order.originOffice === office.id
-                ? 'border-orange-500 bg-gradient-to-br from-orange-50 to-orange-100 shadow-xl scale-105 ring-2 ring-orange-200 ring-opacity-50'
-                : 'border-gray-300 bg-white'
-            }
+                order.originOffice === office.id
+                  ? 'border-orange-500 bg-linear-to-br from-orange-50 to-orange-100 shadow-xl scale-105 ring-2 ring-orange-200 ring-opacity-50'
+                  : 'border-gray-300 bg-white'
+              }
             `}
           >
             <div className="flex flex-col h-full">
               <h4 className="font-bold text-lg mb-2 text-gray-800">{office.name}</h4>
-              <p className="text-gray-600 flex-grow">{office.address}</p>
+              <p className="text-gray-600 grow">{office.address}</p>
               <div
                 className={`mt-3 text-sm font-medium ${
                   order.originOffice === office.id ? 'text-orange-600' : 'text-gray-500'
                 }`}
-              >
-              </div>
+              ></div>
             </div>
           </button>
         ))}

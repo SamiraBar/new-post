@@ -45,11 +45,13 @@ const ContactSchema = new mongoose.Schema(
               return false;
             }
 
-            return /^(\d{10}|\d{12}|\d{14})$/.test(value.trim());
+            const trimmedValue = value.trim();
+            return /^[A-Za-z0-9]{1,14}$/.test(trimmedValue);
           }
           return true;
         },
-        message: "INN must be 10 or 12 or 14 digits for sender",
+        message:
+          "INN must contain only letters and numbers, maximum 14 characters for sender",
       },
     },
     type: {
