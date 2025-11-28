@@ -17,43 +17,43 @@ const run = async () => {
     console.log("No collection, skipping", e);
   }
 
-    await Admin.create([
-        {
-            email: "AdminNum1@gmail.com",
-            password: "Qwerty123",
-            token: randomUUID(),
-            role: "superAdmin",
-            displayName: "Main Admin",
-        },
-        {
-            email: "AdminNum2@gmail.com",
-            password: "Qwerty123",
-            token: randomUUID(),
-            role: "admin",
-            displayName: "Some Admin",
-        },
-        {
-            email: "AdminNum3@gmail.com",
-            password: "Qwerty123",
-            token: randomUUID(),
-            role: "admin",
-            displayName: "Post Admin",
-        },
-        {
-            email: "AdminNum4@gmail.com",
-            password: "Qwerty123",
-            token: randomUUID(),
-            role: "admin",
-            displayName: "Post Admin",
-        },
-        {
-            email: "AdminNum5@gmail.com",
-            password: "Qwerty123",
-            token: randomUUID(),
-            role: "admin",
-            displayName: "Post Admin",
-        },
-    ]);
+  await Admin.create([
+    {
+      email: "AdminNum1@gmail.com",
+      password: "Qwerty123",
+      token: randomUUID(),
+      role: "superAdmin",
+      displayName: "Main Admin",
+    },
+    {
+      email: "AdminNum2@gmail.com",
+      password: "Qwerty123",
+      token: randomUUID(),
+      role: "admin",
+      displayName: "Some Admin",
+    },
+    {
+      email: "AdminNum3@gmail.com",
+      password: "Qwerty123",
+      token: randomUUID(),
+      role: "admin",
+      displayName: "Post Admin",
+    },
+    {
+      email: "AdminNum4@gmail.com",
+      password: "Qwerty123",
+      token: randomUUID(),
+      role: "admin",
+      displayName: "Post Admin",
+    },
+    {
+      email: "AdminNum5@gmail.com",
+      password: "Qwerty123",
+      token: randomUUID(),
+      role: "admin",
+      displayName: "Post Admin",
+    },
+  ]);
 
   const [senderOne, recipientOne, senderTwo, recipientTwo] =
     await Contact.create(
@@ -63,6 +63,7 @@ const run = async () => {
         email: "sender1@gmail.com",
         address: "г. Бишкек, ул. Чуй 123",
         description: "Одежда и обувь",
+        inn_passport: "761238476",
         type: "sender",
       },
       {
@@ -71,6 +72,7 @@ const run = async () => {
         email: "recipient1@gmail.com",
         address: "г. Москва, ул. Ленина 45",
         description: "Одежда и обувь",
+        inn_passport: "987123948",
         type: "recipient",
       },
       {
@@ -79,6 +81,7 @@ const run = async () => {
         email: "sender2@gmail.com",
         address: "г. Ош, ул. Московская 67",
         description: "Электроника",
+        inn_passport: "98217341232",
         type: "sender",
       },
       {
@@ -87,8 +90,9 @@ const run = async () => {
         email: "recipient2@gmail.com",
         address: "г. Санкт-Петербург, Невский пр. 89",
         description: "Электроника",
+        inn_passport: "01293547",
         type: "recipient",
-      },
+      }
     );
 
   await Parcel.create([
@@ -102,9 +106,9 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
-        deliveryType: "pickup",
-        partnerType: "E-Kit",
-        weight: 0.6,
+      deliveryType: "pickup",
+      partnerType: "E-Kit",
+      weight: 0.6,
     },
     {
       trackingNumber: "KGZ-478-QWERTYUIOP 2",
@@ -116,8 +120,8 @@ const run = async () => {
       status: "accepted",
       isPaid: true,
       partnerStickerReceived: true,
-        deliveryType: "pickup",
-        partnerType: "E-Kit",
+      deliveryType: "pickup",
+      partnerType: "E-Kit",
       weight: 1.25,
     },
     {
@@ -130,8 +134,8 @@ const run = async () => {
       status: "draft",
       isPaid: false,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 2.1,
     },
     {
@@ -144,8 +148,8 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 0.8,
     },
     {
@@ -158,8 +162,8 @@ const run = async () => {
       status: "accepted",
       isPaid: true,
       partnerStickerReceived: true,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 1.4,
     },
     {
@@ -172,8 +176,8 @@ const run = async () => {
       status: "draft",
       isPaid: false,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 3.2,
     },
     {
@@ -186,8 +190,8 @@ const run = async () => {
       status: "shipped",
       isPaid: true,
       partnerStickerReceived: true,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 0.55,
     },
     {
@@ -200,8 +204,8 @@ const run = async () => {
       status: "accepted",
       isPaid: true,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 1.1,
     },
     {
@@ -214,8 +218,8 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 1.9,
     },
     {
@@ -228,8 +232,8 @@ const run = async () => {
       status: "shipped",
       isPaid: true,
       partnerStickerReceived: true,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 0.7,
     },
     {
@@ -242,8 +246,8 @@ const run = async () => {
       status: "draft",
       isPaid: false,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 2.0,
     },
     {
@@ -256,8 +260,8 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 1.3,
     },
     {
@@ -270,8 +274,8 @@ const run = async () => {
       status: "accepted",
       isPaid: true,
       partnerStickerReceived: true,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 4.1,
     },
     {
@@ -284,8 +288,8 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 0.9,
     },
     {
@@ -298,8 +302,8 @@ const run = async () => {
       status: "draft",
       isPaid: false,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 2.5,
     },
     {
@@ -312,8 +316,8 @@ const run = async () => {
       status: "shipped",
       isPaid: true,
       partnerStickerReceived: true,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 1.45,
     },
     {
@@ -326,8 +330,8 @@ const run = async () => {
       status: "accepted",
       isPaid: true,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 3.3,
     },
     {
@@ -340,8 +344,8 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 0.75,
     },
     {
@@ -354,8 +358,8 @@ const run = async () => {
       status: "shipped",
       isPaid: true,
       partnerStickerReceived: true,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 1.6,
     },
     {
@@ -368,8 +372,8 @@ const run = async () => {
       status: "draft",
       isPaid: false,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 2.9,
     },
     {
@@ -382,8 +386,8 @@ const run = async () => {
       status: "accepted",
       isPaid: true,
       partnerStickerReceived: true,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 3.7,
     },
     {
@@ -396,8 +400,8 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 1.0,
     },
     {
@@ -410,10 +414,10 @@ const run = async () => {
       status: "shipped",
       isPaid: true,
       partnerStickerReceived: true,
-        deliveryType: "courier",
-        partnerType: "KCE",
+      deliveryType: "courier",
+      partnerType: "KCE",
       weight: 2.2,
-    }
+    },
   ]);
 
   const fullHistoryParcel = new Parcel({
@@ -444,7 +448,7 @@ const run = async () => {
         atPickupPointAt: new Date("2025-11-18T15:00:00Z"),
         deliveredAt: new Date("2025-11-19T11:00:00Z"),
       },
-    },
+    }
   );
 
   await db.close();
