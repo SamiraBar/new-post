@@ -102,7 +102,9 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
-      weight: 0.6,
+        deliveryType: "pickup",
+        partnerType: "E-Kit",
+        weight: 0.6,
     },
     {
       trackingNumber: "KGZ-478-QWERTYUIOP 2",
@@ -114,6 +116,8 @@ const run = async () => {
       status: "accepted",
       isPaid: true,
       partnerStickerReceived: true,
+        deliveryType: "pickup",
+        partnerType: "E-Kit",
       weight: 1.25,
     },
     {
@@ -126,6 +130,8 @@ const run = async () => {
       status: "draft",
       isPaid: false,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 2.1,
     },
     {
@@ -138,6 +144,8 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 0.8,
     },
     {
@@ -150,6 +158,8 @@ const run = async () => {
       status: "accepted",
       isPaid: true,
       partnerStickerReceived: true,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 1.4,
     },
     {
@@ -162,6 +172,8 @@ const run = async () => {
       status: "draft",
       isPaid: false,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 3.2,
     },
     {
@@ -174,6 +186,8 @@ const run = async () => {
       status: "shipped",
       isPaid: true,
       partnerStickerReceived: true,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 0.55,
     },
     {
@@ -186,6 +200,8 @@ const run = async () => {
       status: "accepted",
       isPaid: true,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 1.1,
     },
     {
@@ -198,6 +214,8 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 1.9,
     },
     {
@@ -210,6 +228,8 @@ const run = async () => {
       status: "shipped",
       isPaid: true,
       partnerStickerReceived: true,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 0.7,
     },
     {
@@ -222,6 +242,8 @@ const run = async () => {
       status: "draft",
       isPaid: false,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 2.0,
     },
     {
@@ -234,6 +256,8 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 1.3,
     },
     {
@@ -246,6 +270,8 @@ const run = async () => {
       status: "accepted",
       isPaid: true,
       partnerStickerReceived: true,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 4.1,
     },
     {
@@ -258,6 +284,8 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 0.9,
     },
     {
@@ -270,6 +298,8 @@ const run = async () => {
       status: "draft",
       isPaid: false,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 2.5,
     },
     {
@@ -282,6 +312,8 @@ const run = async () => {
       status: "shipped",
       isPaid: true,
       partnerStickerReceived: true,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 1.45,
     },
     {
@@ -294,6 +326,8 @@ const run = async () => {
       status: "accepted",
       isPaid: true,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 3.3,
     },
     {
@@ -306,6 +340,8 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 0.75,
     },
     {
@@ -318,6 +354,8 @@ const run = async () => {
       status: "shipped",
       isPaid: true,
       partnerStickerReceived: true,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 1.6,
     },
     {
@@ -330,6 +368,8 @@ const run = async () => {
       status: "draft",
       isPaid: false,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 2.9,
     },
     {
@@ -342,6 +382,8 @@ const run = async () => {
       status: "accepted",
       isPaid: true,
       partnerStickerReceived: true,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 3.7,
     },
     {
@@ -354,6 +396,8 @@ const run = async () => {
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 1.0,
     },
     {
@@ -366,6 +410,8 @@ const run = async () => {
       status: "shipped",
       isPaid: true,
       partnerStickerReceived: true,
+        deliveryType: "courier",
+        partnerType: "KCE",
       weight: 2.2,
     }
   ]);

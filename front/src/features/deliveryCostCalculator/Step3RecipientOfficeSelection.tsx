@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 interface Props {
   order: Order;
   setOrder: Dispatch<SetStateAction<Order>>;
+  handleNext: () => void;
 }
 
 const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
