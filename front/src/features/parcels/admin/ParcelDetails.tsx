@@ -17,6 +17,7 @@ import ParcelStatus from '@/features/parcels/admin/ParcelStatus';
 import useParcelsStore from '../../../stores/parcelsStore/parcelsStore.ts';
 import ParcelItem from '@/features/parcels/ParcelItem.tsx';
 import { toast } from 'sonner';
+import PartnerTrackingRow from '../PartnerTrackingRow.tsx';
 
 const ParcelDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -61,7 +62,6 @@ const ParcelDetails = () => {
                 ['Трек Номер Новая Почта', parcel.trackingNumber],
                 ['Дата создания', new Date(parcel.draftedAt).toLocaleString()],
                 ['Дата оплаты', parcel.isPaid ? 'Оплачено' : 'Не оплачено'],
-                ['Трек номер партнера', parcel.partnerTrackingNumber || '-'],
               ].map(([label, value], i) => (
                 <div
                   key={i}
@@ -76,6 +76,7 @@ const ParcelDetails = () => {
                   </div>
                 </div>
               ))}
+              <PartnerTrackingRow parcel={parcel} />
             </div>
           </div>
 

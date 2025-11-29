@@ -298,3 +298,46 @@ export const updateParcelStatus = async (
     next(e);
   }
 };
+
+export const updatePartnerTrackingNumber = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { id } = req.params;
+        const { partnerTrackingNumber } = req.body;
+
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({ error: "Invalid parcel ID" });
+        }
+
+        const parcel = await Parcel.findById(id);
+
+        if (!parcel) {
+            return res.status(404).json({ error: "Parcel not found" });
+        }
+
+        if (parcel.deliveryType !== "courier") {
+            return res.status(400).json({
+                error:
+                    "partnerTrackingNumber can only be updated for courier deliveries",
+            });
+        }
+
+        parcel.partnerTrackingNumber = partnerTrackingNumber || null;
+
+        await parcel.save();
+
+        const fresh = await Parcel.findById(id)
+            .populate("sender")
+            .populate("recipient");
+
+        res.json({
+            message: "partnerTrackingNumber updated successfully",
+            parcel: fresh,
+        });
+    } catch (e) {
+        next(e);
+    }
+};
