@@ -24,7 +24,7 @@ parcelsRouter.patch(
 );
 
 parcelsRouter.patch(
-    "/:id/partner-tracking",
+    "/:id/partner-tracking-number",
     auth,
     updatePartnerTrackingNumber,
 );

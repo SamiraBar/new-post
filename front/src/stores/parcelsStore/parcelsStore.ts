@@ -19,6 +19,7 @@ interface ExtendedParcelState extends ParcelState {
   createParcel: (order: Order) => Promise<string | null>;
   updatePartnerTrackingNumberLoading: boolean;
   updatePartnerTrackingNumberError: { error: string } | null;
+  updatePartnerTrackingNumber: (id: string, partnerTrackingNumber: string | null) => Promise<boolean>;
 }
 
 export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
