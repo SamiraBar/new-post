@@ -17,6 +17,8 @@ interface ExtendedParcelState extends ParcelState {
   createParcelError: { error: string } | null;
   createdTrackingNumber: string | null;
   createParcel: (order: Order) => Promise<string | null>;
+  updatePartnerTrackingNumberLoading: boolean;
+  updatePartnerTrackingNumberError: { error: string } | null;
 }
 
 export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
@@ -33,6 +35,8 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
   createParcelError: null,
   createdTrackingNumber: null,
   searchFilters: {},
+  updatePartnerTrackingNumberLoading: false,
+  updatePartnerTrackingNumberError: null,
 
   setSearchFilters(filters: SearchFilters) {
     set({ searchFilters: filters });
@@ -215,6 +219,27 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       });
 
       return null;
+    }
+  },
+
+  async updatePartnerTrackingNumber(id: string, partnerTrackingNumber: string | null) {
+    set({ updatePartnerTrackingNumberLoading: true, updatePartnerTrackingNumberError: null });
+    try {
+      const { data } = await axiosApi.patch<{ message: string; parcel: IParcel }>(
+        `/parcels/${id}/partner-tracking-number`,
+        { partnerTrackingNumber }
+      );
+      set({ parcel: data.parcel, updatePartnerTrackingNumberLoading: false });
+      get().getParcels(1);
+      return true;
+    } catch (e: unknown) {
+      let errorMessage = 'Failed to update partnerTrackingNumber';
+      if (axios.isAxiosError(e)) errorMessage = e.response?.data?.error || e.message;
+      else if (e instanceof Error) errorMessage = e.message;
+      else if (typeof e === 'string') errorMessage = e;
+
+      set({ updatePartnerTrackingNumberError: { error: errorMessage }, updatePartnerTrackingNumberLoading: false });
+      return false;
     }
   },
 }));
