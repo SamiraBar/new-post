@@ -34,6 +34,7 @@ export interface IParcel {
     description?: string;
     type: 'sender';
     createdAt: Date;
+    inn_passport: string;
   };
   recipient: {
     _id: string;
@@ -70,6 +71,7 @@ interface Sender {
   name: string;
   email: string;
   phone: string;
+  inn_passport: string;
 }
 
 export interface Receiver {
@@ -83,8 +85,8 @@ export interface Receiver {
   apartment?: string;
 }
 
-export type DeliveryType = "courier" | "pickup";
-export type PartnerType = "E-Kit" | "KCE";
+export type DeliveryType = 'courier' | 'pickup';
+export type PartnerType = 'E-Kit' | 'KCE';
 
 export interface Order {
   originCity: string;
@@ -117,4 +119,3 @@ export interface PaginatedParcelsResponse {
   currentPage: number;
   total: number;
 }
-
