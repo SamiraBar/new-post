@@ -216,7 +216,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
               <div>
                 <div className="flex items-center mb-1">
-                  <FieldLabel className="text-sm">ИНН</FieldLabel>
+                  <FieldLabel className="text-sm">ИНН/Паспорт</FieldLabel>
                   {isSenderInnPassportValid ? (
                     <CheckCircle className="ml-2 text-green-500" size={16} />
                   ) : (
@@ -224,7 +224,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
                   )}
                 </div>
                 <Input
-                  placeholder="ИНН"
+                  placeholder="ИНН/Паспорт"
                   type="string"
                   className={`bg-gray-50 ${!isSenderInnPassportValid && order.sender.inn_passport && 'border-red-300'}`}
                   name="inn_passport"
