@@ -110,6 +110,13 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
             };
 
             mapInstanceRef.current = window.measoftMap.config(config).init();
+
+            if (order.destinationCity && order.destinationCity.trim() !== '') {
+                setTimeout(() => {
+                    centerMapOnCity(order.destinationCity);
+                }, 2000);
+            }
+
         } catch (error) {
             console.error('Ошибка инициализации карты ПВЗ:', error);
         }
@@ -119,7 +126,58 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
                 mapInstanceRef.current.close();
             }
         };
-    }, [isScriptLoaded, order.parcelWeight, clientId, clientCode, onPvzSelect]);
+    }, [isScriptLoaded, order.destinationCity, order.parcelWeight, clientId, clientCode, onPvzSelect]);
+
+    const centerMapOnCity = async (cityName: string) => {
+        try {
+            console.log(`🔍 Ищем координаты для города: ${cityName}`);
+
+            const xml = `<?xml version="1.0" encoding="UTF-8" ?>
+                <townlist>
+                    <conditions>
+                        <namestarts>${cityName}</namestarts>
+                    </conditions>
+                    <limit>
+                        <limitcount>1</limitcount>
+                    </limit>
+                </townlist>`;
+
+            const response = await fetch('https://home.courierexe.ru/api/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: xml
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const responseText = await response.text();
+
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(responseText, 'text/xml');
+            const towns = xmlDoc.getElementsByTagName('town');
+
+            if (towns.length > 0) {
+                const coords = towns[0].getElementsByTagName('coords')[0];
+                const lat = coords.getAttribute('lat');
+                const lon = coords.getAttribute('lon');
+
+                if (lat && lon && window.measoftMap?.map) {
+                    window.measoftMap.map.setView([lat, lon], 11);
+                    console.log(`Карта центрирована на: ${cityName} (${lat}, ${lon})`);
+                } else {
+                    console.warn(' Координаты получены, но карта недоступна');
+                }
+            } else {
+                console.warn(`Город "${cityName}" не найден в базе MeaSoft`);
+            }
+        } catch (error) {
+            console.error('Ошибка при центрировании карты на городе:', error);
+        }
+    };
 
     return (
         <div className="w-full">

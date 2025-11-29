@@ -26,7 +26,7 @@ export interface IParcel {
   originOffice?: number;
   destinationOffice?: number;
   pvzData?: PvzData;
-  status: 'draft' | 'created' | 'accepted' | 'shipped' | 'in_country' | 'in_city' | 'at_pickup_point' | 'delivered'; // ← ОБНОВИ СТАТУСЫ
+  status: 'draft' | 'created' | 'accepted' | 'shipped' | 'in_country' | 'in_city' | 'at_pickup_point' | 'delivered';
   isPaid: boolean;
   partnerStickerReceived: boolean;
   weight: number;
@@ -133,7 +133,6 @@ export interface Order {
   receiver: Receiver;
   deliveryType: DeliveryType;
   partnerType: PartnerType;
-
   pvzData?: PvzData;
 }
 
@@ -151,6 +150,36 @@ export interface PvzData {
   region?: string;
   acceptcash?: number;
   acceptcard?: number;
+}
+
+export interface PaginatedParcelsResponse {
+  parcels: IParcel[];
+  hasMore: boolean;
+  currentPage: number;
+  total: number;
+}
+
+export type LatLngTuple = [number, string] | [string, string];
+
+export interface LeafletMap {
+  setView(center: LatLngTuple, zoom: number): LeafletMap;
+  getCenter(): LeafletLatLng;
+  getZoom(): number;
+  closePopup(): LeafletMap;
+  invalidateSize(): void;
+  remove(): void;
+}
+
+export interface LeafletLatLng {
+  lat: number;
+  lng: number;
+}
+
+export interface PvzFilter {
+  maxweight?: number;
+  acceptcash?: number;
+  acceptcard?: number;
+  acceptfitting?: number;
 }
 
 export interface MeasoftMapConfig {
@@ -172,20 +201,12 @@ export interface MeasoftMapConfig {
   windowFixedPosition: string;
 }
 
-export interface PvzFilter {
-  maxweight?: number;
-  acceptcash?: number;
-  acceptcard?: number;
-  acceptfitting?: number;
-}
-
 export interface MeasoftMapProps {
   order: Order;
   onPvzSelect: (pvzData: PvzData) => void;
   clientId?: string;
   clientCode?: string;
 }
-
 
 export interface MeasoftMapInstance {
   config: (config: MeasoftMapConfig) => MeasoftMapInstance;
@@ -207,13 +228,5 @@ export interface MeasoftMapGlobal {
   init: () => MeasoftMapInstance;
   close?: () => void;
   getSelectedPvzData: () => MeasoftPvzData | null;
+  map?: LeafletMap;
 }
-
-export interface PaginatedParcelsResponse {
-  parcels: IParcel[];
-  hasMore: boolean;
-  currentPage: number;
-  total: number;
-}
-
-
