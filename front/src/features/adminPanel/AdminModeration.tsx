@@ -19,6 +19,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert.tsx';
+import { toast } from 'sonner';
 
 const AdminModeration = () => {
   const admin = useAdminStore((s) => s.admin);
@@ -60,10 +61,15 @@ const AdminModeration = () => {
     await getAllAdmins();
   };
 
-  const handleEditAdmin = async () => {
+  const handleEditAdmin = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!editAdminState.email.includes('@') || !editAdminState.email.includes('.')) {
+      return toast.error('Email должен содержать символы "@" и "."');
+    }
     const success = await editAdmin(editAdminState);
     await getAllAdmins();
     if (success) setEditingAdminId(null);
+    return toast.success('Даннные обновлены');
   };
 
   const submitFormHandler = async (e: FormEvent) => {
@@ -188,7 +194,6 @@ const AdminModeration = () => {
 
                 {a.role !== 'superAdmin' && (
                   <div className="flex gap-2 pt-2">
-                    {/* Удаление */}
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="destructive">Удалить</Button>
@@ -233,62 +238,64 @@ const AdminModeration = () => {
                           Редактировать
                         </Button>
                       </AlertDialogTrigger>
+                        <AlertDialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg z-50">
+                          <form onSubmit={handleEditAdmin}>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="text-center">Редактировать</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Внесите изменения в данные администратора и сохраните их.
+                            </AlertDialogDescription>
 
-                      <AlertDialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg z-50">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle className="text-center">Редактировать</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Внесите изменения в данные администратора и сохраните их.
-                          </AlertDialogDescription>
+                            <div className="space-y-4 mt-4">
+                              <div className="flex flex-col space-y-1">
+                                <Label>Имя</Label>
+                                <Input
+                                  value={editAdminState.displayName}
+                                  onChange={(e) =>
+                                    setEditAdminState(prev => ({ ...prev, displayName: e.target.value }))
+                                  }
+                                />
+                              </div>
 
-                          <div className="space-y-4 mt-4">
-                            <div className="flex flex-col space-y-1">
-                              <Label>Имя</Label>
-                              <Input
-                                value={editAdminState.displayName}
-                                onChange={(e) =>
-                                  setEditAdminState(prev => ({ ...prev, displayName: e.target.value }))
-                                }
-                              />
+                              <div className="flex flex-col space-y-1">
+                                <Label>Почта</Label>
+                                <Input
+                                  type="email"
+                                  value={editAdminState.email}
+                                  onChange={(e) =>
+                                    setEditAdminState(prev => ({ ...prev, email: e.target.value }))
+                                  }
+                                />
+                              </div>
+
+                              <div className="flex flex-col space-y-1">
+                                <Label>Пароль</Label>
+                                <Input
+                                  placeholder="Оставьте пустым для сохранения текущего пароля"
+                                  value={editAdminState.password}
+                                  onChange={(e) =>
+                                    setEditAdminState(prev => ({ ...prev, password: e.target.value }))
+                                  }
+                                />
+                              </div>
                             </div>
 
-                            <div className="flex flex-col space-y-1">
-                              <Label>Почта</Label>
-                              <Input
-                                value={editAdminState.email}
-                                onChange={(e) =>
-                                  setEditAdminState(prev => ({ ...prev, email: e.target.value }))
-                                }
-                              />
-                            </div>
+                            {editAdminError && (
+                              <Alert variant="destructive" className="w-full mt-2">
+                                <AlertCircleIcon />
+                                <AlertDescription>{editAdminError}</AlertDescription>
+                              </Alert>
+                            )}
+                          </AlertDialogHeader>
 
-                            <div className="flex flex-col space-y-1">
-                              <Label>Пароль</Label>
-                              <Input
-                                placeholder="Оставьте пустым для сохранения текущего пароля"
-                                value={editAdminState.password}
-                                onChange={(e) =>
-                                  setEditAdminState(prev => ({ ...prev, password: e.target.value }))
-                                }
-                              />
-                            </div>
-                          </div>
-
-                          {editAdminError && (
-                            <Alert variant="destructive" className="w-full mt-2">
-                              <AlertCircleIcon />
-                              <AlertDescription>{editAdminError}</AlertDescription>
-                            </Alert>
-                          )}
-                        </AlertDialogHeader>
-
-                        <AlertDialogFooter className="mt-4">
-                          <AlertDialogCancel>Отменить изменения</AlertDialogCancel>
-                          <Button onClick={handleEditAdmin} className="bg-brand text-white">
-                            Сохранить
-                          </Button>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
+                          <AlertDialogFooter className="mt-4">
+                            <AlertDialogCancel>Отменить изменения</AlertDialogCancel>
+                            <Button type="submit" className="bg-brand text-white">
+                              Сохранить
+                            </Button>
+                          </AlertDialogFooter>
+                          </form>
+                        </AlertDialogContent>
                     </AlertDialog>
                   </div>
                 )}
