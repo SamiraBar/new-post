@@ -70,12 +70,32 @@ const ParcelItem = ({ parcel }: Props) => {
           <span className="text-gray-700 bg-gray-300 py-1 px-3 rounded-2xl text-xs md:text-sm font-medium">
             KG312-1
           </span>
+
           <div className="flex gap-1">
             <Play size={12} fill="currentColor" />
             <Play size={12} fill="currentColor" />
           </div>
+
           <p className="font-bold m-0 text-base md:text-lg">{trackingNumber}</p>
+
           <div className="flex md:flex-row md:items-center gap-3 md:ml-auto sm:flex-col sm:items-start">
+            <div
+              className="
+                flex items-center gap-2
+                rounded-lg px-2.5 py-1.5
+                bg-gradient-to-r from-orange-300 to-orange-400
+                shadow text-white
+              "
+            >
+              <div className="flex items-center justify-center w-7 h-7 bg-white/20 rounded-md">
+                <Package size={15} strokeWidth={2} className="text-white" />
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className="text-[11px] font-semibold drop-shadow-sm">{deliveryLabel}</span>
+                <span className="text-[9px] opacity-90 font-medium">{partnerType}</span>
+              </div>
+            </div>
+
             <p className="font-bold m-0 text-base md:text-lg">{partnerTrackingNumber}</p>
             <span className="text-gray-500 text-sm">(трек номер партнера)</span>
           </div>
@@ -138,22 +158,6 @@ const ParcelItem = ({ parcel }: Props) => {
               )}
 
               <div className="flex gap-4 items-center">
-                <div
-                  className="
-                    flex items-center gap-2
-                    rounded-lg px-2.5 py-1.5
-                    bg-gradient-to-r from-orange-300 to-orange-400
-                    shadow text-white
-                  "
-                >
-                  <div className="flex items-center justify-center w-7 h-7 bg-white/20 rounded-md">
-                    <Package size={15} strokeWidth={2} className="text-white" />
-                  </div>
-                  <div className="flex flex-col leading-tight">
-                    <span className="text-[11px] font-semibold drop-shadow-sm">{deliveryLabel}</span>
-                    <span className="text-[9px] opacity-90 font-medium">{partnerType}</span>
-                  </div>
-                </div>
 
                 <div className="flex gap-2 items-center">
                   <img src={icWeight} alt="Weight icon" className="w-5 h-5" />
@@ -161,6 +165,7 @@ const ParcelItem = ({ parcel }: Props) => {
                     Вес: {weight} кг
                   </p>
                 </div>
+
               </div>
             </div>
           </div>
