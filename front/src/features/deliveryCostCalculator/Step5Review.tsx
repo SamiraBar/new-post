@@ -39,7 +39,9 @@ const Step5Review: FC<Props> = ({ order, doorDelivery }) => {
             <div>
               <p className="text-sm text-gray-500">{t('deliveryCostCalculator.stepFive.where')}</p>
               <p className="font-semibold">{order.originCity}</p>
-              <p className="text-sm text-gray-600">Офис #{order.originOffice}</p>
+              <p className="text-sm text-gray-600">
+                {t('deliveryCostCalculator.stepFive.office')} #{order.originOffice}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-500">
@@ -51,7 +53,9 @@ const Step5Review: FC<Props> = ({ order, doorDelivery }) => {
                   {doorDelivery ? 'Адрес' : 'Офис'} #{order.receiver.address}
                 </p>
               ) : (
-                <p className="text-sm text-gray-600">Офис #{order.destinationOffice}</p>
+                <p className="text-sm text-gray-600">
+                  {t('deliveryCostCalculator.stepFive.office')} #{order.destinationOffice}
+                </p>
               )}
             </div>
           </div>
@@ -79,7 +83,9 @@ const Step5Review: FC<Props> = ({ order, doorDelivery }) => {
             </div>
             <div>
               <p className="text-sm text-gray-500">{t('deliveryCostCalculator.stepFive.date')}</p>
-              <p className="font-semibold">{order.deliveryDate || 'Не указано'}</p>
+              <p className="font-semibold">
+                {order.deliveryDate || t('deliveryCostCalculator.stepFive.notSpecified')}
+              </p>
             </div>
           </div>
         </div>
@@ -133,11 +139,11 @@ const Step5Review: FC<Props> = ({ order, doorDelivery }) => {
           </h4>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <p className="text-gray-700">Доставка</p>
+              <p className="text-gray-700">{t('deliveryCostCalculator.stepFive.delivery')}</p>
               <p className="font-semibold">{order.deliveryCost} сом</p>
             </div>
             <div className="flex justify-between">
-              <p className="text-gray-700">Страховка</p>
+              <p className="text-gray-700">{t('deliveryCostCalculator.stepFive.insurance')}</p>
               <p className="font-semibold">{order.insuranceCost} сом</p>
             </div>
             <hr className="border-orange-300" />
