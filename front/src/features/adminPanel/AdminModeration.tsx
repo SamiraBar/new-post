@@ -67,9 +67,11 @@ const AdminModeration = () => {
       return toast.error('Email должен содержать символы "@" и "."');
     }
     const success = await editAdmin(editAdminState);
-    await getAllAdmins();
-    if (success) setEditingAdminId(null);
-    return toast.success('Даннные обновлены');
+    if (success) {
+      await getAllAdmins();
+      if (success) setEditingAdminId(null);
+      return toast.success('Даннные обновлены');
+    }
   };
 
   const submitFormHandler = async (e: FormEvent) => {
