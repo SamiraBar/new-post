@@ -58,7 +58,7 @@ export const validateStep4 = (order: Order, isDoorDelivery: boolean): string | n
     return 'Некорректный номер телефона отправителя';
   }
   if (!validateInnPassport(order.sender.inn_passport)) {
-    return 'Некорректный ИНН отправителя';
+    return 'Некорректный ИНН/Паспорт отправителя';
   }
 
   if (!order.receiver.name || order.receiver.name.trim().length < 2) {
