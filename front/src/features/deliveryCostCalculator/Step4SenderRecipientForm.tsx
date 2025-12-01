@@ -5,7 +5,7 @@ import type { Order } from '@/types';
 import type { ChangeEvent, FC } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { validateEmail, validatePhone } from '@/lib/validation';
+import { validateEmail, validateInnPassport, validatePhone } from '@/lib/validation';
 import { CheckCircle, XCircle } from 'lucide-react';
 import PhoneInput from '@/features/deliveryCostCalculator/components/phoneInput.tsx';
 
@@ -33,7 +33,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
     if (name === 'name') {
       if (!value || value.trim().length < 2) {
-        errors[`${type}.name`] = t('deliveryCostCalculator.stepForForm.errors.nameError');
+        errors[`${type}.name`] = 'Имя должно быть минимум 2 символа';
       } else {
         delete errors[`${type}.name`];
       }
@@ -41,7 +41,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
     if (name === 'email') {
       if (!validateEmail(value)) {
-        errors[`${type}.email`] = t('deliveryCostCalculator.stepForForm.errors.emailError');
+        errors[`${type}.email`] = 'Некорректный email';
       } else {
         delete errors[`${type}.email`];
       }
@@ -49,15 +49,23 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
     if (name === 'phone') {
       if (!validatePhone(value)) {
-        errors[`${type}.phone`] = t('deliveryCostCalculator.stepForForm.errors.phoneError');
+        errors[`${type}.phone`] = 'Некорректный номер телефона';
       } else {
         delete errors[`${type}.phone`];
       }
     }
 
+    if (name === 'inn_passport') {
+      if (!validateInnPassport(value)) {
+        errors[`${type}.inn_passport`] = 'Некорректный ИНН отправителя';
+      } else {
+        delete errors[`${type}.inn_passport`];
+      }
+    }
+
     if (name === 'inParcel') {
       if (!value || value.trim().length < 3) {
-        errors.inParcel = t('deliveryCostCalculator.stepForForm.errors.inParcelError');
+        errors.inParcel = 'Опишите содержимое посылки';
       } else {
         delete errors.inParcel;
       }
@@ -65,7 +73,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
     if (name === 'address' && doorDelivery) {
       if (!value || value.trim().length < 5) {
-        errors.address = t('deliveryCostCalculator.stepForForm.errors.addressError');
+        errors.address = 'Укажите полный адрес';
       } else {
         delete errors.address;
       }
@@ -102,6 +110,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
   const isSenderNameValid = order.sender.name?.trim().length >= 2;
   const isSenderEmailValid = validateEmail(order.sender.email);
   const isSenderPhoneValid = validatePhone(order.sender.phone);
+  const isSenderInnPassportValid = validateInnPassport(order.sender.inn_passport);
   const isReceiverNameValid = order.receiver.name?.trim().length >= 2;
   const isReceiverEmailValid = validateEmail(order.receiver.email);
   const isReceiverPhoneValid = validatePhone(order.receiver.phone);
@@ -118,10 +127,10 @@ const Step4SenderRecipientForm: FC<Props> = ({
       <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <div className="flex items-center gap-2 text-blue-800">
           <CheckCircle size={20} />
-          <span className="font-medium">{t('deliveryCostCalculator.stepForForm.span')}</span>
+          <span className="font-medium">Проверьте правильность данных</span>
         </div>
         <p className="text-blue-600 text-sm mt-1">
-          {t('deliveryCostCalculator.stepForForm.warning')}
+          Все поля обязательны для заполнения. Проверьте корректность email и номеров телефонов.
         </p>
       </div>
 
@@ -134,7 +143,10 @@ const Step4SenderRecipientForm: FC<Props> = ({
                   {t('deliveryCostCalculator.stepForForm.inputOneTitle')}
                 </FieldLabel>
                 <div className="flex items-center gap-1">
-                  {isSenderNameValid && isSenderEmailValid && isSenderPhoneValid ? (
+                  {isSenderNameValid &&
+                  isSenderEmailValid &&
+                  isSenderPhoneValid &&
+                  isSenderInnPassportValid ? (
                     <CheckCircle className="text-green-500" size={20} />
                   ) : (
                     <XCircle className="text-gray-300" size={20} />
@@ -199,6 +211,28 @@ const Step4SenderRecipientForm: FC<Props> = ({
                 />
                 {fieldErrors['sender.email'] && (
                   <p className="text-red-500 text-xs mt-1">{fieldErrors['sender.email']}</p>
+                )}
+              </div>
+
+              <div>
+                <div className="flex items-center mb-1">
+                  <FieldLabel className="text-sm">ИНН/Паспорт</FieldLabel>
+                  {isSenderInnPassportValid ? (
+                    <CheckCircle className="ml-2 text-green-500" size={16} />
+                  ) : (
+                    <XCircle className="ml-2 text-gray-300" size={16} />
+                  )}
+                </div>
+                <Input
+                  placeholder="ИНН/Паспорт"
+                  type="string"
+                  className={`bg-gray-50 ${!isSenderInnPassportValid && order.sender.inn_passport && 'border-red-300'}`}
+                  name="inn_passport"
+                  onChange={(e) => handleFieldChange(e, 'sender')}
+                  value={order.sender.inn_passport}
+                />
+                {fieldErrors['sender.inn_passport'] && (
+                  <p className="text-red-500 text-xs mt-1">{fieldErrors['sender.inn_passport']}</p>
                 )}
               </div>
             </FieldGroup>
@@ -308,9 +342,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
               <div>
                 <div className="flex items-center mb-1">
-                  <FieldLabel className="text-sm">
-                    {t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
-                  </FieldLabel>
+                  <FieldLabel className="text-sm">Содержимое посылки</FieldLabel>
                   {isInParcelValid ? (
                     <CheckCircle className="ml-2 text-green-500" size={16} />
                   ) : (
@@ -329,16 +361,14 @@ const Step4SenderRecipientForm: FC<Props> = ({
                   <p className="text-red-500 text-xs mt-1">{fieldErrors.inParcel}</p>
                 )}
                 <p className="text-gray-500 text-sm mt-1">
-                  {t('deliveryCostCalculator.stepForForm.inputOneParcelContent.Text')}
+                  Опишите что находится в посылке (минимум 3 символа)
                 </p>
               </div>
             </div>
           ) : (
             <div className="mt-6">
               <div className="flex items-center mb-1">
-                <FieldLabel className="text-lg font-semibold">
-                  {t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
-                </FieldLabel>
+                <FieldLabel className="text-lg font-semibold">Содержимое посылки</FieldLabel>
                 {isInParcelValid ? (
                   <CheckCircle className="ml-2 text-green-500" size={20} />
                 ) : (
@@ -357,7 +387,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.inParcel}</p>
               )}
               <p className="text-gray-500 text-sm mt-1">
-                {t('deliveryCostCalculator.stepForForm.inputOneParcelContent.Text')}
+                Опишите что находится в посылке (минимум 3 символа)
               </p>
             </div>
           )}

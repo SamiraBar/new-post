@@ -47,8 +47,8 @@ const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
 
       <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <p className="text-blue-800 text-sm">
-          <span className="font-medium">{t('deliveryCostCalculator.stepTwoForm.spanOne')}</span>{' '}
-          {t('deliveryCostCalculator.stepTwoForm.spanTwo')}
+          <span className="font-medium">Выберите офис отправки.</span> Вы сможете сдать посылку в
+          выбранном офисе.
         </p>
       </div>
 
@@ -66,7 +66,7 @@ const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
                 hover:shadow-lg hover:border-orange-300 hover:scale-[1.02]
                 ${
                   isSelected
-                    ? 'border-orange-500 bg-gradient-to-br from-orange-50 to-orange-100 shadow-xl scale-105 ring-2 ring-orange-200'
+                    ? 'border-orange-500 bg-linear-to-br from-orange-50 to-orange-100 shadow-xl scale-105 ring-2 ring-orange-200'
                     : 'border-gray-300 bg-white'
                 }
               `}
@@ -80,20 +80,18 @@ const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
               <div className="flex flex-col h-full">
                 <div className="flex items-start gap-2 mb-2">
                   <MapPin
-                    className={`flex-shrink-0 mt-1 ${isSelected ? 'text-orange-500' : 'text-gray-400'}`}
+                    className={`shrink-0 mt-1 ${isSelected ? 'text-orange-500' : 'text-gray-400'}`}
                     size={20}
                   />
                   <h4 className="font-bold text-lg text-gray-800">{office.name}</h4>
                 </div>
 
-                <p className="text-gray-600 flex-grow">{office.address}</p>
+                <p className="text-gray-600 grow">{office.address}</p>
 
                 <div
                   className={`mt-3 text-sm font-medium ${isSelected ? 'text-orange-600' : 'text-gray-500'}`}
                 >
-                  {isSelected
-                    ? '✓' + t('deliveryCostCalculator.stepTwoForm.checkSelected')
-                    : t('deliveryCostCalculator.stepTwoForm.checkSelect')}
+                  {isSelected ? '✓ Выбран' : 'Нажмите для выбора'}
                 </div>
               </div>
             </button>
@@ -103,7 +101,7 @@ const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
       {!isOfficeSelected && (
         <div className="mt-4 p-3 bg-amber-50 border border-amber-300 rounded-lg mx-5">
           <p className="text-amber-700 text-sm font-medium">
-            ⚠️ {t('deliveryCostCalculator.stepTwoForm.warning')}
+            ⚠️ Пожалуйста, выберите офис отправки
           </p>
         </div>
       )}

@@ -14,6 +14,7 @@ const ParcelsList = () => {
     getParcelsError,
     searchFilters,
   } = useParcelsStore();
+  const notFound = parcelsResponse && parcelsResponse.parcels.length === 0
 
   useEffect(() => {
     if (!parcels || parcels.length === 0) {
@@ -65,7 +66,7 @@ const ParcelsList = () => {
     );
   }
 
-  if (!parcels || parcels.length === 0) {
+  if (notFound) {
     return (
       <div className="container flex justify-center py-12">
         <Alert className="max-w-md border-gray-200 bg-linear-to-br from-gray-50 to-gray-100/50 shadow-lg">
@@ -119,7 +120,7 @@ const ParcelsList = () => {
 
       <ScrollArea className="flex-1 overflow-y-auto">
         <div className="space-y-2 pb-6">
-          {parcels.map((parcel) => (
+          {parcels?.map((parcel) => (
             <ParcelItem key={parcel._id} parcel={parcel} />
           ))}
         </div>

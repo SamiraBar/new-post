@@ -56,8 +56,8 @@ export const adminCreate = async (req: Request, res: Response, next: NextFunctio
             });
         }
 
-        next(error);
-    }
+    next(error);
+  }
 }
 
 export const adminDelete = async (req: Request, res: Response, next: NextFunction) => {
@@ -99,4 +99,33 @@ export const adminLogout = async (req: Request, res: Response, next: NextFunctio
     } catch (error) {
         next(error);
     }
+};
+
+export const adminEdit = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id;
+    const {
+      displayName,
+      email,
+      password
+    } = req.body;
+    const admin = await Admin.findById(id);
+    if (!admin) return res.status(404).send({error: 'User is not found'});
+    if (displayName) admin.displayName = displayName;
+    if (email) admin.email = email;
+    if (password) admin.password = password;
+    await admin.save();
+    res.status(200).send(admin);
+  } catch (error) {
+    if (error instanceof mongoose.Error.ValidationError) {
+      const errors = Object.values(error.errors).map(err => err.message);
+
+      return res.status(400).send({
+        error: {
+          message: errors.join(', ')
+        }
+      });
+    }
+    next(error);
+  }
 };

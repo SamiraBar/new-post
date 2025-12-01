@@ -58,7 +58,7 @@ const DeliveryCostCalculator = () => {
     totalCost: 0,
     deliveryDate: '',
     inParcel: '',
-    sender: { name: '', email: '', phone: '' },
+    sender: { name: '', email: '', phone: '', inn_passport: '' },
     receiver: { name: '', email: '', phone: '', address: '' },
     deliveryType: 'pickup',
     partnerType: 'E-Kit',
@@ -76,40 +76,40 @@ const DeliveryCostCalculator = () => {
     }));
   }, [isPickup, isDoorDelivery]);
 
-  const calculateDeliveryCost = useCallback(
-    (weight: number) => {
-      if (weight <= 0) return 0;
-      if (weight > 15) return 0;
+  const calculateDeliveryCost = useCallback((weight: number) => {
+    if (weight <= 0) return 0;
+    if (weight > 15) return 0;
 
-      const basePrice = selectedPrice;
-      const roundedWeight = Math.ceil(weight);
+    const basePrice = selectedPrice;
+    const roundedWeight = Math.ceil(weight);
 
-      if (roundedWeight <= 1) {
-        return basePrice;
-      }
+    if (roundedWeight <= 1) {
+      return basePrice;
+    }
 
-      const additionalKg = roundedWeight - 1;
+    let totalCost = basePrice;
+    const additionalKg = roundedWeight - 1;
 
-      if (isPickup) {
-        let pricePerAdditionalKg = 0;
+    if (isPickup) {
+      for (let kg = 1; kg <= additionalKg; kg++) {
+        const currentWeight = kg + 1;
 
-        if (roundedWeight <= 3) {
-          pricePerAdditionalKg = 125;
-        } else if (roundedWeight <= 6) {
-          pricePerAdditionalKg = 135;
-        } else if (roundedWeight <= 12) {
-          pricePerAdditionalKg = 140;
+        if (currentWeight <= 3) {
+          totalCost += 125;
+        } else if (currentWeight <= 6) {
+          totalCost += 135;
+        } else if (currentWeight <= 12) {
+          totalCost += 140;
         } else {
-          pricePerAdditionalKg = 145;
+          totalCost += 145;
         }
-
-        return basePrice + additionalKg * pricePerAdditionalKg;
-      } else {
-        return basePrice + additionalKg * 200;
       }
-    },
-    [selectedPrice, isPickup],
-  );
+    } else {
+      return basePrice + (additionalKg * 200);
+    }
+
+    return totalCost;
+  }, [selectedPrice, isPickup]);
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
@@ -160,7 +160,12 @@ const DeliveryCostCalculator = () => {
       return;
     }
 
-    if (!order.sender.name || !order.sender.email || !order.sender.phone) {
+    if (
+      !order.sender.name ||
+      !order.sender.email ||
+      !order.sender.phone ||
+      !order.sender.inn_passport
+    ) {
       toast.error(t('deliveryCostCalculator.validateError.senderData'));
       return;
     }
@@ -193,7 +198,7 @@ const DeliveryCostCalculator = () => {
         totalCost: 0,
         deliveryDate: '',
         inParcel: '',
-        sender: { name: '', email: '', phone: '' },
+        sender: { name: '', email: '', phone: '', inn_passport: '' },
         receiver: { name: '', email: '', phone: '', address: '' },
         deliveryType: 'pickup',
         partnerType: 'E-Kit',
@@ -203,7 +208,11 @@ const DeliveryCostCalculator = () => {
       setIsAgreed(false);
       clearActions();
     } else {
-      toast.error(createParcelError?.error || t('deliveryCostCalculator.error.failedToCreate'));
+      toast.error(
+        createParcelError?.error ||
+          t('deliveryCostCalculator.error.failedToCreate') ||
+          'Не удалось создать посылку',
+      );
     }
   };
 
@@ -382,7 +391,7 @@ const DeliveryCostCalculator = () => {
               </Button>
 
               {currentStep === 4 && (
-                <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-none">
+                <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-0">
                   <Checkbox checked={isAgreed} onCheckedChange={() => setIsAgreed(!isAgreed)} />
                   <Label className="text-sm text-gray-600 leading-tight">
                     {t('deliveryCostCalculator.buttons.agreement')}

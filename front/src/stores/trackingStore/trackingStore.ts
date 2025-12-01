@@ -168,7 +168,17 @@ export const useTrackingStore = create<TrackingStore>((set, get) => ({
     const { trackNumber } = get();
 
     if (!trackNumber.trim()) {
-      toast.error(i18n.t('deliveryCalculation.toast.enterTrackNumber'));
+      toast.error(i18n.t('deliveryCalculation.toast.enterTrackNumber'), {
+        style: {
+          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+          color: 'white',
+          border: '2px solid #b91c1c',
+          borderRadius: '12px',
+          fontWeight: 'bold',
+          fontSize: '16px',
+        },
+        icon: '❌',
+      });
       return;
     }
 
@@ -198,12 +208,43 @@ export const useTrackingStore = create<TrackingStore>((set, get) => ({
         isLoading: false,
       });
 
-      toast.success(i18n.t('deliveryCalculation.toast.parcelFound'));
+      toast.success(i18n.t('deliveryCalculation.toast.parcelFound'), {
+        style: {
+          background: 'linear-gradient(135deg, #10b981, #059669)',
+          color: 'white',
+          border: '2px solid #047857',
+          borderRadius: '12px',
+          fontWeight: 'bold',
+        },
+        icon: '✅',
+      });
+
     } catch (error) {
       if (error instanceof Error && error.message === 'Parcel not found') {
-        toast.error(i18n.t('deliveryCalculation.toast.parcelNotFound'));
+        toast.error(i18n.t('deliveryCalculation.toast.parcelNotFound'), {
+          style: {
+            background: 'linear-gradient(135deg, #ef4444, #dc2626, #b91c1c)',
+            color: 'white',
+            border: '2px solid #7f1d1d',
+            borderRadius: '12px',
+            fontWeight: 'bold',
+            fontSize: '16px',
+            boxShadow: '0 10px 25px -5px rgba(239, 68, 68, 0.4)',
+          },
+          icon: '🔍',
+          duration: 5000,
+        });
       } else {
-        toast.error(i18n.t('deliveryCalculation.toast.errorOccurred'));
+        toast.error(i18n.t('deliveryCalculation.toast.errorOccurred'), {
+          style: {
+            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+            color: 'white',
+            border: '2px solid #b91c1c',
+            borderRadius: '12px',
+            fontWeight: 'bold',
+          },
+          icon: '⚠️',
+        });
       }
 
       set({ isLoading: false });
