@@ -57,7 +57,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
     if (name === 'inn_passport') {
       if (!validateInnPassport(value)) {
-        errors[`${type}.inn_passport`] = 'Некорректный ИНН отправителя';
+        errors[`${type}.inn_passport`] = 'Некорректный ИНН/Паспорт отправителя';
       } else {
         delete errors[`${type}.inn_passport`];
       }
