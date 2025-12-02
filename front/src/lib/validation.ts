@@ -1,5 +1,6 @@
 import type { Order } from '@/types';
 import { isValidPhoneNumber } from 'libphonenumber-js';
+import type { TFunction } from 'i18next';
 
 export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -20,63 +21,74 @@ export const validateInnPassport = (inn_passport: string): boolean => {
   return innPassportRegex.test(inn_passport);
 };
 
-export const validateStep1 = (order: Order): string | null => {
-  if (!order.originCity) return 'Выберите город отправителя';
-  if (!order.destinationCity) return 'Выберите город получателя';
-  if (!order.parcelValue || order.parcelValue <= 0) return 'Укажите ценность посылки';
-  if (!order.parcelWeight || order.parcelWeight <= 0) return 'Укажите вес посылки';
-  if (order.parcelWeight > 15) return 'Максимальный вес 15 кг';
-  if (order.parcelValue > 50000) return 'Максимальная ценность 50000 сом';
+export const validateStep1 = (order: Order, t: TFunction): string | null => {
+  if (!order.originCity) return t('deliveryCostCalculator.validateError.cityOfSender');
+  if (!order.destinationCity) return t('deliveryCostCalculator.validateError.cityOfReceiver');
+  if (!order.parcelValue || order.parcelValue <= 0)
+    return t('deliveryCostCalculator.validateError.value');
+  if (!order.parcelWeight || order.parcelWeight <= 0)
+    return t('deliveryCostCalculator.validateError.weight');
+  if (order.parcelWeight > 15) return t('deliveryCostCalculator.validateError.maxWeight');
+  if (order.parcelValue > 50000) return t('deliveryCostCalculator.validateError.maxValue');
   return null;
 };
 
-export const validateStep2 = (order: Order): string | null => {
-  if (!order.originOffice) return 'Выберите офис отправки';
+export const validateStep2 = (order: Order, t: TFunction): string | null => {
+  if (!order.originOffice) return t('deliveryCostCalculator.validateError.chooseOffice');
   return null;
 };
 
-export const validateStep3 = (order: Order, isDoorDelivery: boolean): string | null => {
+export const validateStep3 = (
+  order: Order,
+  isDoorDelivery: boolean,
+  t: TFunction,
+): string | null => {
   if (isDoorDelivery) {
     const city = order.receiver.city || order.destinationCity;
-    if (!city) return 'Укажите город';
-    if (!order.receiver.street) return 'Укажите улицу';
-    if (!order.receiver.house) return 'Укажите дом';
+    if (!city) return t('deliveryCostCalculator.validateError.indicateCity');
+    if (!order.receiver.street) return t('deliveryCostCalculator.validateError.indicateStreet');
+    if (!order.receiver.house) return t('deliveryCostCalculator.validateError.indicateHouse');
   } else {
-    if (!order.destinationOffice) return 'Выберите офис получения';
+    if (!order.destinationOffice)
+      return t('deliveryCostCalculator.validateError.selectReceivingOffice');
   }
   return null;
 };
 
-export const validateStep4 = (order: Order, isDoorDelivery: boolean): string | null => {
+export const validateStep4 = (
+  order: Order,
+  isDoorDelivery: boolean,
+  t: TFunction,
+): string | null => {
   if (!order.sender.name || order.sender.name.trim().length < 2) {
-    return 'Имя отправителя должно быть минимум 2 символа';
+    return t('deliveryCostCalculator.validateError.senderNameRestrictions');
   }
   if (!validateEmail(order.sender.email)) {
-    return 'Некорректный email отправителя';
+    return t('deliveryCostCalculator.validateError.validateSenderEmail');
   }
   if (!validatePhone(order.sender.phone)) {
-    return 'Некорректный номер телефона отправителя';
+    return t('deliveryCostCalculator.validateError.validateSenderPhone');
   }
   if (!validateInnPassport(order.sender.inn_passport)) {
-    return 'Некорректный ИНН отправителя';
+    return t('deliveryCostCalculator.validateError.validateSenderInnPassport');
   }
 
   if (!order.receiver.name || order.receiver.name.trim().length < 2) {
-    return 'Имя получателя должно быть минимум 2 символа';
+    return t('deliveryCostCalculator.validateError.receiverNameRestrictions');
   }
   if (!validateEmail(order.receiver.email)) {
-    return 'Некорректный email получателя';
+    return t('deliveryCostCalculator.validateError.validateReceiverEmail');
   }
   if (!validatePhone(order.receiver.phone)) {
-    return 'Некорректный номер телефона получателя';
+    return t('deliveryCostCalculator.validateError.validateReceiverPhone');
   }
 
   if (!order.inParcel || order.inParcel.trim().length < 3) {
-    return 'Опишите содержимое посылки (минимум 3 символа)';
+    return t('deliveryCostCalculator.validateError.inParcel');
   }
 
   if (isDoorDelivery && (!order.receiver.address || order.receiver.address.trim().length < 5)) {
-    return 'Укажите полный адрес получателя (минимум 5 символов)';
+    return t('deliveryCostCalculator.validateError.validateReceiverAddress');
   }
 
   return null;

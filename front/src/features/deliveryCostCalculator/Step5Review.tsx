@@ -50,7 +50,10 @@ const Step5Review: FC<Props> = ({ order, doorDelivery }) => {
               <p className="font-semibold">{order.destinationCity}</p>
               {doorDelivery ? (
                 <p className="text-sm text-gray-600">
-                  {doorDelivery ? 'Адрес' : 'Офис'} #{order.receiver.address}
+                  {doorDelivery
+                    ? t('deliveryCostCalculator.stepFive.address')
+                    : t('deliveryCostCalculator.stepFive.office')}{' '}
+                  #{order.receiver.address}
                 </p>
               ) : (
                 <p className="text-sm text-gray-600">
@@ -79,7 +82,9 @@ const Step5Review: FC<Props> = ({ order, doorDelivery }) => {
               <p className="text-sm text-gray-500">
                 {t('deliveryCostCalculator.stepFive.content')}
               </p>
-              <p className="font-semibold">{order.inParcel || 'Не указано'}</p>
+              <p className="font-semibold">
+                {order.inParcel || t('deliveryCostCalculator.stepFive.notSpecified')}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-500">{t('deliveryCostCalculator.stepFive.date')}</p>
@@ -97,7 +102,9 @@ const Step5Review: FC<Props> = ({ order, doorDelivery }) => {
           </h4>
           <div className="space-y-2">
             <div>
-              <p className="text-sm text-gray-500">ФИО</p>
+              <p className="text-sm text-gray-500">
+                {t('deliveryCostCalculator.stepFive.inputName')}
+              </p>
               <p className="font-semibold">{order.sender.name}</p>
             </div>
             <div>
@@ -122,7 +129,9 @@ const Step5Review: FC<Props> = ({ order, doorDelivery }) => {
           </h4>
           <div className="space-y-2">
             <div>
-              <p className="text-sm text-gray-500">ФИО</p>
+              <p className="text-sm text-gray-500">
+                {t('deliveryCostCalculator.stepFive.inputName')}
+              </p>
               <p className="font-semibold">{order.receiver.name}</p>
             </div>
             <div>

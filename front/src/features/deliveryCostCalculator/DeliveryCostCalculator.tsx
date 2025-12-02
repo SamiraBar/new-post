@@ -76,40 +76,43 @@ const DeliveryCostCalculator = () => {
     }));
   }, [isPickup, isDoorDelivery]);
 
-  const calculateDeliveryCost = useCallback((weight: number) => {
-    if (weight <= 0) return 0;
-    if (weight > 15) return 0;
+  const calculateDeliveryCost = useCallback(
+    (weight: number) => {
+      if (weight <= 0) return 0;
+      if (weight > 15) return 0;
 
-    const basePrice = selectedPrice;
-    const roundedWeight = Math.ceil(weight);
+      const basePrice = selectedPrice;
+      const roundedWeight = Math.ceil(weight);
 
-    if (roundedWeight <= 1) {
-      return basePrice;
-    }
-
-    let totalCost = basePrice;
-    const additionalKg = roundedWeight - 1;
-
-    if (isPickup) {
-      for (let kg = 1; kg <= additionalKg; kg++) {
-        const currentWeight = kg + 1;
-
-        if (currentWeight <= 3) {
-          totalCost += 125;
-        } else if (currentWeight <= 6) {
-          totalCost += 135;
-        } else if (currentWeight <= 12) {
-          totalCost += 140;
-        } else {
-          totalCost += 145;
-        }
+      if (roundedWeight <= 1) {
+        return basePrice;
       }
-    } else {
-      return basePrice + (additionalKg * 200);
-    }
 
-    return totalCost;
-  }, [selectedPrice, isPickup]);
+      let totalCost = basePrice;
+      const additionalKg = roundedWeight - 1;
+
+      if (isPickup) {
+        for (let kg = 1; kg <= additionalKg; kg++) {
+          const currentWeight = kg + 1;
+
+          if (currentWeight <= 3) {
+            totalCost += 125;
+          } else if (currentWeight <= 6) {
+            totalCost += 135;
+          } else if (currentWeight <= 12) {
+            totalCost += 140;
+          } else {
+            totalCost += 145;
+          }
+        }
+      } else {
+        return basePrice + additionalKg * 200;
+      }
+
+      return totalCost;
+    },
+    [selectedPrice, isPickup],
+  );
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
@@ -208,11 +211,7 @@ const DeliveryCostCalculator = () => {
       setIsAgreed(false);
       clearActions();
     } else {
-      toast.error(
-        createParcelError?.error ||
-          t('deliveryCostCalculator.error.failedToCreate') ||
-          'Не удалось создать посылку',
-      );
+      toast.error(createParcelError?.error || t('deliveryCostCalculator.error.failedToCreate'));
     }
   };
 
