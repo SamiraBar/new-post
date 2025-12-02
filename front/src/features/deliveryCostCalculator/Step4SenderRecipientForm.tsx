@@ -66,6 +66,8 @@ const Step4SenderRecipientForm: FC<Props> = ({
     if (name === 'inParcel') {
       if (!value || value.trim().length < 3) {
         errors.inParcel = 'Опишите содержимое посылки';
+      } else if (value.length > 70) {
+        errors.inParcel = 'Содержимое посылки должно быть не более 70 символов';
       } else {
         delete errors.inParcel;
       }
@@ -356,6 +358,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
                   onChange={handleFieldChange}
                   value={order.inParcel}
                   rows={3}
+                  maxLength={70}
                 />
                 {fieldErrors.inParcel && (
                   <p className="text-red-500 text-xs mt-1">{fieldErrors.inParcel}</p>
@@ -382,6 +385,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
                 onChange={handleFieldChange}
                 value={order.inParcel}
                 rows={3}
+                maxLength={70}
               />
               {fieldErrors.inParcel && (
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.inParcel}</p>
