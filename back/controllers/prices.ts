@@ -179,60 +179,72 @@ export const calculatePrice = async (req: Request, res: Response) => {
 
     if (!type || !city || !weight) {
       return res
-        .status(400)
-        .json({ message: "type, city и weight обязательны" });
+          .status(400)
+          .json({ message: "type, city и weight обязательны" });
     }
 
     const numericWeight = Number(weight);
+
     if (isNaN(numericWeight) || numericWeight <= 0) {
       return res.status(400).json({ message: "Неверный формат веса" });
     }
 
+    const w = Math.ceil(numericWeight);
+
+    if (w > 15) {
+      return res
+          .status(400)
+          .json({ message: "Максимальный вес для расчета — 15 кг" });
+    }
+
     if (type === "PVZ") {
       const priceData = await PriceToPVZ.findOne({ city });
-      if (!priceData)
-        return res.status(404).json({ message: "Город не найден в тарифах" });
 
-      let price = priceData.basePrice;
+      if (!priceData) {
+        return res
+            .status(404)
+            .json({ message: "Город не найден в тарифах PVZ" });
+      }
 
-      if (numericWeight > 1) {
-        const extra = numericWeight - 1;
+      let total = priceData.basePrice;
 
-        if (numericWeight <= 3) {
-          price += extra * priceData.pricePerOneLessThree;
-        } else if (numericWeight <= 6) {
-          price +=
-            2 * priceData.pricePerOneLessThree +
-            (numericWeight - 3) * priceData.pricePerOneLessSix;
-        } else if (numericWeight <= 12) {
-          price +=
-            2 * priceData.pricePerOneLessThree +
-            3 * priceData.pricePerOneLessSix +
-            (numericWeight - 6) * priceData.pricePerOneLessTwelve;
-        } else if (numericWeight <= 15) {
-          price +=
-            2 * priceData.pricePerOneLessThree +
-            3 * priceData.pricePerOneLessSix +
-            6 * priceData.pricePerOneLessTwelve +
-            (numericWeight - 12) * priceData.pricePerOneLessFifteen;
+      for (let kg = 2; kg <= w; kg++) {
+        if (kg <= 3) {
+          total += priceData.pricePerOneLessThree;
+        } else if (kg <= 6) {
+          total += priceData.pricePerOneLessSix;
+        } else if (kg <= 12) {
+          total += priceData.pricePerOneLessTwelve;
+        } else {
+          total += priceData.pricePerOneLessFifteen;
         }
       }
 
-      return res.json({ totalCost: price });
+      return res.json({
+        totalCost: total,
+        billedWeight: w,
+      });
     }
 
     if (type === "Hand") {
       const priceData = await Price.findOne({ city });
-      if (!priceData)
-        return res.status(404).json({ message: "Город не найден в тарифах" });
 
-      let price = priceData.basePrice;
-
-      if (numericWeight > 1) {
-        price += (numericWeight - 1) * priceData.pricePerOneKg;
+      if (!priceData) {
+        return res
+            .status(404)
+            .json({ message: "Город не найден в тарифах Hand" });
       }
 
-      return res.json({ totalCost: price });
+      let total = priceData.basePrice;
+
+      if (w > 1) {
+        total += (w - 1) * priceData.pricePerOneKg;
+      }
+
+      return res.json({
+        totalCost: total,
+        billedWeight: w,
+      });
     }
 
     return res.status(400).json({ message: "Неизвестный тип тарифа" });

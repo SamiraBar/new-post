@@ -25,6 +25,8 @@ import { useTranslation } from 'react-i18next';
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore.ts';
 import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
 import { validateStep2, validateStep3, validateStep4 } from '@/lib/validation.ts';
+import axiosApi from '@/axiosApi.ts';
+
 
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -40,8 +42,6 @@ const DeliveryCostCalculator = () => {
     selectPickup,
     selectDoorDelivery,
     clearActions,
-    selectedPrice,
-    fetchPricing,
   } = useDeliveryStore();
 
   const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
@@ -65,10 +65,6 @@ const DeliveryCostCalculator = () => {
   });
 
   useEffect(() => {
-    fetchPricing();
-  }, [fetchPricing]);
-
-  useEffect(() => {
     setOrder((prev) => ({
       ...prev,
       deliveryType: isPickup ? 'pickup' : 'courier',
@@ -76,40 +72,24 @@ const DeliveryCostCalculator = () => {
     }));
   }, [isPickup, isDoorDelivery]);
 
-  const calculateDeliveryCost = useCallback((weight: number) => {
-    if (weight <= 0) return 0;
-    if (weight > 15) return 0;
+  const fetchDeliveryCost = useCallback(
+      async (city: string, weight: number) => {
+        if (!city || weight <= 0 || weight > 15) return 0;
 
-    const basePrice = selectedPrice;
-    const roundedWeight = Math.ceil(weight);
+        const type = isPickup ? 'PVZ' : 'Hand';
 
-    if (roundedWeight <= 1) {
-      return basePrice;
-    }
-
-    let totalCost = basePrice;
-    const additionalKg = roundedWeight - 1;
-
-    if (isPickup) {
-      for (let kg = 1; kg <= additionalKg; kg++) {
-        const currentWeight = kg + 1;
-
-        if (currentWeight <= 3) {
-          totalCost += 125;
-        } else if (currentWeight <= 6) {
-          totalCost += 135;
-        } else if (currentWeight <= 12) {
-          totalCost += 140;
-        } else {
-          totalCost += 145;
+        try {
+          const res = await axiosApi.get('/prices/calculate', {
+            params: { type, city, weight },
+          });
+          return res.data.totalCost ?? 0;
+        } catch (e) {
+          console.error('Failed to calculate delivery price', e);
+          return 0;
         }
-      }
-    } else {
-      return basePrice + (additionalKg * 200);
-    }
-
-    return totalCost;
-  }, [selectedPrice, isPickup]);
+      },
+      [isPickup],
+  );
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
@@ -119,15 +99,33 @@ const DeliveryCostCalculator = () => {
   }, []);
 
   useEffect(() => {
-    const delivery = calculateDeliveryCost(order.parcelWeight);
-    const insurance = calculateInsuranceCost(order.parcelValue);
-    setOrder((prev) => ({
-      ...prev,
-      deliveryCost: delivery,
-      insuranceCost: insurance,
-      totalCost: delivery + insurance,
-    }));
-  }, [order.parcelWeight, order.parcelValue, calculateDeliveryCost, calculateInsuranceCost]);
+    const { destinationCity, parcelWeight, parcelValue } = order;
+
+    const calc = async () => {
+      let delivery = 0;
+
+      if (destinationCity && parcelWeight > 0 && parcelWeight <= 15) {
+        delivery = await fetchDeliveryCost(destinationCity, parcelWeight);
+      }
+
+      const insurance = calculateInsuranceCost(parcelValue);
+
+      setOrder((prev) => ({
+        ...prev,
+        deliveryCost: delivery,
+        insuranceCost: insurance,
+        totalCost: delivery + insurance,
+      }));
+    };
+
+    calc();
+  }, [
+    order.destinationCity,
+    order.parcelWeight,
+    order.parcelValue,
+    fetchDeliveryCost,
+    calculateInsuranceCost,
+  ]);
 
   const validateOrder = () => {
     const validations = [
