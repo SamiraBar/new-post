@@ -15,18 +15,18 @@ const auth = async (expressReq: Request, res: Response, next: NextFunction) => {
 
     const token = req.get('Authorization');
     if (!token) {
-        return res.status(401).send({error: 'Токен отсутствует!'});
+        return res.status(401).send({error: 'Token missing!'});
     }
 
     try {
         payload = jwt.verify(token, secret) as JwtAdminPayload;
     } catch (err) {
-        return res.status(401).send({error: 'Токен недействителен или истёк!'});
+        return res.status(401).send({error: 'The token is invalid or has expired!'});
     }
 
     const admin = await Admin.findOne({_id: payload.id, token});
     if (!admin) {
-        return res.status(401).send({error: 'Токен устарел!'});
+        return res.status(401).send({error: 'Token is out of date!'});
     }
 
     req.admin = admin;
