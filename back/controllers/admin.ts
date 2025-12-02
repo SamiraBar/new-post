@@ -6,19 +6,21 @@ import {getActiveAdminsCount} from "../utils/adminSessions";
 
 export const adminLogin = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const activeAdminsCount = await getActiveAdminsCount();
-
-        if (activeAdminsCount >= 4) {
-            return res.status(403).send({
-                error: "Maximum number of admin sessions reached"
-            });
-        }
-
         const admin = await Admin.findOne({ email: req.body.email });
         if (!admin) return res.status(400).send({ error: "Invalid login" });
 
         const isMatch = await admin.checkPassword(req.body.password);
         if (!isMatch) return res.status(400).send({ error: "Wrong password" });
+
+        if (admin.role !== "superAdmin") {
+            const activeAdminsCount = await getActiveAdminsCount();
+
+            if (activeAdminsCount >= 4) {
+                return res.status(403).send({
+                    error: "Maximum number of admin sessions reached",
+                });
+            }
+        }
 
         admin.generateToken();
         admin.isActive = true;
@@ -29,7 +31,6 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
         next(error);
     }
 };
-
 
 export const adminCreate = async (req: Request, res: Response, next: NextFunction) => {
     const adminData: Omit<AdminDef, "token" | "role"> = {

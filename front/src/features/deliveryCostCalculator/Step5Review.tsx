@@ -116,7 +116,7 @@ const Step5Review: FC<Props> = ({ order, doorDelivery }) => {
               <p className="font-semibold">{order.sender.phone}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">ИНН</p>
+              <p className="text-sm text-gray-500">ИНН/Паспорт</p>
               <p className="font-semibold">{order.sender.inn_passport}</p>
             </div>
           </div>
