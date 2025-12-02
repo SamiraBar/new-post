@@ -6,15 +6,13 @@ interface DeliveryStore {
   isPickup: boolean;
   modalSelectDeliveryVariant: boolean;
   calcModal: boolean;
-  pricing: { pvz: number; door: number };
-  selectedPrice: number;
 
   openOrCloseModalSelectDeliveryVariant: () => void;
   selectDoorDelivery: () => void;
   selectPickup: () => void;
   openOrCloseCalcModal: () => void;
-  fetchPricing: () => Promise<void>;
   clearActions: () => void;
+  fetchDeliveryCost: (city: string, weight: number) => Promise<number>;
 }
 
 export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
@@ -22,8 +20,6 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
   isPickup: false,
   modalSelectDeliveryVariant: false,
   calcModal: false,
-  pricing: { pvz: 0, door: 0 },
-  selectedPrice: 0,
 
   openOrCloseModalSelectDeliveryVariant: () =>
     set({ modalSelectDeliveryVariant: !get().modalSelectDeliveryVariant }),
@@ -36,7 +32,6 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
       isPickup: false,
       modalSelectDeliveryVariant: false,
       calcModal: false,
-      selectedPrice: get().pricing.door,
     }),
 
   selectPickup: () =>
@@ -45,30 +40,28 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
       isPickup: true,
       modalSelectDeliveryVariant: false,
       calcModal: false,
-      selectedPrice: get().pricing.pvz,
     }),
-
-  fetchPricing: async () => {
-    try {
-      const response = await axiosApi.get('/prices', { params: { type: 'PVZ' } });
-      const pvzPrice = response.data.length ? response.data[0].basePrice : 0;
-
-      const responseDoor = await axiosApi.get('/prices', { params: { type: 'Hand' } });
-      const doorPrice = responseDoor.data.length ? responseDoor.data[0].basePrice : 0;
-
-      set({
-        pricing: { pvz: pvzPrice, door: doorPrice },
-        selectedPrice: get().isPickup ? pvzPrice : doorPrice,
-      });
-    } catch (error) {
-      console.error('Failed to fetch pricing', error);
-    }
-  },
 
   clearActions: () =>
     set({
       isDoorDelivery: false,
       isPickup: false,
-      selectedPrice: 0,
     }),
+
+    fetchDeliveryCost: async (city: string, weight: number) => {
+        if (!city || weight <= 0 || weight > 15) return 0;
+
+        const type = get().isPickup ? 'PVZ' : 'Hand';
+
+        try {
+            const res = await axiosApi.get('/prices/calculate', {
+                params: { type, city, weight },
+            });
+
+            return res.data.totalCost ?? 0;
+        } catch (error) {
+            console.error('Failed to calculate delivery price', error);
+            return 0;
+        }
+    },
 }));

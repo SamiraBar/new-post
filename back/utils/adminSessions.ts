@@ -1,6 +1,10 @@
 import Admin from "../models/Admin";
 
 export const getActiveAdminsCount = async (): Promise<number> => {
-    const activeAdmins = await Admin.find({ isActive: true });
-    return activeAdmins.length;
+    const activeAdmins = await Admin.countDocuments({
+        isActive: true,
+        role: { $ne: "superAdmin" }
+    });
+
+    return activeAdmins;
 };

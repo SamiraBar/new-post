@@ -25,7 +25,6 @@ import { useTranslation } from 'react-i18next';
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore.ts';
 import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
 import { validateStep2, validateStep3, validateStep4 } from '@/lib/validation.ts';
-import axiosApi from '@/axiosApi.ts';
 
 
 const DeliveryCostCalculator = () => {
@@ -42,6 +41,7 @@ const DeliveryCostCalculator = () => {
     selectPickup,
     selectDoorDelivery,
     clearActions,
+    fetchDeliveryCost,
   } = useDeliveryStore();
 
   const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
@@ -71,25 +71,6 @@ const DeliveryCostCalculator = () => {
       partnerType: isPickup ? 'E-Kit' : 'KCE',
     }));
   }, [isPickup, isDoorDelivery]);
-
-  const fetchDeliveryCost = useCallback(
-      async (city: string, weight: number) => {
-        if (!city || weight <= 0 || weight > 15) return 0;
-
-        const type = isPickup ? 'PVZ' : 'Hand';
-
-        try {
-          const res = await axiosApi.get('/prices/calculate', {
-            params: { type, city, weight },
-          });
-          return res.data.totalCost ?? 0;
-        } catch (e) {
-          console.error('Failed to calculate delivery price', e);
-          return 0;
-        }
-      },
-      [isPickup],
-  );
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
