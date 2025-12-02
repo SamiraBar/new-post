@@ -133,7 +133,7 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
             ) : (
               <div className="text-center text-gray-500 py-8">
                 <MapPin className="size-12 mx-auto mb-2 opacity-30" />
-                <p>{t('stepTheeForm.notFound')}</p>
+                <p>{t('deliveryCostCalculator.stepThreeForm.notFound')}</p>
               </div>
             )}
           </ScrollArea>
