@@ -160,5 +160,28 @@
   },
   "footer": {
     "address": "“ЖАНЫ ПОЧТА” ЖЧК Бишкек шаары, Лев Толстой көчөсү, 24/1"
+  },
+  "parcelSuccessModal": {
+    "title": "Посылка ийгиликтүү түзүлдү!",
+    "trackingNumberLabel": "Сиздин трек-номер:",
+    "copyButton": "Көчүрүү",
+    "copiedButton": "Көчүрүлдү!",
+    "downloadButton": "Жүктөп алуу",
+    "importantTitle": "Маанилүү!",
+    "importantTip1": "Бул трек-номерди сактаңыз",
+    "importantTip2": "Аны жөнөтүү кеңсесинде көрсөтүңүз",
+    "importantTip3": "Посылканы көзөмөлдөө үчүн колдонуңуз",
+    "closeButton": "Түшүндүм, жабуу",
+    "toasts": {
+      "copied": "Трек-номер көчүрүлдү!",
+      "downloaded": "Файл жүктөлдү!"
+    },
+    "downloadFile": {
+      "header": "ПОСЫЛКА ТҮЗҮҮҮНҮҢ ТАСТЫКТАМАСЫ",
+      "trackingNumber": "Трек-номер",
+      "importantNote": "МААНИЛҮҮ! Бул номерди сактаңыз.",
+      "presentAtOffice": "Аны жөнөтүү кеңсесинде көрсөтүңүз.",
+      "creationDate": "Түзүлгөн датасы"
+    }
   }
 }
