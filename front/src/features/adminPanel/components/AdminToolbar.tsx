@@ -33,15 +33,15 @@ const useDebounce = (value: string, delay: number) => {
 };
 
 export const AdminToolbar = () => {
-  const { logout } = useAdminStore();
+  const {logout} = useAdminStore();
   const admin = useAdminStore((s) => s.admin);
-  const { parcelsResponse } = useParcelsStore();
+  const {parcelsResponse} = useParcelsStore();
   const [search, setSearch] = useState({
     trackingNumber: '',
     sender: '',
     recipient: '',
   });
-  const { setSearchFilters } = useParcelsStore();
+  const {setSearchFilters} = useParcelsStore();
 
   const debouncedTrackingNumber = useDebounce(search.trackingNumber, 500);
   const debouncedSender = useDebounce(search.sender, 500);
@@ -55,7 +55,14 @@ export const AdminToolbar = () => {
     });
   }, [debouncedTrackingNumber, debouncedSender, debouncedRecipient, setSearchFilters]);
 
-  const notFound = parcelsResponse && parcelsResponse.parcels.length === 0 && (debouncedTrackingNumber || debouncedSender || debouncedRecipient)
+  const parcels = parcelsResponse?.parcels ?? [];
+
+  const hasSearchParams =
+    Boolean(debouncedTrackingNumber) ||
+    Boolean(debouncedSender) ||
+    Boolean(debouncedRecipient);
+
+  const notFound = parcels.length === 0 && hasSearchParams;
 
   useEffect(() => {
     if (notFound) {
@@ -64,17 +71,20 @@ export const AdminToolbar = () => {
         trackingNumber: '',
         sender: '',
         recipient: '',
-      })
+      });
     }
-  }, [parcelsResponse, notFound]);
-
-
-
+  }, [parcelsResponse, notFound, setSearchFilters]);
 
 
   const inputChangeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setSearch((prevState) => ({ ...prevState, [name]: value }));
+    const {
+      name,
+      value
+    } = e.target;
+    setSearch((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
   }, []);
 
   const isSuperAdmin = admin?.role === 'superAdmin';
@@ -95,11 +105,25 @@ export const AdminToolbar = () => {
         lg:grid-cols-[auto_1fr_auto]
         lg:grid-rows-1
   "
-        >
-          <NavigationMenuItem className="flex justify-end col-start-1 row-start-1">
-            <Link to={'/admin'}>
-              <img src={logoImage} alt="logo" className="w-30 md:w-25" />
-            </Link>
+      >
+        <NavigationMenuItem className="flex justify-end col-start-1 row-start-1">
+          <Link to={'/admin'}>
+            <img src={logoImage} alt="logo" className="w-30 md:w-25"/>
+          </Link>
+        </NavigationMenuItem>
+
+        <div
+          className="flex flex-col md:flex-row gap-3 justify-center items-stretch w-full col-start-1 col-end-3 row-start-2 lg:col-start-2 lg:col-end-2 lg:row-start-1">
+          <NavigationMenuItem className="flex-1">
+            <Input
+              type="search"
+              name="trackingNumber"
+              id="trackingNumber"
+              placeholder="Трек номер посылки"
+              value={search.trackingNumber}
+              onChange={inputChangeHandler}
+              className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1 w-full"
+            />
           </NavigationMenuItem>
 
           <div className="flex flex-col md:flex-row gap-3 justify-center items-stretch w-full col-start-1 col-end-3 row-start-2 lg:col-start-2 lg:col-end-2 lg:row-start-1">
@@ -165,8 +189,37 @@ export const AdminToolbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
+        </div>
+
+        <NavigationMenuItem className="flex gap-3 justify-start col-start-2 lg:col-start-3 lg:row-start-1">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="bg-brand hover:bg-amber-600 transition duration-300 active:bg-amber-700">
+                Меню
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48" align="end">
+              <DropdownMenuGroup>
+                {!isSuperAdmin ? null : (
+                  <>
+                    <Link to="moderation">
+                      <DropdownMenuItem>Администраторы</DropdownMenuItem>
+                    </Link>
+                    <DropdownMenuItem
+                      onSelect={(e) => e.preventDefault()}
+                      className="hidden sm:flex "
+                    >
+                      <ModalFile/>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                <DropdownMenuItem onClick={async () => await logout()}>Выйти</DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+    </NavigationMenu>
   );
 };
 
