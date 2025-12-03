@@ -112,9 +112,15 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
             mapInstanceRef.current = window.measoftMap.config(config).init();
 
             if (order.destinationCity && order.destinationCity.trim() !== '') {
-                setTimeout(() => {
-                    centerMapOnCity(order.destinationCity);
-                }, 2000);
+                const tryToCenter = () => {
+                    if (window.measoftMap?.map?.getCenter) {
+                        centerMapOnCity(order.destinationCity);
+                    } else {
+                        setTimeout(tryToCenter, 500);
+                    }
+                };
+
+                setTimeout(tryToCenter, 300);
             }
 
         } catch (error) {
@@ -129,9 +135,8 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
     }, [isScriptLoaded, order.destinationCity, order.parcelWeight, clientId, clientCode, onPvzSelect]);
 
     const centerMapOnCity = async (cityName: string) => {
+        console.log('centerMapOnCity вызван для:', cityName, 'Карта доступна:', !!window.measoftMap?.map);
         try {
-            console.log(`🔍 Ищем координаты для города: ${cityName}`);
-
             const xml = `<?xml version="1.0" encoding="UTF-8" ?>
                 <townlist>
                     <conditions>

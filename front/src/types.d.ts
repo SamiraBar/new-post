@@ -101,6 +101,7 @@ interface Sender {
   name: string;
   email: string;
   phone: string;
+  inn_passport: string;
 }
 
 export interface Receiver {
