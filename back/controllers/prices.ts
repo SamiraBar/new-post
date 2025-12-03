@@ -82,7 +82,7 @@ export const uploadPrices = async (
     if (!normalizeMap)
       return res
         .status(400)
-        .json({ message: `Неизвестный тип файла: ${type}` });
+        .json({ message: `Unknown file type: ${type}` });
 
     const normalizedData = normalizeExcelKeys(jsonData, normalizeMap);
 
@@ -93,7 +93,7 @@ export const uploadPrices = async (
 
     if (missing.length > 0) {
       return res.status(400).json({
-        message: `Неверный формат для типа "${type}"`,
+        message: `Invalid format for type "${type}"`,
         missingFields: missing,
         expected: requiredFields,
         received: keys,
@@ -107,7 +107,7 @@ export const uploadPrices = async (
     if (filteredData.length === 0)
       return res
         .status(400)
-        .json({ message: "Значения не могут быть пустыми" });
+        .json({ message: "Values cannot be empty" });
 
     if (type === "PVZ") {
       await PriceToPVZ.collection.drop();
@@ -119,7 +119,7 @@ export const uploadPrices = async (
 
     res
       .status(200)
-      .json({ message: "База обновлена", count: normalizedData.length });
+      .json({ message: "The database has been updated", count: normalizedData.length });
   } catch (err) {
     console.error(err);
     next(err);
@@ -131,7 +131,7 @@ export const getPrices = async (req: Request, res: Response) => {
     const type = req.query.type;
 
     if (!type) {
-      return res.status(400).json({ message: "Тип не указан" });
+      return res.status(400).json({ message: "Type not specified" });
     }
 
     const pipeline: PipelineStage[] = [
@@ -165,7 +165,7 @@ export const getPrices = async (req: Request, res: Response) => {
       const data = await Price.aggregate(pipeline);
       res.send(data);
     } else {
-      return res.status(400).json({ message: "Тип не указан" });
+      return res.status(400).json({ message: "Type not specified" });
     }
   } catch (err) {
     console.error(err);
@@ -179,14 +179,14 @@ export const calculatePrice = async (req: Request, res: Response) => {
 
     if (!type || !city || !weight) {
       return res
-          .status(400)
-          .json({ message: "type, city и weight обязательны" });
+        .status(400)
+        .json({ message: "type, city, and weight are required" });
     }
 
     const numericWeight = Number(weight);
 
     if (isNaN(numericWeight) || numericWeight <= 0) {
-      return res.status(400).json({ message: "Неверный формат веса" });
+      return res.status(400).json({ message: "Invalid weight format" });
     }
 
     const w = Math.ceil(numericWeight);
@@ -199,24 +199,31 @@ export const calculatePrice = async (req: Request, res: Response) => {
 
     if (type === "PVZ") {
       const priceData = await PriceToPVZ.findOne({ city });
+      if (!priceData)
+        return res.status(404).json({ message: "City not found in tariffs" });
 
-      if (!priceData) {
-        return res
-            .status(404)
-            .json({ message: "Город не найден в тарифах PVZ" });
-      }
+      let price = priceData.basePrice;
 
-      let total = priceData.basePrice;
+      if (numericWeight > 1) {
+        const extra = numericWeight - 1;
 
-      for (let kg = 2; kg <= w; kg++) {
-        if (kg <= 3) {
-          total += priceData.pricePerOneLessThree;
-        } else if (kg <= 6) {
-          total += priceData.pricePerOneLessSix;
-        } else if (kg <= 12) {
-          total += priceData.pricePerOneLessTwelve;
-        } else {
-          total += priceData.pricePerOneLessFifteen;
+        if (numericWeight <= 3) {
+          price += extra * priceData.pricePerOneLessThree;
+        } else if (numericWeight <= 6) {
+          price +=
+            2 * priceData.pricePerOneLessThree +
+            (numericWeight - 3) * priceData.pricePerOneLessSix;
+        } else if (numericWeight <= 12) {
+          price +=
+            2 * priceData.pricePerOneLessThree +
+            3 * priceData.pricePerOneLessSix +
+            (numericWeight - 6) * priceData.pricePerOneLessTwelve;
+        } else if (numericWeight <= 15) {
+          price +=
+            2 * priceData.pricePerOneLessThree +
+            3 * priceData.pricePerOneLessSix +
+            6 * priceData.pricePerOneLessTwelve +
+            (numericWeight - 12) * priceData.pricePerOneLessFifteen;
         }
       }
 
@@ -228,6 +235,8 @@ export const calculatePrice = async (req: Request, res: Response) => {
 
     if (type === "Hand") {
       const priceData = await Price.findOne({ city });
+      if (!priceData)
+        return res.status(404).json({ message: "City not found in tariffs" });
 
       if (!priceData) {
         return res
@@ -247,7 +256,7 @@ export const calculatePrice = async (req: Request, res: Response) => {
       });
     }
 
-    return res.status(400).json({ message: "Неизвестный тип тарифа" });
+    return res.status(400).json({ message: "Unknown tariff type" });
   } catch (err) {
     console.error(err);
     res.sendStatus(500);
