@@ -13,6 +13,11 @@ interface DeliveryStore {
   openOrCloseCalcModal: () => void;
   clearActions: () => void;
   fetchDeliveryCost: (city: string, weight: number) => Promise<number>;
+  pricing: {
+    pvz: number | null;
+    door: number | null;
+  };
+  selectedPrice: number | null;
 }
 
 export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
@@ -20,6 +25,11 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
   isPickup: false,
   modalSelectDeliveryVariant: false,
   calcModal: false,
+  pricing: {
+    pvz: null,
+    door: null,
+  },
+  selectedPrice: null,
 
   openOrCloseModalSelectDeliveryVariant: () =>
     set({ modalSelectDeliveryVariant: !get().modalSelectDeliveryVariant }),
@@ -48,20 +58,34 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
       isPickup: false,
     }),
 
-    fetchDeliveryCost: async (city: string, weight: number) => {
-        if (!city || weight <= 0 || weight > 15) return 0;
+  fetchDeliveryCost: async (city: string, weight: number) => {
+    if (!city || weight <= 0 || weight > 15) return 0;
 
-        const type = get().isPickup ? 'PVZ' : 'Hand';
+    const type = get().isPickup ? 'PVZ' : 'Hand';
 
-        try {
-            const res = await axiosApi.get('/prices/calculate', {
-                params: { type, city, weight },
-            });
+    try {
+      const res = await axiosApi.get('/prices/calculate', {
+        params: { type, city, weight },
+      });
 
-            return res.data.totalCost ?? 0;
-        } catch (error) {
-            console.error('Failed to calculate delivery price', error);
-            return 0;
-        }
-    },
+      const cost = res.data.totalCost ?? 0;
+
+      if (type === 'PVZ') {
+        set((prev) => ({
+          pricing: { ...prev.pricing, pvz: cost },
+          selectedPrice: cost,
+        }));
+      } else {
+        set((prev) => ({
+          pricing: { ...prev.pricing, door: cost },
+          selectedPrice: cost,
+        }));
+      }
+
+      return cost;
+    } catch (error) {
+      console.error('Failed to calculate delivery price', error);
+      return 0;
+    }
+  },
 }));
