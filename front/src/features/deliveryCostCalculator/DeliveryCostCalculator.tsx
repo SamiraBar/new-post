@@ -357,6 +357,7 @@ const DeliveryCostCalculator = () => {
             ${isPickup ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
             hover:bg-white hover:text-orange-500
           `}
+          disabled={currentStep > 1}
         >
           {t('delivery.pickup')}
         </Button>
@@ -369,6 +370,7 @@ const DeliveryCostCalculator = () => {
             ${isDoorDelivery ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
             hover:bg-white hover:text-orange-500
           `}
+          disabled={currentStep > 1}
         >
           {t('delivery.courier')}
         </Button>
