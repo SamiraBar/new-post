@@ -226,6 +226,8 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         };
       }
 
+      console.log('Sending to backend:', JSON.stringify(parcelData, null, 2));
+
       const { data } = await axiosApi.post<{
         message: string;
         parcel: IParcel;
