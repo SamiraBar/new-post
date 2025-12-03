@@ -82,7 +82,6 @@
       "senderData": "Пожалуйста, заполните все данные отправителя",
       "receiverData": "Пожалуйста, заполните данные получателя полностью",
       "failedToCreate": "Не удалось создать посылку",
-
       "value": "Укажите ценность посылки",
       "weight": "Укажите вес посылки",
       "maxWeight": "Максимальный вес 15 кг",
@@ -128,6 +127,13 @@
       "placeholder": "Поиск отделения",
       "notFound": "Офис не найден"
     },
+    "courierFields": {
+      "title": "Введите адрес получателя",
+      "cityPlaceholder": "Город",
+      "streetPlaceholder": "Улица",
+      "housePlaceholder": "Дом",
+      "apartmentPlaceholder": "Квартира (если есть)"
+    },
     "stepForForm": {
       "errors": {
         "nameError": "Имя должно быть минимум 2 символа",
@@ -147,13 +153,6 @@
       "inputTwoTitle": "Получатель",
       "address": "Адрес доставки",
       "inputTwoText": "Подробный адрес Получателя например: город Белгород, проспект Фрунзе дом 123"
-    },
-    "courierFields": {
-      "title": "Введите адрес получателя",
-      "cityPlaceholder": "Город",
-      "streetPlaceholder": "Улица",
-      "housePlaceholder": "Дом",
-      "apartmentPlaceholder": "Квартира (если есть)"
     },
     "stepFive": {
       "title": "Подтверждение данных",

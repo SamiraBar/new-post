@@ -38,13 +38,6 @@
       "parcelFound": "Посылка табылды",
       "parcelNotFound": "Посылка табылган жок",
       "errorOccurred": "Катачылык кетти"
-    },
-    "courierFields": {
-      "title": "Алуучунун дарегин киргизиңиз",
-      "cityPlaceholder": "Шаар",
-      "streetPlaceholder": "Көчө",
-      "housePlaceholder": "Үй",
-      "apartmentPlaceholder": "Квартира (эгер бар болсо)"
     }
   },
   "delivery": {
@@ -89,7 +82,6 @@
       "senderData": "Сураныч, жөнөтүүчүнүн бардык маалыматтарын толтуруңуз",
       "receiverData": "Сураныч, алуучунун маалыматын толугу менен толтуруңуз.",
       "failedToCreate": "Почта түзүлбөй калды",
-
       "value": "Посылканын баасын жазыңыс",
       "weight": "Посылка салмагын жазыңыс",
       "maxWeight": "Салмак чеги 15 кг",
