@@ -3,7 +3,6 @@ import Contact, { IContact } from "./Contact";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import {IPvzData} from "../types";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -17,17 +16,10 @@ export interface IParcel extends mongoose.Document {
     recipient: mongoose.Types.ObjectId | IContact;
     originCity: string;
     destinationCity: string;
-    originOffice?: number;
-    destinationOffice?: number;
-    status: "draft" | "created" | "accepted" | "shipped" | "in_country" | "in_city" | "at_pickup_point" | "delivered";
+    status: "draft" | "created" | "accepted" | "shipped";
     isPaid: boolean;
     partnerStickerReceived: boolean;
     weight: number;
-    deliveryType?: "courier" | "pickup";
-    partnerType?: "E-Kit" | "KCE";
-
-    pvzData?: IPvzData;
-
     senderFullName?: string;
     recipientFullName?: string;
     recipientPhoneNumber?: string;
@@ -49,62 +41,8 @@ export interface IParcel extends mongoose.Document {
     inCityAtFormatted?: string;
     atPickupPointAtFormatted?: string;
     deliveredAtFormatted?: string;
+    deliveryType: "pickup" | "courier";
 }
-
-const PvzDataSchema = new Schema({
-    code: {
-        type: String,
-        required: true,
-    },
-    name: {
-        type: String,
-        required: true,
-    },
-    address: {
-        type: String,
-        required: true,
-    },
-    phone: {
-        type: String,
-        default: null,
-    },
-    worktime: {
-        type: String,
-        default: null,
-    },
-    maxweight: {
-        type: String,
-        default: null,
-    },
-    parentcode: {
-        type: String,
-        default: null,
-    },
-    parentname: {
-        type: String,
-        default: null,
-    },
-    town: {
-        type: String,
-        default: null,
-    },
-    towncode: {
-        type: String,
-        default: null,
-    },
-    region: {
-        type: String,
-        default: null,
-    },
-    acceptcash: {
-        type: Number,
-        default: 0,
-    },
-    acceptcard: {
-        type: Number,
-        default: 0,
-    },
-}, { _id: false });
 
 const ParcelSchema = new Schema(
     {
@@ -122,6 +60,7 @@ const ParcelSchema = new Schema(
             enum: ["courier", "pickup"],
             default: null,
         },
+
         partnerType: {
             type: String,
             enum: ["E-Kit", "KCE"],
@@ -158,18 +97,6 @@ const ParcelSchema = new Schema(
         destinationCity: {
             type: String,
             required: [true, "Destination city is required"],
-        },
-        originOffice: {
-            type: Number,
-            default: null,
-        },
-        destinationOffice: {
-            type: Number,
-            default: null,
-        },
-        pvzData: {
-            type: PvzDataSchema,
-            default: null,
         },
         status: {
             type: String,
@@ -312,3 +239,4 @@ ParcelSchema.set("toObject", { virtuals: true });
 
 const Parcel = mongoose.model<IParcel>("Parcel", ParcelSchema);
 export default Parcel;
+

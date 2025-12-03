@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import axiosApi from '@/axiosApi.ts';
 import axios, { isAxiosError } from 'axios';
 import type { ParcelState } from './types';
-import type {CreateParcelData, IParcel, Order, PaginatedParcelsResponse} from '@/types';
+import type { IParcel, Order, PaginatedParcelsResponse } from '@/types';
 
 interface SearchFilters {
   trackingNumber?: string;
@@ -17,6 +17,9 @@ interface ExtendedParcelState extends ParcelState {
   createParcelError: { error: string } | null;
   createdTrackingNumber: string | null;
   createParcel: (order: Order) => Promise<string | null>;
+  updatePartnerTrackingNumberLoading: boolean;
+  updatePartnerTrackingNumberError: { error: string } | null;
+  updatePartnerTrackingNumber: (id: string, partnerTrackingNumber: string | null) => Promise<boolean>;
 }
 
 export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
@@ -33,6 +36,8 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
   createParcelError: null,
   createdTrackingNumber: null,
   searchFilters: {},
+  updatePartnerTrackingNumberLoading: false,
+  updatePartnerTrackingNumberError: null,
 
   setSearchFilters(filters: SearchFilters) {
     set({ searchFilters: filters });
@@ -50,16 +55,16 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       const params = new URLSearchParams();
 
       if (searchFilters.trackingNumber?.trim()) {
-        params.append("trackingNumber", searchFilters.trackingNumber.trim());
+        params.append('trackingNumber', searchFilters.trackingNumber.trim());
       }
       if (searchFilters.sender?.trim()) {
-        params.append("sender", searchFilters.sender.trim());
+        params.append('sender', searchFilters.sender.trim());
       }
       if (searchFilters.recipient?.trim()) {
-        params.append("recipient", searchFilters.recipient.trim());
+        params.append('recipient', searchFilters.recipient.trim());
       }
 
-      params.append("page", String(page));
+      params.append('page', String(page));
 
       const url = `/parcels?${params.toString()}`;
 
@@ -72,26 +77,23 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         });
       } else {
         const current = get().parcels || [];
-        const newParcels = data.parcels.filter(
-          (p) => !current.some((c) => c._id === p._id)
-        );
+        const newParcels = data.parcels.filter((p) => !current.some((c) => c._id === p._id));
 
         set((state) => ({
           parcels: [...(state.parcels ?? []), ...newParcels],
           parcelsResponse: data,
         }));
-
       }
 
       return true;
     } catch (e: unknown) {
-      let errorMessage = "";
+      let errorMessage = '';
 
       if (axios.isAxiosError(e)) {
         errorMessage = e.response?.data?.error || e.message;
       } else if (e instanceof Error) {
         errorMessage = e.message;
-      } else if (typeof e === "string") {
+      } else if (typeof e === 'string') {
         errorMessage = e;
       }
 
@@ -101,7 +103,6 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       set({ getParcelsLoading: false });
     }
   },
-
 
   async getParcelById(id: string) {
     try {
@@ -162,71 +163,30 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
     });
 
     try {
-      const parcelData: CreateParcelData = {
+      const parcelData = {
         partnerTrackingNumber: null,
         sender: {
           fullName: order.sender.name,
           phoneNumber: order.sender.phone,
           email: order.sender.email,
           description: order.inParcel || 'No description',
-          address: order.originCity,
+          inn_passport: order.sender.inn_passport,
         },
         recipient: {
           fullName: order.receiver.name,
           phoneNumber: order.receiver.phone,
           email: order.receiver.email,
-          address: '',
+          address: order.receiver.address || '',
           description: 'Recipient',
-          city: order.destinationCity,
         },
         originCity: order.originCity,
         destinationCity: order.destinationCity,
-        originOffice: order.originOffice || null,
-        destinationOffice: order.destinationOffice || null,
         weight: order.parcelWeight,
         isPaid: false,
         partnerStickerReceived: false,
         deliveryType: order.deliveryType,
         partnerType: order.partnerType,
-      };
-
-      if (order.deliveryType === 'courier') {
-        parcelData.recipient = {
-          ...parcelData.recipient,
-          city: order.receiver.city || order.destinationCity,
-          street: order.receiver.street || '',
-          house: order.receiver.house || '',
-          apartment: order.receiver.apartment || '',
-          address: `${order.receiver.city || order.destinationCity}, ${order.receiver.street || ''}, ${order.receiver.house || ''}${order.receiver.apartment ? `, кв. ${order.receiver.apartment}` : ''}`
         };
-      }
-
-
-      if (order.pvzData && order.deliveryType === 'pickup') {
-        parcelData.pvzData = {
-          code: order.pvzData.code,
-          name: order.pvzData.name,
-          address: order.pvzData.address,
-          phone: order.pvzData.phone || undefined,
-          worktime: order.pvzData.worktime || undefined,
-          maxweight: order.pvzData.maxweight || undefined,
-          parentcode: order.pvzData.parentcode || undefined,
-          parentname: order.pvzData.parentname || undefined,
-          town: order.pvzData.town || undefined,
-          towncode: order.pvzData.towncode || undefined,
-          region: order.pvzData.region || undefined,
-          acceptcash: order.pvzData.acceptcash || 0,
-          acceptcard: order.pvzData.acceptcard || 0,
-        };
-
-        parcelData.recipient = {
-          ...parcelData.recipient,
-          address: order.pvzData.address,
-          city: order.pvzData.town || order.destinationCity,
-        };
-      }
-
-      console.log('Sending to backend:', JSON.stringify(parcelData, null, 2));
 
       const { data } = await axiosApi.post<{
         message: string;
@@ -260,6 +220,27 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       });
 
       return null;
+    }
+  },
+
+  async updatePartnerTrackingNumber(id: string, partnerTrackingNumber: string | null) {
+    set({ updatePartnerTrackingNumberLoading: true, updatePartnerTrackingNumberError: null });
+    try {
+      const { data } = await axiosApi.patch<{ message: string; parcel: IParcel }>(
+        `/parcels/${id}/partner-tracking-number`,
+        { partnerTrackingNumber }
+      );
+      set({ parcel: data.parcel, updatePartnerTrackingNumberLoading: false });
+      get().getParcels(1);
+      return true;
+    } catch (e: unknown) {
+      let errorMessage = 'Failed to update partnerTrackingNumber';
+      if (axios.isAxiosError(e)) errorMessage = e.response?.data?.error || e.message;
+      else if (e instanceof Error) errorMessage = e.message;
+      else if (typeof e === 'string') errorMessage = e;
+
+      set({ updatePartnerTrackingNumberError: { error: errorMessage }, updatePartnerTrackingNumberLoading: false });
+      return false;
     }
   },
 }));
