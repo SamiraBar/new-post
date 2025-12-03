@@ -14,7 +14,6 @@ const ParcelsList = () => {
     getParcelsError,
     searchFilters,
   } = useParcelsStore();
-  const notFound = parcelsResponse && parcelsResponse.parcels.length === 0
 
   useEffect(() => {
     if (!parcels || parcels.length === 0) {
@@ -29,16 +28,20 @@ const ParcelsList = () => {
   };
 
   const isSearchActive =
-    searchFilters.trackingNumber || searchFilters.sender || searchFilters.recipient;
+    Boolean(searchFilters.trackingNumber) ||
+    Boolean(searchFilters.sender) ||
+    Boolean(searchFilters.recipient);
 
+  const notFound = parcels === undefined || parcels?.length === 0;
   const hasMore = parcelsResponse?.hasMore ?? false;
 
   if (getParcelsLoading && (!parcels || parcels.length === 0)) {
     return (
       <div className="flex flex-col justify-center items-center py-20">
         <div className="relative">
-          <Package className="h-16 w-16 text-gray-300 animate-pulse" />
-          <Loader2 className="h-8 w-8 text-blue-500 animate-spin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          <Package className="h-16 w-16 text-gray-300 animate-pulse"/>
+          <Loader2
+            className="h-8 w-8 text-blue-500 animate-spin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/>
         </div>
         <p className="text-gray-600 mt-4 font-medium">Загрузка посылок...</p>
       </div>
@@ -51,7 +54,7 @@ const ParcelsList = () => {
         <Alert className="max-w-md border-red-200 bg-linear-to-br from-red-50 to-red-100/50 shadow-lg">
           <div className="flex items-start gap-3">
             <div className="bg-red-100 p-2 rounded-full">
-              <XCircle className="h-5 w-5 text-red-600" />
+              <XCircle className="h-5 w-5 text-red-600"/>
             </div>
             <div className="flex-1">
               <AlertTitle className="text-red-900 font-semibold mb-1">Ошибка загрузки</AlertTitle>
@@ -74,7 +77,7 @@ const ParcelsList = () => {
             {isSearchActive ? (
               <>
                 <div className="bg-gray-100 p-2 rounded-full">
-                  <Search className="h-5 w-5 text-gray-600" />
+                  <Search className="h-5 w-5 text-gray-600"/>
                 </div>
                 <div className="flex-1">
                   <AlertTitle className="text-gray-900 font-semibold mb-1">
@@ -88,7 +91,7 @@ const ParcelsList = () => {
             ) : (
               <>
                 <div className="bg-gray-100 p-2 rounded-full">
-                  <Package className="h-5 w-5 text-gray-600" />
+                  <Package className="h-5 w-5 text-gray-600"/>
                 </div>
                 <div className="flex-1">
                   <AlertTitle className="text-gray-900 font-semibold mb-1">Посылок нет</AlertTitle>
@@ -121,7 +124,7 @@ const ParcelsList = () => {
       <ScrollArea className="flex-1 overflow-y-auto">
         <div className="space-y-2 pb-6">
           {parcels?.map((parcel) => (
-            <ParcelItem key={parcel._id} parcel={parcel} />
+            <ParcelItem key={parcel._id} parcel={parcel}/>
           ))}
         </div>
 
@@ -137,15 +140,16 @@ const ParcelsList = () => {
                        transition-all duration-300 font-medium shadow-md hover:shadow-xl
                        min-w-[180px] overflow-hidden"
             >
-              <span className="absolute inset-0 bg-linear-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+              <span
+                className="absolute inset-0 bg-linear-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-10 transition-opacity duration-300"/>
               {getParcelsLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                  <Loader2 className="w-5 h-5 animate-spin text-blue-600"/>
                   <span className="text-blue-600">Загрузка...</span>
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
-                  <Package className="w-5 h-5 group-hover:text-blue-600 transition-colors" />
+                  <Package className="w-5 h-5 group-hover:text-blue-600 transition-colors"/>
                   <span className="group-hover:text-blue-600 transition-colors">Загрузить ещё</span>
                 </span>
               )}
