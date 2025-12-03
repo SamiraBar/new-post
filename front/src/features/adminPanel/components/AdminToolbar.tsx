@@ -1,8 +1,4 @@
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuList,
-} from '@/components/ui/navigation-menu.tsx';
+import { NavigationMenu, NavigationMenuItem, NavigationMenuList, } from '@/components/ui/navigation-menu.tsx';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
@@ -18,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore';
+import { toast } from 'sonner';
 
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -38,6 +35,7 @@ const useDebounce = (value: string, delay: number) => {
 export const AdminToolbar = () => {
   const { logout } = useAdminStore();
   const admin = useAdminStore((s) => s.admin);
+  const { parcelsResponse } = useParcelsStore();
   const [search, setSearch] = useState({
     trackingNumber: '',
     sender: '',
@@ -56,6 +54,23 @@ export const AdminToolbar = () => {
       recipient: debouncedRecipient,
     });
   }, [debouncedTrackingNumber, debouncedSender, debouncedRecipient, setSearchFilters]);
+
+  const notFound = parcelsResponse && parcelsResponse.parcels.length === 0 && (debouncedTrackingNumber || debouncedSender || debouncedRecipient)
+
+  useEffect(() => {
+    if (notFound) {
+      toast.error('Ничего не найдено');
+      setSearchFilters({
+        trackingNumber: '',
+        sender: '',
+        recipient: '',
+      })
+    }
+  }, [parcelsResponse, notFound]);
+
+
+
+
 
   const inputChangeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

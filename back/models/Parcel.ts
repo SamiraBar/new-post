@@ -49,6 +49,7 @@ export interface IParcel extends mongoose.Document {
     inCityAtFormatted?: string;
     atPickupPointAtFormatted?: string;
     deliveredAtFormatted?: string;
+    deliveryType: "pickup" | "courier";
 }
 
 const PvzDataSchema = new Schema({

@@ -4,7 +4,7 @@ import {
     createParcel, getParcelById,
     getParcelByTrackingNumber,
     getParcels,
-    updateParcelStatus,
+    updateParcelStatus, updatePartnerTrackingNumber,
 } from "../controllers/parcels";
 
 const parcelsRouter = express.Router();
@@ -21,6 +21,12 @@ parcelsRouter.patch(
   "/tracking/:trackingNumber/status",
   auth,
   updateParcelStatus,
+);
+
+parcelsRouter.patch(
+    "/:id/partner-tracking-number",
+    auth,
+    updatePartnerTrackingNumber,
 );
 
 export default parcelsRouter;

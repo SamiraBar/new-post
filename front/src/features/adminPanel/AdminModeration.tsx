@@ -1,40 +1,44 @@
 import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertCircleIcon, ChevronLeft } from 'lucide-react';
-import type { AdminMutation } from '@/types';
+import type { AdminEditing, AdminMutation } from '@/types';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { AlertDialogTrigger } from '@/components/ui/alert-dialog.tsx';
 import { Alert, AlertDescription } from '@/components/ui/alert.tsx';
+import { toast } from 'sonner';
 
 const AdminModeration = () => {
   const admin = useAdminStore((s) => s.admin);
-  const { allAdmins, getAllAdmins, deleteAdmin, createAdmin } = useAdminStore();
+  const { allAdmins, getAllAdmins, deleteAdmin, createAdmin, editAdmin } = useAdminStore();
   const createAdminError = useAdminStore((s) => s.createAdminError);
+  const editAdminError = useAdminStore((s) => s.editAdminError);
   const navigate = useNavigate();
 
   const [openModal, setOpenModal] = useState(false);
+  const [editingAdminId, setEditingAdminId] = useState<string | null>(null);
+
   const [newAdmin, setNewAdmin] = useState<AdminMutation>({
+    displayName: '',
+    email: '',
+    password: '',
+  });
+
+  const [editAdminState, setEditAdminState] = useState<AdminEditing>({
+    _id: '',
     displayName: '',
     email: '',
     password: '',
@@ -55,6 +59,19 @@ const AdminModeration = () => {
   const handleDelete = async (id: string) => {
     await deleteAdmin(id);
     await getAllAdmins();
+  };
+
+  const handleEditAdmin = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!editAdminState.email.includes('@') || !editAdminState.email.includes('.')) {
+      return toast.error('Email должен содержать символы "@" и "."');
+    }
+    const success = await editAdmin(editAdminState);
+    if (success) {
+      await getAllAdmins();
+      if (success) setEditingAdminId(null);
+      return toast.success('Даннные обновлены');
+    }
   };
 
   const submitFormHandler = async (e: FormEvent) => {
@@ -176,6 +193,7 @@ const AdminModeration = () => {
               <CardContent className="space-y-2">
                 <p className="text-sm text-muted-foreground">{a.email}</p>
                 <p className="text-xs text-gray-500 uppercase">{a.role}</p>
+
                 {a.role !== 'superAdmin' && (
                   <div className="flex gap-2 pt-2">
                     <AlertDialog>
@@ -193,9 +211,93 @@ const AdminModeration = () => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Нет</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(a._id)}>Да</AlertDialogAction>
+                          <Button
+                            onClick={() => handleDelete(a._id)}
+                            className="bg-destructive text-white"
+                          >
+                            Да
+                          </Button>
                         </AlertDialogFooter>
                       </AlertDialogContent>
+                    </AlertDialog>
+
+                    <AlertDialog
+                      open={editingAdminId === a._id}
+                      onOpenChange={(open) => setEditingAdminId(open ? a._id : null)}
+                    >
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="secondary"
+                          onClick={() =>
+                            setEditAdminState({
+                              _id: a._id,
+                              displayName: a.displayName,
+                              email: a.email,
+                              password: '',
+                            })
+                          }
+                        >
+                          Редактировать
+                        </Button>
+                      </AlertDialogTrigger>
+                        <AlertDialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg z-50">
+                          <form onSubmit={handleEditAdmin}>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="text-center">Редактировать</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Внесите изменения в данные администратора и сохраните их.
+                            </AlertDialogDescription>
+
+                            <div className="space-y-4 mt-4">
+                              <div className="flex flex-col space-y-1">
+                                <Label>Имя</Label>
+                                <Input
+                                  value={editAdminState.displayName}
+                                  onChange={(e) =>
+                                    setEditAdminState(prev => ({ ...prev, displayName: e.target.value }))
+                                  }
+                                />
+                              </div>
+
+                              <div className="flex flex-col space-y-1">
+                                <Label>Почта</Label>
+                                <Input
+                                  type="email"
+                                  value={editAdminState.email}
+                                  onChange={(e) =>
+                                    setEditAdminState(prev => ({ ...prev, email: e.target.value }))
+                                  }
+                                />
+                              </div>
+
+                              <div className="flex flex-col space-y-1">
+                                <Label>Пароль</Label>
+                                <Input
+                                  placeholder="Оставьте пустым для сохранения текущего пароля"
+                                  value={editAdminState.password}
+                                  onChange={(e) =>
+                                    setEditAdminState(prev => ({ ...prev, password: e.target.value }))
+                                  }
+                                />
+                              </div>
+                            </div>
+
+                            {editAdminError && (
+                              <Alert variant="destructive" className="w-full mt-2">
+                                <AlertCircleIcon />
+                                <AlertDescription>{editAdminError}</AlertDescription>
+                              </Alert>
+                            )}
+                          </AlertDialogHeader>
+
+                          <AlertDialogFooter className="mt-4">
+                            <AlertDialogCancel>Отменить изменения</AlertDialogCancel>
+                            <Button type="submit" className="bg-brand text-white">
+                              Сохранить
+                            </Button>
+                          </AlertDialogFooter>
+                          </form>
+                        </AlertDialogContent>
                     </AlertDialog>
                   </div>
                 )}

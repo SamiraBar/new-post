@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import axiosApi from '@/axiosApi.ts';
 import type { AdminState } from '@/stores/adminStore/types.ts';
-import type { Admin, AdminMutation } from '@/types';
+import type { Admin, AdminEditing, AdminMutation } from '@/types';
 import axios, { isAxiosError } from 'axios';
 import { persist } from 'zustand/middleware';
 
@@ -13,6 +13,7 @@ export const useAdminStore = create<AdminState>()(
       loginLoading: false,
       loginError: null,
       createAdminError: null,
+      editAdminError: null,
 
       async login(data) {
         try {
@@ -66,6 +67,20 @@ export const useAdminStore = create<AdminState>()(
         await axiosApi.delete('/admins/');
         set({ admin: null });
       },
+
+      async editAdmin(data: AdminEditing) {
+        try {
+          set({ editAdminError: null });
+          await axiosApi.patch(`/admins/${data._id}`, {displayName: data.displayName, email: data.email, password: data.password});
+          return true;
+        } catch (e) {
+          if (isAxiosError(e)) {
+            const errors = e.response?.data?.error?.message || e.message;
+            set({ editAdminError: errors });
+          }
+          return false;
+        }
+      }
     }),
     {
       name: 'new-post-admin',

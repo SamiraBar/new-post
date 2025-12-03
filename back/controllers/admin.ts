@@ -6,19 +6,21 @@ import {getActiveAdminsCount} from "../utils/adminSessions";
 
 export const adminLogin = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const activeAdminsCount = await getActiveAdminsCount();
-
-        if (activeAdminsCount >= 4) {
-            return res.status(403).send({
-                error: "Maximum number of admin sessions reached"
-            });
-        }
-
         const admin = await Admin.findOne({ email: req.body.email });
         if (!admin) return res.status(400).send({ error: "Invalid login" });
 
         const isMatch = await admin.checkPassword(req.body.password);
         if (!isMatch) return res.status(400).send({ error: "Wrong password" });
+
+        if (admin.role !== "superAdmin") {
+            const activeAdminsCount = await getActiveAdminsCount();
+
+            if (activeAdminsCount >= 4) {
+                return res.status(403).send({
+                    error: "Maximum number of admin sessions reached",
+                });
+            }
+        }
 
         admin.generateToken();
         admin.isActive = true;
@@ -29,7 +31,6 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
         next(error);
     }
 };
-
 
 export const adminCreate = async (req: Request, res: Response, next: NextFunction) => {
     const adminData: Omit<AdminDef, "token" | "role"> = {
@@ -56,8 +57,8 @@ export const adminCreate = async (req: Request, res: Response, next: NextFunctio
             });
         }
 
-        next(error);
-    }
+    next(error);
+  }
 }
 
 export const adminDelete = async (req: Request, res: Response, next: NextFunction) => {
@@ -99,4 +100,33 @@ export const adminLogout = async (req: Request, res: Response, next: NextFunctio
     } catch (error) {
         next(error);
     }
+};
+
+export const adminEdit = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id;
+    const {
+      displayName,
+      email,
+      password
+    } = req.body;
+    const admin = await Admin.findById(id);
+    if (!admin) return res.status(404).send({error: 'User is not found'});
+    if (displayName) admin.displayName = displayName;
+    if (email) admin.email = email;
+    if (password) admin.password = password;
+    await admin.save();
+    res.status(200).send(admin);
+  } catch (error) {
+    if (error instanceof mongoose.Error.ValidationError) {
+      const errors = Object.values(error.errors).map(err => err.message);
+
+      return res.status(400).send({
+        error: {
+          message: errors.join(', ')
+        }
+      });
+    }
+    next(error);
+  }
 };
