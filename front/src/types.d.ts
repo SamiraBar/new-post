@@ -222,6 +222,13 @@ export interface MeasoftPvzData {
   phone: string;
   worktime: string;
   maxweight: string;
+  parentname?: string;
+  parentcode?: string;
+  town?: string;
+  towncode?: string;
+  region?: string;
+  acceptcash?: string | number;
+  acceptcard?: string | number;
 }
 
 export interface MeasoftMapGlobal {

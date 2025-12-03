@@ -40,8 +40,9 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
         document.head.appendChild(script);
 
         return () => {
-            if (document.getElementById('measoft-map-script')) {
-                document.head.removeChild(script);
+            const scriptElement = document.getElementById('measoft-map-script');
+            if (scriptElement) {
+                document.head.removeChild(scriptElement);
             }
         };
     }, []);
@@ -59,6 +60,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
 
         try {
             const handlePvzChoice = () => {
+
                 const pvzData = window.measoftMap.getSelectedPvzData();
 
                 if (pvzData && pvzData.code && pvzData.code !== '0') {
@@ -135,7 +137,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
     }, [isScriptLoaded, order.destinationCity, order.parcelWeight, clientId, clientCode, onPvzSelect]);
 
     const centerMapOnCity = async (cityName: string) => {
-        console.log('centerMapOnCity вызван для:', cityName, 'Карта доступна:', !!window.measoftMap?.map);
+        console.log('centerMapOnCity вызван для:', cityName);
         try {
             const xml = `<?xml version="1.0" encoding="UTF-8" ?>
                 <townlist>
@@ -160,7 +162,6 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
             }
 
             const responseText = await response.text();
-
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(responseText, 'text/xml');
             const towns = xmlDoc.getElementsByTagName('town');
@@ -172,15 +173,15 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
 
                 if (lat && lon && window.measoftMap?.map) {
                     window.measoftMap.map.setView([lat, lon], 11);
-                    console.log(`Карта центрирована на: ${cityName} (${lat}, ${lon})`);
+                    console.log(`✅ Карта центрирована на: ${cityName} (${lat}, ${lon})`);
                 } else {
-                    console.warn(' Координаты получены, но карта недоступна');
+                    console.warn('⚠️ Координаты получены, но карта недоступна');
                 }
             } else {
-                console.warn(`Город "${cityName}" не найден в базе MeaSoft`);
+                console.warn(`⚠️ Город "${cityName}" не найден в базе MeaSoft`);
             }
         } catch (error) {
-            console.error('Ошибка при центрировании карты на городе:', error);
+            console.error('❌ Ошибка при центрировании карты на городе:', error);
         }
     };
 
@@ -199,6 +200,19 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
                         </div>
                     </div>
                 )}
+                <input type="hidden" id="pvz_code" name="pvz_code" />
+                <input type="hidden" id="pvz_name" name="pvz_name" />
+                <input type="hidden" id="pvz_address" name="pvz_address" />
+                <input type="hidden" id="pvz_phone" name="pvz_phone" />
+                <input type="hidden" id="pvz_worktime" name="pvz_worktime" />
+                <input type="hidden" id="pvz_maxweight" name="pvz_maxweight" />
+                <input type="hidden" id="pvz_parentcode" name="pvz_parentcode" />
+                <input type="hidden" id="pvz_parentname" name="pvz_parentname" />
+                <input type="hidden" id="pvz_town" name="pvz_town" />
+                <input type="hidden" id="pvz_towncode" name="pvz_towncode" />
+                <input type="hidden" id="pvz_region" name="pvz_region" />
+                <input type="hidden" id="pvz_acceptcash" name="pvz_acceptcash" />
+                <input type="hidden" id="pvz_acceptcard" name="pvz_acceptcard" />
             </div>
 
             {order.pvzData && (
