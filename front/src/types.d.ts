@@ -13,6 +13,13 @@ export interface AdminMutation {
   password: string;
 }
 
+export interface AdminEditing {
+  _id: string;
+  displayName: string;
+  email: string;
+  password: string;
+}
+
 export interface IParcel {
   _id: string;
   trackingNumber: string;
