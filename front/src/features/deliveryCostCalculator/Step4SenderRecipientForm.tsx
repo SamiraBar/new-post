@@ -66,6 +66,8 @@ const Step4SenderRecipientForm: FC<Props> = ({
     if (name === 'inParcel') {
       if (!value || value.trim().length < 3) {
         errors.inParcel = t('deliveryCostCalculator.stepForForm.errors.inParcelError');
+      } else if (value.length > 70) {
+        errors.inParcel = 'Содержимое посылки должно быть не более 70 символов';
       } else {
         delete errors.inParcel;
       }

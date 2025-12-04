@@ -26,7 +26,6 @@ import useParcelsStore from '@/stores/parcelsStore/parcelsStore.ts';
 import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
 import { validateStep2, validateStep3, validateStep4 } from '@/lib/validation.ts';
 
-
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAgreed, setIsAgreed] = useState(false);
@@ -222,11 +221,11 @@ const DeliveryCostCalculator = () => {
 
   const isNextDisabled = () => {
     if (currentStep === 2) {
-      return !!validateStep2(order);
+      return !!validateStep2(order, t);
     }
 
     if (currentStep === 3) {
-      return !!validateStep3(order, isDoorDelivery);
+      return !!validateStep3(order, isDoorDelivery, t);
     }
 
     if (currentStep === 4) return !isAgreed;
@@ -240,19 +239,19 @@ const DeliveryCostCalculator = () => {
       if (!isDoorDelivery && !isPickup) openOrCloseCalcModal();
       else setCurrentStep(2);
     } else if (currentStep === 2) {
-      const error = validateStep2(order);
+      const error = validateStep2(order, t);
       if (error) {
         return toast.error(error);
       }
       setCurrentStep(3);
     } else if (currentStep === 3) {
-      const error = validateStep3(order, isDoorDelivery);
+      const error = validateStep3(order, isDoorDelivery, t);
       if (error) {
         return toast.error(error);
       }
       setCurrentStep(4);
     } else if (currentStep === 4) {
-      const error = validateStep4(order, isDoorDelivery);
+      const error = validateStep4(order, isDoorDelivery, t);
       if (error) {
         return toast.error(error);
       }
