@@ -21,7 +21,6 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
                 });
             }
         }
-
         admin.generateToken();
         admin.isActive = true;
         await admin.save();

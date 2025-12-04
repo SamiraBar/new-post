@@ -198,5 +198,28 @@
   },
   "footer": {
     "address": "ОСОО “Новая Почта”, г. Бишкек, ул. Льва Толстого 24/1"
+  },
+  "parcelSuccessModal": {
+    "title": "Посылка успешно создана!",
+    "trackingNumberLabel": "Ваш трек-номер:",
+    "copyButton": "Копировать",
+    "copiedButton": "Скопировано!",
+    "downloadButton": "Скачать",
+    "importantTitle": "Важно!",
+    "importantTip1": "Сохраните этот трек-номер",
+    "importantTip2": "Предъявите его в офисе отправки",
+    "importantTip3": "Используйте для отслеживания посылки",
+    "closeButton": "Понятно, закрыть",
+    "toasts": {
+      "copied": "Трек-номер скопирован!",
+      "downloaded": "Файл загружен!"
+    },
+    "downloadFile": {
+      "header": "ПОДТВЕРЖДЕНИЕ СОЗДАНИЯ ПОСЫЛКИ",
+      "trackingNumber": "Трек-номер",
+      "importantNote": "ВАЖНО! Сохраните этот номер.",
+      "presentAtOffice": "Предъявите его в офисе отправки.",
+      "creationDate": "Дата создания"
+    }
   }
 }
