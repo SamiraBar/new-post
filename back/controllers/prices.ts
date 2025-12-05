@@ -184,8 +184,17 @@ export const calculatePrice = async (req: Request, res: Response) => {
     }
 
     const numericWeight = Number(weight);
+
     if (isNaN(numericWeight) || numericWeight <= 0) {
       return res.status(400).json({ message: "Invalid weight format" });
+    }
+
+    const w = Math.ceil(numericWeight);
+
+    if (w > 15) {
+      return res
+          .status(400)
+          .json({ message: "Максимальный вес для расчета — 15 кг" });
     }
 
     if (type === "PVZ") {
@@ -218,7 +227,10 @@ export const calculatePrice = async (req: Request, res: Response) => {
         }
       }
 
-      return res.json({ totalCost: price });
+      return res.json({
+        totalCost: price,
+        billedWeight: w,
+      });
     }
 
     if (type === "Hand") {
@@ -226,13 +238,22 @@ export const calculatePrice = async (req: Request, res: Response) => {
       if (!priceData)
         return res.status(404).json({ message: "City not found in tariffs" });
 
-      let price = priceData.basePrice;
-
-      if (numericWeight > 1) {
-        price += (numericWeight - 1) * priceData.pricePerOneKg;
+      if (!priceData) {
+        return res
+            .status(404)
+            .json({ message: "Город не найден в тарифах Hand" });
       }
 
-      return res.json({ totalCost: price });
+      let total = priceData.basePrice;
+
+      if (w > 1) {
+        total += (w - 1) * priceData.pricePerOneKg;
+      }
+
+      return res.json({
+        totalCost: total,
+        billedWeight: w,
+      });
     }
 
     return res.status(400).json({ message: "Unknown tariff type" });

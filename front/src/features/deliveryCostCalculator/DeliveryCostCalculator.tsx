@@ -40,8 +40,7 @@ const DeliveryCostCalculator = () => {
     selectPickup,
     selectDoorDelivery,
     clearActions,
-    selectedPrice,
-    fetchPricing,
+    fetchDeliveryCost,
   } = useDeliveryStore();
 
   const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
@@ -65,51 +64,12 @@ const DeliveryCostCalculator = () => {
   });
 
   useEffect(() => {
-    fetchPricing();
-  }, [fetchPricing]);
-
-  useEffect(() => {
     setOrder((prev) => ({
       ...prev,
       deliveryType: isPickup ? 'pickup' : 'courier',
       partnerType: isPickup ? 'E-Kit' : 'KCE',
     }));
   }, [isPickup, isDoorDelivery]);
-
-  const calculateDeliveryCost = useCallback((weight: number) => {
-    if (weight <= 0) return 0;
-    if (weight > 15) return 0;
-
-    const basePrice = selectedPrice;
-    const roundedWeight = Math.ceil(weight);
-
-    if (roundedWeight <= 1) {
-      return basePrice;
-    }
-
-    let totalCost = basePrice;
-    const additionalKg = roundedWeight - 1;
-
-    if (isPickup) {
-      for (let kg = 1; kg <= additionalKg; kg++) {
-        const currentWeight = kg + 1;
-
-        if (currentWeight <= 3) {
-          totalCost += 125;
-        } else if (currentWeight <= 6) {
-          totalCost += 135;
-        } else if (currentWeight <= 12) {
-          totalCost += 140;
-        } else {
-          totalCost += 145;
-        }
-      }
-    } else {
-      return basePrice + (additionalKg * 200);
-    }
-
-    return totalCost;
-  }, [selectedPrice, isPickup]);
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
@@ -119,15 +79,33 @@ const DeliveryCostCalculator = () => {
   }, []);
 
   useEffect(() => {
-    const delivery = calculateDeliveryCost(order.parcelWeight);
-    const insurance = calculateInsuranceCost(order.parcelValue);
-    setOrder((prev) => ({
-      ...prev,
-      deliveryCost: delivery,
-      insuranceCost: insurance,
-      totalCost: delivery + insurance,
-    }));
-  }, [order.parcelWeight, order.parcelValue, calculateDeliveryCost, calculateInsuranceCost]);
+    const { destinationCity, parcelWeight, parcelValue } = order;
+
+    const calc = async () => {
+      let delivery = 0;
+
+      if (destinationCity && parcelWeight > 0 && parcelWeight <= 15) {
+        delivery = await fetchDeliveryCost(destinationCity, parcelWeight);
+      }
+
+      const insurance = calculateInsuranceCost(parcelValue);
+
+      setOrder((prev) => ({
+        ...prev,
+        deliveryCost: delivery,
+        insuranceCost: insurance,
+        totalCost: delivery + insurance,
+      }));
+    };
+
+    calc();
+  }, [
+    order.destinationCity,
+    order.parcelWeight,
+    order.parcelValue,
+    fetchDeliveryCost,
+    calculateInsuranceCost,
+  ]);
 
   const validateOrder = () => {
     const validations = [
@@ -243,11 +221,11 @@ const DeliveryCostCalculator = () => {
 
   const isNextDisabled = () => {
     if (currentStep === 2) {
-      return !!validateStep2(order);
+      return !!validateStep2(order, t);
     }
 
     if (currentStep === 3) {
-      return !!validateStep3(order, isDoorDelivery);
+      return !!validateStep3(order, isDoorDelivery, t);
     }
 
     if (currentStep === 4) return !isAgreed;
@@ -261,19 +239,19 @@ const DeliveryCostCalculator = () => {
       if (!isDoorDelivery && !isPickup) openOrCloseCalcModal();
       else setCurrentStep(2);
     } else if (currentStep === 2) {
-      const error = validateStep2(order);
+      const error = validateStep2(order, t);
       if (error) {
         return toast.error(error);
       }
       setCurrentStep(3);
     } else if (currentStep === 3) {
-      const error = validateStep3(order, isDoorDelivery);
+      const error = validateStep3(order, isDoorDelivery, t);
       if (error) {
         return toast.error(error);
       }
       setCurrentStep(4);
     } else if (currentStep === 4) {
-      const error = validateStep4(order, isDoorDelivery);
+      const error = validateStep4(order, isDoorDelivery, t);
       if (error) {
         return toast.error(error);
       }
