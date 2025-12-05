@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Check, Copy, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ParcelSuccessModalProps {
   isOpen: boolean;
@@ -23,18 +24,18 @@ const ParcelSuccessModal = ({
     toast.success('Трек-номер скопирован!');
     setTimeout(() => setCopied(false), 2000);
   };
-
+  const { t } = useTranslation();
   const handleDownload = () => {
     const element = document.createElement('a');
     const file = new Blob(
       [
         `===========================================\n` +
-        `      ПОДТВЕРЖДЕНИЕ СОЗДАНИЯ ПОСЫЛКИ      \n` +
+        `      ${t('parcelSuccessModal.downloadFile.header')}      \n` +
         `===========================================\n\n` +
-        `Трек-номер: ${trackingNumber}\n\n` +
-        `ВАЖНО! Сохраните этот номер.\n` +
-        `Предъявите его в офисе отправки.\n\n` +
-        `Дата создания: ${new Date().toLocaleString('ru-RU')}\n\n` +
+        `${t('parcelSuccessModal.downloadFile.trackingNumber')}: ${trackingNumber}\n\n` +
+        `${t('parcelSuccessModal.downloadFile.importantNote')}\n` +
+        `${t('parcelSuccessModal.downloadFile.presentAtOffice')}\n\n` +
+        `${t('parcelSuccessModal.downloadFile.creationDate')}: ${new Date().toLocaleString('ru-RU')}\n\n` +
         `===========================================\n`
       ],
       {type: 'text/plain'}
@@ -44,7 +45,7 @@ const ParcelSuccessModal = ({
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
-    toast.success('Файл загружен!');
+    toast.success(t('parcelSuccessModal.toasts.downloaded'));
   };
 
   return (
@@ -52,7 +53,7 @@ const ParcelSuccessModal = ({
       open={isOpen}
       onOpenChange={(open) => {
         if (!open) {
-          const confirmed = confirm('Вы скопировали трек-номер? Вы уверены, что хотите закрыть?');
+          const confirmed = confirm(t('parcelSuccessModal.toasts.confirm'));
           if (!confirmed) return;
           onClose();
         }
@@ -64,14 +65,14 @@ const ParcelSuccessModal = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-green-600">
             <Check size={28} className="bg-green-100 rounded-full p-1"/>
-            Посылка успешно создана!
+            {t('parcelSuccessModal.title')}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           <div
             className="bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-300 rounded-lg p-6 text-center">
-            <p className="text-sm text-gray-600 mb-2">Ваш трек-номер:</p>
+            <p className="text-sm text-gray-600 mb-2">{t('parcelSuccessModal.trackingNumberLabel')}</p>
             <p className="text-2xl md:text-3xl font-bold text-orange-600 font-mono tracking-wider break-all">
               {trackingNumber}
             </p>
@@ -85,12 +86,12 @@ const ParcelSuccessModal = ({
               {copied ? (
                 <>
                   <Check size={18} className="text-green-600"/>
-                  Скопировано!
+                  {t('parcelSuccessModal.copiedButton')}
                 </>
               ) : (
                 <>
                   <Copy size={18}/>
-                  Копировать
+                  {t('parcelSuccessModal.copyButton')}
                 </>
               )}
             </Button>
@@ -101,7 +102,7 @@ const ParcelSuccessModal = ({
               className="flex-1 flex items-center justify-center gap-2 hover:bg-orange-50 hover:border-orange-300"
             >
               <Download size={18}/>
-              Скачать
+              {t('parcelSuccessModal.downloadButton')}
             </Button>
           </div>
           <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
@@ -120,11 +121,13 @@ const ParcelSuccessModal = ({
                 </svg>
               </div>
               <div>
-                <h4 className="font-semibold text-amber-800 mb-1">Важно!</h4>
+                <h4 className="font-semibold text-amber-800 mb-1">
+                  {t('parcelSuccessModal.importantTitle')}
+                </h4>
                 <ul className="text-sm text-amber-700 space-y-1">
-                  <li>• Сохраните этот трек-номер</li>
-                  <li>• Предъявите его в офисе отправки</li>
-                  <li>• Используйте для отслеживания посылки</li>
+                  <li>• {t('parcelSuccessModal.importantTip1')}</li>
+                  <li>• {t('parcelSuccessModal.importantTip2')}</li>
+                  <li>• {t('parcelSuccessModal.importantTip3')}</li>
                 </ul>
               </div>
             </div>
@@ -132,14 +135,14 @@ const ParcelSuccessModal = ({
           <Button
             onClick={() => {
               const confirmed = confirm(
-                'Вы скопировали трек-номер? Вы уверены, что хотите закрыть?'
+                t('parcelSuccessModal.toasts.confirm')
               );
               if (!confirmed) return;
               onClose();
             }}
             className="w-full bg-orange-500 hover:bg-orange-600 text-white"
           >
-            Понятно, закрыть
+            {t('parcelSuccessModal.closeButton')}
           </Button>
         </div>
       </DialogContent>
