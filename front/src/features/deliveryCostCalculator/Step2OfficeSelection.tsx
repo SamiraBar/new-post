@@ -47,8 +47,8 @@ const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
 
       <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <p className="text-blue-800 text-sm">
-          <span className="font-medium">Выберите офис отправки.</span> Вы сможете сдать посылку в
-          выбранном офисе.
+          <span className="font-medium">{t('deliveryCostCalculator.stepTwoForm.spanOne')}</span>
+          {t('deliveryCostCalculator.stepTwoForm.spanTwo')}
         </p>
       </div>
 
@@ -91,7 +91,9 @@ const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
                 <div
                   className={`mt-3 text-sm font-medium ${isSelected ? 'text-orange-600' : 'text-gray-500'}`}
                 >
-                  {isSelected ? '✓ Выбран' : 'Нажмите для выбора'}
+                  {isSelected
+                    ? '✓ ' + t('deliveryCostCalculator.stepTwoForm.checkSelected')
+                    : t('deliveryCostCalculator.stepTwoForm.checkSelect')}
                 </div>
               </div>
             </button>
@@ -101,7 +103,7 @@ const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
       {!isOfficeSelected && (
         <div className="mt-4 p-3 bg-amber-50 border border-amber-300 rounded-lg mx-5">
           <p className="text-amber-700 text-sm font-medium">
-            ⚠️ Пожалуйста, выберите офис отправки
+            ⚠️ {t('deliveryCostCalculator.stepTwoForm.warning')}
           </p>
         </div>
       )}

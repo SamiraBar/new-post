@@ -19,7 +19,7 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
   const { t } = useTranslation();
 
   const filteredDestinationOffices = offices.filter((c) =>
-    c.name.toLowerCase().includes(destinationOfficeSearch.toLowerCase())
+    c.name.toLowerCase().includes(destinationOfficeSearch.toLowerCase()),
   );
 
   if (!order.deliveryType) return null;
@@ -82,7 +82,6 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
               className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
           </div>
-
         </>
       ) : (
         <>
@@ -92,7 +91,7 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
 
           <InputGroup className="bg-white">
             <InputGroupInput
-              placeholder="Поиск отделения"
+              placeholder={t('deliveryCostCalculator.stepThreeForm.placeholder')}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setDestinationOfficeSearch(e.target.value)
               }
@@ -134,7 +133,7 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
             ) : (
               <div className="text-center text-gray-500 py-8">
                 <MapPin className="size-12 mx-auto mb-2 opacity-30" />
-                <p>{t('stepTheeForm.notFound')}</p>
+                <p>{t('deliveryCostCalculator.stepThreeForm.notFound')}</p>
               </div>
             )}
           </ScrollArea>
