@@ -33,7 +33,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
     if (name === 'name') {
       if (!value || value.trim().length < 2) {
-        errors[`${type}.name`] = 'Имя должно быть минимум 2 символа';
+        errors[`${type}.name`] = t('deliveryCostCalculator.stepForForm.errors.nameError');
       } else {
         delete errors[`${type}.name`];
       }
@@ -41,7 +41,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
     if (name === 'email') {
       if (!validateEmail(value)) {
-        errors[`${type}.email`] = 'Некорректный email';
+        errors[`${type}.email`] = t('deliveryCostCalculator.stepForForm.errors.emailError');
       } else {
         delete errors[`${type}.email`];
       }
@@ -49,7 +49,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
     if (name === 'phone') {
       if (!validatePhone(value)) {
-        errors[`${type}.phone`] = 'Некорректный номер телефона';
+        errors[`${type}.phone`] = t('deliveryCostCalculator.stepForForm.errors.phoneError');
       } else {
         delete errors[`${type}.phone`];
       }
@@ -57,7 +57,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
     if (name === 'inn_passport') {
       if (!validateInnPassport(value)) {
-        errors[`${type}.inn_passport`] = 'Некорректный ИНН/Паспорт отправителя';
+        errors[`${type}.inn_passport`] = t('deliveryCostCalculator.stepForForm.errors.inn');
       } else {
         delete errors[`${type}.inn_passport`];
       }
@@ -65,7 +65,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
     if (name === 'inParcel') {
       if (!value || value.trim().length < 3) {
-        errors.inParcel = 'Опишите содержимое посылки';
+        errors.inParcel = t('deliveryCostCalculator.stepForForm.errors.inParcelError');
       } else if (value.length > 70) {
         errors.inParcel = 'Содержимое посылки должно быть не более 70 символов';
       } else {
@@ -75,7 +75,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
     if (name === 'address' && doorDelivery) {
       if (!value || value.trim().length < 5) {
-        errors.address = 'Укажите полный адрес';
+        errors.address = t('deliveryCostCalculator.stepForForm.errors.addressError');
       } else {
         delete errors.address;
       }
@@ -129,10 +129,10 @@ const Step4SenderRecipientForm: FC<Props> = ({
       <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <div className="flex items-center gap-2 text-blue-800">
           <CheckCircle size={20} />
-          <span className="font-medium">Проверьте правильность данных</span>
+          <span className="font-medium"> {t('deliveryCostCalculator.stepForForm.span')}</span>
         </div>
         <p className="text-blue-600 text-sm mt-1">
-          Все поля обязательны для заполнения. Проверьте корректность email и номеров телефонов.
+          {t('deliveryCostCalculator.stepForForm.warning')}
         </p>
       </div>
 
@@ -158,7 +158,9 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
               <div>
                 <div className="flex items-center mb-1">
-                  <FieldLabel className="text-sm">ФИО</FieldLabel>
+                  <FieldLabel className="text-sm">
+                    {t('deliveryCostCalculator.stepForForm.inputName')}
+                  </FieldLabel>
                   {isSenderNameValid ? (
                     <CheckCircle className="ml-2 text-green-500" size={16} />
                   ) : (
@@ -258,7 +260,9 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
               <div>
                 <div className="flex items-center mb-1">
-                  <FieldLabel className="text-sm">ФИО</FieldLabel>
+                  <FieldLabel className="text-sm">
+                    {t('deliveryCostCalculator.stepForForm.inputName')}
+                  </FieldLabel>
                   {isReceiverNameValid ? (
                     <CheckCircle className="ml-2 text-green-500" size={16} />
                   ) : (
@@ -322,7 +326,9 @@ const Step4SenderRecipientForm: FC<Props> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
               <div>
                 <div className="flex items-center mb-1">
-                  <FieldLabel className="text-sm">Адрес доставки</FieldLabel>
+                  <FieldLabel className="text-sm">
+                    {t('deliveryCostCalculator.stepForForm.address')}
+                  </FieldLabel>
                   {isAddressValid ? (
                     <CheckCircle className="ml-2 text-green-500" size={16} />
                   ) : (
@@ -344,7 +350,9 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
               <div>
                 <div className="flex items-center mb-1">
-                  <FieldLabel className="text-sm">Содержимое посылки</FieldLabel>
+                  <FieldLabel className="text-sm">
+                    {t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
+                  </FieldLabel>
                   {isInParcelValid ? (
                     <CheckCircle className="ml-2 text-green-500" size={16} />
                   ) : (
@@ -358,20 +366,21 @@ const Step4SenderRecipientForm: FC<Props> = ({
                   onChange={handleFieldChange}
                   value={order.inParcel}
                   rows={3}
-                  maxLength={70}
                 />
                 {fieldErrors.inParcel && (
                   <p className="text-red-500 text-xs mt-1">{fieldErrors.inParcel}</p>
                 )}
                 <p className="text-gray-500 text-sm mt-1">
-                  Опишите что находится в посылке (минимум 3 символа)
+                  {t('deliveryCostCalculator.stepForForm.inputOneParcelContentText')}
                 </p>
               </div>
             </div>
           ) : (
             <div className="mt-6">
               <div className="flex items-center mb-1">
-                <FieldLabel className="text-lg font-semibold">Содержимое посылки</FieldLabel>
+                <FieldLabel className="text-lg font-semibold">
+                  {t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
+                </FieldLabel>
                 {isInParcelValid ? (
                   <CheckCircle className="ml-2 text-green-500" size={20} />
                 ) : (
@@ -385,13 +394,12 @@ const Step4SenderRecipientForm: FC<Props> = ({
                 onChange={handleFieldChange}
                 value={order.inParcel}
                 rows={3}
-                maxLength={70}
               />
               {fieldErrors.inParcel && (
                 <p className="text-red-500 text-xs mt-1">{fieldErrors.inParcel}</p>
               )}
               <p className="text-gray-500 text-sm mt-1">
-                Опишите что находится в посылке (минимум 3 символа)
+                {t('deliveryCostCalculator.stepForForm.inputOneParcelContentText')}
               </p>
             </div>
           )}
