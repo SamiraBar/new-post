@@ -5,24 +5,25 @@ import {
   type SetStateAction,
   useEffect,
   useState,
-} from "react";
-import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field.tsx";
-import TruckIconA from "@/features/deliveryCostCalculator/components/icons/TruckIconA.tsx";
-import TruckIconB from "@/features/deliveryCostCalculator/components/icons/TruckIconB.tsx";
+} from 'react';
+import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field.tsx';
+import TruckIconA from '@/features/deliveryCostCalculator/components/icons/TruckIconA.tsx';
+import TruckIconB from '@/features/deliveryCostCalculator/components/icons/TruckIconB.tsx';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select.tsx";
-import { Input } from "@/components/ui/input.tsx";
-import { Clock, HandCoins, Weight } from "lucide-react";
-import { Button } from "@/components/ui/button.tsx";
-import type { Order } from "@/types";
-import { cities as senderCities } from "@/constants.ts";
-import useFileStore from "@/stores/fileStore/fileStore.ts";
-import { useTranslation } from "react-i18next";
+} from '@/components/ui/select.tsx';
+import { Input } from '@/components/ui/input.tsx';
+import { Clock, HandCoins, Weight, CheckCircle, XCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button.tsx';
+import type { Order } from '@/types';
+import { cities as senderCities } from '@/constants.ts';
+import useFileStore from '@/stores/fileStore/fileStore.ts';
+import { useTranslation } from 'react-i18next';
+import { validateStep1 } from '@/lib/validation.ts';
 
 interface Props {
   order: Order;
@@ -33,32 +34,45 @@ interface Props {
 
 const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNext }) => {
   const { citiesPVZ, citiesHand, getCities, loadingCities } = useFileStore();
-  const [citySearch, setCitySearch] = useState({ origin: "", destination: "" });
+  const [citySearch, setCitySearch] = useState({ origin: '', destination: '' });
+  const [validationError, setValidationError] = useState<string | null>(null);
   const { t } = useTranslation();
 
   useEffect(() => {
-    const type: "PVZ" | "Hand" = order.deliveryType === "courier" ? "Hand" : "PVZ";
-    setOrder(prev => ({ ...prev, destinationCity: "" }));
+    const type: 'PVZ' | 'Hand' = order.deliveryType === 'courier' ? 'Hand' : 'PVZ';
+    setOrder((prev) => ({ ...prev, destinationCity: '' }));
     getCities(type);
   }, [order.deliveryType, getCities, setOrder]);
 
-  const filteredOriginCities = senderCities.filter(c =>
-    c.toLowerCase().includes(citySearch.origin.toLowerCase())
+  const filteredOriginCities = senderCities.filter((c) =>
+    c.toLowerCase().includes(citySearch.origin.toLowerCase()),
   );
 
-  const recipientCities = order.deliveryType === "courier" ? citiesHand : citiesPVZ;
+  const recipientCities = order.deliveryType === 'courier' ? citiesHand : citiesPVZ;
 
-  const filteredDestinationCities = recipientCities.filter(c =>
-    c.city.toLowerCase().includes(citySearch.destination.toLowerCase())
+  const filteredDestinationCities = recipientCities.filter((c) =>
+    c.city.toLowerCase().includes(citySearch.destination.toLowerCase()),
   );
 
   const selectedPrice = order.totalCost || 0;
 
+  const isOriginCityValid = !!order.originCity;
+  const isDestinationCityValid = !!order.destinationCity;
+  const isParcelValueValid = order.parcelValue > 0 && order.parcelValue <= 50000;
+  const isParcelWeightValid = order.parcelWeight > 0 && order.parcelWeight <= 15;
+
   const isNextDisabled =
-    !order.originCity ||
-    !order.destinationCity ||
-    !order.parcelValue ||
-    !order.parcelWeight;
+    !isOriginCityValid || !isDestinationCityValid || !isParcelValueValid || !isParcelWeightValid;
+
+  const handleNextClick = () => {
+    const error = validateStep1(order);
+    if (error) {
+      setValidationError(error);
+      return;
+    }
+    setValidationError(null);
+    handleNext();
+  };
 
   return (
     <div className="w-full lg:flex pt-5">
@@ -69,7 +83,12 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
               <div className="flex flex-col gap-6 sm:flex-row sm:gap-10">
                 <FieldGroup className="gap-4">
                   <div className="flex items-center">
-                    <FieldLabel>{t("deliveryCostCalculator.stepOneForm.sender")}</FieldLabel>
+                    <FieldLabel>{t('deliveryCostCalculator.stepOneForm.sender')}</FieldLabel>
+                    {isOriginCityValid ? (
+                      <CheckCircle className="ml-2 text-green-500" size={20} />
+                    ) : (
+                      <XCircle className="ml-2 text-gray-300" size={20} />
+                    )}
                     <span className="w-[140] ml-auto">
                       <TruckIconA />
                     </span>
@@ -81,11 +100,9 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     }
                     value={order.originCity}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className={`w-full ${!isOriginCityValid && 'border-red-300'}`}>
                       <SelectValue
-                        placeholder={t(
-                          "deliveryCostCalculator.stepOneForm.senderPlaceholder"
-                        )}
+                        placeholder={t('deliveryCostCalculator.stepOneForm.senderPlaceholder')}
                       />
                     </SelectTrigger>
                     <SelectContent>
@@ -105,10 +122,14 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     </SelectContent>
                   </Select>
                 </FieldGroup>
-
                 <FieldGroup className="gap-4">
                   <div className="flex items-center justify-between">
-                    <FieldLabel>{t("deliveryCostCalculator.stepOneForm.recipient")}</FieldLabel>
+                    <FieldLabel>{t('deliveryCostCalculator.stepOneForm.recipient')}</FieldLabel>
+                    {isDestinationCityValid ? (
+                      <CheckCircle className="ml-2 text-green-500" size={20} />
+                    ) : (
+                      <XCircle className="ml-2 text-gray-300" size={20} />
+                    )}
                     <span className="w-[140] ml-auto">
                       <TruckIconB />
                     </span>
@@ -121,12 +142,14 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     }
                     value={order.destinationCity}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger
+                      className={`w-full ${!isDestinationCityValid && 'border-red-300'}`}
+                    >
                       <SelectValue
                         placeholder={
                           loadingCities
-                            ? t("deliveryCostCalculator.stepOneForm.loadingCities")
-                            : t("deliveryCostCalculator.stepOneForm.recipientPlaceholder")
+                            ? t('deliveryCostCalculator.stepOneForm.loadingCities')
+                            : t('deliveryCostCalculator.stepOneForm.recipientPlaceholder')
                         }
                       />
                     </SelectTrigger>
@@ -149,15 +172,22 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
 
               <FieldGroup className="flex flex-col sm:flex-row justify-between mt-5 min-w-0">
                 <Field>
-                  <FieldLabel>{t("deliveryCostCalculator.stepOneForm.parcelValue")}</FieldLabel>
+                  <div className="flex items-center">
+                    <FieldLabel>{t('deliveryCostCalculator.stepOneForm.parcelValue')}</FieldLabel>
+                    {isParcelValueValid ? (
+                      <CheckCircle className="ml-2 text-green-500" size={20} />
+                    ) : (
+                      <XCircle className="ml-2 text-gray-300" size={20} />
+                    )}
+                  </div>
                   <div className="relative">
                     <Input
                       placeholder="1000"
                       name="parcelValue"
                       type="number"
                       min={0}
-                      className="w-full pr-8"
-                      value={order.parcelValue || ""}
+                      className={`w-full pr-8 ${!isParcelValueValid && order.parcelValue > 0 && 'border-red-300'}`}
+                      value={order.parcelValue || ''}
                       onChange={(e) => {
                         const value = Number(e.target.value);
                         if (value > 50000) return;
@@ -170,12 +200,18 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     />
                   </div>
                   <div className="mt-1 text-red-500 text-xs sm:text-sm italic">
-                    {t("deliveryCostCalculator.stepOneForm.maxPrice")} - 50000 сом
+                    {t('deliveryCostCalculator.stepOneForm.maxPrice')} - 50000 сом
                   </div>
                 </Field>
-
                 <Field>
-                  <FieldLabel>{t("deliveryCostCalculator.stepOneForm.parcelWeight")}</FieldLabel>
+                  <div className="flex items-center">
+                    <FieldLabel>{t('deliveryCostCalculator.stepOneForm.parcelWeight')}</FieldLabel>
+                    {isParcelWeightValid ? (
+                      <CheckCircle className="ml-2 text-green-500" size={20} />
+                    ) : (
+                      <XCircle className="ml-2 text-gray-300" size={20} />
+                    )}
+                  </div>
                   <div className="relative">
                     <Input
                       placeholder="кг"
@@ -183,8 +219,8 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                       type="number"
                       min={1}
                       step={0.1}
-                      className="w-full pr-8"
-                      value={order.parcelWeight || ""}
+                      className={`w-full pr-8 ${!isParcelWeightValid && order.parcelWeight > 0 && 'border-red-300'}`}
+                      value={order.parcelWeight || ''}
                       onChange={(e) => {
                         const value = Number(e.target.value);
                         if (value > 15) return;
@@ -197,10 +233,15 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     />
                   </div>
                   <div className="mt-1 text-red-500 text-xs sm:text-sm italic">
-                    {t("deliveryCostCalculator.stepOneForm.maxWeight")} - 15кг
+                    {t('deliveryCostCalculator.stepOneForm.maxWeight')} - 15кг
                   </div>
                 </Field>
               </FieldGroup>
+              {validationError && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-300 rounded-lg">
+                  <p className="text-red-600 text-sm font-medium">{validationError}</p>
+                </div>
+              )}
             </div>
           </FieldSet>
         </FieldGroup>
@@ -209,10 +250,10 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
       <div className="shadow-lg border flex flex-col gap-4 p-5 rounded-lg w-full mt-5 lg:mt-0 lg:ml-5 lg:w-1/2">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <HandCoins className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 text-orange-500" />
+            <HandCoins className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-orange-500" />
             <div>
               <p className="text-sm md:text-base font-medium">
-                {t("deliveryCostCalculator.stepOneForm.sum")}
+                {t('deliveryCostCalculator.stepOneForm.sum')}
               </p>
             </div>
           </div>
@@ -223,16 +264,16 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
 
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Clock className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 text-orange-500" />
+            <Clock className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-orange-500" />
             <div>
               <p className="text-sm md:text-base font-medium">
-                {t("deliveryCostCalculator.stepOneForm.time")}
+                {t('deliveryCostCalculator.stepOneForm.time')}
               </p>
             </div>
           </div>
           <div className="text-right">
             <p className="text-lg md:text-xl font-semibold">
-              10 - {t("deliveryCostCalculator.stepOneForm.day")}
+              10 - {t('deliveryCostCalculator.stepOneForm.day')}
             </p>
           </div>
         </div>
@@ -240,11 +281,11 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
         <Button
           disabled={isNextDisabled}
           className={`bg-orange-500 hover:bg-orange-600 text-white px-5 py-5 md:py-6 mt-2 text-sm md:text-base font-medium transition-colors
-    ${isNextDisabled ? "opacity-50 cursor-not-allowed" : ""}
-  `}
-          onClick={handleNext}
+            ${isNextDisabled ? 'opacity-50 cursor-not-allowed' : ''}
+          `}
+          onClick={handleNextClick}
         >
-          {t("deliveryCostCalculator.buttons.forward")}
+          {t('deliveryCostCalculator.buttons.forward')}
         </Button>
       </div>
     </div>

@@ -1,0 +1,49 @@
+exports.config = {
+  output: './output',
+  helpers: {
+    Puppeteer: {
+      url: 'npx http://localhost:5183',
+      show: true,
+      windowSize: '1200x900'
+    }
+  },
+  include: {
+    I: './steps_file'
+  },
+  mocha: {},
+  bootstrap: null,
+  timeout: null,
+  teardown: null,
+  hooks: [],
+    gherkin: {
+      features: './features/**/*.feature',
+      steps: ['./step_definitions/**/*.ts']
+    },
+  plugins: {
+    screenshotOnFail: {
+      enabled: true
+    },
+    htmlReporter: {
+      enabled: true
+    },
+    retryFailedStep: {
+      enabled: true
+    },
+    eachElement: {
+      enabled: true
+    },
+    pauseOnFail: {}
+  },
+  stepTimeout: 0,
+  stepTimeoutOverride: [{
+      pattern: 'wait.*',
+      timeout: 0
+    },
+    {
+      pattern: 'amOnPage',
+      timeout: 0
+    }
+  ],
+  tests: './*_test.ts',
+  name: 'tests'
+}

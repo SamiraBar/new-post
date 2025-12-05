@@ -102,6 +102,10 @@ const Step5Review: FC<Props> = ({ order, doorDelivery }) => {
               <p className="text-sm text-gray-500">Телефон</p>
               <p className="font-semibold">{order.sender.phone}</p>
             </div>
+            <div>
+              <p className="text-sm text-gray-500">ИНН/Паспорт</p>
+              <p className="font-semibold">{order.sender.inn_passport}</p>
+            </div>
           </div>
         </div>
 
@@ -126,7 +130,7 @@ const Step5Review: FC<Props> = ({ order, doorDelivery }) => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 shadow-sm border-2 border-orange-300">
+        <div className="bg-linear-to-r from-orange-50 to-orange-100 rounded-xl p-6 shadow-sm border-2 border-orange-300">
           <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
             <DollarSign className="text-orange-600" />
             {t('deliveryCostCalculator.stepFive.sum')}

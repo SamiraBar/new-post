@@ -6,7 +6,7 @@ const permit = (...roles: string[]) => {
     const admin = (req as RequestWithAdmin).admin;
 
     if (admin && !roles.includes(admin.role)) {
-      return res.status(403).send({error: 'Низкий уровень прав'});
+      return res.status(403).send({error: 'Low level of rights'});
     }
 
     next();

@@ -17,6 +17,9 @@ interface ExtendedParcelState extends ParcelState {
   createParcelError: { error: string } | null;
   createdTrackingNumber: string | null;
   createParcel: (order: Order) => Promise<string | null>;
+  updatePartnerTrackingNumberLoading: boolean;
+  updatePartnerTrackingNumberError: { error: string } | null;
+  updatePartnerTrackingNumber: (id: string, partnerTrackingNumber: string | null) => Promise<boolean>;
 }
 
 export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
@@ -33,6 +36,8 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
   createParcelError: null,
   createdTrackingNumber: null,
   searchFilters: {},
+  updatePartnerTrackingNumberLoading: false,
+  updatePartnerTrackingNumberError: null,
 
   setSearchFilters(filters: SearchFilters) {
     set({ searchFilters: filters });
@@ -50,16 +55,16 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       const params = new URLSearchParams();
 
       if (searchFilters.trackingNumber?.trim()) {
-        params.append("trackingNumber", searchFilters.trackingNumber.trim());
+        params.append('trackingNumber', searchFilters.trackingNumber.trim());
       }
       if (searchFilters.sender?.trim()) {
-        params.append("sender", searchFilters.sender.trim());
+        params.append('sender', searchFilters.sender.trim());
       }
       if (searchFilters.recipient?.trim()) {
-        params.append("recipient", searchFilters.recipient.trim());
+        params.append('recipient', searchFilters.recipient.trim());
       }
 
-      params.append("page", String(page));
+      params.append('page', String(page));
 
       const url = `/parcels?${params.toString()}`;
 
@@ -72,26 +77,23 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         });
       } else {
         const current = get().parcels || [];
-        const newParcels = data.parcels.filter(
-          (p) => !current.some((c) => c._id === p._id)
-        );
+        const newParcels = data.parcels.filter((p) => !current.some((c) => c._id === p._id));
 
         set((state) => ({
           parcels: [...(state.parcels ?? []), ...newParcels],
           parcelsResponse: data,
         }));
-
       }
 
       return true;
     } catch (e: unknown) {
-      let errorMessage = "";
+      let errorMessage = '';
 
       if (axios.isAxiosError(e)) {
         errorMessage = e.response?.data?.error || e.message;
       } else if (e instanceof Error) {
         errorMessage = e.message;
-      } else if (typeof e === "string") {
+      } else if (typeof e === 'string') {
         errorMessage = e;
       }
 
@@ -101,7 +103,6 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       set({ getParcelsLoading: false });
     }
   },
-
 
   async getParcelById(id: string) {
     try {
@@ -162,13 +163,14 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
     });
 
     try {
-        const parcelData = {
+      const parcelData = {
         partnerTrackingNumber: null,
         sender: {
           fullName: order.sender.name,
           phoneNumber: order.sender.phone,
           email: order.sender.email,
           description: order.inParcel || 'No description',
+          inn_passport: order.sender.inn_passport,
         },
         recipient: {
           fullName: order.receiver.name,
@@ -182,7 +184,9 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         weight: order.parcelWeight,
         isPaid: false,
         partnerStickerReceived: false,
-      };
+        deliveryType: order.deliveryType,
+        partnerType: order.partnerType,
+        };
 
       const { data } = await axiosApi.post<{
         message: string;
@@ -216,6 +220,27 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       });
 
       return null;
+    }
+  },
+
+  async updatePartnerTrackingNumber(id: string, partnerTrackingNumber: string | null) {
+    set({ updatePartnerTrackingNumberLoading: true, updatePartnerTrackingNumberError: null });
+    try {
+      const { data } = await axiosApi.patch<{ message: string; parcel: IParcel }>(
+        `/parcels/${id}/partner-tracking-number`,
+        { partnerTrackingNumber }
+      );
+      set({ parcel: data.parcel, updatePartnerTrackingNumberLoading: false });
+      get().getParcels(1);
+      return true;
+    } catch (e: unknown) {
+      let errorMessage = 'Failed to update partnerTrackingNumber';
+      if (axios.isAxiosError(e)) errorMessage = e.response?.data?.error || e.message;
+      else if (e instanceof Error) errorMessage = e.message;
+      else if (typeof e === 'string') errorMessage = e;
+
+      set({ updatePartnerTrackingNumberError: { error: errorMessage }, updatePartnerTrackingNumberLoading: false });
+      return false;
     }
   },
 }));
