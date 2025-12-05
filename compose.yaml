@@ -8,6 +8,7 @@ services:
       - .env
     environment:
       NODE_ENV: development
+      MONGO_DB_URL: mongodb://new-post-database:27017/new-post
     ports:
       - 8000:8000
       - 35728:35728

@@ -2,7 +2,7 @@ import { CorsOptions } from "cors";
 import { configDotenv } from "dotenv";
 import path from "path";
 
-export const secret = "admin_potato_secret";
+export const secret = process.env["SECRET_FRAZE"] || "admin_potato_secret";
 
 const envFile = process.env["NODE_ENV"]
   ? `.${process.env["NODE_ENV"]}.env`
