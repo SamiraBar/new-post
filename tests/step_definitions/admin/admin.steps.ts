@@ -7,7 +7,7 @@ const pageMap: Record<string, string> = {
 }
 
 const userPasswords: Record<string, string> = {
-    "AdminNum1@gmail.com": "Qwerty123"
+        "AdminNum1@gmail.com": "Qwerty123"
 }
 
 Given("я нахожусь на странице {string}",(page: string) => {
@@ -32,8 +32,8 @@ When('ввожу в поле {string} значение {string}', (name: string,
     I.wait(1);
 });
 
-When('нажимаю на кнопку {string}', (name: string) => {
-    I.click(`//button[text()='${name}']`)
+When('нажимаю на кнопку {string}', (buttonName: string) => {
+    I.click(`//button[text()='${buttonName}']`)
     I.wait(1);
 });
 
@@ -42,12 +42,22 @@ When('нажимаю на div с текстом {string}', (name: string) => {
     I.wait(1);
 });
 
+When('нажимаю на кнопку {string} для администратора {string}', (buttonName: string, adminEmail: string) => {
+    I.click(`//div[text()='${adminEmail}']/following-sibling::div//button[text()='${buttonName}']`);
+    I.wait(1);
+});
+
+Then('не вижу div с текстом {string}', (name: string) => {
+    I.dontSeeElement(`//div[text()='${name}']`);
+    I.wait(1);
+});
+
 Then('вижу div с текстом {string}', (name: string) => {
     I.seeElement(`//div[text()='${name}']`)
     I.wait(1);
 });
 
-Then('я вижу текст {string}', (text: string) => {
+Then('вижу текст {string}', (text: string) => {
     I.see(text);
     I.wait(1);
 });

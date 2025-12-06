@@ -39,7 +39,15 @@ done
 echo '### Running tests'
 
 cd '../tests' || exit 1
-npx codeceptjs run --steps "$@"
+
+if [ -z "$1" ]; then
+  # Если аргумент не передан, запускаем все тесты
+  npx codeceptjs run --steps
+else
+  # Если передан аргумент, запускаем тесты с этим тегом
+  npx codeceptjs run --steps --grep "$1"
+fi
+
 EXIT_CODE=$?
 
 echo '### Killing test processes'

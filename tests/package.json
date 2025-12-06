@@ -8,7 +8,14 @@
         "codeceptjs:ui": "codecept-ui --app",
         "codeceptjs:demo": "codeceptjs run --steps -c node_modules/@codeceptjs/examples/codecept.puppeteer.conf.js",
         "codeceptjs:demo:headless": "HEADLESS=true codeceptjs run --steps -c node_modules/@codeceptjs/examples/codecept.puppeteer.conf.js",
-        "codeceptjs:demo:ui": "codecept-ui --app  -c node_modules/@codeceptjs/examples/codecept.puppeteer.conf.js"
+        "codeceptjs:demo:ui": "codecept-ui --app  -c node_modules/@codeceptjs/examples/codecept.puppeteer.conf.js",
+        "test": "./tests.sh",
+        "test:login": "./tests.sh '@login'",
+        "test:logout": "./tests.sh '@logout'",
+        "test:create": "./tests.sh '@create'",
+        "test:delete": "./tests.sh '@delete'",
+        "test:crud": "./tests.sh '@create|@delete'",
+        "test:validation": "./tests.sh '@validation'"
     },
     "devDependencies": {
         "@codeceptjs/configure": "^1.0.6",
