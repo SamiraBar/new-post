@@ -4,7 +4,10 @@ exports.config = {
     Puppeteer: {
       url: 'http://localhost:5183',
       show: true,
-      windowSize: '1200x900'
+      windowSize: '1920x1080',
+      chrome: {
+        args: ['--start-fullscreen'] // fullscreen
+      }
     }
   },
   include: {

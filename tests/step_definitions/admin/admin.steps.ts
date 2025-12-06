@@ -3,6 +3,7 @@ import {I} from "../steps"
 const pageMap: Record<string, string> = {
     "входа": "/admin/login",
     "панель администратора": "/admin",
+    "управление администраторами": "/admin/moderation"
 }
 
 const userPasswords: Record<string, string> = {
@@ -41,6 +42,10 @@ When('нажимаю на div с текстом {string}', (name: string) => {
     I.wait(1);
 });
 
+Then('вижу div с текстом {string}', (name: string) => {
+    I.seeElement(`//div[text()='${name}']`)
+    I.wait(1);
+});
 
 Then('я вижу текст {string}', (text: string) => {
     I.see(text);
