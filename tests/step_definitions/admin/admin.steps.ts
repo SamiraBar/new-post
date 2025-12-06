@@ -57,8 +57,8 @@ When('вижу тег p с текстом {string}', (name: string) => {
     I.wait(1);
 });
 
-Then('не вижу тег div с текстом {string}', (name: string) => {
-    I.dontSeeElement(`//div[text()='${name}']`);
+Then('не вижу тег {string} с текстом {string}', (tag: string, name: string) => {
+    I.dontSeeElement(`//${tag}[text()='${name}']`);
     I.wait(1);
 });
 
