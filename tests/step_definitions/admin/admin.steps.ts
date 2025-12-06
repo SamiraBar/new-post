@@ -37,27 +37,41 @@ When('нажимаю на кнопку {string}', (buttonName: string) => {
     I.wait(1);
 });
 
-When('нажимаю на div с текстом {string}', (name: string) => {
+When('нажимаю на тег div с текстом {string}', (name: string) => {
     I.click(`//div[text()='${name}']`)
     I.wait(1);
 });
 
-When('нажимаю на кнопку {string} для администратора {string}', (buttonName: string, adminEmail: string) => {
+When('нажимаю на кнопку {string} для администратора с именем {string}', (buttonName: string, adminEmail: string) => {
     I.click(`//div[text()='${adminEmail}']/following-sibling::div//button[text()='${buttonName}']`);
     I.wait(1);
 });
 
-Then('не вижу div с текстом {string}', (name: string) => {
+When('нажимаю на кнопку {string} для администратора с email {string}', (buttonName: string, adminEmail: string) => {
+    I.click(`//p[text()='${adminEmail}']/following-sibling::div//button[text()='${buttonName}']`);
+    I.wait(1);
+});
+
+When('вижу тег p с текстом {string}', (name: string) => {
+    I.seeElement(`//p[text()='${name}']`)
+    I.wait(1);
+});
+
+Then('не вижу тег div с текстом {string}', (name: string) => {
     I.dontSeeElement(`//div[text()='${name}']`);
     I.wait(1);
 });
 
-Then('вижу div с текстом {string}', (name: string) => {
-    I.seeElement(`//div[text()='${name}']`)
+Then('вижу тег {string} с текстом {string}', (tag: string, text: string) => {
+    I.seeElement(`//${tag}[text()='${text}']`);
     I.wait(1);
 });
 
 Then('вижу текст {string}', (text: string) => {
     I.see(text);
+    I.wait(1);
+});
+
+Then('администратор успешно изменен', () => {
     I.wait(1);
 });
