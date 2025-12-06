@@ -2,6 +2,7 @@ import { type Dispatch, type FC, type SetStateAction } from 'react';
 import { MapPin } from 'lucide-react';
 import type { Order, PvzData } from '@/types';
 import { useTranslation } from 'react-i18next';
+import { Input } from '@/components/ui/input.tsx';
 import MeasoftMap from '@/features/deliveryCostCalculator/components/measoftMap.tsx';
 
 interface Props {
@@ -28,7 +29,7 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
     console.log('🗺️ Selected PVZ:', {
       original: pvzData.town,
       normalized: normalizedCity,
-      code: pvzData.code
+      code: pvzData.code,
     });
 
     setOrder((prev) => ({
@@ -43,7 +44,7 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
         ...prev.receiver,
         city: normalizedCity || prev.receiver.city,
         address: pvzData.address || prev.receiver.address,
-      }
+      },
     }));
   };
 
@@ -57,8 +58,8 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
                 {t('deliveryCostCalculator.courierFields.title')}
               </h3>
 
-              <div className="flex flex-col gap-4 px-5">
-                <input
+              <div className="flex flex-col gap-4 px-5 max-w-xl mx-auto">
+                <Input
                     type="text"
                     placeholder={t('deliveryCostCalculator.courierFields.cityPlaceholder')}
                     value={order.receiver.city || order.destinationCity || ''}
@@ -68,9 +69,10 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
                           receiver: { ...prev.receiver, city: e.target.value },
                         }))
                     }
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    className="h-11 md:h-10"
                 />
-                <input
+
+                <Input
                     type="text"
                     placeholder={t('deliveryCostCalculator.courierFields.streetPlaceholder')}
                     value={order.receiver.street || ''}
@@ -80,32 +82,36 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
                           receiver: { ...prev.receiver, street: e.target.value },
                         }))
                     }
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    className="h-11 md:h-10"
                 />
-                <input
-                    type="text"
-                    placeholder={t('deliveryCostCalculator.courierFields.housePlaceholder')}
-                    value={order.receiver.house || ''}
-                    onChange={(e) =>
-                        setOrder((prev) => ({
-                          ...prev,
-                          receiver: { ...prev.receiver, house: e.target.value },
-                        }))
-                    }
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-                />
-                <input
-                    type="text"
-                    placeholder={t('deliveryCostCalculator.courierFields.apartmentPlaceholder')}
-                    value={order.receiver.apartment || ''}
-                    onChange={(e) =>
-                        setOrder((prev) => ({
-                          ...prev,
-                          receiver: { ...prev.receiver, apartment: e.target.value },
-                        }))
-                    }
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-                />
+
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Input
+                      type="text"
+                      placeholder={t('deliveryCostCalculator.courierFields.housePlaceholder')}
+                      value={order.receiver.house || ''}
+                      onChange={(e) =>
+                          setOrder((prev) => ({
+                            ...prev,
+                            receiver: { ...prev.receiver, house: e.target.value },
+                          }))
+                      }
+                      className="h-11 md:h-10 sm:flex-1"
+                  />
+
+                  <Input
+                      type="text"
+                      placeholder={t('deliveryCostCalculator.courierFields.apartmentPlaceholder')}
+                      value={order.receiver.apartment || ''}
+                      onChange={(e) =>
+                          setOrder((prev) => ({
+                            ...prev,
+                            receiver: { ...prev.receiver, apartment: e.target.value },
+                          }))
+                      }
+                      className="h-11 md:h-10 sm:flex-1"
+                  />
+                </div>
               </div>
             </>
         ) : (

@@ -12,6 +12,7 @@ import {
   Clock,
   Warehouse,
   Home,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
 import { useState, useEffect } from 'react';
@@ -105,7 +106,7 @@ const ParcelStatus = ({
   const [isEditing, setIsEditing] = useState(false);
   const [newStatus, setNewStatus] = useState<string | null>(null);
   const [pulsingStep, setPulsingStep] = useState<number | null>(null);
-  const { editParcelStatus } = useParcelsStore();
+  const { editParcelStatus, editParcelStatusLoading } = useParcelsStore();
 
   const getCurrentStep = (statusValue: string) => {
     const step = steps.find(s => s.statusValue === statusValue);
@@ -113,6 +114,8 @@ const ParcelStatus = ({
   };
 
   const currentStep = getCurrentStep(newStatus || status);
+  const progress =
+      steps.length > 1 ? (currentStep - 1) / (steps.length - 1) : 0;
 
   useEffect(() => {
     if (pulsingStep !== null) {
@@ -144,18 +147,22 @@ const ParcelStatus = ({
           Выберите новый статус
         </span>
         )}
-        <div className="absolute -top-8 right-4 z-20 flex space-x-2">
+        <div className="absolute -top-8 right-3 sm:right-4 z-20 flex space-x-2">
           {isEditing && (
               <Button
                   variant="outline"
                   size="icon"
                   className="size-9 hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all duration-200 relative group"
                   onClick={save}
-                  disabled={!newStatus}
+                  disabled={!newStatus || editParcelStatusLoading}
               >
-                <Save className="w-4 h-4" />
+                {editParcelStatusLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                    <Save className="w-4 h-4" />
+                )}
                 <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                  Сохранить статус
+                  {editParcelStatusLoading ? 'Сохранение...' : 'Сохранить статус'}
                 </div>
               </Button>
           )}
@@ -190,7 +197,7 @@ const ParcelStatus = ({
             <div
                 className="absolute top-6 left-10 h-1 bg-gradient-to-r from-green-500 to-green-400 rounded-full z-0 transition-all duration-700 ease-out"
                 style={{
-                  width: `calc(${((currentStep - 1) / (steps.length - 1)) * 100}% - 5rem)`,
+                  width: progress <= 0 ? '0%' : `${progress * 100}%`,
                 }}
             />
             <div className="relative flex justify-between w-full px-10 z-10 mb-14">
