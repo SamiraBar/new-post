@@ -80,7 +80,7 @@ const DeliveryCostCalculator = () => {
 
   useEffect(() => {
     const calculatePrices = async () => {
-      const { destinationCity, parcelWeight, parcelValue } = order;
+      const { destinationCity, parcelWeight, parcelValue, pvzData } = order;
 
       if (!destinationCity || parcelWeight <= 0) {
         setOrder((prev) => ({
@@ -92,7 +92,9 @@ const DeliveryCostCalculator = () => {
         return;
       }
 
-      const delivery = await fetchDeliveryCost(destinationCity, parcelWeight);
+      const cityForCalculation = pvzData?.town || destinationCity;
+
+      const delivery = await fetchDeliveryCost(cityForCalculation, parcelWeight);
       const insurance = calculateInsuranceCost(parcelValue);
 
       setOrder((prev) => ({
@@ -104,7 +106,14 @@ const DeliveryCostCalculator = () => {
     };
 
     calculatePrices();
-  }, [order.destinationCity, order.parcelWeight, order.parcelValue, fetchDeliveryCost, calculateInsuranceCost]);
+  }, [
+    order.destinationCity,
+    order.parcelWeight,
+    order.parcelValue,
+    order.pvzData,
+    fetchDeliveryCost,
+    calculateInsuranceCost,
+  ]);
 
   const validateOrder = () => {
     const validations = [
