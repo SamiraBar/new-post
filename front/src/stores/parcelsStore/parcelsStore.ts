@@ -177,7 +177,7 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
           fullName: order.receiver.name,
           phoneNumber: order.receiver.phone,
           email: order.receiver.email,
-          address: '',
+          address: order.destinationCity,
           description: 'Recipient',
           city: order.destinationCity,
         },
@@ -193,13 +193,20 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       };
 
       if (order.deliveryType === 'courier') {
+        const fullAddress = [
+          order.receiver.city || order.destinationCity,
+          order.receiver.street,
+          order.receiver.house,
+          order.receiver.apartment ? `кв. ${order.receiver.apartment}` : ''
+        ].filter(Boolean).join(', ');
+
         parcelData.recipient = {
           ...parcelData.recipient,
           city: order.receiver.city || order.destinationCity,
           street: order.receiver.street || '',
           house: order.receiver.house || '',
           apartment: order.receiver.apartment || '',
-          address: `${order.receiver.city || order.destinationCity}, ${order.receiver.street || ''}, ${order.receiver.house || ''}${order.receiver.apartment ? `, кв. ${order.receiver.apartment}` : ''}`
+          address: fullAddress
         };
       }
 
@@ -208,16 +215,16 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
           code: order.pvzData.code,
           name: order.pvzData.name,
           address: order.pvzData.address,
-          phone: order.pvzData.phone || undefined,
-          worktime: order.pvzData.worktime || undefined,
-          maxweight: order.pvzData.maxweight || undefined,
-          parentcode: order.pvzData.parentcode || undefined,
-          parentname: order.pvzData.parentname || undefined,
-          town: order.pvzData.town || undefined,
-          towncode: order.pvzData.towncode || undefined,
-          region: order.pvzData.region || undefined,
-          acceptcash: order.pvzData.acceptcash || 0,
-          acceptcard: order.pvzData.acceptcard || 0,
+          phone: order.pvzData.phone,
+          worktime: order.pvzData.worktime,
+          maxweight: order.pvzData.maxweight,
+          parentcode: order.pvzData.parentcode,
+          parentname: order.pvzData.parentname,
+          town: order.pvzData.town,
+          towncode: order.pvzData.towncode,
+          region: order.pvzData.region,
+          acceptcash: order.pvzData.acceptcash,
+          acceptcard: order.pvzData.acceptcard,
         };
 
         parcelData.recipient = {
@@ -227,11 +234,15 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         };
       }
 
+      console.log('✅ Sending parcel with pvzData:', parcelData.pvzData);
+
       const { data } = await axiosApi.post<{
         message: string;
         parcel: IParcel;
         trackingNumber: string;
       }>('/parcels', parcelData);
+
+      console.log('✅ Received parcel from backend:', data.parcel.pvzData);
 
       set({
         createParcelLoading: false,

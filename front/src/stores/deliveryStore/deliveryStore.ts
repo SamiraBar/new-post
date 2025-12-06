@@ -17,7 +17,7 @@ interface DeliveryStore {
     pvz: number | null;
     door: number | null;
   };
-  selectedPrice: number | null;
+  selectedPrice: number;
 }
 
 export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
@@ -29,34 +29,34 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
     pvz: null,
     door: null,
   },
-  selectedPrice: null,
+  selectedPrice: 0,
 
   openOrCloseModalSelectDeliveryVariant: () =>
-    set({ modalSelectDeliveryVariant: !get().modalSelectDeliveryVariant }),
+      set({ modalSelectDeliveryVariant: !get().modalSelectDeliveryVariant }),
 
   openOrCloseCalcModal: () => set({ calcModal: !get().calcModal }),
 
   selectDoorDelivery: () =>
-    set({
-      isDoorDelivery: true,
-      isPickup: false,
-      modalSelectDeliveryVariant: false,
-      calcModal: false,
-    }),
+      set({
+        isDoorDelivery: true,
+        isPickup: false,
+        modalSelectDeliveryVariant: false,
+        calcModal: false,
+      }),
 
   selectPickup: () =>
-    set({
-      isDoorDelivery: false,
-      isPickup: true,
-      modalSelectDeliveryVariant: false,
-      calcModal: false,
-    }),
+      set({
+        isDoorDelivery: false,
+        isPickup: true,
+        modalSelectDeliveryVariant: false,
+        calcModal: false,
+      }),
 
   clearActions: () =>
-    set({
-      isDoorDelivery: false,
-      isPickup: false,
-    }),
+      set({
+        isDoorDelivery: false,
+        isPickup: false,
+      }),
 
   fetchDeliveryCost: async (city: string, weight: number) => {
     if (!city || weight <= 0 || weight > 15) return 0;
