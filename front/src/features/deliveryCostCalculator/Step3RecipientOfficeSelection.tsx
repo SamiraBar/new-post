@@ -12,6 +12,7 @@ interface Props {
 
 const normalizeCityName = (cityName: string): string => {
   if (!cityName) return '';
+
   return cityName
       .trim()
       .replace(/\s+(город|г\.?|city)$/i, '')
@@ -23,6 +24,12 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
 
   const handlePvzSelect = (pvzData: PvzData) => {
     const normalizedCity = normalizeCityName(pvzData.town || '');
+
+    console.log('🗺️ Selected PVZ:', {
+      original: pvzData.town,
+      normalized: normalizedCity,
+      code: pvzData.code
+    });
 
     setOrder((prev) => ({
       ...prev,
@@ -110,10 +117,10 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
               <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <div className="flex items-center gap-2 text-blue-800">
                   <MapPin size={20} />
-                  <span className="font-medium">Выберите пункт выдачи на карте</span>
+                  <span className="font-medium">{t('measoftMap.selectPvz')}</span>
                 </div>
                 <p className="text-blue-600 text-sm mt-1">
-                  Нажмите на маркер ПВЗ на карте чтобы выбрать пункт выдачи
+                  {t('measoftMap.selectPvzDescription')}
                 </p>
               </div>
 
