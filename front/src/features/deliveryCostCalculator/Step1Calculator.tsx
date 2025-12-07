@@ -5,7 +5,7 @@ import TruckIconA from '@/features/deliveryCostCalculator/components/icons/Truck
 import TruckIconB from '@/features/deliveryCostCalculator/components/icons/TruckIconB.tsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
 import { Input } from '@/components/ui/input.tsx';
-import { CheckCircle, Clock, HandCoins, Weight, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, HandCoins, Weight, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
 import { cities as senderCities } from '@/constants.ts';
 import useFileStore from '@/stores/fileStore/fileStore.ts';
@@ -25,7 +25,7 @@ const Step1Calculator: FC<Props> = ({ handleNext }) => {
     register,
     setValue,
     watch,
-    formState: { errors, isValid },
+    formState: { errors },
     trigger,
   } = useFormContext<OrderFormData>();
 
@@ -64,12 +64,16 @@ const Step1Calculator: FC<Props> = ({ handleNext }) => {
     }
   };
 
+
+
   const renderCheck = (valid: boolean) =>
     valid ? (
       <CheckCircle className="ml-2 text-green-500" size={20} />
     ) : (
       <XCircle className="ml-2 text-gray-300" size={20} />
     );
+
+  const isStep1Valid = !!originCity && !!destinationCity && !!parcelValue && parcelValue > 0 && !!parcelWeight && parcelWeight > 0;
 
   return (
     <div className="w-full lg:flex pt-5 gap-5">
@@ -203,7 +207,10 @@ const Step1Calculator: FC<Props> = ({ handleNext }) => {
                   />
                 </div>
                 {errors.parcelValue && (
-                  <p className="text-red-500 text-sm">{errors.parcelValue.message}</p>
+                  <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                    <AlertCircle size={14} className="shrink-0" />
+                    <p>{t(`${errors.parcelValue.message}`)}</p>
+                  </div>
                 )}
               </Field>
 
@@ -221,7 +228,11 @@ const Step1Calculator: FC<Props> = ({ handleNext }) => {
                     min={0.1}
                     step={0.1}
                     {...register('parcelWeight', { valueAsNumber: true })}
-                    className={`w-full pr-8 ${errors.parcelWeight ? 'border-red-300' : ''}`}
+                    className={`w-full pr-8 transition-all ${
+                      errors.parcelWeight
+                        ? 'border-red-400 focus:border-red-500 focus:ring-red-200'
+                        : ''
+                    }`}
                   />
                   <Weight
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -229,7 +240,10 @@ const Step1Calculator: FC<Props> = ({ handleNext }) => {
                   />
                 </div>
                 {errors.parcelWeight && (
-                  <p className="text-red-500 text-sm">{errors.parcelWeight.message}</p>
+                  <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                    <AlertCircle size={14} className="shrink-0" />
+                    <p>{t(`${errors.parcelWeight.message}`)}</p>
+                  </div>
                 )}
               </Field>
             </FieldGroup>
@@ -263,9 +277,9 @@ const Step1Calculator: FC<Props> = ({ handleNext }) => {
         </div>
 
         <Button
-          disabled={!isValid || loadingCities}
+          disabled={!isStep1Valid || loadingCities}
           className={`bg-orange-500 hover:bg-orange-600 text-white px-5 py-5 md:py-6 mt-2 text-sm md:text-base font-medium transition-colors
-            ${!isValid || loadingCities ? 'opacity-50 cursor-not-allowed' : ''}
+            ${!isStep1Valid || loadingCities ? 'opacity-50 cursor-not-allowed' : ''}
           `}
           onClick={handleNextClick}
         >

@@ -27,14 +27,14 @@ import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
 import { validateStep2, validateStep3, validateStep4 } from '@/lib/validation.ts';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { orderSchema } from '@/lib/order.schema.ts';
+import { type OrderFormData, orderSchema } from '@/lib/order.schema.ts';
 
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAgreed, setIsAgreed] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdTrackingNumber, setCreatedTrackingNumber] = useState('');
-  const { t } = useTranslation();
+  const {t} = useTranslation();
 
   const {
     openOrCloseCalcModal,
@@ -46,7 +46,11 @@ const DeliveryCostCalculator = () => {
     fetchDeliveryCost,
   } = useDeliveryStore();
 
-  const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
+  const {
+    createParcel,
+    createParcelLoading,
+    createParcelError
+  } = useParcelsStore();
 
   const [order, setOrder] = useState<Order>({
     originCity: '',
@@ -60,13 +64,26 @@ const DeliveryCostCalculator = () => {
     totalCost: 0,
     deliveryDate: '',
     inParcel: '',
-    sender: { name: '', email: '', phone: '', inn_passport: '' },
-    receiver: { name: '', email: '', phone: '', address: '' },
+    sender: {
+      name: '',
+      email: '',
+      phone: '',
+      inn_passport: ''
+    },
+    receiver: {
+      name: '',
+      email: '',
+      phone: '',
+      address: ''
+    },
     deliveryType: 'pickup',
     partnerType: 'E-Kit',
   });
 
-  const form = useForm({resolver: zodResolver(orderSchema),
+
+  const form = useForm<OrderFormData>({
+    resolver: zodResolver(orderSchema),
+    mode: 'onChange',
     defaultValues: {
       originCity: '',
       destinationCity: '',
@@ -74,23 +91,32 @@ const DeliveryCostCalculator = () => {
       parcelWeight: 0,
       deliveryType: 'pickup',
       partnerType: 'E-Kit',
-      sender: { name: '', email: '', phone: '', inn_passport: '' },
-      receiver: { name: '', email: '', phone: '' },
+      sender: {
+        name: '',
+        email: '',
+        phone: '',
+        inn_passport: ''
+      },
+      receiver: {
+        name: '',
+        email: '',
+        phone: ''
+      },
       deliveryCost: 0,
       insuranceCost: 0,
       totalCost: 0,
       originOffice: 0,
       destinationOffice: 0,
-    },});
+    },
+  });
 
+
+  console.log(form.getValues());
 
   useEffect(() => {
-    setOrder((prev) => ({
-      ...prev,
-      deliveryType: isPickup ? 'pickup' : 'courier',
-      partnerType: isPickup ? 'E-Kit' : 'KCE',
-    }));
-  }, [isPickup, isDoorDelivery]);
+    form.setValue('deliveryType', isPickup ? 'pickup' : 'courier');
+    form.setValue('partnerType', isPickup ? 'E-Kit' : 'KCE');
+  }, [isPickup, isDoorDelivery, form]);
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
@@ -101,7 +127,10 @@ const DeliveryCostCalculator = () => {
 
   useEffect(() => {
     const calculatePrices = async () => {
-      const { destinationCity, parcelWeight, parcelValue, pvzData } = order;
+      const destinationCity = form.watch('destinationCity');
+      const parcelWeight = form.watch('parcelWeight');
+      const parcelValue = form.watch('parcelValue');
+      const pvzData = form.watch('pvzData');
 
       if (!destinationCity || parcelWeight <= 0) {
         setOrder((prev) => ({
@@ -117,6 +146,8 @@ const DeliveryCostCalculator = () => {
 
       const delivery = await fetchDeliveryCost(cityForCalculation, parcelWeight);
       const insurance = calculateInsuranceCost(parcelValue);
+
+      form.setValue('totalCost', delivery + insurance);
 
       setOrder((prev) => ({
         ...prev,
@@ -138,19 +169,28 @@ const DeliveryCostCalculator = () => {
 
   const validateOrder = () => {
     const validations = [
-      { field: order.originCity, message: t('deliveryCostCalculator.validateError.cityOfSender') },
+      {
+        field: order.originCity,
+        message: t('deliveryCostCalculator.validateError.cityOfSender')
+      },
       {
         field: order.destinationCity,
         message: t('deliveryCostCalculator.validateError.cityOfReceiver'),
       },
-      { field: order.parcelValue, message: t('deliveryCostCalculator.validateError.parcelValue') },
+      {
+        field: order.parcelValue,
+        message: t('deliveryCostCalculator.validateError.parcelValue')
+      },
       {
         field: order.parcelWeight,
         message: t('deliveryCostCalculator.validateError.parcelWeight'),
       },
     ];
 
-    for (const { field, message } of validations) {
+    for (const {
+      field,
+      message
+    } of validations) {
       if (!field) {
         toast.error(message);
         return false;
@@ -168,10 +208,10 @@ const DeliveryCostCalculator = () => {
     }
 
     if (
-        !order.sender.name ||
-        !order.sender.email ||
-        !order.sender.phone ||
-        !order.sender.inn_passport
+      !order.sender.name ||
+      !order.sender.email ||
+      !order.sender.phone ||
+      !order.sender.inn_passport
     ) {
       toast.error(t('deliveryCostCalculator.validateError.senderData'));
       return;
@@ -205,8 +245,18 @@ const DeliveryCostCalculator = () => {
         totalCost: 0,
         deliveryDate: '',
         inParcel: '',
-        sender: { name: '', email: '', phone: '', inn_passport: '' },
-        receiver: { name: '', email: '', phone: '', address: '' },
+        sender: {
+          name: '',
+          email: '',
+          phone: '',
+          inn_passport: ''
+        },
+        receiver: {
+          name: '',
+          email: '',
+          phone: '',
+          address: ''
+        },
         deliveryType: 'pickup',
         partnerType: 'E-Kit',
       });
@@ -217,8 +267,8 @@ const DeliveryCostCalculator = () => {
     } else {
       toast.error(
         createParcelError?.error ||
-          t('deliveryCostCalculator.error.failedToCreate') ||
-          'Не удалось создать посылку',
+        t('deliveryCostCalculator.error.failedToCreate') ||
+        'Не удалось создать посылку',
       );
     }
   };
@@ -229,22 +279,37 @@ const DeliveryCostCalculator = () => {
   };
 
   const onHandleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setOrder((prev) => ({ ...prev, [name]: value }));
+    const {
+      name,
+      value
+    } = e.target;
+    setOrder((prev) => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     userType?: 'sender' | 'receiver',
   ) => {
-    const { name, value } = e.target;
+    const {
+      name,
+      value
+    } = e.target;
     if (userType) {
       setOrder((prev) => ({
         ...prev,
-        [userType]: { ...prev[userType], [name]: value },
+        [userType]: {
+          ...prev[userType],
+          [name]: value
+        },
       }));
     } else {
-      setOrder((prev) => ({ ...prev, [name]: value }));
+      setOrder((prev) => ({
+        ...prev,
+        [name]: value
+      }));
     }
   };
 
@@ -264,7 +329,7 @@ const DeliveryCostCalculator = () => {
 
   const handleNext = () => {
     if (currentStep === 1) {
-      if (!validateOrder()) return;
+      // if (!validateOrder()) return;
       if (!isDoorDelivery && !isPickup) openOrCloseCalcModal();
       else setCurrentStep(2);
     } else if (currentStep === 2) {
@@ -333,20 +398,20 @@ const DeliveryCostCalculator = () => {
       );
       break;
     case 5:
-      steps = <Step5Review order={order} doorDelivery={isDoorDelivery} />;
+      steps = <Step5Review order={order} doorDelivery={isDoorDelivery}/>;
       break;
   }
 
   return (
     <FormProvider {...form}>
       <div className="container" id="calculator">
-        <Toaster />
-        <DeliveryModal />
+        <Toaster/>
+        <DeliveryModal/>
 
         <ParcelSuccessModal
-            isOpen={showSuccessModal}
-            onClose={handleCloseSuccessModal}
-            trackingNumber={createdTrackingNumber}
+          isOpen={showSuccessModal}
+          onClose={handleCloseSuccessModal}
+          trackingNumber={createdTrackingNumber}
         />
 
         <h3 className="text-xl font-medium text-center mb-4">{t('deliveryCostCalculator.title')}</h3>
@@ -355,82 +420,83 @@ const DeliveryCostCalculator = () => {
           <p className="text-lg font-medium text-gray-700">{t('delivery.chooseType')}</p>
 
           <Button
-              onClick={selectPickup}
-              className={`
+            onClick={selectPickup}
+            className={`
             px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
             active:scale-95 active:shadow-lg
             ${isPickup ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
             hover:bg-white hover:text-orange-500
           `}
-              disabled={currentStep > 1}
+            disabled={currentStep > 1}
           >
             {t('delivery.pickup')}
           </Button>
 
           <Button
-              onClick={selectDoorDelivery}
-              className={`
+            onClick={selectDoorDelivery}
+            className={`
             px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
             active:scale-95 active:shadow-lg
             ${isDoorDelivery ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
             hover:bg-white hover:text-orange-500
           `}
-              disabled={currentStep > 1}
+            disabled={currentStep > 1}
           >
             {t('delivery.courier')}
           </Button>
         </div>
 
         <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
-          <StepIndicator currentStep={currentStep} doorDelivery={isDoorDelivery} />
+          <StepIndicator currentStep={currentStep} doorDelivery={isDoorDelivery}/>
           <div>
             {steps}
 
             {currentStep > 1 && (
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 px-5">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 px-5">
+                <Button
+                  type="button"
+                  onClick={handleBack}
+                  className="flex items-center gap-2 w-full sm:w-auto justify-center bg-gray-500 hover:bg-gray-600 text-white px-6 py-3"
+                >
+                  <ArrowLeft size={20}/>
+                  <span>{t('deliveryCostCalculator.buttons.back')}</span>
+                </Button>
+
+                {currentStep === 4 && (
+                  <div
+                    className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-0">
+                    <Checkbox checked={isAgreed} onCheckedChange={() => setIsAgreed(!isAgreed)}/>
+                    <Label className="text-sm text-gray-600 leading-tight">
+                      {t('deliveryCostCalculator.buttons.agreement')}
+                    </Label>
+                  </div>
+                )}
+
+                {currentStep === 5 ? (
                   <Button
-                      type="button"
-                      onClick={handleBack}
-                      className="flex items-center gap-2 w-full sm:w-auto justify-center bg-gray-500 hover:bg-gray-600 text-white px-6 py-3"
+                    type="button"
+                    disabled={createParcelLoading}
+                    className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    onClick={handleSubmit}
                   >
-                    <ArrowLeft size={20} />
-                    <span>{t('deliveryCostCalculator.buttons.back')}</span>
+                    <span>{t('deliveryCostCalculator.buttons.pay')}</span>
+                    <ArrowRight size={20}/>
                   </Button>
-
-                  {currentStep === 4 && (
-                      <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-0">
-                        <Checkbox checked={isAgreed} onCheckedChange={() => setIsAgreed(!isAgreed)} />
-                        <Label className="text-sm text-gray-600 leading-tight">
-                          {t('deliveryCostCalculator.buttons.agreement')}
-                        </Label>
-                      </div>
-                  )}
-
-                  {currentStep === 5 ? (
-                      <Button
-                          type="button"
-                          disabled={createParcelLoading}
-                          className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                          onClick={handleSubmit}
-                      >
-                        <span>{t('deliveryCostCalculator.buttons.pay')}</span>
-                        <ArrowRight size={20} />
-                      </Button>
-                  ) : (
-                      <Button
-                          type="button"
-                          onClick={handleNext}
-                          disabled={isNextDisabled()}
-                          className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                      >
-                        <span>{t('deliveryCostCalculator.buttons.forward')}</span>
-                        <ArrowRight size={20} />
-                      </Button>
-                  )}
-                </div>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={isNextDisabled()}
+                    className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    <span>{t('deliveryCostCalculator.buttons.forward')}</span>
+                    <ArrowRight size={20}/>
+                  </Button>
+                )}
+              </div>
             )}
 
-            {currentStep === 1 && <WarningNotices />}
+            {currentStep === 1 && <WarningNotices/>}
           </div>
         </div>
       </div>

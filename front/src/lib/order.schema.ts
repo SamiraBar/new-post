@@ -2,11 +2,12 @@ import { z } from 'zod';
 
 const phoneRegex = /^\+?[0-9]{10,15}$/;
 
+
 export const orderSchema = z.object({
   originCity: z.string().min(2, 'Город отправления обязателен'),
   destinationCity: z.string().min(2, 'Город получения обязателен'),
-  parcelValue: z.coerce.number().positive('Укажите стоимость'),
-  parcelWeight: z.coerce.number().positive('Укажите вес').max(15, 'Макс 15 кг'),
+  parcelValue: z.coerce.number().positive('deliveryCostCalculator.validateError.parcelValue').max(50000, 'deliveryCostCalculator.validateError.maxValue').default(0),
+  parcelWeight: z.coerce.number().positive('deliveryCostCalculator.validateError.parcelWeight').max(15, 'deliveryCostCalculator.validateError.maxWeight').default(0),
   inParcel: z.string().optional(),
 
   deliveryType: z.enum(['pickup', 'courier']),
@@ -39,6 +40,7 @@ export const orderSchema = z.object({
   totalCost: z.number().default(0),
   deliveryDate: z.string().optional(),
   partnerType: z.enum(['E-Kit', 'KCE']),
+  pvzData: z.object({}).optional(),
 }).refine(
   (data) => {
     if (data.deliveryType === 'pickup') {
