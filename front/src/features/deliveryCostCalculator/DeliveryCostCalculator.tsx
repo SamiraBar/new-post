@@ -1,4 +1,11 @@
-import { type ChangeEvent, type FormEvent, type JSX, useCallback, useEffect, useState, } from 'react';
+import {
+  type ChangeEvent,
+  type FormEvent,
+  type JSX,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
@@ -93,15 +100,22 @@ const DeliveryCostCalculator = () => {
   }, []);
 
   useEffect(() => {
-    const { destinationCity, parcelWeight, parcelValue } = order;
+    const calculatePrices = async () => {
+      const { destinationCity, parcelWeight, parcelValue, pvzData } = order;
 
-    const calc = async () => {
-      let delivery = 0;
-
-      if (destinationCity && parcelWeight > 0 && parcelWeight <= 15) {
-        delivery = await fetchDeliveryCost(destinationCity, parcelWeight);
+      if (!destinationCity || parcelWeight <= 0) {
+        setOrder((prev) => ({
+          ...prev,
+          deliveryCost: 0,
+          insuranceCost: 0,
+          totalCost: 0,
+        }));
+        return;
       }
 
+      const cityForCalculation = pvzData?.town || destinationCity;
+
+      const delivery = await fetchDeliveryCost(cityForCalculation, parcelWeight);
       const insurance = calculateInsuranceCost(parcelValue);
 
       setOrder((prev) => ({
@@ -112,11 +126,12 @@ const DeliveryCostCalculator = () => {
       }));
     };
 
-    calc();
+    calculatePrices();
   }, [
     order.destinationCity,
     order.parcelWeight,
     order.parcelValue,
+    order.pvzData,
     fetchDeliveryCost,
     calculateInsuranceCost,
   ]);
@@ -153,10 +168,10 @@ const DeliveryCostCalculator = () => {
     }
 
     if (
-      !order.sender.name ||
-      !order.sender.email ||
-      !order.sender.phone ||
-      !order.sender.inn_passport
+        !order.sender.name ||
+        !order.sender.email ||
+        !order.sender.phone ||
+        !order.sender.inn_passport
     ) {
       toast.error(t('deliveryCostCalculator.validateError.senderData'));
       return;
@@ -329,9 +344,9 @@ const DeliveryCostCalculator = () => {
         <DeliveryModal />
 
         <ParcelSuccessModal
-          isOpen={showSuccessModal}
-          onClose={handleCloseSuccessModal}
-          trackingNumber={createdTrackingNumber}
+            isOpen={showSuccessModal}
+            onClose={handleCloseSuccessModal}
+            trackingNumber={createdTrackingNumber}
         />
 
         <h3 className="text-xl font-medium text-center mb-4">{t('deliveryCostCalculator.title')}</h3>
@@ -340,27 +355,27 @@ const DeliveryCostCalculator = () => {
           <p className="text-lg font-medium text-gray-700">{t('delivery.chooseType')}</p>
 
           <Button
-            onClick={selectPickup}
-            className={`
+              onClick={selectPickup}
+              className={`
             px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
             active:scale-95 active:shadow-lg
             ${isPickup ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
             hover:bg-white hover:text-orange-500
           `}
-            disabled={currentStep > 1}
+              disabled={currentStep > 1}
           >
             {t('delivery.pickup')}
           </Button>
 
           <Button
-            onClick={selectDoorDelivery}
-            className={`
+              onClick={selectDoorDelivery}
+              className={`
             px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
             active:scale-95 active:shadow-lg
             ${isDoorDelivery ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
             hover:bg-white hover:text-orange-500
           `}
-            disabled={currentStep > 1}
+              disabled={currentStep > 1}
           >
             {t('delivery.courier')}
           </Button>
@@ -372,47 +387,47 @@ const DeliveryCostCalculator = () => {
             {steps}
 
             {currentStep > 1 && (
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 px-5">
-                <Button
-                  type="button"
-                  onClick={handleBack}
-                  className="flex items-center gap-2 w-full sm:w-auto justify-center bg-gray-500 hover:bg-gray-600 text-white px-6 py-3"
-                >
-                  <ArrowLeft size={20} />
-                  <span>{t('deliveryCostCalculator.buttons.back')}</span>
-                </Button>
-
-                {currentStep === 4 && (
-                  <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-0">
-                    <Checkbox checked={isAgreed} onCheckedChange={() => setIsAgreed(!isAgreed)} />
-                    <Label className="text-sm text-gray-600 leading-tight">
-                      {t('deliveryCostCalculator.buttons.agreement')}
-                    </Label>
-                  </div>
-                )}
-
-                {currentStep === 5 ? (
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 px-5">
                   <Button
-                    type="button"
-                    disabled={createParcelLoading}
-                    className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    onClick={handleSubmit}
+                      type="button"
+                      onClick={handleBack}
+                      className="flex items-center gap-2 w-full sm:w-auto justify-center bg-gray-500 hover:bg-gray-600 text-white px-6 py-3"
                   >
-                    <span>{t('deliveryCostCalculator.buttons.pay')}</span>
-                    <ArrowRight size={20} />
+                    <ArrowLeft size={20} />
+                    <span>{t('deliveryCostCalculator.buttons.back')}</span>
                   </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    onClick={handleNext}
-                    disabled={isNextDisabled()}
-                    className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  >
-                    <span>{t('deliveryCostCalculator.buttons.forward')}</span>
-                    <ArrowRight size={20} />
-                  </Button>
-                )}
-              </div>
+
+                  {currentStep === 4 && (
+                      <div className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-0">
+                        <Checkbox checked={isAgreed} onCheckedChange={() => setIsAgreed(!isAgreed)} />
+                        <Label className="text-sm text-gray-600 leading-tight">
+                          {t('deliveryCostCalculator.buttons.agreement')}
+                        </Label>
+                      </div>
+                  )}
+
+                  {currentStep === 5 ? (
+                      <Button
+                          type="button"
+                          disabled={createParcelLoading}
+                          className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                          onClick={handleSubmit}
+                      >
+                        <span>{t('deliveryCostCalculator.buttons.pay')}</span>
+                        <ArrowRight size={20} />
+                      </Button>
+                  ) : (
+                      <Button
+                          type="button"
+                          onClick={handleNext}
+                          disabled={isNextDisabled()}
+                          className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        <span>{t('deliveryCostCalculator.buttons.forward')}</span>
+                        <ArrowRight size={20} />
+                      </Button>
+                  )}
+                </div>
             )}
 
             {currentStep === 1 && <WarningNotices />}

@@ -95,9 +95,7 @@ const AdminModeration = () => {
           </Button>
         </Link>
 
-        <h1 className="text-2xl font-bold text-center flex-1 mx-4">
-          Управление администраторами
-        </h1>
+        <h1 className="text-2xl font-bold text-center flex-1 mx-4">Управление администраторами</h1>
 
         <Dialog open={openModal} onOpenChange={setOpenModal}>
           <DialogTrigger asChild>
@@ -206,7 +204,8 @@ const AdminModeration = () => {
                             Вы уверены что хотите удалить администратора - {a.displayName}?
                           </AlertDialogTitle>
                           <AlertDialogDescription>
-                            Это действие необратимо. Вы моментально удалите профиль из базы данных системы.
+                            Это действие необратимо. Вы моментально удалите профиль из базы данных
+                            системы.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -240,43 +239,57 @@ const AdminModeration = () => {
                           Редактировать
                         </Button>
                       </AlertDialogTrigger>
-                        <AlertDialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg z-50">
-                          <form onSubmit={handleEditAdmin}>
+                      <AlertDialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg z-50">
+                        <form onSubmit={handleEditAdmin}>
                           <AlertDialogHeader>
-                            <AlertDialogTitle className="text-center">Редактировать</AlertDialogTitle>
+                            <AlertDialogTitle className="text-center">
+                              Редактировать
+                            </AlertDialogTitle>
                             <AlertDialogDescription>
                               Внесите изменения в данные администратора и сохраните их.
                             </AlertDialogDescription>
 
                             <div className="space-y-4 mt-4">
                               <div className="flex flex-col space-y-1">
-                                <Label>Имя</Label>
+                                <Label htmlFor="displayName">Имя</Label>
                                 <Input
+                                  id="displayName"
                                   value={editAdminState.displayName}
                                   onChange={(e) =>
-                                    setEditAdminState(prev => ({ ...prev, displayName: e.target.value }))
+                                    setEditAdminState((prev) => ({
+                                      ...prev,
+                                      displayName: e.target.value,
+                                    }))
                                   }
                                 />
                               </div>
 
                               <div className="flex flex-col space-y-1">
-                                <Label>Почта</Label>
+                                <Label htmlFor="email">Email</Label>
                                 <Input
+                                  id="email"
                                   type="email"
                                   value={editAdminState.email}
                                   onChange={(e) =>
-                                    setEditAdminState(prev => ({ ...prev, email: e.target.value }))
+                                    setEditAdminState((prev) => ({
+                                      ...prev,
+                                      email: e.target.value,
+                                    }))
                                   }
                                 />
                               </div>
 
                               <div className="flex flex-col space-y-1">
-                                <Label>Пароль</Label>
+                                <Label htmlFor="password">Пароль</Label>
                                 <Input
+                                  id="password"
                                   placeholder="Оставьте пустым для сохранения текущего пароля"
                                   value={editAdminState.password}
                                   onChange={(e) =>
-                                    setEditAdminState(prev => ({ ...prev, password: e.target.value }))
+                                    setEditAdminState((prev) => ({
+                                      ...prev,
+                                      password: e.target.value,
+                                    }))
                                   }
                                 />
                               </div>
@@ -296,8 +309,8 @@ const AdminModeration = () => {
                               Сохранить
                             </Button>
                           </AlertDialogFooter>
-                          </form>
-                        </AlertDialogContent>
+                        </form>
+                      </AlertDialogContent>
                     </AlertDialog>
                   </div>
                 )}
