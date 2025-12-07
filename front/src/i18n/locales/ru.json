@@ -221,14 +221,21 @@
       "importantNote": "ВАЖНО! Сохраните этот номер.",
       "presentAtOffice": "Предъявите его в офисе отправки.",
       "creationDate": "Дата создания"
-    },
-    "measoftMap": {
-      "selectPvz": "Выберите пункт выдачи на карте",
-      "selectPvzDescription": "Нажмите на маркер ПВЗ на карте чтобы выбрать пункт выдачи",
-      "loading": "Загрузка карты...",
-      "selectedTitle": "Выбран пункт выдачи:",
-      "phone": "Телефон",
-      "worktime": "Режим работы"
     }
+  },
+  "measoftMap": {
+    "selectPvz": "Выберите пункт выдачи на карте",
+    "selectPvzDescription": "Нажмите на маркер ПВЗ на карте чтобы выбрать пункт выдачи",
+    "loading": "Загрузка карты...",
+    "selectedTitle": "Выбран пункт выдачи:",
+    "phone": "Телефон",
+    "worktime": "Режим работы",
+    "errors": {
+      "scriptLoadFailed": "Не удалось загрузить карту",
+      "mapInitializationFailed": "Не удалось инициализировать карту",
+      "cityNotFound": "Город не найден: {{city}}",
+      "geocodingError": "Ошибка при получении координат"
+    },
+    "mapButtonCaption": "Выбрать пункт самовывоза"
   }
 }

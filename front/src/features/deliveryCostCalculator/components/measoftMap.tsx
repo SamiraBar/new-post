@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type {MeasoftMapConfig, MeasoftMapGlobal, MeasoftMapInstance, MeasoftMapProps, PvzFilter} from '@/types';
+import type { MeasoftMapConfig, MeasoftMapGlobal, MeasoftMapInstance, MeasoftMapProps, PvzFilter } from '@/types';
 import { useTranslation } from 'react-i18next';
 
 declare global {
@@ -17,7 +17,12 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const mapInstanceRef = useRef<MeasoftMapInstance | null>(null);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  
+  const getMapLanguage = () => {
+    const currentLang = i18n.language;
+    return currentLang === 'kg' ? 'ru' : currentLang;
+  };
 
   useEffect(() => {
     if (document.getElementById('measoft-map-script')) {
@@ -36,7 +41,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
     };
 
     script.onerror = () => {
-      console.error('Failed to load Measoft map script');
+      console.error(t('measoftMap.errors.scriptLoadFailed'));
     };
 
     document.head.appendChild(script);
@@ -46,7 +51,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
         document.head.removeChild(script);
       }
     };
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!isScriptLoaded || !mapContainerRef.current || !window.measoftMap) {
@@ -101,9 +106,9 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
           height: '500'
         },
         centerCoords: ['42.8746', '74.5698'],
-        lang: 'ru',
+        lang: getMapLanguage(),
         showMapButton: '0',
-        showMapButtonCaption: 'Выбрать пункт самовывоза',
+        showMapButtonCaption: t('measoftMap.mapButtonCaption'),
         filter: filter,
         allowedFilterParams: ['acceptcash', 'acceptcard', 'acceptfitting'],
         choicePvzCallback: handlePvzChoice,
@@ -126,7 +131,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
       }
 
     } catch (error) {
-      console.error('Ошибка инициализации карты ПВЗ:', error);
+      console.error(t('measoftMap.errors.mapInitializationFailed'), error);
     }
 
     return () => {
@@ -134,7 +139,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
         mapInstanceRef.current.close();
       }
     };
-  }, [isScriptLoaded, order.destinationCity, order.parcelWeight, clientId, clientCode, onPvzSelect]);
+  }, [isScriptLoaded, order.destinationCity, order.parcelWeight, clientId, clientCode, onPvzSelect, t, getMapLanguage]);
 
   const centerMapOnCity = async (cityName: string) => {
     try {
@@ -176,57 +181,57 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
           console.log(`Карта центрирована на: ${cityName} (${lat}, ${lon})`);
         }
       } else {
-        console.warn(`Город "${cityName}" не найден в базе MeaSoft`);
+        console.warn(t('measoftMap.errors.cityNotFound', { city: cityName }));
       }
     } catch (error) {
-      console.error('Ошибка при центрировании карты на городе:', error);
+      console.error(t('measoftMap.errors.geocodingError'), error);
     }
   };
 
   return (
-      <div className="w-full">
-        <div
-            id="measoftMapBlock"
-            ref={mapContainerRef}
-            className="min-h-[500px] rounded-xl overflow-hidden border-2 border-gray-200"
-        >
-          {!isScriptLoaded && (
-              <div className="flex items-center justify-center h-[500px] bg-gray-50">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-                  <p className="text-gray-600">{t('measoftMap.loading')}</p>
-                </div>
-              </div>
-          )}
-        </div>
-
-        {order.pvzData && (
-            <div className="mt-4 p-4 bg-green-50 border-2 border-green-300 rounded-xl">
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-green-800 mb-2">{t('measoftMap.selectedTitle')}</h4>
-                  <p className="font-semibold text-gray-800">{order.pvzData.name}</p>
-                  <p className="text-sm text-gray-600 mt-1">{order.pvzData.address}</p>
-                  {order.pvzData.phone && (
-                      <p className="text-sm text-gray-600">
-                        {t('measoftMap.phone')}: {order.pvzData.phone}
-                      </p>
-                  )}
-                  {order.pvzData.worktime && (
-                      <p className="text-sm text-gray-600">
-                        {t('measoftMap.worktime')}: {order.pvzData.worktime}
-                      </p>
-                  )}
-                </div>
-              </div>
+    <div className="w-full">
+      <div
+        id="measoftMapBlock"
+        ref={mapContainerRef}
+        className="min-h-[500px] rounded-xl overflow-hidden border-2 border-gray-200"
+      >
+        {!isScriptLoaded && (
+          <div className="flex items-center justify-center h-[500px] bg-gray-50">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+              <p className="text-gray-600">{t('measoftMap.loading')}</p>
             </div>
+          </div>
         )}
       </div>
+
+      {order.pvzData && (
+        <div className="mt-4 p-4 bg-green-50 border-2 border-green-300 rounded-xl">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h4 className="font-bold text-green-800 mb-2">{t('measoftMap.selectedTitle')}</h4>
+              <p className="font-semibold text-gray-800">{order.pvzData.name}</p>
+              <p className="text-sm text-gray-600 mt-1">{order.pvzData.address}</p>
+              {order.pvzData.phone && (
+                <p className="text-sm text-gray-600">
+                  {t('measoftMap.phone')}: {order.pvzData.phone}
+                </p>
+              )}
+              {order.pvzData.worktime && (
+                <p className="text-sm text-gray-600">
+                  {t('measoftMap.worktime')}: {order.pvzData.worktime}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -221,14 +221,21 @@
       "importantNote": "МААНИЛҮҮ! Бул номерди сактаңыз.",
       "presentAtOffice": "Аны жөнөтүү кеңсесинде көрсөтүңүз.",
       "creationDate": "Түзүлгөн датасы"
-    },
-    "measoftMap": {
-      "selectPvz": "Картадан ПВЗ тандаңыз",
-      "selectPvzDescription": "ПВЗ тандоо үчүн картадагы маркерди басыңыз",
-      "loading": "Карта жүктөлүүдө...",
-      "selectedTitle": "Тандалган ПВЗ:",
-      "phone": "Телефон",
-      "worktime": "Иштөө режими"
     }
+  },
+  "measoftMap": {
+    "selectPvz": "Картадан ПВЗ тандаңыз",
+    "selectPvzDescription": "ПВЗ тандоо үчүн картадагы маркерди басыңыз",
+    "loading": "Карта жүктөлүүдө...",
+    "selectedTitle": "Тандалган ПВЗ:",
+    "phone": "Телефон",
+    "worktime": "Иштөө режими",
+    "errors": {
+      "scriptLoadFailed": "Картаны жүктөө ишке ашкан жок",
+      "mapInitializationFailed": "Картаны инициализациялоо ишке ашкан жок",
+      "cityNotFound": "Шаар табылган жок: {{city}}",
+      "geocodingError": "Координаттарды алууда ката"
+    },
+    "mapButtonCaption": "Пункт алып кетүүнү тандоо"
   }
 }
