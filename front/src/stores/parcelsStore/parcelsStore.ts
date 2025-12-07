@@ -234,23 +234,17 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         };
       }
 
-      console.log('✅ Sending parcel with pvzData:', parcelData.pvzData);
-
       const { data } = await axiosApi.post<{
         message: string;
         parcel: IParcel;
         trackingNumber: string;
       }>('/parcels', parcelData);
 
-      console.log('✅ Received parcel from backend:', data.parcel.pvzData);
-
       set({
         createParcelLoading: false,
         parcel: data.parcel,
         createdTrackingNumber: data.trackingNumber,
       });
-
-      get().getParcels(1);
 
       return data.trackingNumber;
     } catch (e: unknown) {

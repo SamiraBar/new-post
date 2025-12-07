@@ -135,7 +135,6 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
   }, [isScriptLoaded, order.destinationCity, order.parcelWeight, clientId, clientCode, onPvzSelect]);
 
   const centerMapOnCity = async (cityName: string) => {
-    console.log('centerMapOnCity вызван для:', cityName, 'Карта доступна:', !!window.measoftMap?.map);
     try {
       const xml = `<?xml version="1.0" encoding="UTF-8" ?>
                 <townlist>
