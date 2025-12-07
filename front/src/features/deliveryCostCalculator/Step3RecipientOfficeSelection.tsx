@@ -10,18 +10,31 @@ interface Props {
   handleNext: () => void;
 }
 
+const normalizeCityName = (cityName: string): string => {
+  if (!cityName) return '';
+  return cityName
+      .trim()
+      .replace(/\s+(город|г\.?|city)$/i, '')
+      .trim();
+};
+
 const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
   const { t } = useTranslation();
 
   const handlePvzSelect = (pvzData: PvzData) => {
+    const normalizedCity = normalizeCityName(pvzData.town || '');
+
     setOrder((prev) => ({
       ...prev,
-      pvzData: pvzData,
+      pvzData: {
+        ...pvzData,
+        town: normalizedCity,
+      },
       destinationOffice: parseInt(pvzData.code) || 0,
-      destinationCity: pvzData.town || prev.destinationCity,
+      destinationCity: normalizedCity || prev.destinationCity,
       receiver: {
         ...prev.receiver,
-        city: pvzData.town || prev.receiver.city,
+        city: normalizedCity || prev.receiver.city,
         address: pvzData.address || prev.receiver.address,
       }
     }));

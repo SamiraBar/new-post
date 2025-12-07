@@ -14,10 +14,11 @@ interface DeliveryStore {
   clearActions: () => void;
   fetchDeliveryCost: (city: string, weight: number) => Promise<number>;
   pricing: {
-    pvz: number | null;
-    door: number | null;
+    pvz: number;
+    door: number;
   };
-  selectedPrice: number | null;
+  selectedPrice: number;
+  totalCost: number;
 }
 
 export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
@@ -26,46 +27,58 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
   modalSelectDeliveryVariant: false,
   calcModal: false,
   pricing: {
-    pvz: null,
-    door: null,
+    pvz: 0,
+    door: 0,
   },
-  selectedPrice: null,
+  selectedPrice: 0,
+  totalCost: 0,
 
   openOrCloseModalSelectDeliveryVariant: () =>
-    set({ modalSelectDeliveryVariant: !get().modalSelectDeliveryVariant }),
+      set({ modalSelectDeliveryVariant: !get().modalSelectDeliveryVariant }),
 
   openOrCloseCalcModal: () => set({ calcModal: !get().calcModal }),
 
   selectDoorDelivery: () =>
-    set({
-      isDoorDelivery: true,
-      isPickup: false,
-      modalSelectDeliveryVariant: false,
-      calcModal: false,
-    }),
+      set({
+        isDoorDelivery: true,
+        isPickup: false,
+        modalSelectDeliveryVariant: false,
+        calcModal: false,
+      }),
 
   selectPickup: () =>
-    set({
-      isDoorDelivery: false,
-      isPickup: true,
-      modalSelectDeliveryVariant: false,
-      calcModal: false,
-    }),
+      set({
+        isDoorDelivery: false,
+        isPickup: true,
+        modalSelectDeliveryVariant: false,
+        calcModal: false,
+      }),
 
   clearActions: () =>
-    set({
-      isDoorDelivery: false,
-      isPickup: false,
-    }),
+      set({
+        isDoorDelivery: false,
+        isPickup: false,
+      }),
 
   fetchDeliveryCost: async (city: string, weight: number) => {
-    if (!city || weight <= 0 || weight > 15) return 0;
+    if (!city || weight <= 0 || weight > 15) {
+      console.warn('Invalid delivery cost params:', { city, weight });
+      return 0;
+    }
 
     const type = get().isPickup ? 'PVZ' : 'Hand';
+    const normalizedCity = city.trim().replace(/\s+(город|г\.?|city)$/i, '').trim();
+
+    console.log('💰 Fetching delivery cost:', {
+      type,
+      originalCity: city,
+      normalizedCity,
+      weight
+    });
 
     try {
       const res = await axiosApi.get('/prices/calculate', {
-        params: { type, city, weight },
+        params: { type, city: normalizedCity, weight },
       });
 
       const cost = res.data.totalCost ?? 0;
@@ -74,17 +87,27 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
         set((prev) => ({
           pricing: { ...prev.pricing, pvz: cost },
           selectedPrice: cost,
+          totalCost: cost,
         }));
       } else {
         set((prev) => ({
           pricing: { ...prev.pricing, door: cost },
           selectedPrice: cost,
+          totalCost: cost,
         }));
       }
 
       return cost;
     } catch (error) {
-      console.error('Failed to calculate delivery price', error);
+      console.error('Failed to calculate delivery price:', error);
+      set((prev) => ({
+        pricing: type === 'PVZ'
+            ? { ...prev.pricing, pvz: 0 }
+            : { ...prev.pricing, door: 0 },
+        selectedPrice: 0,
+        totalCost: 0,
+      }));
+
       return 0;
     }
   },
