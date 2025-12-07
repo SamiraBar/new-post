@@ -2,9 +2,12 @@ exports.config = {
   output: './output',
   helpers: {
     Puppeteer: {
-      url: 'npx http://localhost:5183',
+      url: 'http://localhost:5183',
       show: true,
-      windowSize: '1200x900'
+      windowSize: '1920x1080',
+      chrome: {
+        args: ['--start-fullscreen'] // fullscreen
+      }
     }
   },
   include: {
@@ -17,7 +20,7 @@ exports.config = {
   hooks: [],
     gherkin: {
       features: './features/**/*.feature',
-      steps: ['./step_definitions/**/*.ts']
+      steps: './step_definitions/*/*.ts'
     },
   plugins: {
     screenshotOnFail: {
