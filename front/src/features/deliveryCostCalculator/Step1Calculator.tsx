@@ -65,7 +65,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
     !isOriginCityValid || !isDestinationCityValid || !isParcelValueValid || !isParcelWeightValid;
 
   const handleNextClick = () => {
-    const error = validateStep1(order);
+    const error = validateStep1(order, t);
     if (error) {
       setValidationError(error);
       return;
