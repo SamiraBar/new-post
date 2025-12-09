@@ -12,11 +12,13 @@ import {
   Clock,
   Warehouse,
   Home,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
 import { useState, useEffect } from 'react';
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore.ts';
 import dayjs from 'dayjs';
+import React from 'react';
 
 interface StatusStep {
   id: number;
@@ -105,7 +107,7 @@ const ParcelStatus = ({
   const [isEditing, setIsEditing] = useState(false);
   const [newStatus, setNewStatus] = useState<string | null>(null);
   const [pulsingStep, setPulsingStep] = useState<number | null>(null);
-  const { editParcelStatus } = useParcelsStore();
+  const { editParcelStatus, editParcelStatusLoading } = useParcelsStore();
 
   const getCurrentStep = (statusValue: string) => {
     const step = steps.find(s => s.statusValue === statusValue);
@@ -137,6 +139,8 @@ const ParcelStatus = ({
     setNewStatus(null);
   };
 
+  const totalGridCols = steps.length * 2 - 1;
+
   return (
       <div className="w-full bg-white border border-gray-200 rounded-xl shadow-sm py-6 px-4 sm:px-8 flex flex-col items-center relative">
         {isEditing && (
@@ -144,23 +148,28 @@ const ParcelStatus = ({
           Выберите новый статус
         </span>
         )}
-        <div className="absolute -top-8 right-4 z-20 flex space-x-2">
+
+        <div className="absolute -top-8 right-3 sm:right-4 z-20 flex space-x-2">
           {isEditing && (
               <Button
                   variant="outline"
                   size="icon"
                   className="size-9 hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all duration-200 relative group"
                   onClick={save}
-                  disabled={!newStatus}
+                  disabled={!newStatus || editParcelStatusLoading}
               >
-                <Save className="w-4 h-4" />
+                {editParcelStatusLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                    <Save className="w-4 h-4" />
+                )}
                 <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                  Сохранить статус
+                  {editParcelStatusLoading ? 'Сохранение...' : 'Сохранить статус'}
                 </div>
               </Button>
           )}
           <Button
-              variant={isEditing ? "default" : "outline"}
+              variant={isEditing ? 'default' : 'outline'}
               size="icon"
               className={`size-9 transition-all duration-200 relative group ${
                   isEditing
@@ -186,43 +195,68 @@ const ParcelStatus = ({
         <div className="relative w-full overflow-x-auto scrollbar-hide pt-4.5">
           <div className="relative min-w-[1000px] sm:min-w-[1200px] md:min-w-0 mx-auto flex flex-col items-center">
 
-            <div className="absolute top-6 left-10 right-10 h-1 bg-gray-200 rounded-full z-0" />
-            <div
-                className="absolute top-6 left-10 h-1 bg-gradient-to-r from-green-500 to-green-400 rounded-full z-0 transition-all duration-700 ease-out"
-                style={{
-                  width: `calc(${((currentStep - 1) / (steps.length - 1)) * 100}% - 5rem)`,
-                }}
-            />
-            <div className="relative flex justify-between w-full px-10 z-10 mb-14">
-              {steps.map((step) => (
-                  <div
-                      key={step.id}
-                      className="flex flex-col items-center"
-                  >
-                    <div
-                        onClick={() => handleStatusSelect(step)}
-                        className={`flex items-center justify-center w-11 h-11 rounded-full border-2 transition-all duration-300 ${
-                            step.id <= currentStep
-                                ? 'bg-gradient-to-br from-green-500 to-green-600 border-green-600 shadow-lg shadow-green-200'
-                                : 'bg-white border-gray-300'
-                        } ${
-                            isEditing && step.id > currentStep
-                                ? 'cursor-pointer hover:scale-110 hover:border-green-400 hover:shadow-md'
-                                : ''
-                        } relative`}
-                    >
-                      {step.id <= currentStep && (
-                          <Check className="w-6 h-6 text-white" />
-                      )}
-                      {step.id > currentStep && (
-                          <div className="w-3 h-3 rounded-full bg-gray-300" />
-                      )}
-                      {pulsingStep === step.id && (
-                          <div className="absolute inset-0 rounded-full bg-green-500 animate-ping" />
-                      )}
-                    </div>
-                  </div>
-              ))}
+            <div className="w-full px-10 mb-14">
+              <div
+                  className="grid items-center"
+                  style={{
+                    gridTemplateColumns: `repeat(${totalGridCols}, minmax(0, 1fr))`,
+                  }}
+              >
+                {Array.from({ length: totalGridCols }).map((_, idx) => {
+                  if (idx % 2 === 0) {
+                    const stepIndex = idx / 2;
+                    const step = steps[stepIndex];
+                    const isDone = step.id <= currentStep;
+
+                    return (
+                        <div
+                            key={`circle-${step.id}`}
+                            className="flex justify-center"
+                        >
+                          <div
+                              onClick={() => handleStatusSelect(step)}
+                              className={`flex items-center justify-center w-11 h-11 rounded-full border-2 transition-all duration-300 relative ${
+                                  isDone
+                                      ? 'bg-gradient-to-br from-green-500 to-green-600 border-green-600 shadow-lg shadow-green-200'
+                                      : 'bg-white border-gray-300'
+                              } ${
+                                  isEditing && step.id > currentStep
+                                      ? 'cursor-pointer hover:scale-110 hover:border-green-400 hover:shadow-md'
+                                      : ''
+                              }`}
+                          >
+                            {isDone ? (
+                                <Check className="w-6 h-6 text-white" />
+                            ) : (
+                                <div className="w-3 h-3 rounded-full bg-gray-300" />
+                            )}
+                            {pulsingStep === step.id && (
+                                <div className="absolute inset-0 rounded-full bg-green-500 animate-ping" />
+                            )}
+                          </div>
+                        </div>
+                    );
+                  }
+
+                  const segmentIndex = (idx - 1) / 2 + 1;
+                  const isSegmentActive = currentStep > segmentIndex;
+
+                  return (
+                      <div
+                          key={`segment-${idx}`}
+                          className="flex items-center"
+                      >
+                        <div
+                            className={`w-full h-1 rounded-full transition-all duration-300 ${
+                                isSegmentActive
+                                    ? 'bg-gradient-to-r from-green-500 to-green-400'
+                                    : 'bg-gray-200'
+                            }`}
+                        />
+                      </div>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="flex justify-between w-full -mt-1 mx-10">
@@ -231,19 +265,23 @@ const ParcelStatus = ({
                       key={step.id}
                       className="flex flex-col items-center text-center w-24 sm:w-28 shrink-0"
                   >
-                    <div className={`mb-3 transition-all duration-300 relative ${
-                        step.id <= currentStep
-                            ? `${step.color} scale-110`
-                            : 'text-gray-400 scale-100'
-                    }`}>
+                    <div
+                        className={`mb-3 transition-all duration-300 relative ${
+                            step.id <= currentStep
+                                ? `${step.color} scale-110`
+                                : 'text-gray-400 scale-100'
+                        }`}
+                    >
                       {step.icon}
                       {pulsingStep === step.id && (
                           <div className="absolute inset-0 rounded-full bg-current opacity-20 animate-ping" />
                       )}
                     </div>
-                    <div className={`text-xs font-medium transition-all duration-300 ${
-                        step.id <= currentStep ? step.color : 'text-gray-500'
-                    }`}>
+                    <div
+                        className={`text-xs font-medium transition-all duration-300 ${
+                            step.id <= currentStep ? step.color : 'text-gray-500'
+                        }`}
+                    >
                       <div className="font-semibold mb-1 leading-tight">
                         {step.label}
                       </div>
@@ -277,6 +315,7 @@ const ParcelStatus = ({
                   </div>
               ))}
             </div>
+
           </div>
         </div>
       </div>
