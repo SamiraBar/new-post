@@ -1,0 +1,29 @@
+services:
+  back:
+    build:
+      context: ./back
+      dockerfile: Dockerfile.production
+    depends_on:
+      - new-post-database
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      MONGO_DB_URL: mongodb://new-post-database:27017/new-post
+
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile.production
+    depends_on:
+      - back
+    ports:
+      - "8080:80"
+
+  new-post-database:
+    image: mongo:8
+    volumes:
+      - database:/data/db
+
+volumes:
+  database:
