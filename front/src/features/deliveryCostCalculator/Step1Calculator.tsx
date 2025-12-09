@@ -105,7 +105,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                         placeholder={t('deliveryCostCalculator.stepOneForm.senderPlaceholder')}
                       />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" side="bottom" align="start" avoidCollisions={false}>
                       <Input
                         name="origin"
                         value={citySearch.origin}
@@ -153,7 +153,7 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                         }
                       />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" side="bottom" align="start" avoidCollisions={false}>
                       <Input
                         value={citySearch.destination}
                         onChange={(e: ChangeEvent<HTMLInputElement>) =>
