@@ -1,5 +1,11 @@
-import { type ChangeEvent, type FC, useEffect, useState } from 'react';
-import { useFormContext } from 'react-hook-form'; // ДОБАВИТЬ
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type FC,
+  type SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
 import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field.tsx';
 import TruckIconA from '@/features/deliveryCostCalculator/components/icons/TruckIconA.tsx';
 import TruckIconB from '@/features/deliveryCostCalculator/components/icons/TruckIconB.tsx';
@@ -7,18 +13,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input.tsx';
 import { AlertCircle, CheckCircle, Clock, HandCoins, Weight, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
+import type { Order } from '@/types';
 import { cities as senderCities } from '@/constants.ts';
 import useFileStore from '@/stores/fileStore/fileStore.ts';
 import { useTranslation } from 'react-i18next';
 import type { OrderFormData } from '@/lib/order.schema.ts';
 
 interface Props {
+  order: Order;
+  setOrder: Dispatch<SetStateAction<Order>>;
+  onHandleChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleNext: () => void;
 }
 
-const Step1Calculator: FC<Props> = ({ handleNext }) => {
+const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNext }) => {
   const { citiesPVZ, citiesHand, getCities, loadingCities } = useFileStore();
   const [citySearch, setCitySearch] = useState({ origin: '', destination: '' });
+  const [validationError, setValidationError] = useState<string | null>(null);
   const { t } = useTranslation();
 
   const {
@@ -114,6 +125,21 @@ const Step1Calculator: FC<Props> = ({ handleNext }) => {
                     />
                     {filteredOriginCities.length > 0 ? (
                       filteredOriginCities.map((city) => (
+                    <SelectTrigger className={`w-full ${!isOriginCityValid && 'border-red-300'}`}>
+                      <SelectValue
+                        placeholder={t('deliveryCostCalculator.stepOneForm.senderPlaceholder')}
+                      />
+                    </SelectTrigger>
+                    <SelectContent position="popper" side="bottom" align="start" avoidCollisions={false}>
+                      <Input
+                        name="origin"
+                        value={citySearch.origin}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                          setCitySearch((prev) => ({ ...prev, origin: e.target.value }))
+                        }
+                        className="w-full"
+                      />
+                      {filteredOriginCities.map((city) => (
                         <SelectItem key={city} value={city}>
                           {city}
                         </SelectItem>
@@ -166,6 +192,49 @@ const Step1Calculator: FC<Props> = ({ handleNext }) => {
                     />
                     {filteredDestinationCities.length > 0 ? (
                       filteredDestinationCities.map((city, index) => (
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FieldGroup>
+                <FieldGroup className="gap-4">
+                  <div className="flex items-center justify-between">
+                    <FieldLabel>{t('deliveryCostCalculator.stepOneForm.recipient')}</FieldLabel>
+                    {isDestinationCityValid ? (
+                      <CheckCircle className="ml-2 text-green-500" size={20} />
+                    ) : (
+                      <XCircle className="ml-2 text-gray-300" size={20} />
+                    )}
+                    <span className="w-[140] ml-auto">
+                      <TruckIconB />
+                    </span>
+                  </div>
+                  <Select
+                    required
+                    disabled={loadingCities || recipientCities.length === 0}
+                    onValueChange={(value: string) =>
+                      setOrder((prev) => ({ ...prev, destinationCity: value }))
+                    }
+                    value={order.destinationCity}
+                  >
+                    <SelectTrigger
+                      className={`w-full ${!isDestinationCityValid && 'border-red-300'}`}
+                    >
+                      <SelectValue
+                        placeholder={
+                          loadingCities
+                            ? t('deliveryCostCalculator.stepOneForm.loadingCities')
+                            : t('deliveryCostCalculator.stepOneForm.recipientPlaceholder')
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent position="popper" side="bottom" align="start" avoidCollisions={false}>
+                      <Input
+                        value={citySearch.destination}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                          setCitySearch((prev) => ({ ...prev, destination: e.target.value }))
+                        }
+                      />
+                      {filteredDestinationCities.map((city, index) => (
                         <SelectItem key={`${city.city}-${index}`} value={city.city}>
                           {city.city}
                         </SelectItem>
