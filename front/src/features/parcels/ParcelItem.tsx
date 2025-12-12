@@ -58,7 +58,10 @@ const ParcelItem = ({ parcel }: Props) => {
   const deliveryLabel = deliveryType === 'pickup' ? 'ПВЗ' : 'Курьер';
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 w-full bg-amber-50 p-4 md:p-6 rounded-2xl relative">
+    <div
+      data-testid="parcel-item"
+      className="flex flex-col lg:flex-row gap-4 w-full bg-amber-50 p-4 md:p-6 rounded-2xl relative"
+    >
       <div className="absolute top-4 right-4 lg:top-6 lg:right-6">
         <div className="size-4 w-20 h-20 rounded-full border-4 border-orange-500 flex items-center justify-center">
           {steps.find((step) => step.statusValue === status)?.icon}
@@ -158,14 +161,12 @@ const ParcelItem = ({ parcel }: Props) => {
               )}
 
               <div className="flex gap-4 items-center">
-
                 <div className="flex gap-2 items-center">
                   <img src={icWeight} alt="Weight icon" className="w-5 h-5" />
                   <p className="m-0 text-base md:text-lg font-bold whitespace-nowrap">
                     Вес: {weight} кг
                   </p>
                 </div>
-
               </div>
             </div>
           </div>

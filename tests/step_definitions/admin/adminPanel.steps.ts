@@ -10,14 +10,21 @@ Then('вижу текст {string}', (text: string) => {
     I.wait(1);
 });
 
-When('нажимаю на кнопку "Загрузить ещё" для списка посылок', () => {
-    I.click('//button[contains(text(),"Загрузить ещё")]');
+let parcelsBefore = 0;
+const cardSelector = '[data-testid="parcel-item"]';
+
+When('нажимаю на кнопку {string} для списка посылок', async (buttonText) => {
+    parcelsBefore = await I.grabNumberOfVisibleElements(cardSelector);
+
+    I.scrollPageToBottom();
+    I.click(`//button[contains(., "${buttonText}")]`);
     I.wait(2);
 });
 
-Then('вижу больше карточек посылок на странице', () => {
-    I.grabNumberOfVisibleElements('//div[contains(@class,"parcel-item")]').then((count) => {
-        if (count === 0) throw new Error("Карточек посылок не найдено");
-    });
-    I.wait(1);
+Then('вижу больше карточек посылок на странице', async () => {
+    const parcelsAfter = await I.grabNumberOfVisibleElements(cardSelector);
+
+    if (parcelsAfter <= parcelsBefore) {
+        throw new Error(`Карточек не прибавилось: было ${parcelsBefore}, стало ${parcelsAfter}`);
+    }
 });
