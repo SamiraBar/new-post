@@ -2,6 +2,7 @@ import {IParcel} from "../models/Parcel";
 import {IContact} from "../models/Contact";
 import axios from 'axios';
 import xml2js from 'xml2js';
+import {EKitOrderResult} from "../types";
 
 interface EKitConfig {
     extra: string;
@@ -31,7 +32,7 @@ function escapeXml(text: string): string {
         .replace(/'/g, '&apos;');
 }
 
-export async function createOrderInEKit(parcel: IParcel) {
+export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResult> {
     const sender = parcel.sender as IContact;
     const recipient = parcel.recipient as IContact;
 
@@ -129,8 +130,12 @@ export async function createOrderInEKit(parcel: IParcel) {
 
             throw new Error(`E-Kit API error (${createOrder.error}): ${errorMsg}`);
         }
-    } catch (error: any) {
-        console.error('Failed to create order in E-Kit:', error.message);
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Failed to create order in E-Kit:', error.message);
+        } else {
+            console.error('Failed to create order in E-Kit:', String(error));
+        }
 
         if (process.env.NODE_ENV === 'development') {
             console.error('Request XML:', xmlRequest);
@@ -165,8 +170,12 @@ export async function getOrderStatus(trackingNumber: string) {
             };
         }
         return null;
-    } catch (error: any) {
-        console.error('Failed to get order status from E-Kit:', error.message);
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Failed to get order status from E-Kit:', error.message);
+        } else {
+            console.error('Failed to get order status from E-Kit:', String(error));
+        }
         return null;
     }
 }

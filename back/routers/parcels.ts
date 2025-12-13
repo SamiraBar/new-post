@@ -3,13 +3,15 @@ import auth from "../middleware/auth";
 import {
     createParcel, getParcelById,
     getParcelByTrackingNumber,
-    getParcels,
+    getParcels, syncParcelWithEKit,
     updateParcelStatus, updatePartnerTrackingNumber,
 } from "../controllers/parcels";
 
 const parcelsRouter = express.Router();
 
 parcelsRouter.post("/", createParcel);
+
+parcelsRouter.post("/parcels/:id/sync-ekit", syncParcelWithEKit);
 
 parcelsRouter.get("/track/:trackingNumber", getParcelByTrackingNumber);
 

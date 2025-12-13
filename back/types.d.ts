@@ -54,3 +54,10 @@ interface CreateParcelResponse {
   trackingNumber: string;
   warning?: string;
 }
+
+export interface EKitOrderResult {
+  success: boolean;
+  ekitOrderNo: string;
+  ekitBarcode: string;
+  ekitOrderPrice: string;
+}
