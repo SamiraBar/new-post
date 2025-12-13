@@ -127,7 +127,7 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
               <MeasoftMap
                   order={order}
                   onPvzSelect={handlePvzSelect}
-                  clientId="217"
+                  clientId="8"
                   clientCode=""
               />
             </>
