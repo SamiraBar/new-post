@@ -3,7 +3,7 @@ import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
 import Contact from "../models/Contact";
 import { generateTrackingNumber } from "../utils/generateTrackingNumber";
-import {createOrderInEKit} from "../services/ekit.service";
+import {createOrderInEKit, getOrderStatus} from "../services/ekit.service";
 import {CreateParcelResponse, EKitOrderResult, ParcelCreateData} from "../types";
 
 
@@ -465,6 +465,64 @@ export const syncParcelWithEKit = async (
     } else {
       console.error(' Manual sync failed with unknown error:', e);
       next(new Error(String(e)));
+    }
+  }
+};
+
+export const getEKitStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ error: "Invalid parcel ID" });
+    }
+
+    const parcel = await Parcel.findById(id);
+
+    if (!parcel) {
+      return res.status(404).json({ error: "Parcel not found" });
+    }
+
+    if (parcel.partnerType !== 'E-Kit') {
+      return res.status(400).json({
+        error: "This parcel is not for E-Kit delivery"
+      });
+    }
+
+    if (!parcel.partnerTrackingNumber) {
+      return res.status(400).json({
+        error: "Parcel not synced with E-Kit yet"
+      });
+    }
+
+    const statusData = await getOrderStatus(parcel.trackingNumber);
+
+    if (!statusData) {
+      return res.status(404).json({
+        error: "Could not get status from E-Kit"
+      });
+    }
+
+    res.json({
+      trackingNumber: parcel.trackingNumber,
+      ekitTracking: parcel.partnerTrackingNumber,
+      currentStatus: parcel.status,
+      ekitStatus: statusData.status,
+      ekitStatusTitle: statusData.statusTitle,
+      deliveredDate: statusData.deliveredDate,
+      deliveredTime: statusData.deliveredTime,
+    });
+
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Failed to get order status from E-Kit:', error.message);
+    } else {
+      console.error('Failed to get order status from E-Kit:', String(error));
+      next(new Error(String(error)));
     }
   }
 };
