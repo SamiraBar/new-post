@@ -47,3 +47,10 @@ export interface ParcelCreateData {
   partnerType: "E-Kit" | "KCE";
   pvzData?: IPvzData;
 }
+
+interface CreateParcelResponse {
+  message: string;
+  parcel: IParcel | null;
+  trackingNumber: string;
+  warning?: string;
+}

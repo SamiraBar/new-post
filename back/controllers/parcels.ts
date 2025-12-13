@@ -3,6 +3,9 @@ import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
 import Contact from "../models/Contact";
 import { generateTrackingNumber } from "../utils/generateTrackingNumber";
+import {createOrderInEKit} from "../services/ekit.service";
+import {CreateParcelResponse, ParcelCreateData} from "../types";
+
 
 async function findContactIds(
     type: "sender" | "recipient",
@@ -106,11 +109,11 @@ export const createParcel = async (
       type: "recipient",
     });
 
-    const parcelData: any = {
+    const parcelData: ParcelCreateData = {
       trackingNumber,
       partnerTrackingNumber,
-      sender: newSender._id,
-      recipient: newRecipient._id,
+      sender: newSender._id as mongoose.Types.ObjectId,
+      recipient: newRecipient._id as mongoose.Types.ObjectId,
       originCity,
       destinationCity,
       weight: weightValue,
@@ -149,17 +152,48 @@ export const createParcel = async (
     const newParcel = new Parcel(parcelData);
     await newParcel.save();
 
+    let ekitWarning: string | undefined;
+
+    if (partnerType === 'E-Kit') {
+      try {
+        const populatedParcel = await Parcel.findById(newParcel._id)
+            .populate("sender")
+            .populate("recipient");
+
+        if (!populatedParcel) {
+          throw new Error('Failed to populate parcel data');
+        }
+
+        const ekitResult = await createOrderInEKit(populatedParcel);
+
+        newParcel.partnerTrackingNumber = ekitResult.ekitBarcode;
+        newParcel.status = 'created';
+        await newParcel.save();
+
+      } catch (ekitError: any) {
+        console.error(' E-Kit sync failed:', ekitError.message);
+
+        newParcel.status = 'draft';
+        await newParcel.save();
+
+        ekitWarning = `Order created but E-Kit sync failed: ${ekitError.message}. Manual processing required.`;
+      }
+    }
     const populatedParcel = await Parcel.findById(newParcel._id)
         .populate("sender")
         .populate("recipient");
 
-    console.log("✅ Created parcel with pvzData:", populatedParcel?.pvzData);
-
-    res.status(201).json({
-      message: "Parcel created successfully",
+    const response: CreateParcelResponse = {
+      message: ekitWarning ? "Parcel created with warnings" : "Parcel created successfully",
       parcel: populatedParcel,
       trackingNumber,
-    });
+    };
+
+    if (ekitWarning) {
+      response.warning = ekitWarning;
+    }
+
+    res.status(201).json(response);
   } catch (e) {
     next(e);
   }
