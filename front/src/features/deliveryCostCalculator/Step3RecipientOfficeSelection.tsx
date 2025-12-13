@@ -26,12 +26,6 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ order, setOrder }) => {
   const handlePvzSelect = (pvzData: PvzData) => {
     const normalizedCity = normalizeCityName(pvzData.town || '');
 
-    console.log('🗺️ Selected PVZ:', {
-      original: pvzData.town,
-      normalized: normalizedCity,
-      code: pvzData.code,
-    });
-
     setOrder((prev) => ({
       ...prev,
       pvzData: {

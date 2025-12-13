@@ -6,7 +6,7 @@ exports.config = {
       show: true,
       windowSize: '1920x1080',
       chrome: {
-        args: ['--start-fullscreen'] // fullscreen
+        args: ['--start-fullscreen']
       }
     }
   },
