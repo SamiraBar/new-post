@@ -68,7 +68,7 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
 
     const type = get().isPickup ? 'PVZ' : 'Hand';
     const normalizedCity = city.trim().replace(/\s+(город|г\.?|city)$/i, '').trim();
-
+    console.log(city, 123);
     try {
       const res = await axiosApi.get('/prices/calculate', {
         params: { type, city: normalizedCity, weight },

@@ -1,3 +1,5 @@
+import type { UseFormReturn } from 'react-hook-form';
+
 export interface Admin {
   _id: string;
   email: string;
@@ -234,7 +236,7 @@ export interface MeasoftMapConfig {
 }
 
 export interface MeasoftMapProps {
-  order: Order;
+  form: UseFormReturn<OrderFormData>;
   onPvzSelect: (pvzData: PvzData) => void;
   clientId?: string;
   clientCode?: string;
