@@ -1,53 +1,52 @@
 exports.config = {
-  output: "./output",
+  output: './output',
   helpers: {
     Puppeteer: {
-      url: "http://localhost:5183",
+      url: 'http://localhost:5183',
       show: true,
-      windowSize: "1450x1080",
+      windowSize: '1920x1080',
       chrome: {
-        args: ["--start-fullscreen"], // fullscreen
-      },
-    },
+        args: ['--start-fullscreen']
+      }
+    }
   },
   include: {
-    I: "./steps_file",
+    I: './steps_file'
   },
   mocha: {},
   bootstrap: null,
   timeout: null,
   teardown: null,
   hooks: [],
-  gherkin: {
-    features: "./features/**/*.feature",
-    steps: "./step_definitions/*/*.ts",
-  },
+    gherkin: {
+      features: './features/**/*.feature',
+      steps: './step_definitions/*/*.ts'
+    },
   plugins: {
     screenshotOnFail: {
-      enabled: true,
+      enabled: true
     },
     htmlReporter: {
-      enabled: true,
+      enabled: true
     },
     retryFailedStep: {
-      enabled: true,
+      enabled: true
     },
     eachElement: {
-      enabled: true,
+      enabled: true
     },
-    pauseOnFail: {},
+    pauseOnFail: {}
   },
   stepTimeout: 0,
-  stepTimeoutOverride: [
-    {
-      pattern: "wait.*",
-      timeout: 0,
+  stepTimeoutOverride: [{
+      pattern: 'wait.*',
+      timeout: 0
     },
     {
-      pattern: "amOnPage",
-      timeout: 0,
-    },
+      pattern: 'amOnPage',
+      timeout: 0
+    }
   ],
-  tests: "./*_test.ts",
-  name: "tests",
-};
+  tests: './*_test.ts',
+  name: 'tests'
+}
