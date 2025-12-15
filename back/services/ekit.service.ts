@@ -13,8 +13,8 @@ interface EKitConfig {
 
 const config: EKitConfig = {
     extra: `${process.env.EKIT_EXTRA}`,
-    login: process.env.EKIT_LOGIN || '',
-    pass: process.env.EKIT_PASS || '',
+    login: `${process.env.EKIT_LOGIN}`,
+    pass: `${process.env.EKIT_PASS}`,
     apiUrl: `${process.env.EKIT_API_URL}`,
 }
 
@@ -100,6 +100,9 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
             headers: { 'Content-Type': 'application/xml' },
             timeout: 30000,
         });
+
+        console.log('🔍 Raw response status:', response.status);
+        console.log('🔍 Raw response data:', response.data);
 
         const result = await xml2js.parseStringPromise(response.data);
 
