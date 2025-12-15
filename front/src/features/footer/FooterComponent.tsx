@@ -2,6 +2,7 @@ import logoDark from '../../assets/logo/logo-2.png';
 import whatsappIcon from '../../assets/cosialIcons/WhatsApp.png';
 import instagramIcon from '../../assets/cosialIcons/Instagram.png';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 const FooterComponent = () => {
   const { t } = useTranslation();
@@ -22,7 +23,17 @@ const FooterComponent = () => {
         "
       >
         <div className="flex flex-col items-center md:items-start">
-          <img src={logoDark} alt="New Post logo" className="h-14 sm:h-16 w-auto object-contain" />
+          <Link
+            to="/"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="inline-block"
+          >
+            <img
+              src={logoDark}
+              alt="New Post logo"
+              className="h-14 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
+            />
+          </Link>
         </div>
 
         <div className="text-sm leading-relaxed space-y-1 text-neutral-300">
