@@ -12,10 +12,10 @@ interface EKitConfig {
 }
 
 const config: EKitConfig = {
-    extra: `${process.env.EKIT_EXTRA}`,
-    login: `${process.env.EKIT_LOGIN}`,
-    pass: `${process.env.EKIT_PASS}`,
-    apiUrl: `${process.env.EKIT_API_URL}`,
+    extra: process.env.EKIT_EXTRA || '',
+    login: process.env.EKIT_LOGIN || '',
+    pass: process.env.EKIT_PASS || '',
+    apiUrl: process.env.EKIT_API_URL || '',
 }
 
 if(!config.login || !config.pass){
@@ -33,6 +33,17 @@ function escapeXml(text: string): string {
 }
 
 export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResult> {
+    console.log('🔐 E-Kit auth check:', {
+        extra: config.extra,
+        login: config.login,
+        pass: config.pass,
+        apiUrl: config.apiUrl
+    });
+
+    const authExtra = config.extra;
+    const authLogin = config.login;
+    const authPass = config.pass;
+
     const sender = parcel.sender as IContact;
     const recipient = parcel.recipient as IContact;
 
@@ -51,9 +62,15 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
         recipientCity = parcel.pvzData?.town || parcel.destinationCity;
         recipientAddress = parcel.pvzData?.address || recipient.address || 'Not selected';
     }
+    console.log('🔍 Проверка данных для XML:', {
+        originCity: parcel.originCity,
+        senderAddress: sender.address,
+        senderFullName: sender.fullName,
+        senderPhone: sender.phoneNumber
+    });
     const xmlRequest = `<?xml version="1.0" encoding="UTF-8"?>
 <neworder newfolder="YES">
-  <auth extra="${config.extra}" login="${config.login}" pass="${config.pass}"></auth>
+  <auth extra="${authExtra}" login="${authLogin}" pass="${authPass}"></auth>
   <order orderno="${parcel.trackingNumber}">
     <barcode>${parcel.trackingNumber}</barcode>
     
@@ -61,7 +78,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
       <company>${escapeXml(sender.fullName)}</company>
       <person>${escapeXml(sender.fullName)}</person>
       <phone>${sender.phoneNumber}</phone>
-      <town>${escapeXml(parcel.originCity)}</town>
+      <town>Москва</town>
       <address>${escapeXml(sender.address || 'Не указан')}</address>
     </sender>
     
@@ -87,6 +104,8 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
   </order>
 </neworder>`;
 
+    console.log('📝 Formed XML (first 200 chars):', xmlRequest.substring(0, 200));
+    console.log('⚖️ Полный XML с весом:', xmlRequest);
     try {
         console.log('📤 Sending order to E-Kit:', {
             trackingNumber: parcel.trackingNumber,
@@ -146,12 +165,16 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
 
         throw error;
     }
-}
+};
 
 export async function getOrderStatus(trackingNumber: string) {
+    const authExtra = config.extra;
+    const authLogin = config.login;
+    const authPass = config.pass;
+
     const xmlRequest = `<?xml version="1.0" encoding="UTF-8" ?>
 <statusreq>
-  <auth extra="${config.extra}" login="${config.login}" pass="${config.pass}"></auth>
+  <auth extra="${authExtra}" login="${authLogin}" pass="${authPass}"></auth>
   <orderno>${trackingNumber}</orderno>
 </statusreq>`;
 
@@ -181,4 +204,4 @@ export async function getOrderStatus(trackingNumber: string) {
         }
         return null;
     }
-}
+};
