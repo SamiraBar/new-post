@@ -33,7 +33,7 @@ function escapeXml(text: string): string {
 }
 
 export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResult> {
-    console.log('🔐 E-Kit auth check:', {
+    console.log('E-Kit auth check:', {
         extra: config.extra,
         login: config.login,
         pass: config.pass,
@@ -68,6 +68,18 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
         senderFullName: sender.fullName,
         senderPhone: sender.phoneNumber
     });
+    console.log('Проверяем код ПВЗ из parcel:', {
+        pvzCodeFromParcel: parcel.pvzData?.code,
+        pvzCodeWeWillSend: '261457'
+    });
+    let finalPvzCode = parcel.pvzData?.code;
+
+
+    if (finalPvzCode === '261466') {
+        finalPvzCode = '261457';
+        console.log('Заменяем устаревший код ПВЗ 261466 на 261457');
+    }
+
     const xmlRequest = `<?xml version="1.0" encoding="UTF-8"?>
 <neworder newfolder="YES">
   <auth extra="${authExtra}" login="${authLogin}" pass="${authPass}"></auth>
@@ -88,7 +100,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
       <phone>${recipient.phoneNumber}</phone>
       <town>${escapeXml(recipientCity)}</town>
       <address>${escapeXml(recipientAddress)}</address>
-      ${parcel.deliveryType === 'pickup' && parcel.pvzData ? `<pvz>${parcel.pvzData.code}</pvz>` : ''}
+      ${parcel.deliveryType === 'pickup' && parcel.pvzData ? `<pvz>${finalPvzCode}</pvz>` : ''}
     </receiver>
     
     <price>0</price>
@@ -104,8 +116,8 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
   </order>
 </neworder>`;
 
-    console.log('📝 Formed XML (first 200 chars):', xmlRequest.substring(0, 200));
-    console.log('⚖️ Полный XML с весом:', xmlRequest);
+    console.log('Formed XML (first 200 chars):', xmlRequest.substring(0, 200));
+    console.log('Полный XML с весом:', xmlRequest);
     try {
         console.log('📤 Sending order to E-Kit:', {
             trackingNumber: parcel.trackingNumber,
@@ -120,8 +132,8 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
             timeout: 30000,
         });
 
-        console.log('🔍 Raw response status:', response.status);
-        console.log('🔍 Raw response data:', response.data);
+        console.log('Raw response status:', response.status);
+        console.log('Raw response data:', response.data);
 
         const result = await xml2js.parseStringPromise(response.data);
 
@@ -165,7 +177,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
 
         throw error;
     }
-};
+}
 
 export async function getOrderStatus(trackingNumber: string) {
     const authExtra = config.extra;
@@ -204,4 +216,4 @@ export async function getOrderStatus(trackingNumber: string) {
         }
         return null;
     }
-};
+}
