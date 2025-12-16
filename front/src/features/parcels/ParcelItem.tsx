@@ -82,13 +82,26 @@ const ParcelItem = ({ parcel }: Props) => {
           <p className="font-bold m-0 text-base md:text-lg">{trackingNumber}</p>
 
           <div className="flex md:flex-row md:items-center gap-3 md:ml-auto sm:flex-col sm:items-start">
+            <div className="relative group">
+              <p className="font-bold m-0 text-base md:text-lg cursor-help">
+                {partnerTrackingNumber || '-'}
+              </p>
+              <div
+                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-xs rounded
+                    opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none"
+              >
+                Трек номер партнера
+              </div>
+            </div>
+
             <div
               className="
-                flex items-center gap-2
-                rounded-lg px-2.5 py-1.5
-                bg-gradient-to-r from-orange-300 to-orange-400
-                shadow text-white
-              "
+      ml-0 md:ml-2 md:order-last
+      flex items-center gap-2
+      rounded-lg px-2.5 py-1.5
+      bg-gradient-to-r from-orange-300 to-orange-400
+      shadow text-white
+    "
             >
               <div className="flex items-center justify-center w-7 h-7 bg-white/20 rounded-md">
                 <Package size={15} strokeWidth={2} className="text-white" />
@@ -98,9 +111,6 @@ const ParcelItem = ({ parcel }: Props) => {
                 <span className="text-[9px] opacity-90 font-medium">{partnerType}</span>
               </div>
             </div>
-
-            <p className="font-bold m-0 text-base md:text-lg">{partnerTrackingNumber}</p>
-            <span className="text-gray-500 text-sm">(трек номер партнера)</span>
           </div>
         </div>
 
