@@ -75,11 +75,11 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     <barcode>${parcel.trackingNumber}</barcode>
     
     <sender>
-      <company>${escapeXml(sender.fullName)}</company>
-      <person>${escapeXml(sender.fullName)}</person>
-      <phone>${sender.phoneNumber}</phone>
+      <company>Ваша компания (NewPost)</company>
+      <person>Ваша компания (NewPost)</person>
+      <phone>+79991234000</phone>
       <town>Москва</town>
-      <address>${escapeXml(sender.address || 'Не указан')}</address>
+      <address>МКАД 43км</address>
     </sender>
     
     <receiver>
@@ -96,7 +96,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     <weight>${parcel.weight}</weight>
     <quantity>1</quantity>
     <service>1</service>
-    <type>3</type>
+    <type>14</type>
     <paytype>NO</paytype>
     <return>NO</return>
     <pickup>NO</pickup>
