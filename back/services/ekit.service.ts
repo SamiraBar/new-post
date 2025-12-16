@@ -84,6 +84,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
 <neworder newfolder="YES">
   <auth extra="${authExtra}" login="${authLogin}" pass="${authPass}"></auth>
   <order orderno="${parcel.trackingNumber}">
+    <respstore>8</respstore>
     <barcode>${parcel.trackingNumber}</barcode>
     
     <sender>
