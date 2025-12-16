@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API_URL } from './constants.ts';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
+import { toast } from 'sonner';
 
 const axiosApi = axios.create({
   baseURL: API_URL,
@@ -9,26 +10,28 @@ const axiosApi = axios.create({
 axiosApi.interceptors.request.use(
   (config) => {
     const token = useAdminStore.getState().admin?.token;
-    if (token) {
-      config.headers.Authorization = token;
-    }
+    if (token) config.headers.Authorization = token;
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  });
+  (error) => Promise.reject(error),
+);
+
+let isLoggingOut = false;
 
 axiosApi.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      const msg = error.response.data?.error;
+  async (error) => {
+    if (error?.response?.status === 401 && !isLoggingOut) {
+      isLoggingOut = true;
 
-      if (msg === 'Токен устарел!' || msg === 'Токен недействителен или истёк!') {
-        const { admin, logout } = useAdminStore.getState();
+      const msg = error?.response?.data?.error || 'The token is invalid or has expired!';
 
-        if (admin) logout();
+      toast.error(msg);
 
+      const { logout } = useAdminStore.getState();
+      await logout(true);
+
+      if (window.location.pathname !== '/admin/login') {
         window.location.href = '/admin/login';
       }
     }
@@ -36,5 +39,6 @@ axiosApi.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
 
 export default axiosApi;

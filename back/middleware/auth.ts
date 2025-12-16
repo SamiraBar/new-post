@@ -11,22 +11,22 @@ export interface RequestWithAdmin extends Request {
 
 const auth = async (expressReq: Request, res: Response, next: NextFunction) => {
     const req = expressReq as RequestWithAdmin;
-    let payload: JwtAdminPayload;
 
     const token = req.get('Authorization');
-    if (!token) {
-        return res.status(401).send({error: 'Token missing!'});
-    }
+    if (!token) return res.status(401).send({ error: 'Token missing!' });
+
+    let payload: JwtAdminPayload;
 
     try {
         payload = jwt.verify(token, secret) as JwtAdminPayload;
-    } catch (err) {
-        return res.status(401).send({error: 'The token is invalid or has expired!'});
+    } catch {
+        return res.status(401).send({ error: 'The token is invalid or has expired!' });
     }
 
-    const admin = await Admin.findOne({_id: payload.id, token});
+    const admin = await Admin.findOne({ _id: payload.id, token, isActive: true }); // ✅ add isActive
+
     if (!admin) {
-        return res.status(401).send({error: 'Token is out of date!'});
+        return res.status(401).send({ error: 'Token is out of date!' });
     }
 
     req.admin = admin;

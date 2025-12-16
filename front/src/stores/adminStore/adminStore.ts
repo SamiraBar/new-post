@@ -63,15 +63,25 @@ export const useAdminStore = create<AdminState>()(
         await axiosApi.delete(`/admins/${id}`);
       },
 
-      async logout() {
-        await axiosApi.delete('/admins/');
+      async logout(forced?: boolean) {
         set({ admin: null });
+
+        if (forced) return;
+
+        try {
+          await axiosApi.delete('/admins/');
+        } catch {
+        }
       },
 
       async editAdmin(data: AdminEditing) {
         try {
           set({ editAdminError: null });
-          await axiosApi.patch(`/admins/${data._id}`, {displayName: data.displayName, email: data.email, password: data.password});
+          await axiosApi.patch(`/admins/${data._id}`, {
+            displayName: data.displayName,
+            email: data.email,
+            password: data.password,
+          });
           return true;
         } catch (e) {
           if (isAxiosError(e)) {
@@ -80,7 +90,7 @@ export const useAdminStore = create<AdminState>()(
           }
           return false;
         }
-      }
+      },
     }),
     {
       name: 'new-post-admin',

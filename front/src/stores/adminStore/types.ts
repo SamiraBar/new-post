@@ -8,11 +8,10 @@ export interface AdminState {
   createAdminError: string | null;
   editAdminError: string | null;
 
-
   createAdmin: (data: AdminMutation) => Promise<boolean>;
   editAdmin: (data: AdminEditing) => Promise<boolean>;
   login: (data: LoginMutation) => Promise<boolean>;
   getAllAdmins: () => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (forced?: boolean) => Promise<void>;
   deleteAdmin: (id: string) => Promise<void>;
 }
