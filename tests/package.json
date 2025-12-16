@@ -16,7 +16,9 @@
         "test:update": "./tests.sh '@update'",
         "test:delete": "./tests.sh '@delete'",
         "test:crud": "./tests.sh '@create|@delete|@update'",
-        "test:validation": "./tests.sh '@validation'"
+        "test:validation": "./tests.sh '@validation'",
+        "test:navigation": "./tests.sh '@navigation'",
+        "test:i18n": "./tests.sh '@i18n'"
     },
     "devDependencies": {
         "@codeceptjs/configure": "^1.0.6",

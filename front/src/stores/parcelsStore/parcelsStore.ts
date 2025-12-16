@@ -238,7 +238,12 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         message: string;
         parcel: IParcel;
         trackingNumber: string;
+        warning?: string;
       }>('/parcels', parcelData);
+
+      if (data.warning) {
+        console.warn('E-Kit sync warning:', data.warning);
+      }
 
       set({
         createParcelLoading: false,

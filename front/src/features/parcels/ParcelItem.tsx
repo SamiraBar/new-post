@@ -58,7 +58,10 @@ const ParcelItem = ({ parcel }: Props) => {
   const deliveryLabel = deliveryType === 'pickup' ? 'ПВЗ' : 'Курьер';
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 w-full bg-amber-50 p-4 md:p-6 rounded-2xl relative">
+    <div
+      data-testid="parcel-item"
+      className="flex flex-col lg:flex-row gap-4 w-full bg-amber-50 p-4 md:p-6 rounded-2xl relative"
+    >
       <div className="absolute top-4 right-4 lg:top-6 lg:right-6">
         <div className="size-4 w-20 h-20 rounded-full border-4 border-orange-500 flex items-center justify-center">
           {steps.find((step) => step.statusValue === status)?.icon}
@@ -79,13 +82,26 @@ const ParcelItem = ({ parcel }: Props) => {
           <p className="font-bold m-0 text-base md:text-lg">{trackingNumber}</p>
 
           <div className="flex md:flex-row md:items-center gap-3 md:ml-auto sm:flex-col sm:items-start">
+            <div className="relative group">
+              <p className="font-bold m-0 text-base md:text-lg cursor-help">
+                {partnerTrackingNumber || '-'}
+              </p>
+              <div
+                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-xs rounded
+                    opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none"
+              >
+                Трек номер партнера
+              </div>
+            </div>
+
             <div
               className="
-                flex items-center gap-2
-                rounded-lg px-2.5 py-1.5
-                bg-gradient-to-r from-orange-300 to-orange-400
-                shadow text-white
-              "
+      ml-0 md:ml-2 md:order-last
+      flex items-center gap-2
+      rounded-lg px-2.5 py-1.5
+      bg-gradient-to-r from-orange-300 to-orange-400
+      shadow text-white
+    "
             >
               <div className="flex items-center justify-center w-7 h-7 bg-white/20 rounded-md">
                 <Package size={15} strokeWidth={2} className="text-white" />
@@ -95,9 +111,6 @@ const ParcelItem = ({ parcel }: Props) => {
                 <span className="text-[9px] opacity-90 font-medium">{partnerType}</span>
               </div>
             </div>
-
-            <p className="font-bold m-0 text-base md:text-lg">{partnerTrackingNumber}</p>
-            <span className="text-gray-500 text-sm">(трек номер партнера)</span>
           </div>
         </div>
 
@@ -158,14 +171,12 @@ const ParcelItem = ({ parcel }: Props) => {
               )}
 
               <div className="flex gap-4 items-center">
-
                 <div className="flex gap-2 items-center">
                   <img src={icWeight} alt="Weight icon" className="w-5 h-5" />
                   <p className="m-0 text-base md:text-lg font-bold whitespace-nowrap">
                     Вес: {weight} кг
                   </p>
                 </div>
-
               </div>
             </div>
           </div>

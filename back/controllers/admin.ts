@@ -93,6 +93,7 @@ export const adminLogout = async (req: Request, res: Response, next: NextFunctio
         if (!admin) return res.status(204).send();
 
         admin.isActive = false;
+        admin.token = '';
         await admin.save();
 
         res.status(204).send();
