@@ -20,11 +20,12 @@ const generateZPL = (
     ^PW591
     ^LL906
     ${LOGO_ZPL}
-    ^FO50,250^BY2^BCN,180,N,N^FD${trackingNumber}^FS
+    ^FO70,250^BY2^BCN,180,N,N^FD${trackingNumber}^FS
     ^FO100,450^A0N,35,35^FD${trackingNumber}^FS
     ^FO50,550^A0N,30,30^FDПолучатель:^FS
-    ^FO50,600^A0N,28,28^FD${recipientName}^FS
-    ^FO50,700^A0N,28,28^FD${address}^FS
+    ^FO50,600^A0N,26,26^FD${recipientName}^FS
+    ^FO50,700^A0N,30,30^FDАдрес:^FS
+    ^FO50,750^A0N,26,26^FD${address}^FS
 ^XZ`;
 };
 
