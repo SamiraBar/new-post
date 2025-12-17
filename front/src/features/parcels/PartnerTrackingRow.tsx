@@ -28,7 +28,10 @@ const PartnerTrackingRow = ({ parcel }: { parcel: IParcel }) => {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 px-3 sm:px-4 py-2.5">
+    <div
+      data-testid="partner-tracking-row"
+      className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 px-3 sm:px-4 py-2.5"
+    >
       <span className="text-sm text-gray-700 whitespace-nowrap">Трек номер партнера</span>
       <div className="flex items-center gap-2">
         {parcel.deliveryType === 'courier' ? (
@@ -36,14 +39,14 @@ const PartnerTrackingRow = ({ parcel }: { parcel: IParcel }) => {
             <>
               <input
                 type="text"
+                data-testid="partner-tracking-input"
                 value={state.partnerTrack}
-                onChange={(e) =>
-                  setState((prev) => ({ ...prev, partnerTrack: e.target.value }))
-                }
+                onChange={(e) => setState((prev) => ({ ...prev, partnerTrack: e.target.value }))}
                 className="border px-2 py-1 rounded text-sm"
               />
               <div className="relative group">
                 <button
+                  data-testid="save-partner-tracking"
                   onClick={savePartnerTracking}
                   disabled={updatePartnerTrackingNumberLoading}
                   className="p-2 rounded hover:bg-green-100 disabled:opacity-50 transition"
@@ -57,6 +60,7 @@ const PartnerTrackingRow = ({ parcel }: { parcel: IParcel }) => {
 
               <div className="relative group">
                 <button
+                  data-testid="cancel-partner-tracking"
                   onClick={() => setState((prev) => ({ ...prev, editing: false }))}
                   className="p-2 rounded hover:bg-red-100 transition"
                 >
@@ -69,12 +73,16 @@ const PartnerTrackingRow = ({ parcel }: { parcel: IParcel }) => {
             </>
           ) : (
             <>
-              <span className="bg-gray-100 border border-gray-300 px-2 sm:px-3 py-1 rounded text-gray-800 text-xs sm:text-sm break-all max-w-[180px] sm:max-w-none text-right">
+              <span
+                data-testid="partner-tracking-value"
+                className="bg-gray-100 border border-gray-300 px-2 sm:px-3 py-1 rounded text-gray-800 text-xs sm:text-sm break-all max-w-[180px] sm:max-w-none text-right"
+              >
                 {state.partnerTrack || '-'}
               </span>
 
               <div className="relative group">
                 <button
+                  data-testid="edit-partner-tracking"
                   onClick={() => setState((prev) => ({ ...prev, editing: true }))}
                   className="p-2 rounded hover:bg-blue-100 transition"
                 >
