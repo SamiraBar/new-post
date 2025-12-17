@@ -88,48 +88,55 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
 </neworder>`;
 
     try {
-        console.log('📤 Sending order to E-Kit:', {
-            trackingNumber: parcel.trackingNumber,
-            deliveryType: parcel.deliveryType,
-            pvzCode: parcel.pvzData?.code,
-            recipientCity,
-            recipientAddress,
-        });
-
-        const response = await axios.post(config.apiUrl, xmlRequest, {
-            headers: { 'Content-Type': 'application/xml' },
-            timeout: 30000,
-        });
-
-        const result = await xml2js.parseStringPromise(response.data);
-
-        if (!result.neworder?.createorder?.[0]) {
-            throw new Error('Invalid response structure from E-Kit');
-        }
-
-        const createOrder = result.neworder.createorder[0].$;
-
-        if (createOrder.error === '0') {
-            console.log('E-Kit order created successfully:', {
-                orderno: createOrder.orderno,
-                barcode: createOrder.barcode,
-            });
-
-            return {
-                success: true,
-                ekitOrderNo: createOrder.orderno,
-                ekitBarcode: createOrder.barcode,
-                ekitOrderPrice: createOrder.orderprice,
-            };
-        } else {
-            const errorMsg = createOrder.errormsgru || createOrder.errormsg || 'Unknown error';
-            console.error('E-Kit API error:', {
-                code: createOrder.error,
-                message: errorMsg,
-            });
-
-            throw new Error(`E-Kit API error (${createOrder.error}): ${errorMsg}`);
-        }
+        console.log('📤 [ЗАГЛУШКА] Отправка в E-Kit отключена. Заказ был бы отправлен с XML:', xmlRequest.substring(0, 300));
+        return {
+            success: true,
+            ekitOrderNo: 'MOCK-' + parcel.trackingNumber,
+            ekitBarcode: 'MOCK-' + parcel.trackingNumber,
+            ekitOrderPrice: '0',
+        };
+        // console.log('📤 Sending order to E-Kit:', {
+        //     trackingNumber: parcel.trackingNumber,
+        //     deliveryType: parcel.deliveryType,
+        //     pvzCode: parcel.pvzData?.code,
+        //     recipientCity,
+        //     recipientAddress,
+        // });
+        //
+        // const response = await axios.post(config.apiUrl, xmlRequest, {
+        //     headers: { 'Content-Type': 'application/xml' },
+        //     timeout: 30000,
+        // });
+        //
+        // const result = await xml2js.parseStringPromise(response.data);
+        //
+        // if (!result.neworder?.createorder?.[0]) {
+        //     throw new Error('Invalid response structure from E-Kit');
+        // }
+        //
+        // const createOrder = result.neworder.createorder[0].$;
+        //
+        // if (createOrder.error === '0') {
+        //     console.log('E-Kit order created successfully:', {
+        //         orderno: createOrder.orderno,
+        //         barcode: createOrder.barcode,
+        //     });
+        //
+        //     return {
+        //         success: true,
+        //         ekitOrderNo: createOrder.orderno,
+        //         ekitBarcode: createOrder.barcode,
+        //         ekitOrderPrice: createOrder.orderprice,
+        //     };
+        // } else {
+        //     const errorMsg = createOrder.errormsgru || createOrder.errormsg || 'Unknown error';
+        //     console.error('E-Kit API error:', {
+        //         code: createOrder.error,
+        //         message: errorMsg,
+        //     });
+        //
+        //     throw new Error(`E-Kit API error (${createOrder.error}): ${errorMsg}`);
+        // }
     } catch (error) {
         if (error instanceof Error) {
             console.error('Failed to create order in E-Kit:', error.message);
