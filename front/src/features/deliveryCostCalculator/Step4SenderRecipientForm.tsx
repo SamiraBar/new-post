@@ -25,11 +25,9 @@ const Step4SenderRecipientForm: FC<Props> = ({
     trigger,
     formState: {errors}
   } = form;
-  const {
-    sender,
-    receiver,
-    inParcel
-  } = watch();
+  const sender = watch('sender')
+  const receiver = watch('receiver')
+  const inParcel = watch('inParcel')
 
   const isSenderNameValid = !errors.sender?.name && sender?.name && sender.name.trim().length > 0;
   const isSenderEmailValid = !errors.sender?.email && sender?.email && sender.email.trim().length > 0;

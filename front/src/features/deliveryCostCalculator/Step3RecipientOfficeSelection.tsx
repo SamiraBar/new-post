@@ -31,7 +31,7 @@ const Step3RecipientOfficeSelection: FC<Props> = ({
     getValues,
     watch
   } = form;
-  const {deliveryType} = watch()
+  const deliveryType = watch('deliveryType');
   const handlePvzSelect = (pvzData: PvzData) => {
     const normalizedCity = normalizeCityName(pvzData.town || '');
 
@@ -56,7 +56,6 @@ const Step3RecipientOfficeSelection: FC<Props> = ({
 
   if (!deliveryType) return null;
 
-  console.log(deliveryType);
 
   return (
     <div className="w-full pt-5">

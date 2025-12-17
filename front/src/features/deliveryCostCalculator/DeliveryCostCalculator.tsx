@@ -85,19 +85,19 @@ const DeliveryCostCalculator = () => {
     setValue,
     getValues,
     reset,
+    watch,
     formState: {errors},
   } = form;
-  const {
-    destinationCity,
-    pvzData
-  } = form.getValues();
-  const parcelWeight = Number(getValues().parcelWeight);
-  const parcelValue = Number(getValues().parcelValue);
+
+  const destinationCity = watch('destinationCity');
+  const pvzData = watch('pvzData');
+  const parcelWeight = Number(watch('parcelWeight') || 0);
+  const parcelValue = Number(watch('parcelValue') || 0);
 
   useEffect(() => {
     setValue('deliveryType', isPickup ? 'pickup' : 'courier');
     setValue('partnerType', isPickup ? 'E-Kit' : 'KCE');
-  }, [isPickup, isDoorDelivery, setValue]);
+  }, [isPickup, setValue]);
 
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
@@ -110,20 +110,17 @@ const DeliveryCostCalculator = () => {
   useEffect(() => {
     const calculatePrices = async () => {
 
-
       if (!destinationCity || parcelWeight <= 0) {
         return;
       }
-
       const cityForCalculation = pvzData?.town || destinationCity;
-
 
       const delivery = await fetchDeliveryCost(cityForCalculation, parcelWeight);
       const insurance = calculateInsuranceCost(parcelValue);
 
-      setValue('deliveryCost', delivery);
-      setValue('insuranceCost', insurance);
-      setValue('totalCost', delivery + insurance);
+      setValue('deliveryCost', delivery, { shouldDirty: false });
+      setValue('insuranceCost', insurance, { shouldDirty: false });
+      setValue('totalCost', delivery + insurance, { shouldDirty: false });
     };
 
     void calculatePrices();
@@ -186,9 +183,7 @@ const DeliveryCostCalculator = () => {
     if (trackingNumber) {
       setCreatedTrackingNumber(trackingNumber);
       setShowSuccessModal(true);
-
       reset();
-
       setCurrentStep(1);
       setIsAgreed(false);
       clearActions();
@@ -200,7 +195,6 @@ const DeliveryCostCalculator = () => {
       );
     }
   };
-
 
   const handleCloseSuccessModal = () => {
     setShowSuccessModal(false);
@@ -244,8 +238,6 @@ const DeliveryCostCalculator = () => {
 
       return !(baseValid && doorExtraValid)
     }
-
-
     return false;
   };
 
@@ -261,7 +253,6 @@ const DeliveryCostCalculator = () => {
       }
       setCurrentStep(3);
     } else if (currentStep === 3) {
-      console.log(form.formState.errors);
       if (isDoorDelivery) {
         const valid = await form.trigger(['receiver.city', 'destinationCity', 'receiver.street', 'receiver.house']);
         if (!valid) {
