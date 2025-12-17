@@ -1,21 +1,23 @@
 import { type FC } from 'react';
 import PhoneInputWithCountry from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
+import { AlertCircle } from 'lucide-react';
 
 interface PhoneInputProps {
     value: string;
     onChange: (value: string) => void;
     error?: string;
     placeholder?: string;
+    defaultValue?: boolean;
 }
 
-const PhoneInput: FC<PhoneInputProps> = ({ value, onChange, error, placeholder }) => {
-    return (
+const PhoneInput: FC<PhoneInputProps> = ({ value, onChange, error, placeholder, defaultValue }) => {
+  return (
         <div className="relative">
             <PhoneInputWithCountry
-                international
+                international={false}
                 defaultCountry="KG"
-                countries={['KG', 'RU', 'KZ', 'BY']}
+                countries={defaultValue ? ['KG'] : ['RU', 'KZ', 'BY']}
                 value={value}
                 onChange={(phone) => onChange(phone || '')}
                 placeholder={placeholder || '+996 XXX XXX XXX'}
@@ -35,8 +37,10 @@ const PhoneInput: FC<PhoneInputProps> = ({ value, onChange, error, placeholder }
                 }}
             />
             {error && (
-                <div className="absolute -bottom-5 left-0">
-                    <p className="text-red-500 text-xs">{error}</p>
+                  <div
+                    className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                    <AlertCircle size={14} className="shrink-0"/>
+                    <p>{error}</p>
                 </div>
             )}
         </div>

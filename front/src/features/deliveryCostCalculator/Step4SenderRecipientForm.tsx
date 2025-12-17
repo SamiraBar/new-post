@@ -1,124 +1,47 @@
 import { FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
-import type { Order } from '@/types';
-import type { ChangeEvent, FC } from 'react';
-import { useState } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { validateEmail, validateInnPassport, validatePhone } from '@/lib/validation';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import PhoneInput from '@/features/deliveryCostCalculator/components/phoneInput.tsx';
+import type { UseFormReturn } from 'react-hook-form';
+import type { OrderFormData } from '@/lib/order.schema.ts';
 
 interface Props {
-  order: Order;
-  onHandleChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  handleChange: (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    type: 'sender' | 'receiver',
-  ) => void;
+  form: UseFormReturn<OrderFormData>;
   doorDelivery: boolean;
 }
 
 const Step4SenderRecipientForm: FC<Props> = ({
-  order,
-  onHandleChange,
-  handleChange,
-  doorDelivery,
-}) => {
-  const { t } = useTranslation();
-  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
+                                               doorDelivery,
+                                               form
+                                             }) => {
+  const {t} = useTranslation();
+  const {
+    register,
+    setValue,
+    watch,
+    trigger,
+    formState: {errors}
+  } = form;
+  const {
+    sender,
+    receiver,
+    inParcel
+  } = watch();
 
-  const validateField = (name: string, value: string, type?: 'sender' | 'receiver') => {
-    const errors = { ...fieldErrors };
+  const isSenderNameValid = !errors.sender?.name && sender?.name && sender.name.trim().length > 0;
+  const isSenderEmailValid = !errors.sender?.email && sender?.email && sender.email.trim().length > 0;
+  const isSenderPhoneValid = !errors.sender?.phone && sender?.phone && sender.phone.trim().length > 0;
+  const isSenderInnPassportValid = !errors.sender?.inn_passport && sender?.inn_passport && sender.inn_passport.trim().length > 0;
 
-    if (name === 'name') {
-      if (!value || value.trim().length < 2) {
-        errors[`${type}.name`] = t('deliveryCostCalculator.stepForForm.errors.nameError');
-      } else {
-        delete errors[`${type}.name`];
-      }
-    }
+  const isReceiverNameValid = !errors.receiver?.name && receiver?.name && receiver.name.trim().length > 0;
+  const isReceiverEmailValid = !errors.receiver?.email && receiver?.email && receiver.email.trim().length > 0;
+  const isReceiverPhoneValid = !errors.receiver?.phone && receiver?.phone && receiver.phone.trim().length > 0;
 
-    if (name === 'email') {
-      if (!validateEmail(value)) {
-        errors[`${type}.email`] = t('deliveryCostCalculator.stepForForm.errors.emailError');
-      } else {
-        delete errors[`${type}.email`];
-      }
-    }
-
-    if (name === 'phone') {
-      if (!validatePhone(value)) {
-        errors[`${type}.phone`] = t('deliveryCostCalculator.stepForForm.errors.phoneError');
-      } else {
-        delete errors[`${type}.phone`];
-      }
-    }
-
-    if (name === 'inn_passport') {
-      if (!validateInnPassport(value)) {
-        errors[`${type}.inn_passport`] = t('deliveryCostCalculator.stepForForm.errors.inn');
-      } else {
-        delete errors[`${type}.inn_passport`];
-      }
-    }
-
-    if (name === 'inParcel') {
-      if (!value || value.trim().length < 3) {
-        errors.inParcel = t('deliveryCostCalculator.stepForForm.errors.inParcelError');
-      } else if (value.length > 70) {
-        errors.inParcel = 'Содержимое посылки должно быть не более 70 символов';
-      } else {
-        delete errors.inParcel;
-      }
-    }
-
-    if (name === 'address' && doorDelivery) {
-      if (!value || value.trim().length < 5) {
-        errors.address = t('deliveryCostCalculator.stepForForm.errors.addressError');
-      } else {
-        delete errors.address;
-      }
-    }
-
-    setFieldErrors(errors);
-  };
-
-  const handleFieldChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    type?: 'sender' | 'receiver',
-  ) => {
-    const { name, value } = e.target;
-
-    if (type) {
-      handleChange(e, type);
-    } else {
-      onHandleChange(e);
-    }
-
-    validateField(name, value, type);
-  };
-
-  const handlePhoneChange = (phone: string, type: 'sender' | 'receiver') => {
-    handleChange(
-      {
-        target: { name: 'phone', value: phone },
-      } as ChangeEvent<HTMLInputElement>,
-      type,
-    );
-    validateField('phone', phone, type);
-  };
-
-  const isSenderNameValid = order.sender.name?.trim().length >= 2;
-  const isSenderEmailValid = validateEmail(order.sender.email);
-  const isSenderPhoneValid = validatePhone(order.sender.phone);
-  const isSenderInnPassportValid = validateInnPassport(order.sender.inn_passport);
-  const isReceiverNameValid = order.receiver.name?.trim().length >= 2;
-  const isReceiverEmailValid = validateEmail(order.receiver.email);
-  const isReceiverPhoneValid = validatePhone(order.receiver.phone);
-  const isInParcelValid = order.inParcel?.trim().length >= 3;
-  const isAddressValid =
-    !doorDelivery || (doorDelivery && (order.receiver.address || '').trim().length >= 5);
+  const isInParcelValid = !errors.inParcel && inParcel && inParcel.trim().length > 0;
+  const isAddressValid = !doorDelivery || (!errors.receiver?.address && receiver?.address && receiver.address.trim().length >= 5);
 
   return (
     <div className="w-full pt-5">
@@ -128,7 +51,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
 
       <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <div className="flex items-center gap-2 text-blue-800">
-          <CheckCircle size={20} />
+          <CheckCircle size={20}/>
           <span className="font-medium"> {t('deliveryCostCalculator.stepForForm.span')}</span>
         </div>
         <p className="text-blue-600 text-sm mt-1">
@@ -149,9 +72,9 @@ const Step4SenderRecipientForm: FC<Props> = ({
                   isSenderEmailValid &&
                   isSenderPhoneValid &&
                   isSenderInnPassportValid ? (
-                    <CheckCircle className="text-green-500" size={20} />
+                    <CheckCircle className="text-green-500" size={20}/>
                   ) : (
-                    <XCircle className="text-gray-300" size={20} />
+                    <XCircle className="text-gray-300" size={20}/>
                   )}
                 </div>
               </div>
@@ -162,20 +85,22 @@ const Step4SenderRecipientForm: FC<Props> = ({
                     {t('deliveryCostCalculator.stepForForm.inputName')}
                   </FieldLabel>
                   {isSenderNameValid ? (
-                    <CheckCircle className="ml-2 text-green-500" size={16} />
+                    <CheckCircle className="ml-2 text-green-500" size={16}/>
                   ) : (
-                    <XCircle className="ml-2 text-gray-300" size={16} />
+                    <XCircle className="ml-2 text-gray-300" size={16}/>
                   )}
                 </div>
                 <Input
                   placeholder={t('deliveryCostCalculator.stepForForm.inputName')}
-                  className={`bg-gray-50 ${!isSenderNameValid && order.sender.name && 'border-red-300'}`}
-                  name="name"
-                  onChange={(e) => handleFieldChange(e, 'sender')}
-                  value={order.sender.name}
+                  className={`bg-gray-50 ${!isSenderNameValid && sender.name && 'border-red-300'}`}
+                  {...register('sender.name')}
                 />
-                {fieldErrors['sender.name'] && (
-                  <p className="text-red-500 text-xs mt-1">{fieldErrors['sender.name']}</p>
+                {errors.sender?.name && (
+                  <div
+                    className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                    <AlertCircle size={14} className="shrink-0"/>
+                    <p>{errors.sender.name.message}</p>
+                  </div>
                 )}
               </div>
 
@@ -183,16 +108,20 @@ const Step4SenderRecipientForm: FC<Props> = ({
                 <div className="flex items-center mb-1">
                   <FieldLabel className="text-sm">Телефон</FieldLabel>
                   {isSenderPhoneValid ? (
-                    <CheckCircle className="ml-2 text-green-500" size={16} />
+                    <CheckCircle className="ml-2 text-green-500" size={16}/>
                   ) : (
-                    <XCircle className="ml-2 text-gray-300" size={16} />
+                    <XCircle className="ml-2 text-gray-300" size={16}/>
                   )}
                 </div>
                 <PhoneInput
-                  value={order.sender.phone}
-                  onChange={(phone) => handlePhoneChange(phone, 'sender')}
-                  error={fieldErrors['sender.phone']}
+                  value={sender.phone}
+                  onChange={async (phone) => {
+                    setValue('sender.phone', phone);
+                    await trigger('sender.phone');
+                  }}
+                  error={errors.sender?.phone?.message}
                   placeholder="+996 XXX XXX XXX"
+                  defaultValue={true}
                 />
               </div>
 
@@ -200,21 +129,23 @@ const Step4SenderRecipientForm: FC<Props> = ({
                 <div className="flex items-center mb-1">
                   <FieldLabel className="text-sm">Email</FieldLabel>
                   {isSenderEmailValid ? (
-                    <CheckCircle className="ml-2 text-green-500" size={16} />
+                    <CheckCircle className="ml-2 text-green-500" size={16}/>
                   ) : (
-                    <XCircle className="ml-2 text-gray-300" size={16} />
+                    <XCircle className="ml-2 text-gray-300" size={16}/>
                   )}
                 </div>
                 <Input
                   placeholder="Email"
                   type="email"
-                  className={`bg-gray-50 ${!isSenderEmailValid && order.sender.email && 'border-red-300'}`}
-                  name="email"
-                  onChange={(e) => handleFieldChange(e, 'sender')}
-                  value={order.sender.email}
+                  className={`bg-gray-50 ${errors.sender?.email && sender.email && 'border-red-300'}`}
+                  {...register('sender.email')}
                 />
-                {fieldErrors['sender.email'] && (
-                  <p className="text-red-500 text-xs mt-1">{fieldErrors['sender.email']}</p>
+                {errors.sender?.email && (
+                  <div
+                    className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                    <AlertCircle size={14} className="shrink-0"/>
+                    <p>{errors.sender.email.message}</p>
+                  </div>
                 )}
               </div>
 
@@ -222,21 +153,23 @@ const Step4SenderRecipientForm: FC<Props> = ({
                 <div className="flex items-center mb-1">
                   <FieldLabel className="text-sm">ИНН/Паспорт</FieldLabel>
                   {isSenderInnPassportValid ? (
-                    <CheckCircle className="ml-2 text-green-500" size={16} />
+                    <CheckCircle className="ml-2 text-green-500" size={16}/>
                   ) : (
-                    <XCircle className="ml-2 text-gray-300" size={16} />
+                    <XCircle className="ml-2 text-gray-300" size={16}/>
                   )}
                 </div>
                 <Input
                   placeholder="ИНН/Паспорт"
-                  type="string"
-                  className={`bg-gray-50 ${!isSenderInnPassportValid && order.sender.inn_passport && 'border-red-300'}`}
-                  name="inn_passport"
-                  onChange={(e) => handleFieldChange(e, 'sender')}
-                  value={order.sender.inn_passport}
+                  type="text"
+                  className={`bg-gray-50 ${!isSenderInnPassportValid && sender.inn_passport && 'border-red-300'}`}
+                  {...register('sender.inn_passport')}
                 />
-                {fieldErrors['sender.inn_passport'] && (
-                  <p className="text-red-500 text-xs mt-1">{fieldErrors['sender.inn_passport']}</p>
+                {errors.sender?.inn_passport && (
+                  <div
+                    className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                    <AlertCircle size={14} className="shrink-0"/>
+                    <p>{errors.sender.inn_passport.message}</p>
+                  </div>
                 )}
               </div>
             </FieldGroup>
@@ -251,9 +184,9 @@ const Step4SenderRecipientForm: FC<Props> = ({
                   isReceiverEmailValid &&
                   isReceiverPhoneValid &&
                   (!doorDelivery || isAddressValid) ? (
-                    <CheckCircle className="text-green-500" size={20} />
+                    <CheckCircle className="text-green-500" size={20}/>
                   ) : (
-                    <XCircle className="text-gray-300" size={20} />
+                    <XCircle className="text-gray-300" size={20}/>
                   )}
                 </div>
               </div>
@@ -264,20 +197,22 @@ const Step4SenderRecipientForm: FC<Props> = ({
                     {t('deliveryCostCalculator.stepForForm.inputName')}
                   </FieldLabel>
                   {isReceiverNameValid ? (
-                    <CheckCircle className="ml-2 text-green-500" size={16} />
+                    <CheckCircle className="ml-2 text-green-500" size={16}/>
                   ) : (
-                    <XCircle className="ml-2 text-gray-300" size={16} />
+                    <XCircle className="ml-2 text-gray-300" size={16}/>
                   )}
                 </div>
                 <Input
                   placeholder={t('deliveryCostCalculator.stepForForm.inputName')}
-                  className={`bg-gray-50 ${!isReceiverNameValid && order.receiver.name && 'border-red-300'}`}
-                  name="name"
-                  onChange={(e) => handleFieldChange(e, 'receiver')}
-                  value={order.receiver.name}
+                  className={`bg-gray-50 ${!isReceiverNameValid && receiver.name && 'border-red-300'}`}
+                  {...register('receiver.name')}
                 />
-                {fieldErrors['receiver.name'] && (
-                  <p className="text-red-500 text-xs mt-1">{fieldErrors['receiver.name']}</p>
+                {errors.receiver?.name && (
+                  <div
+                    className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                    <AlertCircle size={14} className="shrink-0"/>
+                    <p>{errors.receiver.name.message}</p>
+                  </div>
                 )}
               </div>
 
@@ -285,15 +220,18 @@ const Step4SenderRecipientForm: FC<Props> = ({
                 <div className="flex items-center mb-1">
                   <FieldLabel className="text-sm">Телефон</FieldLabel>
                   {isReceiverPhoneValid ? (
-                    <CheckCircle className="ml-2 text-green-500" size={16} />
+                    <CheckCircle className="ml-2 text-green-500" size={16}/>
                   ) : (
-                    <XCircle className="ml-2 text-gray-300" size={16} />
+                    <XCircle className="ml-2 text-gray-300" size={16}/>
                   )}
                 </div>
                 <PhoneInput
-                  value={order.receiver.phone}
-                  onChange={(phone) => handlePhoneChange(phone, 'receiver')}
-                  error={fieldErrors['receiver.phone']}
+                  value={receiver.phone}
+                  onChange={async (phone) => {
+                    setValue('receiver.phone', phone);
+                    await trigger(['receiver.phone']);
+                  }}
+                  error={errors.receiver?.phone?.message}
                   placeholder="+996 XXX XXX XXX"
                 />
               </div>
@@ -302,21 +240,23 @@ const Step4SenderRecipientForm: FC<Props> = ({
                 <div className="flex items-center mb-1">
                   <FieldLabel className="text-sm">Email</FieldLabel>
                   {isReceiverEmailValid ? (
-                    <CheckCircle className="ml-2 text-green-500" size={16} />
+                    <CheckCircle className="ml-2 text-green-500" size={16}/>
                   ) : (
-                    <XCircle className="ml-2 text-gray-300" size={16} />
+                    <XCircle className="ml-2 text-gray-300" size={16}/>
                   )}
                 </div>
                 <Input
                   placeholder="Email"
                   type="email"
-                  className={`bg-gray-50 ${!isReceiverEmailValid && order.receiver.email && 'border-red-300'}`}
-                  name="email"
-                  onChange={(e) => handleFieldChange(e, 'receiver')}
-                  value={order.receiver.email}
+                  className={`bg-gray-50 ${!isReceiverEmailValid && receiver.email && 'border-red-300'}`}
+                  {...register('receiver.email')}
                 />
-                {fieldErrors['receiver.email'] && (
-                  <p className="text-red-500 text-xs mt-1">{fieldErrors['receiver.email']}</p>
+                {errors.receiver?.email && (
+                  <div
+                    className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                    <AlertCircle size={14} className="shrink-0"/>
+                    <p>{errors.receiver.email.message}</p>
+                  </div>
                 )}
               </div>
             </FieldGroup>
@@ -330,21 +270,23 @@ const Step4SenderRecipientForm: FC<Props> = ({
                     {t('deliveryCostCalculator.stepForForm.address')}
                   </FieldLabel>
                   {isAddressValid ? (
-                    <CheckCircle className="ml-2 text-green-500" size={16} />
+                    <CheckCircle className="ml-2 text-green-500" size={16}/>
                   ) : (
-                    <XCircle className="ml-2 text-gray-300" size={16} />
+                    <XCircle className="ml-2 text-gray-300" size={16}/>
                   )}
                 </div>
                 <Textarea
                   placeholder={t('deliveryCostCalculator.stepForForm.inputTwoText')}
-                  className={`bg-gray-50 ${!isAddressValid && order.receiver.address && 'border-red-300'}`}
-                  name="address"
-                  onChange={(e) => handleFieldChange(e, 'receiver')}
-                  value={order.receiver.address}
+                  className={`bg-gray-50 ${!isAddressValid && receiver.address && 'border-red-300'}`}
+                  {...register('receiver.address')}
                   rows={3}
                 />
-                {fieldErrors.address && (
-                  <p className="text-red-500 text-xs mt-1">{fieldErrors.address}</p>
+                {errors.receiver?.address && (
+                  <div
+                    className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                    <AlertCircle size={14} className="shrink-0"/>
+                    <p>{errors.receiver.address.message}</p>
+                  </div>
                 )}
               </div>
 
@@ -354,21 +296,23 @@ const Step4SenderRecipientForm: FC<Props> = ({
                     {t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
                   </FieldLabel>
                   {isInParcelValid ? (
-                    <CheckCircle className="ml-2 text-green-500" size={16} />
+                    <CheckCircle className="ml-2 text-green-500" size={16}/>
                   ) : (
-                    <XCircle className="ml-2 text-gray-300" size={16} />
+                    <XCircle className="ml-2 text-gray-300" size={16}/>
                   )}
                 </div>
                 <Textarea
-                  className={`w-full bg-gray-50 ${!isInParcelValid && order.inParcel && 'border-red-300'}`}
+                  className={`w-full bg-gray-50 ${!isInParcelValid && inParcel && 'border-red-300'}`}
                   placeholder={t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
-                  name="inParcel"
-                  onChange={handleFieldChange}
-                  value={order.inParcel}
+                  {...register('inParcel')}
                   rows={3}
                 />
-                {fieldErrors.inParcel && (
-                  <p className="text-red-500 text-xs mt-1">{fieldErrors.inParcel}</p>
+                {errors.inParcel && (
+                  <div
+                    className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                    <AlertCircle size={14} className="shrink-0"/>
+                    <p>{errors.inParcel.message}</p>
+                  </div>
                 )}
                 <p className="text-gray-500 text-sm mt-1">
                   {t('deliveryCostCalculator.stepForForm.inputOneParcelContentText')}
@@ -382,21 +326,23 @@ const Step4SenderRecipientForm: FC<Props> = ({
                   {t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
                 </FieldLabel>
                 {isInParcelValid ? (
-                  <CheckCircle className="ml-2 text-green-500" size={20} />
+                  <CheckCircle className="ml-2 text-green-500" size={20}/>
                 ) : (
-                  <XCircle className="ml-2 text-gray-300" size={20} />
+                  <XCircle className="ml-2 text-gray-300" size={20}/>
                 )}
               </div>
               <Textarea
-                className={`w-full bg-gray-50 ${!isInParcelValid && order.inParcel && 'border-red-300'}`}
+                className={`w-full bg-gray-50 ${!isInParcelValid && inParcel && 'border-red-300'}`}
                 placeholder={t('deliveryCostCalculator.stepForForm.inputOneParcelContent')}
-                name="inParcel"
-                onChange={handleFieldChange}
-                value={order.inParcel}
+                {...register('inParcel')}
                 rows={3}
               />
-              {fieldErrors.inParcel && (
-                <p className="text-red-500 text-xs mt-1">{fieldErrors.inParcel}</p>
+              {errors.inParcel && (
+                <div
+                  className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                  <AlertCircle size={14} className="shrink-0"/>
+                  <p>{errors.inParcel.message}</p>
+                </div>
               )}
               <p className="text-gray-500 text-sm mt-1">
                 {t('deliveryCostCalculator.stepForForm.inputOneParcelContentText')}

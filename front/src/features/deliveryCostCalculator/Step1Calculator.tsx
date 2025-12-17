@@ -59,7 +59,7 @@ const Step1Calculator: FC<Props> = ({
 
   useEffect(() => {
     const type: 'PVZ' | 'Hand' = deliveryType === 'courier' ? 'Hand' : 'PVZ';
-    setValue('destinationCity', '')
+    setValue('destinationCity', '');
     void getCities(type);
   }, [deliveryType, getCities, setValue]);
 
@@ -79,7 +79,7 @@ const Step1Calculator: FC<Props> = ({
 
   const handleNextClick = async () => {
     if (!isNextDisabled) {
-      return
+      return;
     }
     const valid = await trigger(['destinationCity', 'originCity', 'parcelWeight', 'parcelValue']);
     if (valid) {
@@ -114,7 +114,7 @@ const Step1Calculator: FC<Props> = ({
                     }}
                     value={originCity}
                   >
-                    <SelectTrigger className={`w-full ${!isOriginCityValid && 'border-red-300'}`}>
+                    <SelectTrigger className={`w-full`}>
                       <SelectValue
                         placeholder={t('deliveryCostCalculator.stepOneForm.senderPlaceholder')}
                       />
@@ -168,7 +168,7 @@ const Step1Calculator: FC<Props> = ({
                     value={destinationCity}
                   >
                     <SelectTrigger
-                      className={`w-full ${!isDestinationCityValid && 'border-red-300'}`}
+                      className={`w-full`}
                     >
                       <SelectValue
                         placeholder={

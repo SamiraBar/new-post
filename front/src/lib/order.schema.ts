@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { TFunction } from 'i18next';
+import { isValidPhoneNumber } from 'libphonenumber-js';
 
 export const orderSchema = (t: TFunction) => z.object({
   originCity: z.string().min(1, 'deliveryCostCalculator.validateError.cityOfSender'),
@@ -16,7 +17,6 @@ export const orderSchema = (t: TFunction) => z.object({
       (v) => v === '' || Number(v) <= 50000,
       t('deliveryCostCalculator.validateError.maxValue')
     ),
-
     parcelWeight: z
       .string()
       .refine(
@@ -32,20 +32,32 @@ export const orderSchema = (t: TFunction) => z.object({
   insuranceCost: z.number().min(0),
   totalCost: z.number().min(0),
   deliveryDate: z.string().min(1, 'Дата доставки обязательна'),
-  inParcel: z.string().min(3, 'Опишите содержимое посылки'),
+  inParcel: z.string().min(3, t('deliveryCostCalculator.validateError.inParcel')).max(70, t('deliveryCostCalculator.stepForForm.errors.inParcelMaxError')),
   sender: z.object({
-    name: z.string().min(2, 'Имя отправителя обязательно'),
-    email: z.string().email('Некорректный email'),
-    phone: z.string().regex(/^\+?[0-9]{10,15}$/, 'Некорректный номер телефона'),
-    inn_passport: z.string().min(6, 'ИНН/Паспорт обязателен'),
+    name: z.string().trim().regex(/^(\S{3,})\s+(\S{3,})$/, {message: t('deliveryCostCalculator.stepForForm.errors.senderNameError')},),
+    email: z.string().email(t('deliveryCostCalculator.stepForForm.errors.emailError')),
+    phone: z.string().refine(v => isValidPhoneNumber(v), {message: t("deliveryCostCalculator.stepForForm.errors.phoneError")}),
+    inn_passport: z.string()
+      .trim()
+      .min(10, t('deliveryCostCalculator.validateError.validateSenderInnPassport'))
+      .max(14, t('deliveryCostCalculator.validateError.validateSenderInnPassport'))
+      .regex(/^[A-Za-z0-9]+$/, t('deliveryCostCalculator.validateError.validateSenderInnPassport'))
   }),
   receiver: z.object({
-    name: z.string().min(2, 'Имя получателя обязательно'),
-    email: z.string().email('Некорректный email'),
-    phone: z.string().regex(/^\+?[0-9]{10,15}$/, 'Некорректный номер телефона'),
-    address: z.string().optional(),
-    city: z.string().min(1, t('deliveryCostCalculator.validateError.indicateCity')).optional(),
-    street: z.string().min(1, t('deliveryCostCalculator.validateError.indicateStreet')).optional(),
+    name: z
+      .string()
+      .trim()
+      .regex(
+        /^(\S{3,})\s+(\S{3,})\s+(\S{3,})$/,
+        {
+          message: t('deliveryCostCalculator.stepForForm.errors.receiverNameError'),
+        }
+      ),
+    email: z.string().email(t('deliveryCostCalculator.stepForForm.errors.emailError')),
+    phone: z.string().regex(/^\+?[0-9]{10,15}$/, t("deliveryCostCalculator.stepForForm.errors.phoneError")),
+    address: z.string().min(5, t('deliveryCostCalculator.validateError.validateReceiverAddress')).optional(),
+    city: z.string().min(3, t('deliveryCostCalculator.validateError.indicateCity')).optional(),
+    street: z.string().min(3, t('deliveryCostCalculator.validateError.indicateStreet')).optional(),
     house: z.string().min(1, t('deliveryCostCalculator.validateError.indicateHouse')).optional(),
     apartment: z.string().optional(),
   }),

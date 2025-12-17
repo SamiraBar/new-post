@@ -9,7 +9,6 @@ import type { OrderFormData } from '@/lib/order.schema.ts';
 
 interface Props {
   form: UseFormReturn<OrderFormData>;
-  handleNext: () => void;
 }
 
 const normalizeCityName = (cityName: string): string => {
@@ -56,6 +55,8 @@ const Step3RecipientOfficeSelection: FC<Props> = ({
   };
 
   if (!deliveryType) return null;
+
+  console.log(deliveryType);
 
   return (
     <div className="w-full pt-5">

@@ -1,22 +1,24 @@
-import { CircleAlert, DollarSign, MapPin, Package, User, UserCheck, Clock, Phone } from 'lucide-react';
-import type { Order } from '@/types';
+import { CircleAlert, Clock, DollarSign, MapPin, Package, Phone, User, UserCheck } from 'lucide-react';
 import { type FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore';
+import type { UseFormReturn } from 'react-hook-form';
+import type { OrderFormData } from '@/lib/order.schema.ts';
 
 interface Props {
-  order: Order;
+  form: UseFormReturn<OrderFormData>;
   doorDelivery?: boolean;
 }
 
-const Step5Review: FC<Props> = ({ order, doorDelivery }) => {
+const Step5Review: FC<Props> = ({ form, doorDelivery }) => {
   const { t } = useTranslation();
   const { fetchDeliveryCost } = useDeliveryStore();
+  const order = form.getValues();
   useEffect(() => {
     const ensurePrice = async () => {
-      if (order.deliveryCost === 0 && order.destinationCity && order.parcelWeight > 0) {
+      if (order.deliveryCost === 0 && order.destinationCity && Number(order.parcelWeight) > 0) {
         console.log('Step5: No delivery cost, recalculating...');
-        await fetchDeliveryCost(order.destinationCity, order.parcelWeight);
+        await fetchDeliveryCost(order.destinationCity, Number(order.parcelWeight));
       } else {
         console.log('Step5: Delivery cost already set:', order.deliveryCost);
       }
