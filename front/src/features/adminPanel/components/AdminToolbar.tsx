@@ -108,12 +108,11 @@ export const AdminToolbar = () => {
       >
         <NavigationMenuItem className="flex justify-end col-start-1 row-start-1">
           <Link to={'/admin'}>
-            <img src={logoImage} alt="logo" className="w-30 md:w-25"/>
+            <img src={logoImage} alt="logo" className="w-30 md:w-25" />
           </Link>
         </NavigationMenuItem>
 
-        <div
-          className="flex flex-col md:flex-row gap-3 justify-center items-stretch w-full col-start-1 col-end-3 row-start-2 lg:col-start-2 lg:col-end-2 lg:row-start-1">
+        <div className="flex flex-col md:flex-row gap-3 justify-center items-stretch w-full col-start-1 col-end-3 row-start-2 lg:col-start-2 lg:col-end-2 lg:row-start-1">
           <NavigationMenuItem className="flex-1">
             <Input
               type="search"
@@ -163,11 +162,14 @@ export const AdminToolbar = () => {
                     <Link to="moderation">
                       <DropdownMenuItem>Администраторы</DropdownMenuItem>
                     </Link>
+                    <Link to="site-content">
+                      <DropdownMenuItem>Редактировать сайт</DropdownMenuItem>
+                    </Link>
                     <DropdownMenuItem
                       onSelect={(e) => e.preventDefault()}
                       className="hidden sm:flex "
                     >
-                      <ModalFile/>
+                      <ModalFile />
                     </DropdownMenuItem>
                   </>
                 )}

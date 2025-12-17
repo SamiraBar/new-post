@@ -3,9 +3,11 @@ import whatsappIcon from '../../assets/cosialIcons/WhatsApp.png';
 import instagramIcon from '../../assets/cosialIcons/Instagram.png';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { usePublicSiteText } from '@/features/adminPanel/hooks/usePublicSiteText.ts';
 
 const FooterComponent = () => {
   const { t } = useTranslation();
+  const { data } = usePublicSiteText();
 
   return (
     <footer
@@ -37,8 +39,8 @@ const FooterComponent = () => {
         </div>
 
         <div className="text-sm leading-relaxed space-y-1 text-neutral-300">
-          <p>{t('footer.address')}</p>
 
+          <p>{data['footer.address']?.trim() || t('footer.address')}</p>
           <p>
             Телефон:{' '}
             <a
@@ -48,7 +50,6 @@ const FooterComponent = () => {
               +996 778 465 557
             </a>
           </p>
-
           <p>
             Электронная почта:{' '}
             <a
