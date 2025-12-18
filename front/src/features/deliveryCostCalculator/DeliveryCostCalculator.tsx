@@ -1,4 +1,14 @@
-import { type FormEvent, type JSX, useCallback, useEffect, useMemo, useState, } from 'react';
+import {
+  type ChangeEvent,
+  type FormEvent,
+  type JSX,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo
+} from 'react';
+
 import { Button } from '@/components/ui/button.tsx';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
@@ -24,9 +34,11 @@ import { type OrderFormData, orderSchema } from '@/lib/order.schema.ts';
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAgreed, setIsAgreed] = useState(false);
+  const [agreementError, setAgreementError] = useState(false);
+  const agreementRef = useRef<HTMLDivElement | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdTrackingNumber, setCreatedTrackingNumber] = useState('');
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const {
     openOrCloseCalcModal,
@@ -38,11 +50,7 @@ const DeliveryCostCalculator = () => {
     fetchDeliveryCost,
   } = useDeliveryStore();
 
-  const {
-    createParcel,
-    createParcelLoading,
-    createParcelError
-  } = useParcelsStore();
+  const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
 
   const schema = useMemo(
     () => orderSchema(t),
@@ -143,7 +151,9 @@ const DeliveryCostCalculator = () => {
     e.preventDefault();
 
     if (!isAgreed) {
+      setAgreementError(true);
       toast.error(t('deliveryCostCalculator.validateError.agreement'));
+      agreementRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
@@ -186,6 +196,7 @@ const DeliveryCostCalculator = () => {
       reset();
       setCurrentStep(1);
       setIsAgreed(false);
+      setAgreementError(false);
       clearActions();
     } else {
       toast.error(
@@ -266,6 +277,13 @@ const DeliveryCostCalculator = () => {
       }
       setCurrentStep(4);
     } else if (currentStep === 4) {
+      if (!isAgreed) {
+        setAgreementError(true);
+        toast.error(t('deliveryCostCalculator.validateError.agreement'));
+        agreementRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      setAgreementError(false);
       setCurrentStep(5);
     }
   };
@@ -382,6 +400,53 @@ const DeliveryCostCalculator = () => {
                   </Label>
                 </div>
               )}
+              {currentStep === 4 && (
+                <div
+                  ref={agreementRef}
+                  className={[
+                    'w-full sm:min-w-[420px] -order-1 sm:order-0',
+                    'rounded-2xl border-2 p-4 shadow-sm',
+                    'flex items-center gap-4',
+                    agreementError && !isAgreed
+                      ? 'border-red-500 bg-red-50'
+                      : 'border-orange-300 bg-orange-50',
+                  ].join(' ')}
+                >
+                  <div className="flex items-center justify-center">
+                    <Checkbox
+                      checked={isAgreed}
+                      className={[
+                        'size-6 rounded-md border-2 shadow-sm',
+                        agreementError && !isAgreed
+                          ? 'border-red-500 ring-4 ring-red-200'
+                          : 'border-orange-500',
+                        isAgreed
+                          ? 'data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500'
+                          : '',
+                      ].join(' ')}
+                      onCheckedChange={(checked) => {
+                        setIsAgreed(checked === true);
+                        setAgreementError(false);
+                      }}
+                    />
+                  </div>
+
+                  <div className="text-left">
+                    <Label
+                      className={[
+                        'block text-sm leading-snug mt-1',
+                        agreementError && !isAgreed ? 'text-red-700' : 'text-gray-700',
+                      ].join(' ')}
+                    >
+                      {t('deliveryCostCalculator.buttons.agreement')}
+                    </Label>
+
+                    <p className="text-xs text-gray-600 mt-1">
+                      Без согласия нельзя перейти дальше.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {currentStep === 5 ? (
                 <Button
@@ -390,8 +455,8 @@ const DeliveryCostCalculator = () => {
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   onClick={handleSubmit}
                 >
-                  <span>{t('deliveryCostCalculator.buttons.design')}</span>
-                  <ArrowRight size={20}/>
+                  <span>{t('deliveryCostCalculator.buttons.pay')}</span>
+                  <ArrowRight size={20} />
                 </Button>
               ) : (
                 <Button
@@ -401,13 +466,13 @@ const DeliveryCostCalculator = () => {
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   <span>{t('deliveryCostCalculator.buttons.forward')}</span>
-                  <ArrowRight size={20}/>
+                  <ArrowRight size={20} />
                 </Button>
               )}
             </div>
           )}
 
-          {currentStep === 1 && <WarningNotices/>}
+          {currentStep === 1 && <WarningNotices />}
         </div>
       </div>
     </div>

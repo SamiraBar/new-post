@@ -418,6 +418,20 @@ const run = async () => {
       partnerType: "KCE",
       weight: 2.2,
     },
+    {
+      trackingNumber: "KGZ-020-A1B2C3D4F5",
+      partnerTrackingNumber: "PTN-020-TAFWDDDDS2",
+      sender: senderTwo._id,
+      recipient: recipientTwo._id,
+      originCity: "Ош",
+      destinationCity: "Санкт-Петербург",
+      status: "shipped",
+      isPaid: true,
+      partnerStickerReceived: true,
+      deliveryType: "courier",
+      partnerType: "KCE",
+      weight: 2.2,
+    },
   ]);
 
   const fullHistoryParcel = new Parcel({

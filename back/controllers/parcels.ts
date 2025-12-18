@@ -3,6 +3,9 @@ import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
 import Contact from "../models/Contact";
 import { generateTrackingNumber } from "../utils/generateTrackingNumber";
+import {createOrderInEKit, getOrderStatus} from "../services/ekit.service";
+import {CreateParcelResponse, EKitOrderResult, ParcelCreateData} from "../types";
+
 
 async function findContactIds(
     type: "sender" | "recipient",
@@ -106,11 +109,11 @@ export const createParcel = async (
       type: "recipient",
     });
 
-    const parcelData: any = {
+    const parcelData: ParcelCreateData = {
       trackingNumber,
       partnerTrackingNumber,
-      sender: newSender._id,
-      recipient: newRecipient._id,
+      sender: newSender._id as mongoose.Types.ObjectId,
+      recipient: newRecipient._id as mongoose.Types.ObjectId,
       originCity,
       destinationCity,
       weight: weightValue,
@@ -149,17 +152,48 @@ export const createParcel = async (
     const newParcel = new Parcel(parcelData);
     await newParcel.save();
 
+    let ekitWarning: string | undefined;
+
+    if (partnerType === 'KCE') {
+      try {
+        const populatedParcel = await Parcel.findById(newParcel._id)
+            .populate("sender")
+            .populate("recipient");
+
+        if (!populatedParcel) {
+          throw new Error('Failed to populate parcel data');
+        }
+
+        const ekitResult = await createOrderInEKit(populatedParcel);
+
+        newParcel.partnerTrackingNumber = ekitResult.ekitBarcode;
+        newParcel.status = 'created';
+        await newParcel.save();
+
+      } catch (ekitError: any) {
+        console.error(' E-Kit sync failed:', ekitError.message);
+
+        newParcel.status = 'draft';
+        await newParcel.save();
+
+        ekitWarning = `Order created but E-Kit sync failed: ${ekitError.message}. Manual processing required.`;
+      }
+    }
     const populatedParcel = await Parcel.findById(newParcel._id)
         .populate("sender")
         .populate("recipient");
 
-    console.log("✅ Created parcel with pvzData:", populatedParcel?.pvzData);
-
-    res.status(201).json({
-      message: "Parcel created successfully",
+    const response: CreateParcelResponse = {
+      message: ekitWarning ? "Parcel created with warnings" : "Parcel created successfully",
       parcel: populatedParcel,
       trackingNumber,
-    });
+    };
+
+    if (ekitWarning) {
+      response.warning = ekitWarning;
+    }
+
+    res.status(201).json(response);
   } catch (e) {
     next(e);
   }
@@ -370,5 +404,125 @@ export const updatePartnerTrackingNumber = async (
     });
   } catch (e) {
     next(e);
+  }
+};
+
+export const syncParcelWithEKit = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ error: "Invalid parcel ID" });
+    }
+
+    const parcel = await Parcel.findById(id)
+        .populate("sender")
+        .populate("recipient");
+
+    if (!parcel) {
+      return res.status(404).json({ error: "Parcel not found" });
+    }
+
+    if (parcel.partnerType !== "E-Kit") {
+      return res.status(400).json({
+        error: "Parcel is not for E-Kit delivery",
+        partnerType: parcel.partnerType
+      });
+    }
+
+    if (parcel.partnerTrackingNumber) {
+      return res.status(400).json({
+        error: "Parcel already synced with E-Kit",
+        ekitTracking: parcel.partnerTrackingNumber,
+      });
+    }
+
+    const ekitResult: EKitOrderResult = await createOrderInEKit(parcel);
+
+    parcel.partnerTrackingNumber = ekitResult.ekitBarcode;
+    parcel.status = "created";
+    await parcel.save();
+
+    const fresh = await Parcel.findById(id)
+        .populate("sender")
+        .populate("recipient");
+
+    const response = {
+      message: "Successfully synced with E-Kit",
+      parcel: fresh,
+      ekitTracking: ekitResult.ekitBarcode,
+    };
+
+    res.json(response);
+  } catch (e) {
+    if (e instanceof Error) {
+      console.error(' Manual sync failed:', e.message);
+      next(e);
+    } else {
+      console.error(' Manual sync failed with unknown error:', e);
+      next(new Error(String(e)));
+    }
+  }
+};
+
+export const getEKitStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ error: "Invalid parcel ID" });
+    }
+
+    const parcel = await Parcel.findById(id);
+
+    if (!parcel) {
+      return res.status(404).json({ error: "Parcel not found" });
+    }
+
+    if (parcel.partnerType !== 'E-Kit') {
+      return res.status(400).json({
+        error: "This parcel is not for E-Kit delivery"
+      });
+    }
+
+    if (!parcel.partnerTrackingNumber) {
+      return res.status(400).json({
+        error: "Parcel not synced with E-Kit yet"
+      });
+    }
+
+    const statusData = await getOrderStatus(parcel.trackingNumber);
+
+    if (!statusData) {
+      return res.status(404).json({
+        error: "Could not get status from E-Kit"
+      });
+    }
+
+    res.json({
+      trackingNumber: parcel.trackingNumber,
+      ekitTracking: parcel.partnerTrackingNumber,
+      currentStatus: parcel.status,
+      ekitStatus: statusData.status,
+      ekitStatusTitle: statusData.statusTitle,
+      deliveredDate: statusData.deliveredDate,
+      deliveredTime: statusData.deliveredTime,
+    });
+
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Failed to get order status from E-Kit:', error.message);
+    } else {
+      console.error('Failed to get order status from E-Kit:', String(error));
+      next(new Error(String(error)));
+    }
   }
 };

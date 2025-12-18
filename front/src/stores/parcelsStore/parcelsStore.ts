@@ -19,7 +19,17 @@ interface ExtendedParcelState extends ParcelState {
   createParcel: (order: Order) => Promise<string | null>;
   updatePartnerTrackingNumberLoading: boolean;
   updatePartnerTrackingNumberError: { error: string } | null;
-  updatePartnerTrackingNumber: (id: string, partnerTrackingNumber: string | null) => Promise<boolean>;
+  updatePartnerTrackingNumber: (
+    id: string,
+    partnerTrackingNumber: string | null,
+  ) => Promise<boolean>;
+  printStickerLoading: boolean;
+  printStickerError: { error: string } | null;
+  printSticker: (
+    trackingNumber: string,
+    recipientName: string,
+    address: string,
+  ) => Promise<boolean>;
 }
 
 export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
@@ -38,6 +48,8 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
   searchFilters: {},
   updatePartnerTrackingNumberLoading: false,
   updatePartnerTrackingNumberError: null,
+  printStickerLoading: false,
+  printStickerError: null,
 
   setSearchFilters(filters: SearchFilters) {
     set({ searchFilters: filters });
@@ -197,8 +209,10 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
           order.receiver.city || order.destinationCity,
           order.receiver.street,
           order.receiver.house,
-          order.receiver.apartment ? `кв. ${order.receiver.apartment}` : ''
-        ].filter(Boolean).join(', ');
+          order.receiver.apartment ? `кв. ${order.receiver.apartment}` : '',
+        ]
+          .filter(Boolean)
+          .join(', ');
 
         parcelData.recipient = {
           ...parcelData.recipient,
@@ -206,7 +220,7 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
           street: order.receiver.street || '',
           house: order.receiver.house || '',
           apartment: order.receiver.apartment || '',
-          address: fullAddress
+          address: fullAddress,
         };
       }
 
@@ -238,7 +252,12 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         message: string;
         parcel: IParcel;
         trackingNumber: string;
+        warning?: string;
       }>('/parcels', parcelData);
+
+      if (data.warning) {
+        console.warn('E-Kit sync warning:', data.warning);
+      }
 
       set({
         createParcelLoading: false,
@@ -272,7 +291,7 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
     try {
       const { data } = await axiosApi.patch<{ message: string; parcel: IParcel }>(
         `/parcels/${id}/partner-tracking-number`,
-        { partnerTrackingNumber }
+        { partnerTrackingNumber },
       );
       set({ parcel: data.parcel, updatePartnerTrackingNumberLoading: false });
       get().getParcels(1);
@@ -283,7 +302,43 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       else if (e instanceof Error) errorMessage = e.message;
       else if (typeof e === 'string') errorMessage = e;
 
-      set({ updatePartnerTrackingNumberError: { error: errorMessage }, updatePartnerTrackingNumberLoading: false });
+      set({
+        updatePartnerTrackingNumberError: { error: errorMessage },
+        updatePartnerTrackingNumberLoading: false,
+      });
+      return false;
+    }
+  },
+
+  async printSticker(trackingNumber: string, recipientName: string, address: string) {
+    set({ printStickerLoading: true, printStickerError: null });
+    try {
+      const { data } = await axiosApi.post<{ success: boolean; message: string }>(
+        '/printer/print',
+        {
+          trackingNumber,
+          recipientName,
+          address,
+        },
+      );
+
+      set({ printStickerLoading: false });
+      return data.success;
+    } catch (e: unknown) {
+      let errorMessage = 'Failed to print sticker';
+
+      if (axios.isAxiosError(e)) {
+        errorMessage = e.response?.data?.error || e.message;
+      } else if (e instanceof Error) {
+        errorMessage = e.message;
+      } else if (typeof e === 'string') {
+        errorMessage = e;
+      }
+
+      set({
+        printStickerError: { error: errorMessage },
+        printStickerLoading: false,
+      });
       return false;
     }
   },
