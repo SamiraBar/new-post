@@ -19,7 +19,7 @@ app.use("/printer", printerRouter);
 
 const run = async () => {
   await mongoose.connect(config.db);
-  app.listen(config.port, () => {
+  app.listen(config.port as number, "0.0.0.0", () => {
     console.log(`Server on port ${config.port}`);
   });
 };

@@ -33,7 +33,7 @@ interface TrackingStore {
   closeModal: () => void;
 }
 
-const API_URL = 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const formatDate = (date: Date | string | null | undefined): string | null => {
   if (!date) return null;
