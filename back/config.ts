@@ -2,7 +2,7 @@ import { CorsOptions } from "cors";
 import { configDotenv } from "dotenv";
 import path from "path";
 
-export const secret = "admin_potato_secret";
+export const secret = process.env["SECRET_FRAZE"] || "admin_potato_secret";
 
 const envFile = process.env["NODE_ENV"]
   ? `.${process.env["NODE_ENV"]}.env`
@@ -11,7 +11,7 @@ configDotenv({ path: envFile });
 
 const rootPath = __dirname;
 
-const corsWhiteList = ["http://localhost:5173", "http://localhost:5183"];
+const corsWhiteList = ["http://localhost:5173", "http://localhost:5183", "http://localhost:8080"];
 
 const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
