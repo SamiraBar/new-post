@@ -1,6 +1,6 @@
-import { type Dispatch, type FC, type SetStateAction } from 'react';
+import { type FC } from 'react';
 import { AlertCircle, MapPin } from 'lucide-react';
-import type { Order, PvzData } from '@/types';
+import type { PvzData } from '@/types';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input.tsx';
 import MeasoftMap from '@/features/deliveryCostCalculator/components/measoftMap.tsx';

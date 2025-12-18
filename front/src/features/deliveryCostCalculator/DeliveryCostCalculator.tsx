@@ -1,13 +1,4 @@
-import {
-  type ChangeEvent,
-  type FormEvent,
-  type JSX,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useMemo
-} from 'react';
+import { type FormEvent, type JSX, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button.tsx';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
