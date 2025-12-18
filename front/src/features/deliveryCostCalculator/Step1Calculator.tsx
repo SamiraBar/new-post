@@ -42,7 +42,6 @@ const Step1Calculator: FC<Props> = ({
     clearErrors
   } = form;
 
-
   const {
     originCity,
     destinationCity,
@@ -219,7 +218,6 @@ const Step1Calculator: FC<Props> = ({
                     <Input
                       placeholder="1000"
                       type="number"
-                      min={0}
                       className={`w-full pr-8 ${!isParcelValueValid && Number(parcelValue) > 0 && 'border-red-300'}`}
                       {...register('parcelValue')}
                     />

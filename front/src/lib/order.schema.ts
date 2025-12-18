@@ -17,16 +17,16 @@ export const orderSchema = (t: TFunction) => z.object({
       (v) => v === '' || Number(v) <= 50000,
       t('deliveryCostCalculator.validateError.maxValue')
     ),
-    parcelWeight: z
-      .string()
-      .refine(
-        (v) => v === '' || (!isNaN(Number(v)) && Number(v) >= 0.1),
-        t('deliveryCostCalculator.validateError.weight')
-      )
-      .refine(
-        (v) => v === '' || Number(v) <= 15,
-        t('deliveryCostCalculator.validateError.maxWeight')
-      )
+  parcelWeight: z
+    .string()
+    .refine(
+      (v) => v === '' || (!isNaN(Number(v)) && Number(v) >= 0.1),
+      t('deliveryCostCalculator.validateError.weight')
+    )
+    .refine(
+      (v) => v === '' || Number(v) <= 15,
+      t('deliveryCostCalculator.validateError.maxWeight')
+    )
   ,
   deliveryCost: z.number().min(0),
   insuranceCost: z.number().min(0),
@@ -34,9 +34,9 @@ export const orderSchema = (t: TFunction) => z.object({
   deliveryDate: z.string().min(1, 'Дата доставки обязательна'),
   inParcel: z.string().min(3, t('deliveryCostCalculator.validateError.inParcel')).max(70, t('deliveryCostCalculator.stepForForm.errors.inParcelMaxError')),
   sender: z.object({
-    name: z.string().trim().regex(/^(\S{3,})\s+(\S{3,})$/, {message: t('deliveryCostCalculator.stepForForm.errors.senderNameError')},),
+    name: z.string().trim().regex(/^(\S{3,})\s+(\S{3,})$/, t('deliveryCostCalculator.stepForForm.errors.senderNameError')),
     email: z.string().email(t('deliveryCostCalculator.stepForForm.errors.emailError')),
-    phone: z.string().refine(v => isValidPhoneNumber(v), {message: t("deliveryCostCalculator.stepForForm.errors.phoneError")}),
+    phone: z.string().refine(v => isValidPhoneNumber(v), t('deliveryCostCalculator.stepForForm.errors.phoneError')),
     inn_passport: z.string()
       .trim()
       .min(10, t('deliveryCostCalculator.validateError.validateSenderInnPassport'))
@@ -47,14 +47,9 @@ export const orderSchema = (t: TFunction) => z.object({
     name: z
       .string()
       .trim()
-      .regex(
-        /^(\S{3,})\s+(\S{3,})\s+(\S{3,})$/,
-        {
-          message: t('deliveryCostCalculator.stepForForm.errors.receiverNameError'),
-        }
-      ),
+      .regex(/^(\S{3,})\s+(\S{3,})\s+(\S{3,})$/, t('deliveryCostCalculator.stepForForm.errors.receiverNameError'),),
     email: z.string().email(t('deliveryCostCalculator.stepForForm.errors.emailError')),
-    phone: z.string().regex(/^\+?[0-9]{10,15}$/, t("deliveryCostCalculator.stepForForm.errors.phoneError")),
+    phone: z.string().regex(/^\+?[0-9]{10,15}$/, t('deliveryCostCalculator.stepForForm.errors.phoneError')),
     address: z.string().min(5, t('deliveryCostCalculator.validateError.validateReceiverAddress')).optional(),
     city: z.string().min(3, t('deliveryCostCalculator.validateError.indicateCity')).optional(),
     street: z.string().min(3, t('deliveryCostCalculator.validateError.indicateStreet')).optional(),

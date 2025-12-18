@@ -24,8 +24,8 @@ const Step5Review: FC<Props> = ({ form, doorDelivery }) => {
       }
     };
 
-    ensurePrice();
-  }, []);
+    void ensurePrice();
+  }, [fetchDeliveryCost, order.deliveryCost, order.destinationCity, order.parcelWeight]);
 
   return (
       <div className="w-full pt-5">

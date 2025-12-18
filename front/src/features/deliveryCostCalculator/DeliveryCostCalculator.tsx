@@ -384,15 +384,6 @@ const DeliveryCostCalculator = () => {
 
               {currentStep === 4 && (
                 <div
-                  className="flex items-start sm:items-center gap-2 w-full sm:w-auto text-center sm:text-left -order-1 sm:order-0">
-                  <Checkbox checked={isAgreed} onCheckedChange={() => setIsAgreed(!isAgreed)}/>
-                  <Label className="text-sm text-gray-600 leading-tight">
-                    {t('deliveryCostCalculator.buttons.agreement')}
-                  </Label>
-                </div>
-              )}
-              {currentStep === 4 && (
-                <div
                   ref={agreementRef}
                   className={[
                     'w-full sm:min-w-[420px] -order-1 sm:order-0',
@@ -446,7 +437,7 @@ const DeliveryCostCalculator = () => {
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   onClick={handleSubmit}
                 >
-                  <span>{t('deliveryCostCalculator.buttons.pay')}</span>
+                  <span>{t('deliveryCostCalculator.buttons.design')}</span>
                   <ArrowRight size={20} />
                 </Button>
               ) : (

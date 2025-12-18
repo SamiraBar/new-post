@@ -56,7 +56,6 @@ const Step3RecipientOfficeSelection: FC<Props> = ({
 
   if (!deliveryType) return null;
 
-
   return (
     <div className="w-full pt-5">
       {deliveryType === 'courier' ? (
