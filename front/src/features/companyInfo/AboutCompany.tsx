@@ -3,7 +3,7 @@ import { Separator } from '@/components/ui/separator';
 import { useTranslation } from 'react-i18next';
 import { Package } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { usePublicSiteText } from '@/features/adminPanel/hooks/usePublicSiteText.ts';
+import { isHeadingLine, splitBlocks } from '@/components/ui/contentBlocks.ts';
 
 const AboutCompany = () => {
   const { t } = useTranslation();
@@ -27,13 +27,9 @@ const AboutCompany = () => {
     return () => observer.disconnect();
   }, []);
 
-  const { data } = usePublicSiteText();
-  const text = data['about.company']?.trim() || t('aboutCompany.textInfo');
-  const blocks = text
-    .replace(/\r\n/g, '\n')
-    .split(/\n\s*\n/)
-    .map((b) => b.trim())
-    .filter(Boolean);
+  const text = (t('aboutCompany.textInfo') || '').trim();
+
+  const blocks = splitBlocks(text);
 
   const renderBlock = (block: string, index: number) => {
     if (/^[•\-–]/.test(block)) {
@@ -56,13 +52,11 @@ const AboutCompany = () => {
       );
     }
 
-    const isHeading = /^[A-Za-zА-Яа-яЁёҮүӨөҚқІі\s]+$/.test(block) && block.length <= 48;
-
-    if (isHeading) {
+    if (isHeadingLine(block)) {
       return (
         <h3
           key={index}
-          className="pt-6 text-base sm:text-lg font-semibold text-gray-900 flex items-start gap-2 tracking-tight"
+          className="pt-4 text-base sm:text-lg font-semibold text-gray-900 flex items-start gap-2 tracking-tight"
         >
           <Package className="mt-1 h-4 w-4 text-amber-600 shrink-0" aria-hidden="true" />
           <span>{block}</span>
@@ -84,7 +78,7 @@ const AboutCompany = () => {
       className={`container mt-20 transition-all duration-500 ease-out
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
     >
-      <div className="p-2 sm:p-5 rounded-lg bg-gradient-to-br from-yellow-50 via-yellow-50 to-amber-100/40">
+      <div className="p-2 sm:p-5 rounded-lg ">
         <Card className="group rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg hover:border-amber-300 cursor-pointer">
           <CardContent className="p-5 sm:p-8">
             <div className="w-full">
@@ -96,7 +90,7 @@ const AboutCompany = () => {
                 <Separator className="bg-amber-600 my-4 mx-auto w-20" />
               </div>
 
-              <div className="space-y-5 text-sm sm:text-base ">
+              <div className="space-y-4 text-sm sm:text-base">
                 {blocks.map((b, i) => renderBlock(b, i))}
               </div>
             </div>

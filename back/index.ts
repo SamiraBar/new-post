@@ -5,10 +5,8 @@ import config from "./config";
 import adminsRouter from "./routers/admins";
 import pricesRouter from "./routers/prices";
 import parcelsRouter from "./routers/parcels";
-import siteContentRouter from "./routers/siteContent";
-import publicSiteContentRouter from "./routers/publicSiteContent";
 import printerRouter from "./routers/printer";
-
+import i18nContentRouter from "./routers/i18nContent";
 
 const app = express();
 
@@ -18,9 +16,8 @@ app.use(cors(config.corsOptions));
 app.use("/admins", adminsRouter);
 app.use("/prices", pricesRouter);
 app.use("/parcels", parcelsRouter);
-app.use("/site-content", siteContentRouter);
-app.use("/public/site-content", publicSiteContentRouter);
 app.use("/printer", printerRouter);
+app.use("/i18n-content", i18nContentRouter);
 
 const run = async () => {
   await mongoose.connect(config.db);
