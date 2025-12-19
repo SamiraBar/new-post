@@ -7,7 +7,7 @@ interface DeliveryStore {
   modalSelectDeliveryVariant: boolean;
   calcModal: boolean;
 
-  openOrCloseModalSelectDeliveryVariant: () => void;
+  openOrCloseModalSelectDeliveryVariant: (open: boolean) => void;
   selectDoorDelivery: () => void;
   selectPickup: () => void;
   openOrCloseCalcModal: () => void;
@@ -33,32 +33,34 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
   selectedPrice: 0,
   totalCost: 0,
 
-  openOrCloseModalSelectDeliveryVariant: () =>
-      set({ modalSelectDeliveryVariant: !get().modalSelectDeliveryVariant }),
+  openOrCloseModalSelectDeliveryVariant: (open?: boolean) =>
+    set({
+      modalSelectDeliveryVariant: open !== undefined ? open : !get().modalSelectDeliveryVariant,
+    }),
 
   openOrCloseCalcModal: () => set({ calcModal: !get().calcModal }),
 
   selectDoorDelivery: () =>
-      set({
-        isDoorDelivery: true,
-        isPickup: false,
-        modalSelectDeliveryVariant: false,
-        calcModal: false,
-      }),
+    set({
+      isDoorDelivery: true,
+      isPickup: false,
+      modalSelectDeliveryVariant: false,
+      calcModal: false,
+    }),
 
   selectPickup: () =>
-      set({
-        isDoorDelivery: false,
-        isPickup: true,
-        modalSelectDeliveryVariant: false,
-        calcModal: false,
-      }),
+    set({
+      isDoorDelivery: false,
+      isPickup: true,
+      modalSelectDeliveryVariant: false,
+      calcModal: false,
+    }),
 
   clearActions: () =>
-      set({
-        isDoorDelivery: false,
-        isPickup: false,
-      }),
+    set({
+      isDoorDelivery: false,
+      isPickup: false,
+    }),
 
   fetchDeliveryCost: async (city: string, weight: number) => {
     if (!city || weight <= 0 || weight > 15) {
@@ -67,7 +69,10 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
     }
 
     const type = get().isPickup ? 'PVZ' : 'Hand';
-    const normalizedCity = city.trim().replace(/\s+(город|г\.?|city)$/i, '').trim();
+    const normalizedCity = city
+      .trim()
+      .replace(/\s+(город|г\.?|city)$/i, '')
+      .trim();
 
     try {
       const res = await axiosApi.get('/prices/calculate', {
@@ -94,9 +99,7 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
     } catch (error) {
       console.error('Failed to calculate delivery price:', error);
       set((prev) => ({
-        pricing: type === 'PVZ'
-            ? { ...prev.pricing, pvz: 0 }
-            : { ...prev.pricing, door: 0 },
+        pricing: type === 'PVZ' ? { ...prev.pricing, pvz: 0 } : { ...prev.pricing, door: 0 },
         selectedPrice: 0,
         totalCost: 0,
       }));

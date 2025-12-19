@@ -6,10 +6,10 @@
   },
   "deliveryCalculation": {
     "headerCalculation": "Рассчитать доставку",
-    "buttonCalculation": "Расчитать",
+    "buttonCalculation": "Рассчитать",
     "parcelTracking": "Отследить посылку",
     "modal": {
-      "buttonOne": "Доставка до пункта выдачи посылок",
+      "buttonOne": "Доставка до пункта выдачи\nпосылок",
       "buttonTwo": "Доставка до двери получателя",
       "closeButton": "Закрыть"
     },

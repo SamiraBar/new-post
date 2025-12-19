@@ -18,7 +18,15 @@
         "test:crud": "./tests.sh '@create|@delete|@update'",
         "test:validation": "./tests.sh '@validation'",
         "test:navigation": "./tests.sh '@navigation'",
-        "test:i18n": "./tests.sh '@i18n'"
+        "test:i18n": "./tests.sh '@i18n'",
+        "test:footer": "./tests.sh '@footer'",
+        "test:calculator": "./tests.sh '@calculator'",
+        "test:tracking": "./tests.sh '@tracking'",
+        "test:modal": "./tests.sh '@modal'",
+        "test:delivery": "./tests.sh '@calculator|@tracking'",
+        "test:smoke": "./tests.sh '@smoke'",
+        "test:regression": "./tests.sh '@regression'",
+      "test:close": "./tests.sh '@close'"
     },
     "devDependencies": {
         "@codeceptjs/configure": "^1.0.6",
