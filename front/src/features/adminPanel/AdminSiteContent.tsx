@@ -68,7 +68,6 @@ const AdminSiteContent = () => {
 
   const hasChanges = about !== orig.about || important !== orig.important || footer !== orig.footer;
 
-  // ✅ Save without page reload and without UI "jump"
   const save = async () => {
     console.log('SAVE CLICKED');
     setLoading(true);
