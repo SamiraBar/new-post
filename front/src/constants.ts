@@ -1,6 +1,6 @@
 export const API_URL = import.meta.env['VITE_API_URL'];
 
-export const cities = ['Bishkek', 'Osh', 'Karakol', 'Naryn'];
+export const cities = ['Бишкек', 'Ош', 'Джалал-Абад', 'Нарын',];
 
 export const offices = [
   { id: 1, name: 'Офис Бишкек - Центр', address: 'ул. Чуй 100' },

@@ -239,7 +239,6 @@ const DeliveryCostCalculator = () => {
     if (currentStep === 2) return !!validateStep2(order, t);
     if (currentStep === 3) return !!validateStep3(order, isDoorDelivery, t);
 
-    // ✅ allow clicking on step 4 so we can highlight consent on click
     if (currentStep === 4) return false;
 
     return false;
