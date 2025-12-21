@@ -11,13 +11,16 @@ const selectors = {
   modalTitle: '//h2[contains(text(), "Выберите тип доставки")]',
 
   modalCloseButton: '[role="dialog"] button[class*="rounded-full"]',
-  modalCloseButtonByIcon:
-    '//button[contains(@class, "rounded-full")]//svg[@class="w-6 h-6"]',
   modalCloseButtonInHeader:
     '[role="dialog"] div[class*="gradient"] button:last-of-type',
 
   pickupButton: '//button[contains(., "Доставка до пункта выдачи")]',
   doorButton: '//button[contains(., "Доставка до двери")]',
+
+  calculator: "#calculator",
+
+  calculatorPickupButton: '//button[contains(text(), "ПВЗ")]',
+  calculatorDoorButton: '//button[contains(text(), "Курьер")]',
 };
 
 Given("я нахожусь на главной странице", () => {
@@ -41,10 +44,20 @@ Then("я вижу заголовок {string}", (headerText: string) => {
 });
 
 When("я кликаю на кнопку {string}", (buttonText: string) => {
-  if (buttonText.toLowerCase().includes("рассчитать")) {
+  const lowerText = buttonText.toLowerCase();
+
+  if (lowerText.includes("рассчитать")) {
     I.waitForElement(selectors.calculateButton, 10);
     I.click(selectors.calculateButton);
     I.wait(1.5);
+  } else if (lowerText.includes("пункта выдачи")) {
+    I.waitForElement(selectors.pickupButton, 10);
+    I.click(selectors.pickupButton);
+    I.wait(0.5);
+  } else if (lowerText.includes("до двери")) {
+    I.waitForElement(selectors.doorButton, 10);
+    I.click(selectors.doorButton);
+    I.wait(0.5);
   }
 });
 
@@ -71,6 +84,12 @@ Then("я вижу кнопку {string} в модальном окне", (button
     I.waitForElement(selectors.doorButton, 10);
     I.seeElement(selectors.doorButton);
   }
+});
+
+Then("я вижу иконку закрытия модального окна выбора доставки", () => {
+  I.wait(0.5);
+  I.waitForElement(selectors.modalCloseButtonInHeader, 5);
+  I.seeElement(selectors.modalCloseButtonInHeader);
 });
 
 Then("я вижу иконку закрытия модального окна", () => {
@@ -117,4 +136,81 @@ Then("модальное окно выбора доставки закрыто",
 When("я кликаю вне модального окна", () => {
   I.pressKey("Escape");
   I.wait(0.5);
+});
+
+Then("модальное окно выбора доставки закрывается", () => {
+  I.wait(2);
+
+  I.dontSeeElement(selectors.modal);
+});
+
+Then("я вижу калькулятор доставки", () => {
+  I.wait(2);
+
+  I.waitForElement(selectors.calculator, 10);
+  I.seeElement(selectors.calculator);
+
+  I.see("Калькулятор расчёта стоимости доставки");
+});
+
+Then("тип доставки {string} выбран автоматически", (deliveryType: string) => {
+  I.wait(1);
+
+  const lowerType = deliveryType.toLowerCase();
+
+  if (lowerType.includes("пвз")) {
+    I.waitForElement(selectors.calculatorPickupButton, 5);
+    I.seeElement(selectors.calculatorPickupButton);
+
+    I.executeScript(() => {
+      const pvzButton = document.evaluate(
+        '//button[contains(text(), "ПВЗ")]',
+        document,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null,
+      ).singleNodeValue as HTMLElement;
+
+      if (!pvzButton) {
+        throw new Error("Кнопка ПВЗ не найдена в калькуляторе");
+      }
+
+      const hasActiveClass =
+        pvzButton.className.includes("bg-white") ||
+        pvzButton.className.includes("bg-orange");
+
+      if (!hasActiveClass) {
+        throw new Error("Кнопка ПВЗ не имеет активного состояния");
+      }
+
+      return true;
+    });
+  } else if (lowerType.includes("курьер")) {
+    I.waitForElement(selectors.calculatorDoorButton, 5);
+    I.seeElement(selectors.calculatorDoorButton);
+
+    I.executeScript(() => {
+      const courierButton = document.evaluate(
+        '//button[contains(text(), "Курьер")]',
+        document,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null,
+      ).singleNodeValue as HTMLElement;
+
+      if (!courierButton) {
+        throw new Error("Кнопка Курьер не найдена в калькуляторе");
+      }
+
+      const hasActiveClass =
+        courierButton.className.includes("bg-white") ||
+        courierButton.className.includes("bg-orange");
+
+      if (!hasActiveClass) {
+        throw new Error("Кнопка Курьер не имеет активного состояния");
+      }
+
+      return true;
+    });
+  }
 });

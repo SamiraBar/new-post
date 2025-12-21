@@ -40,6 +40,7 @@ const DeliveryActions = () => {
       selectDoorDelivery();
     }
 
+    openOrCloseModalSelectDeliveryVariant(false);
     setTimeout(scrollToCalculator, 300);
   };
 
