@@ -13,10 +13,7 @@ interface Props {
   doorDelivery: boolean;
 }
 
-const Step4SenderRecipientForm: FC<Props> = ({
-                                               doorDelivery,
-                                               form
-                                             }) => {
+const Step4SenderRecipientForm: FC<Props> = ({doorDelivery, form}) => {
   const {t} = useTranslation();
   const {
     register,
@@ -29,17 +26,17 @@ const Step4SenderRecipientForm: FC<Props> = ({
   const receiver = watch('receiver')
   const inParcel = watch('inParcel')
 
-  const isSenderNameValid = !errors.sender?.name && sender?.name && sender.name.trim().length > 0;
-  const isSenderEmailValid = !errors.sender?.email && sender?.email && sender.email.trim().length > 0;
-  const isSenderPhoneValid = !errors.sender?.phone && sender?.phone && sender.phone.trim().length > 0;
-  const isSenderInnPassportValid = !errors.sender?.inn_passport && sender?.inn_passport && sender.inn_passport.trim().length > 0;
+  const isSenderNameValid = !errors.sender?.name && sender?.name && sender.name
+  const isSenderEmailValid = !errors.sender?.email && sender?.email && sender.email
+  const isSenderPhoneValid = !errors.sender?.phone && sender?.phone && sender.phone
+  const isSenderInnPassportValid = !errors.sender?.inn_passport && sender?.inn_passport && sender.inn_passport
 
-  const isReceiverNameValid = !errors.receiver?.name && receiver?.name && receiver.name.trim().length > 0;
-  const isReceiverEmailValid = !errors.receiver?.email && receiver?.email && receiver.email.trim().length > 0;
-  const isReceiverPhoneValid = !errors.receiver?.phone && receiver?.phone && receiver.phone.trim().length > 0;
+  const isReceiverNameValid = !errors.receiver?.name && receiver?.name && receiver.name
+  const isReceiverEmailValid = !errors.receiver?.email && receiver?.email && receiver.email
+  const isReceiverPhoneValid = !errors.receiver?.phone && receiver?.phone && receiver.phone
 
-  const isInParcelValid = !errors.inParcel && inParcel && inParcel.trim().length > 0;
-  const isAddressValid = !doorDelivery || (!errors.receiver?.address && receiver?.address && receiver.address.trim().length >= 5);
+  const isInParcelValid = !errors.inParcel && inParcel && inParcel
+  const isAddressValid = !doorDelivery || (!errors.receiver?.address && receiver?.address);
 
   return (
     <div className="w-full pt-5">
@@ -118,8 +115,7 @@ const Step4SenderRecipientForm: FC<Props> = ({
                     await trigger('sender.phone');
                   }}
                   error={errors.sender?.phone?.message}
-                  placeholder="+996 XXX XXX XXX"
-                  defaultValue={true}
+                  defaultCountry="KG"
                 />
               </div>
 
@@ -230,7 +226,6 @@ const Step4SenderRecipientForm: FC<Props> = ({
                     await trigger(['receiver.phone']);
                   }}
                   error={errors.receiver?.phone?.message}
-                  placeholder="+996 XXX XXX XXX"
                 />
               </div>
 

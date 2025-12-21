@@ -36,12 +36,10 @@ export const orderSchema = (t: TFunction) => z.object({
   sender: z.object({
     name: z.string().trim().regex(/^(\S{3,})\s+(\S{3,})$/, t('deliveryCostCalculator.stepForForm.errors.senderNameError')),
     email: z.string().email(t('deliveryCostCalculator.stepForForm.errors.emailError')),
-    phone: z.string().refine(v => isValidPhoneNumber(v), t('deliveryCostCalculator.stepForForm.errors.phoneError')),
+    phone: z.string().refine(v => isValidPhoneNumber(v, 'KG'), t('deliveryCostCalculator.stepForForm.errors.phoneError')),
     inn_passport: z.string()
       .trim()
-      .min(10, t('deliveryCostCalculator.validateError.validateSenderInnPassport'))
-      .max(14, t('deliveryCostCalculator.validateError.validateSenderInnPassport'))
-      .regex(/^[A-Za-z0-9]+$/, t('deliveryCostCalculator.validateError.validateSenderInnPassport'))
+      .regex(/^\d{1,14}$/, t('deliveryCostCalculator.validateError.validateSenderInnPassport'))
   }),
   receiver: z.object({
     name: z
@@ -49,7 +47,14 @@ export const orderSchema = (t: TFunction) => z.object({
       .trim()
       .regex(/^(\S{3,})\s+(\S{3,})\s+(\S{3,})$/, t('deliveryCostCalculator.stepForForm.errors.receiverNameError'),),
     email: z.string().email(t('deliveryCostCalculator.stepForForm.errors.emailError')),
-    phone: z.string().regex(/^\+?[0-9]{10,15}$/, t('deliveryCostCalculator.stepForForm.errors.phoneError')),
+    phone: z.string().refine((v) => {
+      if (v.startsWith('+7')) {
+        return isValidPhoneNumber(v, 'RU') || isValidPhoneNumber(v, 'KZ');
+      } else if (v.startsWith('+375')) {
+        return isValidPhoneNumber(v, 'BY');
+      }
+      return isValidPhoneNumber(v);
+    }, t('deliveryCostCalculator.stepForForm.errors.phoneError')),
     address: z.string().min(5, t('deliveryCostCalculator.validateError.validateReceiverAddress')).optional(),
     city: z.string().min(3, t('deliveryCostCalculator.validateError.indicateCity')).optional(),
     street: z.string().min(3, t('deliveryCostCalculator.validateError.indicateStreet')).optional(),

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button.tsx';
 import { cities as senderCities } from '@/constants.ts';
 import useFileStore from '@/stores/fileStore/fileStore.ts';
 import { useTranslation } from 'react-i18next';
-import { type UseFormReturn } from 'react-hook-form';
+import { type UseFormReturn, useWatch } from 'react-hook-form';
 import type { OrderFormData } from '@/lib/order.schema.ts';
 
 interface Props {
@@ -17,10 +17,7 @@ interface Props {
   handleNext: () => void;
 }
 
-const Step1Calculator: FC<Props> = ({
-                                      handleNext,
-                                      form
-                                    }) => {
+const Step1Calculator: FC<Props> = ({handleNext, form}) => {
   const {
     citiesPVZ,
     citiesHand,
@@ -42,13 +39,22 @@ const Step1Calculator: FC<Props> = ({
     clearErrors
   } = form;
 
-  const {
+  const [
     originCity,
     destinationCity,
     parcelValue,
     parcelWeight,
     deliveryType
-  } = watch();
+  ] = useWatch({
+    control: form.control,
+    name: [
+      'originCity',
+      'destinationCity',
+      'parcelValue',
+      'parcelWeight',
+      'deliveryType'
+    ]
+  });
 
   const selectedPrice = watch('totalCost') || 0;
   const isOriginCityValid = !!originCity;

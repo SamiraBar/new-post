@@ -9,9 +9,7 @@ interface Props {
   form: UseFormReturn<OrderFormData>;
 }
 
-const Step2SenderOfficeSelection: FC<Props> = ({
-                                                 form
-                                               }) => {
+const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
   const {t} = useTranslation();
 
   const {

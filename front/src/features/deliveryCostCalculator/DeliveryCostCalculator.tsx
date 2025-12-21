@@ -82,7 +82,6 @@ const DeliveryCostCalculator = () => {
 
   const {
     setValue,
-    getValues,
     reset,
     watch,
     formState: {errors},
@@ -133,40 +132,8 @@ const DeliveryCostCalculator = () => {
     setValue,
   ]);
 
-  const {
-    sender,
-    receiver
-  } = getValues();
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    if (!isAgreed) {
-      setAgreementError(true);
-      toast.error(t('deliveryCostCalculator.validateError.agreement'));
-      agreementRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-
-    if (
-      !sender.name ||
-      !sender.email ||
-      !sender.phone ||
-      !sender.inn_passport
-    ) {
-      toast.error(t('deliveryCostCalculator.validateError.senderData'));
-      return;
-    }
-
-    if (!receiver.name || !receiver.email || !receiver.phone) {
-      toast.error(t('deliveryCostCalculator.validateError.receiverData'));
-      return;
-    }
-
-    if (isDoorDelivery && !receiver.address) {
-      toast.error(t('deliveryCostCalculator.validateError.receiverAddress'));
-      return;
-    }
 
     const values = form.getValues();
 
@@ -203,45 +170,59 @@ const DeliveryCostCalculator = () => {
     setCreatedTrackingNumber('');
   };
 
-  const fields = useWatch({control: form.control});
 
-  const isNextDisabled = () => {
+  const step2 = useWatch({ control: form.control, name: 'originOffice', disabled: currentStep !== 2 });
 
-    if (currentStep === 2) {
-      return !fields.originOffice;
-    }
+  const step3Door = useWatch({
+    control: form.control,
+    name: ['receiver.city', 'destinationCity', 'receiver.street', 'receiver.house'],
+    disabled: currentStep !== 3 || !isDoorDelivery
+  });
 
-    if (currentStep === 3) {
-      if (isDoorDelivery) {
-        return !(
-          fields.receiver?.city &&
-          fields.destinationCity &&
-          fields.receiver?.street &&
-          fields.receiver?.house
-        );
+  const step3Office = useWatch({
+    control: form.control,
+    name: 'destinationOffice',
+    disabled: currentStep !== 3 || isDoorDelivery
+  });
+
+  const step4 = useWatch({
+    control: form.control,
+    name: [
+      'sender.name', 'sender.email', 'sender.phone', 'sender.inn_passport',
+      'receiver.name', 'receiver.email', 'receiver.phone', 'receiver.address',
+      'inParcel',
+    ],
+    disabled: currentStep !== 4
+  });
+
+  const isNextDisabled = useMemo(() => {
+    switch (currentStep) {
+      case 2:
+        return !step2 || !!errors.originOffice;
+
+      case 3:
+          if (isDoorDelivery) {
+            const [city, dest, street, house] = step3Door;
+            return !city || !dest || !street || !house;
+          }
+          return !step3Office || !!errors.destinationOffice;
+
+      case 4: {
+        const [sName, sEmail, sPhone, sInn, rName, rEmail, rPhone, rAddr, inParcel] = step4;
+
+        if (!sName || !sEmail || !sPhone || !sInn || !rName || !rEmail || !rPhone || !inParcel || !isAgreed) {
+          return true;
+        }
+
+        if (isDoorDelivery && !rAddr) return true;
+
+        return !!(errors.sender || errors.receiver || errors.inParcel);
       }
-      return !fields.destinationOffice;
+
+      default:
+        return false;
     }
-
-    if (currentStep === 4) {
-      const baseValid =
-        fields.sender?.name &&
-        fields.sender?.email &&
-        fields.sender?.phone &&
-        fields.sender?.inn_passport &&
-        fields.receiver?.name &&
-        fields.receiver?.email &&
-        fields.receiver?.phone &&
-        fields.inParcel &&
-        Object.keys(errors).length === 0 &&
-        isAgreed
-
-      const doorExtraValid = !isDoorDelivery || fields.receiver?.address
-
-      return !(baseValid && doorExtraValid)
-    }
-    return false;
-  };
+  }, [currentStep, step2, step3Door, step3Office, step4, isDoorDelivery, errors, isAgreed]);
 
 
   const handleNext = async () => {
@@ -444,7 +425,7 @@ const DeliveryCostCalculator = () => {
                 <Button
                   type="button"
                   onClick={handleNext}
-                  disabled={isNextDisabled()}
+                  disabled={isNextDisabled}
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   <span>{t('deliveryCostCalculator.buttons.forward')}</span>

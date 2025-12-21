@@ -20,9 +20,7 @@ const normalizeCityName = (cityName: string): string => {
     .trim();
 };
 
-const Step3RecipientOfficeSelection: FC<Props> = ({
-                                                    form
-                                                  }) => {
+const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
   const {t} = useTranslation();
   const {
     register,
