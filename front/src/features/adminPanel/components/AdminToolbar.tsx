@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore';
 import { toast } from 'sonner';
-import { useBarcodeScanner } from '@/features/adminPanel/components/hooks/useBarcodeScanner';
+import { useBarcodeScanner } from './hooks/useBarcodeScanner';
 
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -54,14 +54,13 @@ export const AdminToolbar = () => {
 
   useBarcodeScanner({
     onScan: (barcode) => {
-      // Устанавливаем отсканированный баркод в поле поиска
-      setSearch((prev) => ({
-        ...prev,
-        trackingNumber: barcode,
-      }));
-
-      // Сразу применяем фильтр (без дебаунса для сканера)
       setSearchFilters({
+        trackingNumber: barcode,
+        sender: '',
+        recipient: '',
+      });
+
+      setSearch({
         trackingNumber: barcode,
         sender: '',
         recipient: '',
@@ -70,9 +69,9 @@ export const AdminToolbar = () => {
       toast.success(`Отсканирован баркод: ${barcode}`);
     },
     minLength: 4,
-    maxTimeBetweenKeys: 50,
+    maxTimeBetweenKeys: 30,
     enabled: true,
-    targetInputId: 'trackingNumber', // Указываем целевой инпут
+    targetInputId: 'trackingNumber',
   });
 
   useEffect(() => {
