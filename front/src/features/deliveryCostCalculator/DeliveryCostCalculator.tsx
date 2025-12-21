@@ -1,5 +1,13 @@
-import { type FormEvent, type JSX, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
+import {
+  type ChangeEvent,
+  type FormEvent,
+  type JSX,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
@@ -107,7 +115,6 @@ const DeliveryCostCalculator = () => {
 
   useEffect(() => {
     const calculatePrices = async () => {
-
       if (!destinationCity || parcelWeight <= 0) {
         return;
       }
@@ -199,7 +206,6 @@ const DeliveryCostCalculator = () => {
     switch (currentStep) {
       case 2:
         return !step2 || !!errors.originOffice;
-
       case 3:
           if (isDoorDelivery) {
             const [city, dest, street, house] = step3Door;
@@ -359,7 +365,7 @@ const DeliveryCostCalculator = () => {
                 onClick={handleBack}
                 className="flex items-center gap-2 w-full sm:w-auto justify-center bg-gray-500 hover:bg-gray-600 text-white px-6 py-3"
               >
-                <ArrowLeft size={20}/>
+                <ArrowLeft size={20} />
                 <span>{t('deliveryCostCalculator.buttons.back')}</span>
               </Button>
 

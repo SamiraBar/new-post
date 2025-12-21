@@ -139,7 +139,7 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
           <MeasoftMap
             form={form}
             onPvzSelect={handlePvzSelect}
-            clientId="8"
+            clientId="217"
             clientCode=""
           />
         </>
