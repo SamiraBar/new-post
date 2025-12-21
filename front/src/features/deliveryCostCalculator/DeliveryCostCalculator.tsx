@@ -1,13 +1,4 @@
-import {
-  type ChangeEvent,
-  type FormEvent,
-  type JSX,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { type FormEvent, type JSX, useCallback, useEffect, useMemo, useRef, useState, } from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
@@ -91,14 +82,13 @@ const DeliveryCostCalculator = () => {
   const {
     setValue,
     reset,
-    watch,
     formState: {errors},
   } = form;
 
-  const destinationCity = watch('destinationCity');
-  const pvzData = watch('pvzData');
-  const parcelWeight = Number(watch('parcelWeight') || 0);
-  const parcelValue = Number(watch('parcelValue') || 0);
+  const [destinationCity, pvzData, parcelWeight, parcelValue] = useWatch({
+    control: form.control,
+    name: ['destinationCity', 'pvzData', 'parcelWeight', 'parcelValue'],
+  });
 
   useEffect(() => {
     setValue('deliveryType', isPickup ? 'pickup' : 'courier');
@@ -115,13 +105,13 @@ const DeliveryCostCalculator = () => {
 
   useEffect(() => {
     const calculatePrices = async () => {
-      if (!destinationCity || parcelWeight <= 0) {
+      if (!destinationCity || Number(parcelWeight) <= 0) {
         return;
       }
       const cityForCalculation = pvzData?.town || destinationCity;
 
-      const delivery = await fetchDeliveryCost(cityForCalculation, parcelWeight);
-      const insurance = calculateInsuranceCost(parcelValue);
+      const delivery = await fetchDeliveryCost(cityForCalculation, Number(parcelWeight));
+      const insurance = calculateInsuranceCost(Number(parcelValue));
 
       setValue('deliveryCost', delivery, { shouldDirty: false });
       setValue('insuranceCost', insurance, { shouldDirty: false });

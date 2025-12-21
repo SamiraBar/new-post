@@ -5,7 +5,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import PhoneInput from '@/features/deliveryCostCalculator/components/phoneInput.tsx';
-import type { UseFormReturn } from 'react-hook-form';
+import { type UseFormReturn, useWatch } from 'react-hook-form';
 import type { OrderFormData } from '@/lib/order.schema.ts';
 
 interface Props {
@@ -18,13 +18,13 @@ const Step4SenderRecipientForm: FC<Props> = ({doorDelivery, form}) => {
   const {
     register,
     setValue,
-    watch,
     trigger,
     formState: {errors}
   } = form;
-  const sender = watch('sender')
-  const receiver = watch('receiver')
-  const inParcel = watch('inParcel')
+  const [sender, receiver, inParcel] = useWatch({
+    control: form.control,
+    name: ['sender', 'receiver', 'inParcel']
+  });
 
   const isSenderNameValid = !errors.sender?.name && sender?.name && sender.name
   const isSenderEmailValid = !errors.sender?.email && sender?.email && sender.email

@@ -2,7 +2,7 @@ import { offices } from '@/constants.ts';
 import { CheckCircle, MapPin, XCircle } from 'lucide-react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { UseFormReturn } from 'react-hook-form';
+import { type UseFormReturn, useWatch } from 'react-hook-form';
 import type { OrderFormData } from '@/lib/order.schema.ts';
 
 interface Props {
@@ -14,12 +14,11 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
 
   const {
     setValue,
-    watch
   } = form;
-  const {
-    originCity,
-    originOffice
-  } = watch();
+  const [originCity, originOffice] = useWatch({
+    control: form.control,
+    name: ['originCity', 'originOffice']
+  });
   const isOfficeSelected = !!originOffice;
 
   const handleOfficeSelect = (officeId: number) => {
