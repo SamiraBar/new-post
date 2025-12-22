@@ -23,6 +23,7 @@ import icCalendar from '../../assets/images/calendar-clock.svg';
 import { useNavigate } from 'react-router-dom';
 import PrintStickerModal from './admin/PrintStickerModal';
 import { useState } from 'react';
+import { formatKGPhone } from '@/features/deliveryCostCalculator/components/utils/phone.ts';
 
 const steps = [
   { icon: <FileText size={25} />, statusValue: 'draft' },
@@ -202,7 +203,9 @@ const ParcelItem = ({ parcel }: Props) => {
               <div className="flex justify-between md:justify-end gap-4 md:col-span-5 md:flex-row sm:flex-col">
                 <div className="flex items-center gap-2">
                   <img src={icPhone} alt="Phone icon" className="w-5 h-5" />
-                  <p className="m-0 font-bold text-base md:text-lg">{recipient.phoneNumber}</p>
+                  <p className="m-0 font-bold text-base md:text-lg">
+                    {formatKGPhone(recipient.phoneNumber)}
+                  </p>
                 </div>
 
                 <button
