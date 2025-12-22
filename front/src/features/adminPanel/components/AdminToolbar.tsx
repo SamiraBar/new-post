@@ -1,4 +1,8 @@
-import { NavigationMenu, NavigationMenuItem, NavigationMenuList, } from '@/components/ui/navigation-menu.tsx';
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuList,
+} from '@/components/ui/navigation-menu.tsx';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
@@ -15,6 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore';
 import { toast } from 'sonner';
+import { useBarcodeScanner } from './hooks/useBarcodeScanner';
 
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -33,19 +38,41 @@ const useDebounce = (value: string, delay: number) => {
 };
 
 export const AdminToolbar = () => {
-  const {logout} = useAdminStore();
+  const { logout } = useAdminStore();
   const admin = useAdminStore((s) => s.admin);
-  const {parcelsResponse} = useParcelsStore();
+  const { parcelsResponse } = useParcelsStore();
   const [search, setSearch] = useState({
     trackingNumber: '',
     sender: '',
     recipient: '',
   });
-  const {setSearchFilters} = useParcelsStore();
+  const { setSearchFilters } = useParcelsStore();
 
   const debouncedTrackingNumber = useDebounce(search.trackingNumber, 500);
   const debouncedSender = useDebounce(search.sender, 500);
   const debouncedRecipient = useDebounce(search.recipient, 500);
+
+  useBarcodeScanner({
+    onScan: (barcode) => {
+      setSearchFilters({
+        trackingNumber: barcode,
+        sender: '',
+        recipient: '',
+      });
+
+      setSearch({
+        trackingNumber: barcode,
+        sender: '',
+        recipient: '',
+      });
+
+      toast.success(`Отсканирован баркод: ${barcode}`);
+    },
+    minLength: 4,
+    maxTimeBetweenKeys: 30,
+    enabled: true,
+    targetInputId: 'trackingNumber',
+  });
 
   useEffect(() => {
     setSearchFilters({
@@ -58,9 +85,7 @@ export const AdminToolbar = () => {
   const parcels = parcelsResponse?.parcels ?? [];
 
   const hasSearchParams =
-    Boolean(debouncedTrackingNumber) ||
-    Boolean(debouncedSender) ||
-    Boolean(debouncedRecipient);
+    Boolean(debouncedTrackingNumber) || Boolean(debouncedSender) || Boolean(debouncedRecipient);
 
   const notFound = parcels.length === 0 && hasSearchParams;
 
@@ -75,17 +100,29 @@ export const AdminToolbar = () => {
     }
   }, [parcelsResponse, notFound, setSearchFilters]);
 
-
   const inputChangeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    const {
-      name,
-      value
-    } = e.target;
+    const { name, value } = e.target;
     setSearch((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   }, []);
+
+  const handleTrackingKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        const value = e.currentTarget.value.trim();
+        if (!value) return;
+
+        setSearchFilters({
+          trackingNumber: value,
+          sender: '',
+          recipient: '',
+        });
+      }
+    },
+    [setSearchFilters],
+  );
 
   const isSuperAdmin = admin?.role === 'superAdmin';
 
@@ -121,6 +158,7 @@ export const AdminToolbar = () => {
               placeholder="Трек номер посылки"
               value={search.trackingNumber}
               onChange={inputChangeHandler}
+              onKeyDown={handleTrackingKeyDown}
               className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1 w-full"
             />
           </NavigationMenuItem>
