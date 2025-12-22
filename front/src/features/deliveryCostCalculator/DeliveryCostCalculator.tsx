@@ -427,7 +427,7 @@ const DeliveryCostCalculator = () => {
                     </Label>
 
                     <p className="text-xs text-gray-600 mt-1">
-                      Без согласия нельзя перейти дальше.
+                      {t('deliveryCostCalculator.buttons.agreementHint')}
                     </p>
                   </div>
                 </div>
