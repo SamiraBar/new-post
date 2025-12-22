@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { validateEmail, validateInnPassport, validatePhone } from '@/lib/validation';
 import { CheckCircle, XCircle } from 'lucide-react';
-import PhoneInput from '@/features/deliveryCostCalculator/components/phoneInput.tsx';
+import PhoneInput from "../deliveryCostCalculator/components/PhoneInput/PhoneInput.tsx"
 
 interface Props {
   order: Order;
