@@ -341,31 +341,41 @@ const DeliveryCostCalculator = () => {
       <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
         <p className="text-lg font-medium text-gray-700">{t('delivery.chooseType')}</p>
 
-        <Button
-          onClick={selectPickup}
-          className={`
-            px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
-            active:scale-95 active:shadow-lg
-            ${isPickup ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
-            hover:bg-white hover:text-orange-500
-          `}
-          disabled={currentStep > 1}
-        >
-          {t('delivery.pickup')}
-        </Button>
+        <div className="flex gap-4">
+          <Button
+            onClick={selectPickup}
+            className={`
+        px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
+        active:scale-95 active:shadow-lg
+        ${
+          isPickup
+            ? 'bg-orange-500 text-white border-orange-500'
+            : 'bg-white text-orange-500 border-gray-300'
+        }
+        hover:bg-white hover:text-orange-500
+      `}
+            disabled={currentStep > 1}
+          >
+            {t('delivery.pickup')}
+          </Button>
 
-        <Button
-          onClick={selectDoorDelivery}
-          className={`
-            px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
-            active:scale-95 active:shadow-lg
-            ${isDoorDelivery ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
-            hover:bg-white hover:text-orange-500
-          `}
-          disabled={currentStep > 1}
-        >
-          {t('delivery.courier')}
-        </Button>
+          <Button
+            onClick={selectDoorDelivery}
+            className={`
+        px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
+        active:scale-95 active:shadow-lg
+        ${
+          isDoorDelivery
+            ? 'bg-orange-500 text-white border-orange-500'
+            : 'bg-white text-orange-500 border-gray-300'
+        }
+        hover:bg-white hover:text-orange-500
+      `}
+            disabled={currentStep > 1}
+          >
+            {t('delivery.courier')}
+          </Button>
+        </div>
       </div>
 
       <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
