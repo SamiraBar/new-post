@@ -83,11 +83,8 @@ const DeliveryActions = () => {
                       <Package className="w-8 h-8 animate-bounce" />
                       <div>
                         <DialogTitle className="text-2xl font-bold">
-                          Выберите тип доставки
+                          {t('deliveryCalculation.modal.selectType')}
                         </DialogTitle>
-                        <p className="text-orange-100 text-sm mt-1">
-                          Нажмите на подходящий вариант
-                        </p>
                       </div>
                     </div>
                     <Button
@@ -106,9 +103,7 @@ const DeliveryActions = () => {
                   <DialogDescription>Выбор типа доставки</DialogDescription>
                 </VisuallyHidden>
 
-                {/* Content */}
                 <div className="p-6 space-y-4">
-                  {/* Кнопка ПВЗ */}
                   <Button
                     onClick={() => handleDeliverySelection('pickup')}
                     className="w-full h-auto min-h-[100px] border-2 border-orange-500 bg-gradient-to-br from-orange-500 to-amber-500 text-white
@@ -118,16 +113,13 @@ const DeliveryActions = () => {
             shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50
             active:scale-[0.98]"
                   >
-                    {/* Анимированный блик */}
                     <div
                       className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent
               -skew-x-12 transform -translate-x-full group-hover:translate-x-full
               transition-transform duration-1000 ease-in-out"
                     />
 
-                    {/* Контент кнопки */}
                     <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4">
-                      {/* Иконка */}
                       <div
                         className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-xl flex items-center justify-center
                   group-hover:bg-orange-500 group-hover:rotate-12
@@ -136,23 +128,21 @@ const DeliveryActions = () => {
                         <Package className="w-6 h-6 sm:w-8 sm:h-8 text-white group-hover:scale-110 transition-transform duration-500" />
                       </div>
 
-                      {/* Текст */}
-                      <div className="flex-1 text-center sm:text-left">
+                      <div className="flex-1 text-center sm:text-left sm:pr-7">
                         <p
                           className="text-lg sm:text-xl font-bold mb-1
                   text-white group-hover:text-orange-600
                   transition-colors duration-300
-                  [text-shadow:_0_2px_4px_rgb(0_0_0_/_30%)] group-hover:[text-shadow:none] whitespace-pre-line sm:pr-7"
+                  [text-shadow:_0_2px_4px_rgb(0_0_0_/_30%)] group-hover:[text-shadow:none] whitespace-pre-line"
                         >
                           {t('deliveryCalculation.modal.buttonOne')}
                         </p>
                         <p className="text-xs sm:text-sm text-orange-100 group-hover:text-orange-400 transition-colors duration-300">
-                          Самовывоз из пункта выдачи
+                          {t('deliveryCalculation.modal.subTitleButtonOne')}
                         </p>
                       </div>
                     </div>
 
-                    {/* Декоративные элементы */}
                     <div
                       className="absolute top-2 right-2 w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-full blur-2xl
                 group-hover:bg-orange-300/30 transition-all duration-500"
@@ -163,7 +153,6 @@ const DeliveryActions = () => {
                     />
                   </Button>
 
-                  {/* Кнопка Курьер */}
                   <Button
                     onClick={() => handleDeliverySelection('door')}
                     className="w-full h-auto min-h-[100px] border-2 border-orange-500 bg-gradient-to-br from-orange-500 to-amber-500 text-white
@@ -173,16 +162,12 @@ const DeliveryActions = () => {
             shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50
             active:scale-[0.98]"
                   >
-                    {/* Анимированный блик */}
                     <div
                       className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent
               -skew-x-12 transform -translate-x-full group-hover:translate-x-full
               transition-transform duration-1000 ease-in-out"
                     />
-
-                    {/* Контент кнопки */}
                     <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4">
-                      {/* Иконка */}
                       <div
                         className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-xl flex items-center justify-center
                   group-hover:bg-orange-500 group-hover:rotate-12
@@ -191,23 +176,21 @@ const DeliveryActions = () => {
                         <Truck className="w-6 h-6 sm:w-8 sm:h-8 text-white group-hover:scale-110 transition-transform duration-500" />
                       </div>
 
-                      {/* Текст */}
-                      <div className="flex-1 text-center sm:text-left">
+                      <div className="flex-1 text-center sm:text-left sm:pr-3">
                         <p
                           className="text-lg sm:text-xl font-bold mb-1
                   text-white group-hover:text-orange-600
                   transition-colors duration-300
-                  [text-shadow:_0_2px_4px_rgb(0_0_0_/_30%)] group-hover:[text-shadow:none]"
+                  [text-shadow:_0_2px_4px_rgb(0_0_0_/_30%)] group-hover:[text-shadow:none] whitespace-pre-line"
                         >
                           {t('deliveryCalculation.modal.buttonTwo')}
                         </p>
-                        <p className="text-xs sm:text-sm text-orange-100 group-hover:text-orange-400 transition-colors duration-300">
-                          Доставка курьером до адреса
+                        <p className="text-xs sm:text-sm text-orange-100 group-hover:text-orange-400 transition-colors duration-300  mx-auto whitespace-normal">
+                          {t('deliveryCalculation.modal.subTitleButtonTwo')}
                         </p>
                       </div>
                     </div>
 
-                    {/* Декоративные элементы */}
                     <div
                       className="absolute top-2 right-2 w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-full blur-2xl
                 group-hover:bg-orange-300/30 transition-all duration-500"
@@ -218,12 +201,9 @@ const DeliveryActions = () => {
                     />
                   </Button>
 
-                  {/* Информационный блок */}
                   <div className="mt-4 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200">
-                    <p className="text-sm text-gray-600 text-center">
-                      💡 Выберите подходящий способ доставки.
-                      <br />
-                      Стоимость будет рассчитана автоматически.
+                    <p className="text-sm text-gray-600 text-center  whitespace-pre-line">
+                      💡{t('deliveryCalculation.modal.modalWarning')}
                     </p>
                   </div>
                 </div>
