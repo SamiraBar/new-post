@@ -1,4 +1,13 @@
-import { type FormEvent, type JSX, useCallback, useEffect, useMemo, useRef, useState, } from 'react';
+import {
+  type ChangeEvent,
+  type FormEvent,
+  type JSX,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo
+} from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
@@ -156,8 +165,8 @@ const DeliveryCostCalculator = () => {
     } else {
       toast.error(
         createParcelError?.error ||
-        t('deliveryCostCalculator.error.failedToCreate') ||
-        'Не удалось создать посылку',
+          t('deliveryCostCalculator.error.failedToCreate') ||
+          'Не удалось создать посылку',
       );
     }
   };
@@ -302,8 +311,8 @@ const DeliveryCostCalculator = () => {
 
   return (
     <div className="container" id="calculator">
-      <Toaster/>
-      <DeliveryModal/>
+      <Toaster />
+      <DeliveryModal />
 
       <ParcelSuccessModal
         isOpen={showSuccessModal}
@@ -344,7 +353,8 @@ const DeliveryCostCalculator = () => {
       </div>
 
       <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
-        <StepIndicator currentStep={currentStep} doorDelivery={isDoorDelivery}/>
+        <StepIndicator currentStep={currentStep} doorDelivery={isDoorDelivery} />
+
         <div>
           {steps}
 
@@ -401,7 +411,7 @@ const DeliveryCostCalculator = () => {
                     </Label>
 
                     <p className="text-xs text-gray-600 mt-1">
-                      Без согласия нельзя перейти дальше.
+                      {t('deliveryCostCalculator.buttons.agreementHint')}
                     </p>
                   </div>
                 </div>
@@ -414,7 +424,7 @@ const DeliveryCostCalculator = () => {
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   onClick={handleSubmit}
                 >
-                  <span>{t('deliveryCostCalculator.buttons.design')}</span>
+                  <span>{t('deliveryCostCalculator.buttons.pay')}</span>
                   <ArrowRight size={20} />
                 </Button>
               ) : (

@@ -177,6 +177,7 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
     try {
       const parcelData: CreateParcelData = {
         partnerTrackingNumber: null,
+        distributionCenter: order.distributionCenter,
         sender: {
           fullName: order.sender.name,
           phoneNumber: order.sender.phone,
