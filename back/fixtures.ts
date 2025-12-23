@@ -103,6 +103,7 @@ const run = async () => {
       recipient: recipientOne._id,
       originCity: "Бишкек",
       destinationCity: "Москва",
+      distributionCenter: "МСК",
       status: "created",
       isPaid: false,
       partnerStickerReceived: false,

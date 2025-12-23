@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import axiosApi from '@/axiosApi.ts';
 
+type DeliveryCostResult = { totalCost: number; distributionCenter?: string };
+
 interface DeliveryStore {
   isDoorDelivery: boolean;
   isPickup: boolean;
@@ -12,7 +14,7 @@ interface DeliveryStore {
   selectPickup: () => void;
   openOrCloseCalcModal: () => void;
   clearActions: () => void;
-  fetchDeliveryCost: (city: string, weight: number) => Promise<number>;
+  fetchDeliveryCost: (city: string, weight: number) => Promise<DeliveryCostResult>;
   pricing: {
     pvz: number;
     door: number;
@@ -65,7 +67,7 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
   fetchDeliveryCost: async (city: string, weight: number) => {
     if (!city || weight <= 0 || weight > 15) {
       console.warn('Invalid delivery cost params:', { city, weight });
-      return 0;
+      return { totalCost: 0, distributionCenter: '' };
     }
 
     const type = get().isPickup ? 'PVZ' : 'Hand';
@@ -87,15 +89,17 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
           selectedPrice: cost,
           totalCost: cost,
         }));
+
+        return { totalCost: cost, distributionCenter: res.data.distributionCenter ?? '' };
       } else {
         set((prev) => ({
           pricing: { ...prev.pricing, door: cost },
           selectedPrice: cost,
           totalCost: cost,
         }));
-      }
 
-      return cost;
+        return { totalCost: cost };
+      }
     } catch (error) {
       console.error('Failed to calculate delivery price:', error);
       set((prev) => ({
@@ -104,7 +108,7 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
         totalCost: 0,
       }));
 
-      return 0;
+      return { totalCost: 0, distributionCenter: '' };
     }
   },
 }));

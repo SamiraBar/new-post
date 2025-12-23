@@ -17,6 +17,7 @@ const handFields = {
 const pvzFields = {
   ...baseFields,
   region: { type: String, required: true },
+  distributionCenter: { type: String, required: true },
   pricePerOneLessThree: { type: Number, required: true },
   pricePerOneLessSix: { type: Number, required: true },
   pricePerOneLessTwelve: { type: Number, required: true },
