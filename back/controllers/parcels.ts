@@ -5,6 +5,7 @@ import Contact from "../models/Contact";
 import { generateTrackingNumber } from "../utils/generateTrackingNumber";
 import {createOrderInEKit, getOrderStatus} from "../services/ekit.service";
 import {CreateParcelResponse, EKitOrderResult, ParcelCreateData} from "../types";
+import {syncAllEKitStatuses, syncSingleParcelStatus} from "../services/ekit.synchonization";
 
 
 async function findContactIds(
@@ -524,5 +525,76 @@ export const getEKitStatus = async (
       console.error('Failed to get order status from E-Kit:', String(error));
       next(new Error(String(error)));
     }
+  }
+};
+
+export const syncAllParcels = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+  try {
+    console.log("Manual sync triggered for all E-Kit parcels");
+
+    const result = await syncAllEKitStatuses();
+
+    res.json({
+      message: "Synchronization completed",
+      result: {
+        totalChecked: result.totalChecked,
+        updated: result.updated,
+        skipped: result.skipped,
+        failed: result.failed,
+      },
+      details: result.details,
+      errors: result.errors.length > 0 ? result.errors : undefined,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Sync all failed:", error.message);
+      return res.status(500).json({
+        error: "Failed to sync parcels",
+        message: error.message,
+      });
+    }
+    next(error);
+  }
+};
+
+export const syncSingleParcel = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+  try {
+    const { trackingNumber } = req.params;
+
+    console.log(`Manual sync triggered for ${trackingNumber}`);
+
+    const result = await syncSingleParcelStatus(trackingNumber);
+
+    if (!result.success) {
+      return res.status(400).json({
+        error: result.message,
+        ekitStatus: result.ekitStatus,
+      });
+    }
+
+    res.json({
+      message: result.message,
+      trackingNumber,
+      oldStatus: result.oldStatus,
+      newStatus: result.newStatus,
+      ekitStatus: result.ekitStatus,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Sync single failed:`, error.message);
+      return res.status(500).json({
+        error: "Failed to sync parcel",
+        message: error.message,
+      });
+    }
+    next(error);
   }
 };
