@@ -230,6 +230,10 @@ const ParcelSchema = new Schema(
             type: Date,
             default: null,
         },
+        distributionCenter: {
+            type: String,
+            default: '',
+        },
     },
     {
         timestamps: false,

@@ -231,6 +231,7 @@ export const calculatePrice = async (req: Request, res: Response) => {
       return res.json({
         totalCost: price,
         billedWeight: w,
+        distributionCenter: priceData.distributionCenter,
       });
     }
 
