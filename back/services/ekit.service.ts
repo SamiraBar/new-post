@@ -11,6 +11,13 @@ interface EKitConfig {
     apiUrl: string;
 }
 
+interface SenderInfo {
+    town: string;
+    address: string;
+    phone?: string;
+    service?: string;
+}
+
 const config: EKitConfig = {
     extra: process.env.EKIT_EXTRA || '',
     login: process.env.EKIT_LOGIN || '',
@@ -32,12 +39,45 @@ function escapeXml(text: string): string {
         .replace(/'/g, '&apos;');
 }
 
+export function getSenderInfo(parcel: IParcel): SenderInfo {
+    const origin = parcel.originCity?.toLowerCase() || '';
+    const distributionCenter = parcel.distributionCenter?.toLowerCase() || '';
+
+    console.log('Определение РЦ:', {
+        originCity: parcel.originCity,
+        distributionCenter: parcel.distributionCenter,
+        origin
+    });
+
+    if (distributionCenter.includes('екб') ||
+        distributionCenter.includes('екатеринбург') ||
+        origin.includes('екатеринбург') ||
+        origin.includes('екб')) {
+        console.log('Выбран РЦ: Екатеринбург');
+        return {
+            town: 'Екатеринбург',
+            address: '8 Марта 269',
+            phone: '+79991234000',
+            service: '14'
+        };
+    }
+
+    console.log('Выбран РЦ: Москва (по умолчанию)');
+    return {
+        town: 'Москва',
+        address: 'МКАД 43км',
+        phone: '+79991234000',
+        service: '14'
+    };
+}
+
 export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResult> {
-    console.log('E-Kit auth check:', {
-        extra: config.extra,
-        login: config.login,
-        pass: config.pass,
-        apiUrl: config.apiUrl
+    console.log('🔍 Начало создания заказа в E-Kit:', {
+        trackingNumber: parcel.trackingNumber,
+        originCity: parcel.originCity,
+        distributionCenter: parcel.distributionCenter,
+        deliveryType: parcel.deliveryType,
+        weight: parcel.weight
     });
 
     const authExtra = config.extra;
@@ -72,8 +112,14 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
         pvzCodeFromParcel: parcel.pvzData?.code,
         pvzCodeWeWillSend: '261457'
     });
-    let finalPvzCode = parcel.pvzData?.code;
 
+
+    const senderInfo = getSenderInfo(parcel);
+
+    console.log('📄 Данные отправителя для E-Kit:', senderInfo);
+    console.log('📦 Код ПВЗ:', parcel.pvzData?.code);
+    console.log('🏙️ Город получателя:', recipientCity);
+    console.log('📍 Адрес получателя:', recipientAddress);
 
     const xmlRequest = `<?xml version="1.0" encoding="UTF-8"?>
 <neworder newfolder="YES">
@@ -85,9 +131,9 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     <sender>
       <company>Ваша компания (NewPost)</company>
       <person>Ваша компания (NewPost)</person>
-      <phone>+79991234000</phone>
-      <town>Москва</town>
-      <address>МКАД 43км</address>
+      <phone>${senderInfo.phone}</phone>
+      <town>Екатеринбург</town>
+      <address>8 Марта 269</address>
     </sender>
 
     <receiver>
@@ -96,14 +142,14 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
       <phone>${recipient.phoneNumber}</phone>
       <town>${escapeXml(recipientCity)}</town>
       <address>${escapeXml(recipientAddress)}</address>
-      ${parcel.deliveryType === 'pickup' && parcel.pvzData ? `<pvz>${finalPvzCode}</pvz>` : ''}
+      ${parcel.deliveryType === 'pickup' && parcel.pvzData ? `<pvz>${parcel.pvzData.code}</pvz>` : ''}
     </receiver>
 
     <price>0</price>
     <inshprice>0</inshprice>
     <weight>${parcel.weight}</weight>
     <quantity>1</quantity>
-    <service>14</service>
+    <service>${senderInfo.service || '14'}</service>
     <type>3</type>
     <paytype>NO</paytype>
     <return>NO</return>
@@ -111,6 +157,8 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     <acceptpartially>NO</acceptpartially>
   </order>
 </neworder>`;
+
+    console.log('📤 Отправляемый XML (первые 500 символов):', xmlRequest.substring(0, 500));
 
     console.log('Formed XML (first 200 chars):', xmlRequest.substring(0, 200));
     console.log('Полный XML с весом:', xmlRequest);

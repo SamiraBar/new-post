@@ -40,6 +40,7 @@ export interface IParcel extends mongoose.Document {
     inCityAt?: Date;
     atPickupPointAt?: Date;
     deliveredAt?: Date;
+    distributionCenter?: string;
 
     draftedAtFormatted?: string;
     createdAtFormatted?: string;

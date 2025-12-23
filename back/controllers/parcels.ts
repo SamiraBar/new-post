@@ -29,6 +29,7 @@ export const createParcel = async (
     next: NextFunction
 ) => {
   try {
+    console.log('📦 Начало создания посылки:', req.body);
     const {
       partnerTrackingNumber,
       sender,
