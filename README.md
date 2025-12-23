@@ -104,9 +104,9 @@ The project is fully containerized and can be deployed using Docker.
 
 ### Services
 
-- **Frontend**: `http://localhost:8080`
-- **Backend API**: `http://localhost:3001`
-- **MongoDB**: `localhost:27017`
+- **Frontend**: `http://localhost:5173`
+- **Backend API**: `http://localhost:8000`
+- **MongoDB**: `localhost/new-post-test`
 
 ### Production Deployment
 
