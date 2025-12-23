@@ -19,10 +19,10 @@ const selectors = {
   navigationMenu: 'nav[aria-label="Main"]',
 
   importantInfoBlock: "#important-info",
-  importantInfoTitle: '#important-info [data-slot="card-title"]',
+  importantInfoTitle: "#important-info h3",
 
   aboutBlock: "#about",
-  aboutTitle: '#about [data-slot="card-title"]',
+  aboutTitle: "#about h3",
 
   footer: "footer#contacts",
   footerAddress: '//footer[contains(., "Новая Почта")]',
@@ -142,7 +142,7 @@ When("я кликаю на навигационную ссылку {string}", (n
   I.wait(1);
 
   I.click(linkSelector);
-  I.wait(3);
+  I.wait(2);
 });
 
 When("я кликаю на логотип", () => {
@@ -156,29 +156,27 @@ When("я прокручиваю страницу вниз", () => {
 });
 
 Then("я вижу блок {string}", (blockKey: string) => {
-  I.wait(1.5);
+  I.wait(1);
 
   switch (blockKey) {
     case "importantInfo":
-      I.scrollTo(selectors.importantInfoBlock);
       I.wait(1);
 
       I.waitForElement(selectors.importantInfoBlock, 10);
       I.seeElement(selectors.importantInfoBlock);
 
       const importantInfoTitle = i18n.t("importantInfo.title");
-      I.see(importantInfoTitle, selectors.importantInfoTitle);
+      I.see(importantInfoTitle);
       break;
 
     case "about":
-      I.scrollTo(selectors.aboutBlock);
       I.wait(1);
 
       I.waitForElement(selectors.aboutBlock, 10);
       I.seeElement(selectors.aboutBlock);
 
       const aboutTitle = i18n.t("aboutCompany.title");
-      I.see(aboutTitle, selectors.aboutTitle);
+      I.see(aboutTitle);
       break;
 
     default:

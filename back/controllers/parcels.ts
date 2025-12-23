@@ -43,6 +43,7 @@ export const createParcel = async (
       deliveryType,
       partnerType,
       pvzData,
+      distributionCenter,
     } = req.body;
 
     if (!originCity || !destinationCity || !weight) {
@@ -123,6 +124,7 @@ export const createParcel = async (
       status: "draft",
       deliveryType,
       partnerType,
+      distributionCenter: distributionCenter || '',
     };
 
     if (originOffice !== undefined && originOffice !== null) {

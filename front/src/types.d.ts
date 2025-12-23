@@ -26,6 +26,7 @@ export interface IParcel {
   partnerTrackingNumber?: string;
   deliveryType: DeliveryType;
   partnerType: 'E-Kit' | 'KCE';
+  distributionCenter: string;
   sender: {
     _id: string;
     fullName: string;
@@ -87,6 +88,7 @@ export interface IContact {
 
 export interface CreateParcelData {
   partnerTrackingNumber: string | null;
+  distributionCenter?: string;
   sender: {
     fullName: string;
     phoneNumber: string;
@@ -152,6 +154,7 @@ export type PartnerType = 'E-Kit' | 'KCE';
 export interface Order {
   originCity: string;
   destinationCity: string;
+  distributionCenter?: string;
   originOffice: number;
   destinationOffice: number;
   parcelValue: number;

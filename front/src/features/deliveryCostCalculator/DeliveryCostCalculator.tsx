@@ -53,6 +53,7 @@ const DeliveryCostCalculator = () => {
   const [order, setOrder] = useState<Order>({
     originCity: '',
     destinationCity: '',
+    distributionCenter: '',
     originOffice: 0,
     destinationOffice: 0,
     parcelValue: 0,
@@ -104,9 +105,10 @@ const DeliveryCostCalculator = () => {
 
       setOrder((prev) => ({
         ...prev,
-        deliveryCost: delivery,
+        deliveryCost: delivery.totalCost,
         insuranceCost: insurance,
-        totalCost: delivery + insurance,
+        totalCost: delivery.totalCost + insurance,
+        distributionCenter: isPickup ? (delivery.distributionCenter ?? '') : '',
       }));
     };
 
@@ -182,6 +184,7 @@ const DeliveryCostCalculator = () => {
       setOrder({
         originCity: '',
         destinationCity: '',
+        distributionCenter: '',
         originOffice: 0,
         destinationOffice: 0,
         parcelValue: 0,
@@ -427,7 +430,7 @@ const DeliveryCostCalculator = () => {
                     </Label>
 
                     <p className="text-xs text-gray-600 mt-1">
-                      Без согласия нельзя перейти дальше.
+                      {t('deliveryCostCalculator.buttons.agreementHint')}
                     </p>
                   </div>
                 </div>
