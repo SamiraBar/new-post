@@ -239,7 +239,6 @@ const DeliveryCostCalculator = () => {
     if (currentStep === 2) return !!validateStep2(order, t);
     if (currentStep === 3) return !!validateStep3(order, isDoorDelivery, t);
 
-    // ✅ allow clicking on step 4 so we can highlight consent on click
     if (currentStep === 4) return false;
 
     return false;
@@ -428,7 +427,7 @@ const DeliveryCostCalculator = () => {
                     </Label>
 
                     <p className="text-xs text-gray-600 mt-1">
-                      Без согласия нельзя перейти дальше.
+                      {t('deliveryCostCalculator.buttons.agreementHint')}
                     </p>
                   </div>
                 </div>
