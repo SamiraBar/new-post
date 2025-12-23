@@ -259,7 +259,15 @@ const Step1Calculator: FC<Props> = ({handleNext, form}) => {
                       min={1}
                       step={0.1}
                       className={`w-full pr-8 ${!isParcelWeightValid && Number(parcelWeight) > 0 && 'border-red-300'}`}
-                      {...register('parcelWeight')}
+                      {...register('parcelWeight', {
+                        onBlur: (e) => {
+                          const value = parseFloat(e.target.value);
+                          if (!isNaN(value)) {
+                            const rounded = Math.ceil(value);
+                            setValue('parcelWeight', String(rounded));
+                          }
+                        }
+                      })}
                     />
                     <Weight
                       size={20}

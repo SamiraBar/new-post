@@ -39,7 +39,7 @@ export const orderSchema = (t: TFunction) => z.object({
     phone: z.string().refine(v => isValidPhoneNumber(v, 'KG'), t('deliveryCostCalculator.stepForForm.errors.phoneError')),
     inn_passport: z.string()
       .trim()
-      .regex(/^\d{1,14}$/, t('deliveryCostCalculator.validateError.validateSenderInnPassport'))
+      .regex(/^[A-Za-z0-9]{1,14}$/, t('deliveryCostCalculator.validateError.validateSenderInnPassport'))
   }),
   receiver: z.object({
     name: z

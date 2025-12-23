@@ -5,7 +5,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import PhoneInput from '@/features/deliveryCostCalculator/components/phoneInput.tsx';
-import { type UseFormReturn, useWatch } from 'react-hook-form';
+import { type FieldError, type UseFormReturn, useWatch } from 'react-hook-form';
 import type { OrderFormData } from '@/lib/order.schema.ts';
 
 interface Props {
@@ -26,16 +26,20 @@ const Step4SenderRecipientForm: FC<Props> = ({doorDelivery, form}) => {
     name: ['sender', 'receiver', 'inParcel']
   });
 
-  const isSenderNameValid = !errors.sender?.name && sender?.name && sender.name
-  const isSenderEmailValid = !errors.sender?.email && sender?.email && sender.email
-  const isSenderPhoneValid = !errors.sender?.phone && sender?.phone && sender.phone
-  const isSenderInnPassportValid = !errors.sender?.inn_passport && sender?.inn_passport && sender.inn_passport
+  const isValidField = (error: FieldError | undefined, field: string | undefined): boolean => {
+    return !error && !!field;
+  };
 
-  const isReceiverNameValid = !errors.receiver?.name && receiver?.name && receiver.name
-  const isReceiverEmailValid = !errors.receiver?.email && receiver?.email && receiver.email
-  const isReceiverPhoneValid = !errors.receiver?.phone && receiver?.phone && receiver.phone
+  const isSenderNameValid = isValidField(errors.sender?.name, sender?.name);
+  const isSenderEmailValid = isValidField(errors.sender?.email, sender?.email);
+  const isSenderPhoneValid = isValidField(errors.sender?.phone, sender?.phone);
+  const isSenderInnPassportValid = isValidField(errors.sender?.inn_passport, sender?.inn_passport);
 
-  const isInParcelValid = !errors.inParcel && inParcel && inParcel
+  const isReceiverNameValid = isValidField(errors.receiver?.name, receiver?.name);
+  const isReceiverEmailValid = isValidField(errors.receiver?.email, receiver?.email);
+  const isReceiverPhoneValid = isValidField(errors.receiver?.phone, receiver?.phone);
+
+  const isInParcelValid = isValidField(errors.inParcel, inParcel);
   const isAddressValid = !doorDelivery || (!errors.receiver?.address && receiver?.address);
 
   return (

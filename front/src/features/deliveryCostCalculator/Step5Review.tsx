@@ -120,7 +120,7 @@ const Step5Review: FC<Props> = ({ form, doorDelivery }) => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">{t('deliveryCostCalculator.stepFive.weight')}</p>
-                <p className="font-semibold">{Math.ceil(Number(order.parcelWeight))} кг</p>
+                <p className="font-semibold">{order.parcelWeight} кг</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">
