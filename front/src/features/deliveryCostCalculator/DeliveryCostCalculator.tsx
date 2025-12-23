@@ -1,13 +1,4 @@
-import {
-  type ChangeEvent,
-  type FormEvent,
-  type JSX,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useMemo
-} from 'react';
+import { type FormEvent, type JSX, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
@@ -122,9 +113,9 @@ const DeliveryCostCalculator = () => {
       const delivery = await fetchDeliveryCost(cityForCalculation, Number(parcelWeight));
       const insurance = calculateInsuranceCost(Number(parcelValue));
 
-      setValue('deliveryCost', delivery, { shouldDirty: false });
+      setValue('deliveryCost', delivery.totalCost, { shouldDirty: false });
       setValue('insuranceCost', insurance, { shouldDirty: false });
-      setValue('totalCost', delivery + insurance, { shouldDirty: false });
+      setValue('totalCost', delivery.totalCost + insurance, { shouldDirty: false });
     };
 
     void calculatePrices();
