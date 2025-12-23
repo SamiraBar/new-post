@@ -64,7 +64,7 @@ const TrackingSearch = () => {
           <DialogHeader className="sticky top-0 bg-gradient-to-r from-orange-500 to-amber-500 text-white p-6 rounded-t-lg z-10 sm:p-6 ">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Package className="w-8 h-8" />
+                <Package className="w-8 h-8 animate-bounce" />
                 <div>
                   <DialogTitle className="text-2xl font-bold">
                     {t('deliveryCalculation.trackingSearch.status')}

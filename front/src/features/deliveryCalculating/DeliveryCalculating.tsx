@@ -1,16 +1,16 @@
 import { Button } from '@/components/ui/button.tsx';
 import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useTranslation } from 'react-i18next';
 import TrackingSearch from '@/features/deliveryCalculating/components/TrackingSearch.tsx';
+import { Package, Truck, X } from 'lucide-react';
 
 const DeliveryActions = () => {
   const { t } = useTranslation();
@@ -40,7 +40,12 @@ const DeliveryActions = () => {
       selectDoorDelivery();
     }
 
+    openOrCloseModalSelectDeliveryVariant(false);
     setTimeout(scrollToCalculator, 300);
+  };
+
+  const handleCloseModal = () => {
+    openOrCloseModalSelectDeliveryVariant(false);
   };
 
   return (
@@ -51,94 +56,160 @@ const DeliveryActions = () => {
             {t('deliveryCalculation.headerCalculation')}
           </h4>
 
-          <AlertDialog
+          <Dialog
             open={modalSelectDeliveryVariant}
             onOpenChange={openOrCloseModalSelectDeliveryVariant}
           >
-            <AlertDialogTrigger asChild>
+            <DialogTrigger asChild>
               <Button
                 className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 border-2 border-orange-500 bg-orange-500 text-white
-    hover:bg-white hover:text-black rounded-xl
-    active:scale-95 active:shadow-lg active:bg-orange-500 transition-all duration-200 shadow-md hover:shadow-lg"
+                hover:bg-white hover:text-black rounded-xl
+                active:scale-95 active:shadow-lg active:bg-orange-500 transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 {t('deliveryCalculation.buttonCalculation')}
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent
-              onCloseAutoFocus={(e) => {
-                e.preventDefault();
-              }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-             max-w-md w-full p-6 sm:p-8 md:p-10 rounded-2xl border-[3px] border-orange-500
-             bg-white shadow-2xl z-50"
+            </DialogTrigger>
+
+            <DialogContent
+              onInteractOutside={handleCloseModal}
+              onEscapeKeyDown={handleCloseModal}
+              className="max-w-lg max-h-[90vh] overflow-y-auto p-0 gap-0 m-1 sm:m-0 w-[calc(100%-2rem)] sm:w-full
+                        border-none shadow-2xl bg-transparent"
             >
-              <div className="flex flex-col gap-4">
-                <VisuallyHidden asChild>
-                  <AlertDialogTitle>Диалог</AlertDialogTitle>
-                </VisuallyHidden>
-                <VisuallyHidden asChild>
-                  <AlertDialogDescription>Описание</AlertDialogDescription>
-                </VisuallyHidden>
-                <Button
-                  className="max-w-80 sm:max-w-96 md:max-w-110 h-16 border-2 border-orange-500 bg-orange-500 text-white
-      hover:bg-white hover:text-orange-600 rounded-xl
-      active:scale-95 transition-all duration-300
-      flex flex-col items-center justify-center py-2 relative overflow-hidden
-      group transform hover:-translate-y-1
-      shadow-2xl hover:shadow-3xl shadow-orange-500/30 hover:shadow-orange-500/40"
-                  onClick={() => handleDeliverySelection('pickup')}
-                >
-                  <div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
-      -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%]
-      transition-transform duration-700"
-                  ></div>
+              <div className="relative bg-white rounded-2xl overflow-hidden">
+                <div className="sticky top-0 bg-gradient-to-r from-orange-500 to-amber-500 text-white p-6 rounded-t-2xl z-10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Package className="w-8 h-8 animate-bounce" />
+                      <div>
+                        <DialogTitle className="text-2xl font-bold">
+                          {t('deliveryCalculation.modal.selectType')}
+                        </DialogTitle>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleCloseModal}
+                      className="hover:bg-white/20 text-white rounded-full transition-all duration-300
+                                hover:rotate-90 active:scale-90"
+                    >
+                      <X className="w-6 h-6" />
+                    </Button>
+                  </div>
+                </div>
 
-                  <span
-                    className="text-lg font-bold
-      text-white group-hover:text-orange-600 transition-colors duration-300
-      [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]"
-                  >
-                    {t('deliveryCalculation.modal.buttonOne')}
-                  </span>
-                </Button>
-                <Button
-                  className="max-w-80 sm:max-w-96 md:max-w-110 h-16 border-2 border-orange-500 bg-gradient-to-br from-orange-500 to-amber-500 text-white
-      hover:bg-gradient-to-br hover:from-white hover:to-orange-50 hover:text-orange-600 rounded-xl
-      active:scale-95 transition-all duration-300
-      flex flex-col items-center justify-center py-2 relative overflow-hidden
-      group transform hover:-translate-y-1
-      shadow-2xl hover:shadow-3xl shadow-amber-500/30 hover:shadow-amber-500/40"
-                  onClick={() => handleDeliverySelection('door')}
-                >
-                  <div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
-      -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%]
-      transition-transform duration-700"
-                  ></div>
+                <VisuallyHidden asChild>
+                  <DialogDescription>Выбор типа доставки</DialogDescription>
+                </VisuallyHidden>
 
-                  <span
-                    className="text-lg font-bold text-center leading-tight relative z-10
-      text-white group-hover:text-orange-600 transition-colors duration-300
-      [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)] group-hover:[text-shadow:none]"
+                <div className="p-6 space-y-4">
+                  <Button
+                    onClick={() => handleDeliverySelection('pickup')}
+                    className="w-full h-auto min-h-[100px] border-2 border-orange-500 bg-gradient-to-br from-orange-500 to-amber-500 text-white
+            hover:from-white hover:to-orange-50 hover:text-orange-600 hover:border-orange-600
+            rounded-2xl p-6 sm:p-6 relative overflow-hidden group
+            transition-all duration-500 transform hover:scale-[1.02] hover:shadow-2xl
+            shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50
+            active:scale-[0.98]"
                   >
-                    {t('deliveryCalculation.modal.buttonTwo')}
-                  </span>
-                </Button>
-                <div className="flex flex-col gap-3 mt-4">
-                  <AlertDialogCancel
-                    className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 border-2 border-gray-300 bg-white text-gray-700
-          hover:bg-gray-50 hover:border-gray-400 hover:text-gray-900
-          active:bg-gray-100 active:border-gray-500 active:scale-95
-          transition-all duration-200 rounded-xl shadow-md hover:shadow-lg
-          font-bold"
+                    <div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent
+              -skew-x-12 transform -translate-x-full group-hover:translate-x-full
+              transition-transform duration-1000 ease-in-out"
+                    />
+
+                    <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4">
+                      <div
+                        className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-xl flex items-center justify-center
+                  group-hover:bg-orange-500 group-hover:rotate-12
+                  transition-all duration-500"
+                      >
+                        <Package className="w-6 h-6 sm:w-8 sm:h-8 text-white group-hover:scale-110 transition-transform duration-500" />
+                      </div>
+
+                      <div className="flex-1 text-center sm:text-left sm:pr-7">
+                        <p
+                          className="text-lg sm:text-xl font-bold mb-1
+                  text-white group-hover:text-orange-600
+                  transition-colors duration-300
+                  [text-shadow:_0_2px_4px_rgb(0_0_0_/_30%)] group-hover:[text-shadow:none] whitespace-pre-line"
+                        >
+                          {t('deliveryCalculation.modal.buttonOne')}
+                        </p>
+                        <p className="text-xs sm:text-sm text-orange-100 group-hover:text-orange-400 transition-colors duration-300">
+                          {t('deliveryCalculation.modal.subTitleButtonOne')}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div
+                      className="absolute top-2 right-2 w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-full blur-2xl
+                group-hover:bg-orange-300/30 transition-all duration-500"
+                    />
+                    <div
+                      className="absolute bottom-2 left-2 w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full blur-xl
+                group-hover:bg-amber-300/30 transition-all duration-500"
+                    />
+                  </Button>
+
+                  <Button
+                    onClick={() => handleDeliverySelection('door')}
+                    className="w-full h-auto min-h-[100px] border-2 border-orange-500 bg-gradient-to-br from-orange-500 to-amber-500 text-white
+            hover:from-white hover:to-orange-50 hover:text-orange-600 hover:border-orange-600
+            rounded-2xl p-4 sm:p-6 relative overflow-hidden group
+            transition-all duration-500 transform hover:scale-[1.02] hover:shadow-2xl
+            shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50
+            active:scale-[0.98]"
                   >
-                    {t('deliveryCalculation.modal.closeButton')}
-                  </AlertDialogCancel>
+                    <div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent
+              -skew-x-12 transform -translate-x-full group-hover:translate-x-full
+              transition-transform duration-1000 ease-in-out"
+                    />
+                    <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4">
+                      <div
+                        className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-xl flex items-center justify-center
+                  group-hover:bg-orange-500 group-hover:rotate-12
+                  transition-all duration-500"
+                      >
+                        <Truck className="w-6 h-6 sm:w-8 sm:h-8 text-white group-hover:scale-110 transition-transform duration-500" />
+                      </div>
+
+                      <div className="flex-1 text-center sm:text-left sm:pr-3">
+                        <p
+                          className="text-lg sm:text-xl font-bold mb-1
+                  text-white group-hover:text-orange-600
+                  transition-colors duration-300
+                  [text-shadow:_0_2px_4px_rgb(0_0_0_/_30%)] group-hover:[text-shadow:none] whitespace-pre-line"
+                        >
+                          {t('deliveryCalculation.modal.buttonTwo')}
+                        </p>
+                        <p className="text-xs sm:text-sm text-orange-100 group-hover:text-orange-400 transition-colors duration-300  mx-auto whitespace-normal">
+                          {t('deliveryCalculation.modal.subTitleButtonTwo')}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div
+                      className="absolute top-2 right-2 w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-full blur-2xl
+                group-hover:bg-orange-300/30 transition-all duration-500"
+                    />
+                    <div
+                      className="absolute bottom-2 left-2 w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full blur-xl
+                group-hover:bg-amber-300/30 transition-all duration-500"
+                    />
+                  </Button>
+
+                  <div className="mt-4 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200">
+                    <p className="text-sm text-gray-600 text-center  whitespace-pre-line">
+                      💡{t('deliveryCalculation.modal.modalWarning')}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </AlertDialogContent>
-          </AlertDialog>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <div className="space-y-4 text-center">

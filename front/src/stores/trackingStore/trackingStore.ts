@@ -218,7 +218,6 @@ export const useTrackingStore = create<TrackingStore>((set, get) => ({
         },
         icon: '✅',
       });
-
     } catch (error) {
       if (error instanceof Error && error.message === 'Parcel not found') {
         toast.error(i18n.t('deliveryCalculation.toast.parcelNotFound'), {
@@ -251,5 +250,9 @@ export const useTrackingStore = create<TrackingStore>((set, get) => ({
     }
   },
 
-  closeModal: () => set({ isModalOpen: false }),
+  closeModal: () =>
+    set({
+      isModalOpen: false,
+      trackNumber: '',
+    }),
 }));
