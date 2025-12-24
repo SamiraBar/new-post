@@ -7,6 +7,15 @@ import {createOrderInEKit, getOrderStatus} from "../services/ekit.service";
 import {CreateParcelResponse, EKitOrderResult, ParcelCreateData} from "../types";
 
 
+const PVZ_ORIGIN_CITY = "Bishkek";
+
+function normalizeCity(value: unknown): string {
+  return String(value ?? "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLowerCase();
+}
+
 async function findContactIds(
     type: "sender" | "recipient",
     searchName: string
@@ -22,11 +31,7 @@ type MongoQuery = {
   recipient?: { $in: mongoose.Types.ObjectId[] };
 };
 
-export const createParcel = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const createParcel = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
       partnerTrackingNumber,
@@ -50,37 +55,22 @@ export const createParcel = async (
         required: ["originCity", "destinationCity", "weight"],
       });
     }
+
     if (!sender || !recipient) {
-      return res
-          .status(400)
-          .json({ error: "Sender and recipient data are required" });
+      return res.status(400).json({ error: "Sender and recipient data are required" });
     }
-    if (
-        !sender.fullName ||
-        !sender.phoneNumber ||
-        !sender.email ||
-        !sender.description
-    ) {
-      return res
-          .status(400)
-          .json({ error: "Not all required sender fields are filled" });
+
+    if (!sender.fullName || !sender.phoneNumber || !sender.email || !sender.description) {
+      return res.status(400).json({ error: "Not all required sender fields are filled" });
     }
-    if (
-        !recipient.fullName ||
-        !recipient.phoneNumber ||
-        !recipient.email ||
-        !recipient.description
-    ) {
-      return res
-          .status(400)
-          .json({ error: "Not all required recipient fields are filled" });
+
+    if (!recipient.fullName || !recipient.phoneNumber || !recipient.email || !recipient.description) {
+      return res.status(400).json({ error: "Not all required recipient fields are filled" });
     }
 
     const weightValue = parseFloat(weight);
     if (isNaN(weightValue) || weightValue <= 0) {
-      return res
-          .status(400)
-          .json({ error: "Weight must be a positive number" });
+      return res.status(400).json({ error: "Weight must be a positive number" });
     }
 
     const validDeliveryTypes = ["pickup", "courier"];
@@ -101,20 +91,56 @@ export const createParcel = async (
       });
     }
 
+    const isPickup = deliveryType === "pickup";
+    const isCourier = deliveryType === "courier";
+
+    if (isPickup) {
+      if (normalizeCity(originCity) !== normalizeCity(PVZ_ORIGIN_CITY)) {
+        return res.status(400).json({
+          error: "Invalid originCity for pickup",
+          rule: `originCity must be "${PVZ_ORIGIN_CITY}" for pickup`,
+          provided: originCity,
+        });
+      }
+
+      if (!pvzData || !pvzData.code || !pvzData.name || !pvzData.address) {
+        return res.status(400).json({
+          error: "pvzData is required for pickup delivery",
+          required: ["code", "name", "address", "town"],
+        });
+      }
+
+      if (pvzData.town) {
+        if (normalizeCity(destinationCity) !== normalizeCity(pvzData.town)) {
+          return res.status(400).json({
+            error: "Invalid destinationCity for selected PVZ",
+            rule: "destinationCity must match pvzData.town for pickup",
+            destinationCity,
+            pvzTown: pvzData.town,
+          });
+        }
+      }
+    }
+
+    if (isCourier) {
+      if (pvzData) {
+        return res.status(400).json({
+          error: "pvzData must not be provided for courier delivery",
+        });
+      }
+    }
+
     const trackingNumber = await generateTrackingNumber();
 
     const newSender = await Contact.create({ ...sender, type: "sender" });
-    const newRecipient = await Contact.create({
-      ...recipient,
-      type: "recipient",
-    });
+    const newRecipient = await Contact.create({ ...recipient, type: "recipient" });
 
     const parcelData: ParcelCreateData = {
       trackingNumber,
       partnerTrackingNumber,
       sender: newSender._id as mongoose.Types.ObjectId,
       recipient: newRecipient._id as mongoose.Types.ObjectId,
-      originCity,
+      originCity: isPickup ? PVZ_ORIGIN_CITY : originCity,
       destinationCity,
       weight: weightValue,
       isPaid: isPaid || false,
@@ -124,14 +150,16 @@ export const createParcel = async (
       partnerType,
     };
 
-    if (originOffice !== undefined && originOffice !== null) {
-      parcelData.originOffice = originOffice;
-    }
-    if (destinationOffice !== undefined && destinationOffice !== null) {
-      parcelData.destinationOffice = destinationOffice;
+    if (!isPickup) {
+      if (originOffice !== undefined && originOffice !== null) {
+        parcelData.originOffice = originOffice;
+      }
+      if (destinationOffice !== undefined && destinationOffice !== null) {
+        parcelData.destinationOffice = destinationOffice;
+      }
     }
 
-    if (pvzData && deliveryType === "pickup") {
+    if (isPickup) {
       parcelData.pvzData = {
         code: pvzData.code,
         name: pvzData.name,
@@ -147,6 +175,10 @@ export const createParcel = async (
         acceptcash: pvzData.acceptcash || 0,
         acceptcard: pvzData.acceptcard || 0,
       };
+
+      if (!parcelData.destinationCity && pvzData.town) {
+        parcelData.destinationCity = pvzData.town;
+      }
     }
 
     const newParcel = new Parcel(parcelData);
@@ -154,31 +186,31 @@ export const createParcel = async (
 
     let ekitWarning: string | undefined;
 
-    if (partnerType === 'KCE') {
+    if (partnerType === "KCE") {
       try {
         const populatedParcel = await Parcel.findById(newParcel._id)
             .populate("sender")
             .populate("recipient");
 
         if (!populatedParcel) {
-          throw new Error('Failed to populate parcel data');
+          throw new Error("Failed to populate parcel data");
         }
 
         const ekitResult = await createOrderInEKit(populatedParcel);
 
         newParcel.partnerTrackingNumber = ekitResult.ekitBarcode;
-        newParcel.status = 'created';
+        newParcel.status = "created";
         await newParcel.save();
-
       } catch (ekitError: any) {
-        console.error(' E-Kit sync failed:', ekitError.message);
+        console.error(" E-Kit sync failed:", ekitError.message);
 
-        newParcel.status = 'draft';
+        newParcel.status = "draft";
         await newParcel.save();
 
         ekitWarning = `Order created but E-Kit sync failed: ${ekitError.message}. Manual processing required.`;
       }
     }
+
     const populatedParcel = await Parcel.findById(newParcel._id)
         .populate("sender")
         .populate("recipient");
@@ -189,11 +221,9 @@ export const createParcel = async (
       trackingNumber,
     };
 
-    if (ekitWarning) {
-      response.warning = ekitWarning;
-    }
+    if (ekitWarning) response.warning = ekitWarning;
 
-    res.status(201).json(response);
+    return res.status(201).json(response);
   } catch (e) {
     next(e);
   }

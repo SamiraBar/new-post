@@ -32,19 +32,30 @@ interface Props {
   handleNext: () => void;
 }
 
+const PVZ_SENDER_CITY = 'Bishkek';
+
 const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNext }) => {
   const { citiesPVZ, citiesHand, getCities, loadingCities } = useFileStore();
   const [citySearch, setCitySearch] = useState({ origin: '', destination: '' });
   const [validationError, setValidationError] = useState<string | null>(null);
   const { t } = useTranslation();
 
+  const isPVZ = order.deliveryType === 'pickup';
+
   useEffect(() => {
     const type: 'PVZ' | 'Hand' = order.deliveryType === 'courier' ? 'Hand' : 'PVZ';
-    setOrder((prev) => ({ ...prev, destinationCity: '' }));
+    setOrder((prev) => ({
+      ...prev,
+      destinationCity: '',
+      originCity: order.deliveryType === 'pickup' ? PVZ_SENDER_CITY : prev.originCity,
+    }));
+
     getCities(type);
   }, [order.deliveryType, getCities, setOrder]);
 
-  const filteredOriginCities = senderCities.filter((c) =>
+  const originCities = isPVZ ? [PVZ_SENDER_CITY] : senderCities;
+
+  const filteredOriginCities = originCities.filter((c) =>
     c.toLowerCase().includes(citySearch.origin.toLowerCase()),
   );
 
@@ -81,20 +92,26 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
           <FieldSet>
             <div>
               <div className="flex flex-col gap-6 sm:flex-row sm:gap-10">
+                {/* Sender */}
                 <FieldGroup className="gap-4">
-                  <div className="flex items-center">
-                    <FieldLabel>{t('deliveryCostCalculator.stepOneForm.sender')}</FieldLabel>
-                    {isOriginCityValid ? (
-                      <CheckCircle className="ml-2 text-green-500" size={20} />
-                    ) : (
-                      <XCircle className="ml-2 text-gray-300" size={20} />
-                    )}
-                    <span className="w-[140] ml-auto">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FieldLabel>{t('deliveryCostCalculator.stepOneForm.sender')}</FieldLabel>
+                      {isOriginCityValid ? (
+                        <CheckCircle className="text-green-500" size={20} />
+                      ) : (
+                        <XCircle className="text-gray-300" size={20} />
+                      )}
+                    </div>
+
+                    <span className="w-[140px] flex justify-end">
                       <TruckIconA />
                     </span>
                   </div>
+
                   <Select
                     required
+                    disabled={isPVZ}
                     onValueChange={(value: string) =>
                       setOrder((prev) => ({ ...prev, originCity: value }))
                     }
@@ -105,15 +122,24 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                         placeholder={t('deliveryCostCalculator.stepOneForm.senderPlaceholder')}
                       />
                     </SelectTrigger>
-                    <SelectContent position="popper" side="bottom" align="start" avoidCollisions={false}>
-                      <Input
-                        name="origin"
-                        value={citySearch.origin}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                          setCitySearch((prev) => ({ ...prev, origin: e.target.value }))
-                        }
-                        className="w-full"
-                      />
+
+                    <SelectContent
+                      position="popper"
+                      side="bottom"
+                      align="start"
+                      avoidCollisions={false}
+                    >
+                      {!isPVZ && (
+                        <Input
+                          name="origin"
+                          value={citySearch.origin}
+                          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                            setCitySearch((prev) => ({ ...prev, origin: e.target.value }))
+                          }
+                          className="w-full"
+                        />
+                      )}
+
                       {filteredOriginCities.map((city) => (
                         <SelectItem key={city} value={city}>
                           {city}
@@ -122,18 +148,23 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     </SelectContent>
                   </Select>
                 </FieldGroup>
+
                 <FieldGroup className="gap-4">
                   <div className="flex items-center justify-between">
-                    <FieldLabel>{t('deliveryCostCalculator.stepOneForm.recipient')}</FieldLabel>
-                    {isDestinationCityValid ? (
-                      <CheckCircle className="ml-2 text-green-500" size={20} />
-                    ) : (
-                      <XCircle className="ml-2 text-gray-300" size={20} />
-                    )}
-                    <span className="w-[140] ml-auto">
+                    <div className="flex items-center gap-2">
+                      <FieldLabel>{t('deliveryCostCalculator.stepOneForm.recipient')}</FieldLabel>
+                      {isDestinationCityValid ? (
+                        <CheckCircle className="text-green-500" size={20} />
+                      ) : (
+                        <XCircle className="text-gray-300" size={20} />
+                      )}
+                    </div>
+
+                    <span className="w-[140px] flex justify-end">
                       <TruckIconB />
                     </span>
                   </div>
+
                   <Select
                     required
                     disabled={loadingCities || recipientCities.length === 0}
@@ -153,13 +184,20 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                         }
                       />
                     </SelectTrigger>
-                    <SelectContent position="popper" side="bottom" align="start" avoidCollisions={false}>
+
+                    <SelectContent
+                      position="popper"
+                      side="bottom"
+                      align="start"
+                      avoidCollisions={false}
+                    >
                       <Input
                         value={citySearch.destination}
                         onChange={(e: ChangeEvent<HTMLInputElement>) =>
                           setCitySearch((prev) => ({ ...prev, destination: e.target.value }))
                         }
                       />
+
                       {filteredDestinationCities.map((city, index) => (
                         <SelectItem key={`${city.city}-${index}`} value={city.city}>
                           {city.city}
@@ -172,21 +210,24 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
 
               <FieldGroup className="flex flex-col sm:flex-row justify-between mt-5 min-w-0">
                 <Field>
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-2">
                     <FieldLabel>{t('deliveryCostCalculator.stepOneForm.parcelValue')}</FieldLabel>
                     {isParcelValueValid ? (
-                      <CheckCircle className="ml-2 text-green-500" size={20} />
+                      <CheckCircle className="text-green-500" size={20} />
                     ) : (
-                      <XCircle className="ml-2 text-gray-300" size={20} />
+                      <XCircle className="text-gray-300" size={20} />
                     )}
                   </div>
+
                   <div className="relative">
                     <Input
                       placeholder="1000"
                       name="parcelValue"
                       type="number"
                       min={0}
-                      className={`w-full pr-8 ${!isParcelValueValid && order.parcelValue > 0 && 'border-red-300'}`}
+                      className={`w-full pr-8 ${
+                        !isParcelValueValid && order.parcelValue > 0 && 'border-red-300'
+                      }`}
                       value={order.parcelValue || ''}
                       onChange={(e) => {
                         const value = Number(e.target.value);
@@ -196,22 +237,25 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     />
                     <HandCoins
                       size={20}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
                     />
                   </div>
+
                   <div className="mt-1 text-red-500 text-xs sm:text-sm italic">
                     {t('deliveryCostCalculator.stepOneForm.maxPrice')} - 50000 сом
                   </div>
                 </Field>
+
                 <Field>
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-2">
                     <FieldLabel>{t('deliveryCostCalculator.stepOneForm.parcelWeight')}</FieldLabel>
                     {isParcelWeightValid ? (
-                      <CheckCircle className="ml-2 text-green-500" size={20} />
+                      <CheckCircle className="text-green-500" size={20} />
                     ) : (
-                      <XCircle className="ml-2 text-gray-300" size={20} />
+                      <XCircle className="text-gray-300" size={20} />
                     )}
                   </div>
+
                   <div className="relative">
                     <Input
                       placeholder="кг"
@@ -219,7 +263,9 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                       type="number"
                       min={1}
                       step={0.1}
-                      className={`w-full pr-8 ${!isParcelWeightValid && order.parcelWeight > 0 && 'border-red-300'}`}
+                      className={`w-full pr-8 ${
+                        !isParcelWeightValid && order.parcelWeight > 0 && 'border-red-300'
+                      }`}
                       value={order.parcelWeight || ''}
                       onChange={(e) => {
                         const value = Number(e.target.value);
@@ -229,14 +275,16 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
                     />
                     <Weight
                       size={20}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
                     />
                   </div>
+
                   <div className="mt-1 text-red-500 text-xs sm:text-sm italic">
                     {t('deliveryCostCalculator.stepOneForm.maxWeight')} - 15кг
                   </div>
                 </Field>
               </FieldGroup>
+
               {validationError && (
                 <div className="mt-4 p-3 bg-red-50 border border-red-300 rounded-lg">
                   <p className="text-red-600 text-sm font-medium">{validationError}</p>
@@ -280,9 +328,9 @@ const Step1Calculator: FC<Props> = ({ order, setOrder, onHandleChange, handleNex
 
         <Button
           disabled={isNextDisabled}
-          className={`bg-orange-500 hover:bg-orange-600 text-white px-5 py-5 md:py-6 mt-2 text-sm md:text-base font-medium transition-colors
-            ${isNextDisabled ? 'opacity-50 cursor-not-allowed' : ''}
-          `}
+          className={`bg-orange-500 hover:bg-orange-600 text-white px-5 py-5 md:py-6 mt-2 text-sm md:text-base font-medium transition-colors ${
+            isNextDisabled ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
           onClick={handleNextClick}
         >
           {t('deliveryCostCalculator.buttons.forward')}
