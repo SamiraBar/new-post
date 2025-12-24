@@ -53,6 +53,7 @@ const DeliveryCostCalculator = () => {
     defaultValues: {
       originCity: '',
       destinationCity: '',
+      distributionCenter: '',
       originOffice: 0,
       destinationOffice: 0,
       parcelValue: '',
@@ -116,6 +117,7 @@ const DeliveryCostCalculator = () => {
       setValue('deliveryCost', delivery.totalCost, { shouldDirty: false });
       setValue('insuranceCost', insurance, { shouldDirty: false });
       setValue('totalCost', delivery.totalCost + insurance, { shouldDirty: false });
+      setValue('distributionCenter', isPickup ? (delivery.distributionCenter ?? '') : '', { shouldDirty: false });
     };
 
     void calculatePrices();

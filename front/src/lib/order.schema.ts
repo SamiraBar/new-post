@@ -33,6 +33,7 @@ export const orderSchema = (t: TFunction) => z.object({
   totalCost: z.number().min(0),
   deliveryDate: z.string().min(1, 'Дата доставки обязательна'),
   inParcel: z.string().min(3, t('deliveryCostCalculator.validateError.inParcel')).max(70, t('deliveryCostCalculator.stepForForm.errors.inParcelMaxError')),
+  distributionCenter: z.string().optional(),
   sender: z.object({
     name: z.string().trim().regex(/^(\S{3,})\s+(\S{3,})$/, t('deliveryCostCalculator.stepForForm.errors.senderNameError')),
     email: z.string().email(t('deliveryCostCalculator.stepForForm.errors.emailError')),
