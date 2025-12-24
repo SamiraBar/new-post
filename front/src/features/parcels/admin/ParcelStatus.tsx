@@ -15,7 +15,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore.ts';
 import dayjs from 'dayjs';
 import React from 'react';
@@ -124,10 +124,9 @@ const ParcelStatus = ({
   }, [pulsingStep]);
 
   const handleStatusSelect = (step: StatusStep) => {
-    if (isEditing) {
-      setNewStatus(step.statusValue);
-      setPulsingStep(step.id);
-    }
+    if (!isEditing) return;
+    setNewStatus(step.statusValue);
+    setPulsingStep(step.id);
   };
 
   const save = async () => {
@@ -139,13 +138,15 @@ const ParcelStatus = ({
 
   const CIRCLE_COL = '44px';
   const totalGridCols = steps.length * 2 - 1;
-
   const gridTemplateColumns = Array.from({ length: totalGridCols }, (_, i) =>
     i % 2 === 0 ? CIRCLE_COL : '1fr',
   ).join(' ');
 
   return (
-    <div className="w-full bg-white border border-gray-200 rounded-xl shadow-sm py-6 px-4 sm:px-8 flex flex-col items-center relative">
+    <div
+      data-testid="parcel-status-timeline"
+      className="w-full bg-white border border-gray-200 rounded-xl shadow-sm py-6 px-4 sm:px-8 flex flex-col items-center relative"
+    >
       {isEditing && (
         <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-100 text-blue-700 text-xs font-medium rounded-full px-3 py-1 border border-blue-200">
           Выберите новый статус
@@ -162,7 +163,7 @@ const ParcelStatus = ({
             disabled={!newStatus || editParcelStatusLoading}
           >
             {editParcelStatusLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 data-testid="status-save-loader" className="w-4 h-4 animate-spin" />
             ) : (
               <Save className="w-4 h-4" />
             )}
@@ -181,7 +182,7 @@ const ParcelStatus = ({
               : 'hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300'
           }`}
           onClick={() => {
-            setIsEditing(!isEditing);
+            setIsEditing((v) => !v);
             setNewStatus(null);
           }}
         >
@@ -195,7 +196,6 @@ const ParcelStatus = ({
       <div className="relative w-full overflow-x-auto scrollbar-hide pt-4">
         <div className="mx-auto min-w-[1000px] sm:min-w-[1200px] md:min-w-0 w-full max-w-6xl px-6 sm:px-10">
           <div className="grid items-center gap-x-4" style={{ gridTemplateColumns }}>
-            {/* ===== Row 1: circles + segments ===== */}
             {Array.from({ length: totalGridCols }).map((_, idx) => {
               if (idx % 2 === 0) {
                 const stepIndex = idx / 2;

@@ -3,9 +3,8 @@ import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
 import Contact from "../models/Contact";
 import { generateTrackingNumber } from "../utils/generateTrackingNumber";
-import {createOrderInEKit, getOrderStatus} from "../services/ekit.service";
-import {CreateParcelResponse, EKitOrderResult, ParcelCreateData} from "../types";
-
+import { createOrderInEKit, getOrderStatus } from "../services/ekit.service";
+import { CreateParcelResponse, EKitOrderResult, ParcelCreateData } from "../types";
 
 const PVZ_ORIGIN_CITY = "Bishkek";
 
@@ -47,6 +46,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       deliveryType,
       partnerType,
       pvzData,
+      distributionCenter,
     } = req.body;
 
     if (!originCity || !destinationCity || !weight) {
@@ -148,6 +148,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       status: "draft",
       deliveryType,
       partnerType,
+      distributionCenter: distributionCenter || "",
     };
 
     if (!isPickup) {
@@ -186,7 +187,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
 
     let ekitWarning: string | undefined;
 
-    if (partnerType === "KCE") {
+    if (partnerType === "E-Kit") {
       try {
         const populatedParcel = await Parcel.findById(newParcel._id)
             .populate("sender")
@@ -202,7 +203,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
         newParcel.status = "created";
         await newParcel.save();
       } catch (ekitError: any) {
-        console.error(" E-Kit sync failed:", ekitError.message);
+        console.error("E-Kit sync failed:", ekitError.message);
 
         newParcel.status = "draft";
         await newParcel.save();
@@ -229,11 +230,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
-export const getParcels = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getParcels = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = 10;
@@ -249,11 +246,7 @@ export const getParcels = async (
       query.trackingNumber = new RegExp(req.query.trackingNumber.trim(), "i");
     }
 
-    if (
-        req.query.sender &&
-        typeof req.query.sender === "string" &&
-        req.query.sender.trim() !== ""
-    ) {
+    if (req.query.sender && typeof req.query.sender === "string" && req.query.sender.trim() !== "") {
       const senderIds = await findContactIds("sender", req.query.sender.trim());
       if (senderIds.length > 0) query.sender = { $in: senderIds };
       else
@@ -270,10 +263,7 @@ export const getParcels = async (
         typeof req.query.recipient === "string" &&
         req.query.recipient.trim() !== ""
     ) {
-      const recipientIds = await findContactIds(
-          "recipient",
-          req.query.recipient.trim()
-      );
+      const recipientIds = await findContactIds("recipient", req.query.recipient.trim());
       if (recipientIds.length > 0) query.recipient = { $in: recipientIds };
       else
         return res.send({
@@ -290,6 +280,7 @@ export const getParcels = async (
         .sort({ draftedAt: -1 })
         .skip(skip)
         .limit(limit);
+
     const total = await Parcel.countDocuments(query);
     const hasMore = page * limit < total;
 
@@ -299,19 +290,12 @@ export const getParcels = async (
   }
 };
 
-export const getParcelById = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getParcelById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    if (!mongoose.isValidObjectId(id))
-      return res.status(400).json({ error: "Invalid parcel ID" });
+    if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: "Invalid parcel ID" });
 
-    const parcel = await Parcel.findById(id)
-        .populate("sender")
-        .populate("recipient");
+    const parcel = await Parcel.findById(id).populate("sender").populate("recipient");
     if (!parcel) return res.status(404).json({ error: "Parcel not found" });
 
     res.json(parcel);
@@ -320,21 +304,14 @@ export const getParcelById = async (
   }
 };
 
-export const getParcelByTrackingNumber = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getParcelByTrackingNumber = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { trackingNumber } = req.params;
-    const parcel = await Parcel.findOne({ trackingNumber })
-        .populate("sender")
-        .populate("recipient");
+    const parcel = await Parcel.findOne({ trackingNumber }).populate("sender").populate("recipient");
 
-    if (!parcel)
-      return res
-          .status(404)
-          .json({ error: "Parcel with this tracking number not found" });
+    if (!parcel) {
+      return res.status(404).json({ error: "Parcel with this tracking number not found" });
+    }
 
     res.send(parcel);
   } catch (e) {
@@ -342,11 +319,7 @@ export const getParcelByTrackingNumber = async (
   }
 };
 
-export const updateParcelStatus = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const updateParcelStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { trackingNumber } = req.params;
     const { status } = req.body;
@@ -363,27 +336,24 @@ export const updateParcelStatus = async (
       "at_pickup_point",
       "delivered",
     ];
-    if (!validStatuses.includes(status))
+
+    if (!validStatuses.includes(status)) {
       return res.status(400).json({
         error: "Invalid status",
         validStatuses,
         providedStatus: status,
       });
+    }
 
-    const parcel = await Parcel.findOne({ trackingNumber })
-        .populate("sender")
-        .populate("recipient");
-    if (!parcel)
-      return res
-          .status(404)
-          .json({ error: "Parcel with this tracking number not found" });
+    const parcel = await Parcel.findOne({ trackingNumber }).populate("sender").populate("recipient");
+    if (!parcel) {
+      return res.status(404).json({ error: "Parcel with this tracking number not found" });
+    }
 
     parcel.status = status;
     await parcel.save();
 
-    const freshParcel = await Parcel.findById(parcel._id)
-        .populate("sender")
-        .populate("recipient");
+    const freshParcel = await Parcel.findById(parcel._id).populate("sender").populate("recipient");
 
     res.json({
       message: "Parcel status updated successfully",
@@ -394,11 +364,7 @@ export const updateParcelStatus = async (
   }
 };
 
-export const updatePartnerTrackingNumber = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const updatePartnerTrackingNumber = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const { partnerTrackingNumber } = req.body;
@@ -408,25 +374,18 @@ export const updatePartnerTrackingNumber = async (
     }
 
     const parcel = await Parcel.findById(id);
-
-    if (!parcel) {
-      return res.status(404).json({ error: "Parcel not found" });
-    }
+    if (!parcel) return res.status(404).json({ error: "Parcel not found" });
 
     if (parcel.deliveryType !== "courier") {
       return res.status(400).json({
-        error:
-            "partnerTrackingNumber can only be updated for courier deliveries",
+        error: "partnerTrackingNumber can only be updated for courier deliveries",
       });
     }
 
     parcel.partnerTrackingNumber = partnerTrackingNumber || null;
-
     await parcel.save();
 
-    const fresh = await Parcel.findById(id)
-        .populate("sender")
-        .populate("recipient");
+    const fresh = await Parcel.findById(id).populate("sender").populate("recipient");
 
     res.json({
       message: "partnerTrackingNumber updated successfully",
@@ -437,11 +396,7 @@ export const updatePartnerTrackingNumber = async (
   }
 };
 
-export const syncParcelWithEKit = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const syncParcelWithEKit = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
 
@@ -449,18 +404,13 @@ export const syncParcelWithEKit = async (
       return res.status(400).json({ error: "Invalid parcel ID" });
     }
 
-    const parcel = await Parcel.findById(id)
-        .populate("sender")
-        .populate("recipient");
-
-    if (!parcel) {
-      return res.status(404).json({ error: "Parcel not found" });
-    }
+    const parcel = await Parcel.findById(id).populate("sender").populate("recipient");
+    if (!parcel) return res.status(404).json({ error: "Parcel not found" });
 
     if (parcel.partnerType !== "E-Kit") {
       return res.status(400).json({
         error: "Parcel is not for E-Kit delivery",
-        partnerType: parcel.partnerType
+        partnerType: parcel.partnerType,
       });
     }
 
@@ -477,33 +427,25 @@ export const syncParcelWithEKit = async (
     parcel.status = "created";
     await parcel.save();
 
-    const fresh = await Parcel.findById(id)
-        .populate("sender")
-        .populate("recipient");
+    const fresh = await Parcel.findById(id).populate("sender").populate("recipient");
 
-    const response = {
+    res.json({
       message: "Successfully synced with E-Kit",
       parcel: fresh,
       ekitTracking: ekitResult.ekitBarcode,
-    };
-
-    res.json(response);
+    });
   } catch (e) {
     if (e instanceof Error) {
-      console.error(' Manual sync failed:', e.message);
+      console.error("Manual sync failed:", e.message);
       next(e);
     } else {
-      console.error(' Manual sync failed with unknown error:', e);
+      console.error("Manual sync failed with unknown error:", e);
       next(new Error(String(e)));
     }
   }
 };
 
-export const getEKitStatus = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const getEKitStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
 
@@ -512,29 +454,19 @@ export const getEKitStatus = async (
     }
 
     const parcel = await Parcel.findById(id);
+    if (!parcel) return res.status(404).json({ error: "Parcel not found" });
 
-    if (!parcel) {
-      return res.status(404).json({ error: "Parcel not found" });
-    }
-
-    if (parcel.partnerType !== 'E-Kit') {
-      return res.status(400).json({
-        error: "This parcel is not for E-Kit delivery"
-      });
+    if (parcel.partnerType !== "E-Kit") {
+      return res.status(400).json({ error: "This parcel is not for E-Kit delivery" });
     }
 
     if (!parcel.partnerTrackingNumber) {
-      return res.status(400).json({
-        error: "Parcel not synced with E-Kit yet"
-      });
+      return res.status(400).json({ error: "Parcel not synced with E-Kit yet" });
     }
 
     const statusData = await getOrderStatus(parcel.trackingNumber);
-
     if (!statusData) {
-      return res.status(404).json({
-        error: "Could not get status from E-Kit"
-      });
+      return res.status(404).json({ error: "Could not get status from E-Kit" });
     }
 
     res.json({
@@ -546,12 +478,12 @@ export const getEKitStatus = async (
       deliveredDate: statusData.deliveredDate,
       deliveredTime: statusData.deliveredTime,
     });
-
   } catch (error) {
     if (error instanceof Error) {
-      console.error('Failed to get order status from E-Kit:', error.message);
+      console.error("Failed to get order status from E-Kit:", error.message);
+      next(error);
     } else {
-      console.error('Failed to get order status from E-Kit:', String(error));
+      console.error("Failed to get order status from E-Kit:", String(error));
       next(new Error(String(error)));
     }
   }
