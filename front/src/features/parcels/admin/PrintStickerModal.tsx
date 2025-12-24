@@ -15,14 +15,17 @@ import useParcelsStore from '@/stores/parcelsStore/parcelsStore';
 import logo from '../../../assets/logo/newPostLogo.jpeg';
 import { useEffect, useState } from 'react';
 
+type StickerType = 'own' | 'partner';
+
 interface PrintStickerModalProps {
   isOpen: boolean;
   onClose: () => void;
   parcel: IParcel;
+  stickerType: StickerType;
 }
 
-const PrintStickerModal = ({ isOpen, onClose, parcel }: PrintStickerModalProps) => {
-  const { printSticker, printStickerLoading } = useParcelsStore();
+const PrintStickerModal = ({ isOpen, onClose, parcel, stickerType }: PrintStickerModalProps) => {
+  const { printSticker, printPartnerSticker, printStickerLoading } = useParcelsStore();
   const [barcodeWidth, setBarcodeWidth] = useState(1.5);
 
   useEffect(() => {
@@ -38,19 +41,47 @@ const PrintStickerModal = ({ isOpen, onClose, parcel }: PrintStickerModalProps) 
   }, []);
 
   const handlePrint = async () => {
-    const success = await printSticker(
-      parcel.trackingNumber,
-      parcel.recipient.fullName,
-      parcel.recipient.address,
-    );
+    let success = false;
+
+    if (stickerType === 'own') {
+      success = await printSticker(
+        parcel.trackingNumber,
+        parcel.recipient.fullName,
+        parcel.recipient.address,
+      );
+    } else {
+      if (!parcel.partnerTrackingNumber) {
+        toast.error('Отсутствует трек-номер партнера');
+        return;
+      }
+
+      if (!parcel.pvzData?.code) {
+        toast.error('Отсутствует код ПВЗ');
+        return;
+      }
+
+      success = await printPartnerSticker(
+        parcel.partnerTrackingNumber,
+        parcel.recipient.fullName,
+        1, // quantityOfPlace - нужно получить (пока нету)
+        parcel.pvzData.code,
+        parcel.recipient.address,
+      );
+    }
 
     if (success) {
       toast.success('Стикер успешно отправлен на печать!');
       onClose();
-    } else {
-      toast.error('Ошибка при печати стикера');
     }
   };
+
+  const displayTrackingNumber =
+    stickerType === 'partner' ? parcel.partnerTrackingNumber : parcel.trackingNumber;
+  const title = stickerType === 'partner' ? 'Печать стикера партнера' : 'Печать стикера';
+
+  if (!displayTrackingNumber) {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -61,7 +92,7 @@ const PrintStickerModal = ({ isOpen, onClose, parcel }: PrintStickerModalProps) 
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl font-bold flex items-center gap-2">
             <Printer className="w-5 h-5 sm:w-6 sm:h-6" />
-            Печать стикера
+            {title}
           </DialogTitle>
         </DialogHeader>
 
@@ -69,17 +100,21 @@ const PrintStickerModal = ({ isOpen, onClose, parcel }: PrintStickerModalProps) 
           <div className="bg-white border-2 border-gray-300 rounded-lg p-4 sm:p-6 md:p-8 shadow-lg">
             <div className="flex justify-center mb-4 sm:mb-6">
               <div className="text-center">
-                <img
-                  src={logo}
-                  alt="New Post logo"
-                  className="h-10 sm:h-12 md:h-16 w-auto object-contain"
-                />
+                {stickerType === 'own' ? (
+                  <img
+                    src={logo}
+                    alt="New Post logo"
+                    className="h-10 sm:h-12 md:h-16 w-auto object-contain"
+                  />
+                ) : (
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold">НОВАЯ ПОЧТА ООО</div>
+                )}
               </div>
             </div>
 
             <div className="flex justify-center bg-white overflow-x-auto">
               <Barcode
-                value={parcel.trackingNumber}
+                value={displayTrackingNumber}
                 height={60}
                 width={barcodeWidth}
                 fontSize={14}
@@ -92,21 +127,34 @@ const PrintStickerModal = ({ isOpen, onClose, parcel }: PrintStickerModalProps) 
 
             <div className="text-center my-4 sm:mb-6">
               <div className="text-md sm:text-xl md:text-2xl font-bold tracking-wider break-all px-2">
-                {parcel.trackingNumber}
+                {displayTrackingNumber}
               </div>
             </div>
+
+            {stickerType === 'partner' && parcel.pvzData && (
+              <>
+                <div>
+                  <div className="text-right text-base sm:text-lg font-semibold">
+                    <span>КОЛ-ВО: 1</span>
+                  </div>
+                  <div className="text-base sm:text-lg font-semibold">
+                    <span>ПВЗ: {parcel.pvzData.code}</span>
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="space-y-2 sm:space-y-3 pt-3 sm:pt-4">
               <div>
                 <div className="text-base sm:text-lg font-semibold">Получатель:</div>
-                <div className="text-base sm:text-lg font-medium wrap-break-words">
+                <div className="text-base sm:text-lg font-medium wrap-break-word">
                   {parcel.recipient.fullName}
                 </div>
               </div>
 
               <div>
-                <div className="text-base sm:text-lg font-semibold ">Адрес:</div>
-                <div className="text-sm sm:text-lg font-medium wrap-break-words">
+                <div className="text-base sm:text-lg font-semibold">Адрес:</div>
+                <div className="text-sm sm:text-lg font-medium wrap-break-word">
                   {parcel.recipient.address}
                 </div>
               </div>
