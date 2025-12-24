@@ -1,12 +1,4 @@
-import {
-  type ChangeEvent,
-  type FormEvent,
-  type JSX,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { type FormEvent, type JSX, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
@@ -25,15 +17,15 @@ import DeliveryModal from '@/features/deliveryCostCalculator/components/modal/De
 import { useTranslation } from 'react-i18next';
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore.ts';
 import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
-import { validateStep2, validateStep3, validateStep4 } from '@/lib/validation.ts';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { type OrderFormData, orderSchema } from '@/lib/order.schema.ts';
 
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAgreed, setIsAgreed] = useState(false);
   const [agreementError, setAgreementError] = useState(false);
-
   const agreementRef = useRef<HTMLDivElement | null>(null);
-
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdTrackingNumber, setCreatedTrackingNumber] = useState('');
   const { t } = useTranslation();
@@ -50,32 +42,60 @@ const DeliveryCostCalculator = () => {
 
   const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
 
-  const [order, setOrder] = useState<Order>({
-    originCity: '',
-    destinationCity: '',
-    distributionCenter: '',
-    originOffice: 0,
-    destinationOffice: 0,
-    parcelValue: 0,
-    parcelWeight: 0,
-    deliveryCost: 0,
-    insuranceCost: 0,
-    totalCost: 0,
-    deliveryDate: '',
-    inParcel: '',
-    sender: { name: '', email: '', phone: '', inn_passport: '' },
-    receiver: { name: '', email: '', phone: '', address: '' },
-    deliveryType: 'pickup',
-    partnerType: 'E-Kit',
+  const schema = useMemo(
+    () => orderSchema(t),
+    [t]
+  );
+
+  const form = useForm<OrderFormData>({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    defaultValues: {
+      originCity: '',
+      destinationCity: '',
+      distributionCenter: '',
+      originOffice: 0,
+      destinationOffice: 0,
+      parcelValue: '',
+      parcelWeight: '',
+      deliveryCost: 0,
+      insuranceCost: 0,
+      totalCost: 0,
+      deliveryDate: '',
+      inParcel: '',
+      sender: {
+        name: '',
+        email: '',
+        phone: '',
+        inn_passport: ''
+      },
+      receiver: {
+        name: '',
+        email: '',
+        phone: '',
+        address: ''
+      },
+      deliveryType: 'pickup',
+      partnerType: 'E-Kit',
+    },
+  });
+
+  const {
+    setValue,
+    reset,
+    formState: {errors},
+  } = form;
+
+  const [destinationCity, pvzData, parcelWeight, parcelValue] = useWatch({
+    control: form.control,
+    name: ['destinationCity', 'pvzData', 'parcelWeight', 'parcelValue'],
   });
 
   useEffect(() => {
-    setOrder((prev) => ({
-      ...prev,
-      deliveryType: isPickup ? 'pickup' : 'courier',
-      partnerType: isPickup ? 'E-Kit' : 'KCE',
-    }));
-  }, [isPickup, isDoorDelivery]);
+    setValue('deliveryType', isPickup ? 'pickup' : 'courier');
+    setValue('partnerType', isPickup ? 'E-Kit' : 'KCE');
+  }, [isPickup, setValue]);
+
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
@@ -86,120 +106,51 @@ const DeliveryCostCalculator = () => {
 
   useEffect(() => {
     const calculatePrices = async () => {
-      const { destinationCity, parcelWeight, parcelValue, pvzData } = order;
-
-      if (!destinationCity || parcelWeight <= 0) {
-        setOrder((prev) => ({
-          ...prev,
-          deliveryCost: 0,
-          insuranceCost: 0,
-          totalCost: 0,
-        }));
+      if (!destinationCity || Number(parcelWeight) <= 0) {
         return;
       }
-
       const cityForCalculation = pvzData?.town || destinationCity;
 
-      const delivery = await fetchDeliveryCost(cityForCalculation, parcelWeight);
-      const insurance = calculateInsuranceCost(parcelValue);
+      const delivery = await fetchDeliveryCost(cityForCalculation, Number(parcelWeight));
+      const insurance = calculateInsuranceCost(Number(parcelValue));
 
-      setOrder((prev) => ({
-        ...prev,
-        deliveryCost: delivery.totalCost,
-        insuranceCost: insurance,
-        totalCost: delivery.totalCost + insurance,
-        distributionCenter: isPickup ? (delivery.distributionCenter ?? '') : '',
-      }));
+      setValue('deliveryCost', delivery.totalCost, { shouldDirty: false });
+      setValue('insuranceCost', insurance, { shouldDirty: false });
+      setValue('totalCost', delivery.totalCost + insurance, { shouldDirty: false });
+      setValue('distributionCenter', isPickup ? (delivery.distributionCenter ?? '') : '', { shouldDirty: false });
     };
 
-    calculatePrices();
+    void calculatePrices();
   }, [
-    order.destinationCity,
-    order.parcelWeight,
-    order.parcelValue,
-    order.pvzData,
+    destinationCity,
+    parcelWeight,
+    parcelValue,
+    pvzData,
     fetchDeliveryCost,
     calculateInsuranceCost,
+    setValue,
   ]);
-
-  const validateOrder = () => {
-    const validations = [
-      { field: order.originCity, message: t('deliveryCostCalculator.validateError.cityOfSender') },
-      {
-        field: order.destinationCity,
-        message: t('deliveryCostCalculator.validateError.cityOfReceiver'),
-      },
-      { field: order.parcelValue, message: t('deliveryCostCalculator.validateError.parcelValue') },
-      {
-        field: order.parcelWeight,
-        message: t('deliveryCostCalculator.validateError.parcelWeight'),
-      },
-    ];
-
-    for (const { field, message } of validations) {
-      if (!field) {
-        toast.error(message);
-        return false;
-      }
-    }
-    return true;
-  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!isAgreed) {
-      setAgreementError(true);
-      toast.error(t('deliveryCostCalculator.validateError.agreement'));
-      agreementRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
+    const values = form.getValues();
 
-    if (
-      !order.sender.name ||
-      !order.sender.email ||
-      !order.sender.phone ||
-      !order.sender.inn_passport
-    ) {
-      toast.error(t('deliveryCostCalculator.validateError.senderData'));
-      return;
-    }
+    const orderPayload: Order = {
+      ...values,
+      parcelValue: Number(values.parcelValue),
+      parcelWeight: Number(values.parcelWeight),
+      deliveryCost: Number(values.deliveryCost),
+      insuranceCost: Number(values.insuranceCost),
+      totalCost: Number(values.totalCost),
+    };
 
-    if (!order.receiver.name || !order.receiver.email || !order.receiver.phone) {
-      toast.error(t('deliveryCostCalculator.validateError.receiverData'));
-      return;
-    }
-
-    if (isDoorDelivery && !order.receiver.address) {
-      toast.error(t('deliveryCostCalculator.validateError.receiverAddress'));
-      return;
-    }
-
-    const trackingNumber = await createParcel(order);
+    const trackingNumber = await createParcel(orderPayload);
 
     if (trackingNumber) {
       setCreatedTrackingNumber(trackingNumber);
       setShowSuccessModal(true);
-
-      setOrder({
-        originCity: '',
-        destinationCity: '',
-        distributionCenter: '',
-        originOffice: 0,
-        destinationOffice: 0,
-        parcelValue: 0,
-        parcelWeight: 0,
-        deliveryCost: 0,
-        insuranceCost: 0,
-        totalCost: 0,
-        deliveryDate: '',
-        inParcel: '',
-        sender: { name: '', email: '', phone: '', inn_passport: '' },
-        receiver: { name: '', email: '', phone: '', address: '' },
-        deliveryType: 'pickup',
-        partnerType: 'E-Kit',
-      });
-
+      reset();
       setCurrentStep(1);
       setIsAgreed(false);
       setAgreementError(false);
@@ -218,47 +169,82 @@ const DeliveryCostCalculator = () => {
     setCreatedTrackingNumber('');
   };
 
-  const onHandleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setOrder((prev) => ({ ...prev, [name]: value }));
-  };
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    userType?: 'sender' | 'receiver',
-  ) => {
-    const { name, value } = e.target;
-    if (userType) {
-      setOrder((prev) => ({
-        ...prev,
-        [userType]: { ...prev[userType], [name]: value },
-      }));
-    } else {
-      setOrder((prev) => ({ ...prev, [name]: value }));
+  const step2 = useWatch({ control: form.control, name: 'originOffice', disabled: currentStep !== 2 });
+
+  const step3Door = useWatch({
+    control: form.control,
+    name: ['receiver.city', 'destinationCity', 'receiver.street', 'receiver.house'],
+    disabled: currentStep !== 3 || !isDoorDelivery
+  });
+
+  const step3Office = useWatch({
+    control: form.control,
+    name: 'destinationOffice',
+    disabled: currentStep !== 3 || isDoorDelivery
+  });
+
+  const step4 = useWatch({
+    control: form.control,
+    name: [
+      'sender.name', 'sender.email', 'sender.phone', 'sender.inn_passport',
+      'receiver.name', 'receiver.email', 'receiver.phone', 'receiver.address',
+      'inParcel',
+    ],
+    disabled: currentStep !== 4
+  });
+
+  const isNextDisabled = useMemo(() => {
+    switch (currentStep) {
+      case 2:
+        return !step2 || !!errors.originOffice;
+      case 3:
+          if (isDoorDelivery) {
+            const [city, dest, street, house] = step3Door;
+            return !city || !dest || !street || !house;
+          }
+          return !step3Office || !!errors.destinationOffice;
+
+      case 4: {
+        const [sName, sEmail, sPhone, sInn, rName, rEmail, rPhone, rAddr, inParcel] = step4;
+
+        if (!sName || !sEmail || !sPhone || !sInn || !rName || !rEmail || !rPhone || !inParcel || !isAgreed) {
+          return true;
+        }
+
+        if (isDoorDelivery && !rAddr) return true;
+
+        return !!(errors.sender || errors.receiver || errors.inParcel);
+      }
+
+      default:
+        return false;
     }
-  };
+  }, [currentStep, step2, step3Door, step3Office, step4, isDoorDelivery, errors, isAgreed]);
 
-  const isNextDisabled = () => {
-    if (currentStep === 2) return !!validateStep2(order, t);
-    if (currentStep === 3) return !!validateStep3(order, isDoorDelivery, t);
 
-    if (currentStep === 4) return false;
-
-    return false;
-  };
-
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === 1) {
-      if (!validateOrder()) return;
       if (!isDoorDelivery && !isPickup) openOrCloseCalcModal();
       else setCurrentStep(2);
     } else if (currentStep === 2) {
-      const error = validateStep2(order, t);
-      if (error) return toast.error(error);
+      const valid = await form.trigger(['originOffice']);
+      if (!valid) {
+        return toast.error(form.formState.errors.originOffice?.message);
+      }
       setCurrentStep(3);
     } else if (currentStep === 3) {
-      const error = validateStep3(order, isDoorDelivery, t);
-      if (error) return toast.error(error);
+      if (isDoorDelivery) {
+        const valid = await form.trigger(['receiver.city', 'destinationCity', 'receiver.street', 'receiver.house']);
+        if (!valid) {
+          return;
+        }
+      } else {
+        const valid = await form.trigger(['destinationOffice']);
+        if (!valid) {
+          return toast.error(form.formState.errors.destinationOffice?.message);
+        }
+      }
       setCurrentStep(4);
     } else if (currentStep === 4) {
       if (!isAgreed) {
@@ -267,10 +253,6 @@ const DeliveryCostCalculator = () => {
         agreementRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
-
-      const error = validateStep4(order, isDoorDelivery, t);
-      if (error) return toast.error(error);
-
       setAgreementError(false);
       setCurrentStep(5);
     }
@@ -288,9 +270,7 @@ const DeliveryCostCalculator = () => {
     case 1:
       steps = (
         <Step1Calculator
-          order={order}
-          setOrder={setOrder}
-          onHandleChange={onHandleChange}
+          form={form}
           handleNext={handleNext}
         />
       );
@@ -298,33 +278,27 @@ const DeliveryCostCalculator = () => {
     case 2:
       steps = (
         <Step2SenderOfficeSelection
-          order={order}
-          setOrder={setOrder}
-          handleNext={() => setCurrentStep(3)}
+          form={form}
         />
       );
       break;
     case 3:
       steps = (
         <Step3RecipientOfficeSelection
-          order={order}
-          setOrder={setOrder}
-          handleNext={() => setCurrentStep(4)}
+          form={form}
         />
       );
       break;
     case 4:
       steps = (
         <Step4SenderRecipientForm
-          order={order}
-          onHandleChange={onHandleChange}
-          handleChange={handleChange}
+          form={form}
           doorDelivery={isDoorDelivery}
         />
       );
       break;
     case 5:
-      steps = <Step5Review order={order} doorDelivery={isDoorDelivery} />;
+      steps = <Step5Review doorDelivery={isDoorDelivery} form={form}/>;
       break;
   }
 
@@ -450,7 +424,7 @@ const DeliveryCostCalculator = () => {
                 <Button
                   type="button"
                   onClick={handleNext}
-                  disabled={isNextDisabled()}
+                  disabled={isNextDisabled}
                   className="flex items-center gap-2 w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   <span>{t('deliveryCostCalculator.buttons.forward')}</span>
