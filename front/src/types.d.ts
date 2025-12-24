@@ -1,3 +1,5 @@
+import type { UseFormReturn } from 'react-hook-form';
+
 export interface Admin {
   _id: string;
   email: string;
@@ -26,6 +28,7 @@ export interface IParcel {
   partnerTrackingNumber?: string;
   deliveryType: DeliveryType;
   partnerType: 'E-Kit' | 'KCE';
+  distributionCenter: string;
   sender: {
     _id: string;
     fullName: string;
@@ -87,6 +90,7 @@ export interface IContact {
 
 export interface CreateParcelData {
   partnerTrackingNumber: string | null;
+  distributionCenter?: string;
   sender: {
     fullName: string;
     phoneNumber: string;
@@ -152,6 +156,7 @@ export type PartnerType = 'E-Kit' | 'KCE';
 export interface Order {
   originCity: string;
   destinationCity: string;
+  distributionCenter?: string;
   originOffice: number;
   destinationOffice: number;
   parcelValue: number;
@@ -234,7 +239,7 @@ export interface MeasoftMapConfig {
 }
 
 export interface MeasoftMapProps {
-  order: Order;
+  form: UseFormReturn<OrderFormData>;
   onPvzSelect: (pvzData: PvzData) => void;
   clientId?: string;
   clientCode?: string;

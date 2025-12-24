@@ -186,8 +186,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
     await newParcel.save();
 
     let ekitWarning: string | undefined;
-
-    if (partnerType === "E-Kit") {
+    if (partnerType === 'E-Kit') {
       try {
         const populatedParcel = await Parcel.findById(newParcel._id)
             .populate("sender")

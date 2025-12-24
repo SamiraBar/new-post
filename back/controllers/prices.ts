@@ -32,6 +32,7 @@ export const uploadPrices = async (
       PVZ: {
         city: "Название города",
         region: "Регион",
+        distributionCenter: "РЦ",
         basePrice: "Стоимость доставки весом до 1кг, сом",
         pricePerOneLessThree:
           "Стоимость доставки за каждый дополнительный полный/неполный 1кг, сом (до общего веса 3кг)",
@@ -204,32 +205,33 @@ export const calculatePrice = async (req: Request, res: Response) => {
 
       let price = priceData.basePrice;
 
-      if (numericWeight > 1) {
-        const extra = numericWeight - 1;
+      if (w > 1) {
+        const extra = w - 1;
 
-        if (numericWeight <= 3) {
+        if (w <= 3) {
           price += extra * priceData.pricePerOneLessThree;
-        } else if (numericWeight <= 6) {
+        } else if (w <= 6) {
           price +=
             2 * priceData.pricePerOneLessThree +
-            (numericWeight - 3) * priceData.pricePerOneLessSix;
-        } else if (numericWeight <= 12) {
+            (w - 3) * priceData.pricePerOneLessSix;
+        } else if (w <= 12) {
           price +=
             2 * priceData.pricePerOneLessThree +
             3 * priceData.pricePerOneLessSix +
-            (numericWeight - 6) * priceData.pricePerOneLessTwelve;
-        } else if (numericWeight <= 15) {
+            (w - 6) * priceData.pricePerOneLessTwelve;
+        } else if (w <= 15) {
           price +=
             2 * priceData.pricePerOneLessThree +
             3 * priceData.pricePerOneLessSix +
             6 * priceData.pricePerOneLessTwelve +
-            (numericWeight - 12) * priceData.pricePerOneLessFifteen;
+            (w - 12) * priceData.pricePerOneLessFifteen;
         }
       }
 
       return res.json({
         totalCost: price,
         billedWeight: w,
+        distributionCenter: priceData.distributionCenter,
       });
     }
 

@@ -9,7 +9,7 @@ declare global {
 }
 
 const MeasoftMap: React.FC<MeasoftMapProps> = ({
-                                                 order,
+                                                 form,
                                                  onPvzSelect,
                                                  clientId = '8',
                                                  clientCode = ''
@@ -17,8 +17,14 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const mapInstanceRef = useRef<MeasoftMapInstance | null>(null);
-  const { t, i18n } = useTranslation();
-  
+  const {
+    t,
+    i18n
+  } = useTranslation();
+
+  const {watch} = form;
+  const {destinationCity, parcelWeight, pvzData} = watch();
+
   const getMapLanguage = () => {
     const currentLang = i18n.language;
     return currentLang === 'kg' ? 'ru' : currentLang;
@@ -60,8 +66,8 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
 
     const filter: PvzFilter = {};
 
-    if (order.parcelWeight) {
-      filter.maxweight = order.parcelWeight;
+    if (parcelWeight) {
+      filter.maxweight = parcelWeight;
     }
 
     try {
@@ -118,10 +124,10 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
 
       mapInstanceRef.current = window.measoftMap.config(config).init();
 
-      if (order.destinationCity && order.destinationCity.trim() !== '') {
+      if (destinationCity && destinationCity.trim() !== '') {
         const tryToCenter = () => {
           if (window.measoftMap?.map?.getCenter) {
-            centerMapOnCity(order.destinationCity);
+            centerMapOnCity(destinationCity);
           } else {
             setTimeout(tryToCenter, 500);
           }
@@ -139,7 +145,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
         mapInstanceRef.current.close();
       }
     };
-  }, [isScriptLoaded, order.destinationCity, order.parcelWeight, clientId, clientCode, onPvzSelect, t, getMapLanguage]);
+  }, [isScriptLoaded, destinationCity, parcelWeight, clientId, clientCode, onPvzSelect, t, getMapLanguage]);
 
   const centerMapOnCity = async (cityName: string) => {
     try {
@@ -181,7 +187,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
           console.log(`Карта центрирована на: ${cityName} (${lat}, ${lon})`);
         }
       } else {
-        console.warn(t('measoftMap.errors.cityNotFound', { city: cityName }));
+        console.warn(t('measoftMap.errors.cityNotFound', {city: cityName}));
       }
     } catch (error) {
       console.error(t('measoftMap.errors.geocodingError'), error);
@@ -205,26 +211,26 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
         )}
       </div>
 
-      {order.pvzData && (
+      {pvzData && (
         <div className="mt-4 p-4 bg-green-50 border-2 border-green-300 rounded-xl">
           <div className="flex items-start gap-3">
             <div className="p-2 bg-green-100 rounded-lg">
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
               </svg>
             </div>
             <div className="flex-1">
               <h4 className="font-bold text-green-800 mb-2">{t('measoftMap.selectedTitle')}</h4>
-              <p className="font-semibold text-gray-800">{order.pvzData.name}</p>
-              <p className="text-sm text-gray-600 mt-1">{order.pvzData.address}</p>
-              {order.pvzData.phone && (
+              <p className="font-semibold text-gray-800">{pvzData.name}</p>
+              <p className="text-sm text-gray-600 mt-1">{pvzData.address}</p>
+              {pvzData.phone && (
                 <p className="text-sm text-gray-600">
-                  {t('measoftMap.phone')}: {order.pvzData.phone}
+                  {t('measoftMap.phone')}: {pvzData.phone}
                 </p>
               )}
-              {order.pvzData.worktime && (
+              {pvzData.worktime && (
                 <p className="text-sm text-gray-600">
-                  {t('measoftMap.worktime')}: {order.pvzData.worktime}
+                  {t('measoftMap.worktime')}: {pvzData.worktime}
                 </p>
               )}
             </div>

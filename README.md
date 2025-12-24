@@ -22,6 +22,7 @@ Customers can register parcels without creating an account, calculate delivery c
 
 Employees can view all orders, update statuses, assign partner tracking numbers, and print labels.
 
+🌐 **Demo** [http://159.223.230.6:8080](http://159.223.230.6:8080)
 ---
 
 ## 🚀 Main Features
@@ -70,6 +71,24 @@ Employees can view all orders, update statuses, assign partner tracking numbers,
 - dotenv, CORS
 - JWT authentication (planned)
 
+### Testing
+![CodeceptJS](https://img.shields.io/badge/-CodeceptJS-F6E05E?style=flat&logo=codeceptjs&logoColor=black)
+![Puppeteer](https://img.shields.io/badge/-Puppeteer-40B5A4?style=flat&logo=puppeteer&logoColor=white)
+![Gherkin](https://img.shields.io/badge/-Gherkin-00A818?style=flat&logo=cucumber&logoColor=white)
+
+- **CodeceptJS** - E2E testing framework
+- **Puppeteer** - Headless browser automation
+- **Gherkin** - BDD-style test scenarios
+- **TypeScript** - Type-safe test steps
+
+### DevOps
+![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat&logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/-Nginx-009639?style=flat&logo=nginx&logoColor=white)
+
+- **Docker** - Containerization
+- **Docker Compose** - Multi-container orchestration
+- **Nginx** - Production web server
+
 ---
 
 ## ⚙️ Installation
@@ -78,6 +97,31 @@ Employees can view all orders, update statuses, assign partner tracking numbers,
 - Node.js >= 18.x
 - npm
 - MongoDB
+
+## 🐳 Docker Deployment
+
+The project is fully containerized and can be deployed using Docker.
+
+### Services
+
+- **Frontend**: `http://localhost:5173`
+- **Backend API**: `http://localhost:8000`
+- **MongoDB**: `localhost/new-post-test`
+
+### Production Deployment
+
+The application is deployed and accessible at:
+
+🌐 **[http://159.223.230.6:8080](http://159.223.230.6:8080)**
+
+### Docker Configuration
+```yaml
+# docker-compose.yml structure
+services:
+  frontend:  # React + Vite app with Nginx
+  backend:   # Express API
+  mongodb:   # MongoDB database
+```
 
 ### Setup
 ```bash
@@ -95,6 +139,15 @@ cd front
 npm install
 cd ..
 
+# Install test dependencies (optional)
+cd tests
+npm install
+cd ..
+
+# Setup environment variables
+cp .env.template .env
+# Edit .env with your configuration
+
 # Run backend 
 cd backend
 npm run seed
@@ -104,7 +157,14 @@ npm run dev
 cd front
 npm run dev
 ```
+### Running Tests
+```bash
+# Install test dependencies
+cd tests
+npm install
 
+# Run tests with HTML report
+npm run test
 ---
 
 ## 🔗 Integrations
@@ -118,13 +178,43 @@ npm run dev
 ## 📁 Project Structure
 ```
 new-post/
-├── front/
-│   ├── src/     
+├── front/                    # Frontend application
+│   ├── src/
+│   │   ├── assets/          # Images, icons, logos
+│   │   ├── components/      # Reusable UI components
+│   │   ├── features/        # Feature-based modules
+│   │   ├── i18n/           # Internationalization (ru/kg)
+│   │   ├── lib/            # Utility libraries
+│   │   ├── stores/         # Zustand state management
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── Dockerfile
+│   ├── nginx.conf
 │   └── package.json
-├── backend/
-│   ├── models/           
-│   ├── routes/            
+│
+├── back/                     # Backend application
+│   ├── controllers/         # Request handlers
+│   ├── middleware/          # Custom middleware
+│   ├── models/             # Mongoose schemas
+│   ├── routers/            # API routes
+│   ├── services/           # Business logic
+│   ├── utils/              # Helper functions
+│   ├── Dockerfile
+│   ├── fixtures.ts         # Seed data
 │   └── package.json
+│
+├── tests/                   # E2E tests with CodeceptJS
+│   ├── features/
+│   │   ├── admin/          # Admin panel tests
+│   │   └── user/           # User-facing tests
+│   ├── step_definitions/
+│   │   ├── admin/
+│   │   └── user/
+│   ├── helpers/            # Test helpers (i18n, etc.)
+│   ├── output/             # Test results & screenshots
+│   ├── codecept.conf.ts
+│   └── package.json
+│
 └── README.md
 ```
 
@@ -132,12 +222,33 @@ new-post/
 
 ## 🧠 Roadmap
 
-- [ ] Add online payment system
-- [ ] Implement email / WhatsApp notifications
-- [ ] Add delivery analytics dashboard
-- [ ] Extend admin features (user management)
-- [ ] Mobile application
-- [ ] Multi-language support (Кыргызча, Русский)
+### ✅ Implemented
+
+**Client Side:**
+- ✅ Parcel registration without account creation
+- ✅ Delivery cost calculator
+- ✅ Pickup point selection on map (e-kit.pro API)
+- ✅ Parcel tracking by tracking number
+- ✅ Multi-language support (Russian, Kyrgyz)
+
+**Admin Panel:**
+- ✅ Parcel management system
+- ✅ Administrator management (Super Admin)
+- ✅ Search by tracking number and customer name
+- ✅ Parcel status updates
+- ✅ Thermal printer label printing
+- ✅ Partner tracking number assignment
+
+**Development & Testing:**
+- ✅ E2E testing with CodeceptJS and Puppeteer
+- ✅ Docker containerization
+- ✅ Production server deployment
+
+---
+
+### 🔄 In Progress
+
+- 🔄 Status synchronization via partner API
 
 ---
 

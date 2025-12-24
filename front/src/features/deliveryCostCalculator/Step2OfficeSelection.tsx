@@ -1,19 +1,25 @@
 import { offices } from '@/constants.ts';
-import type { Order } from '@/types';
 import { CheckCircle, MapPin, XCircle } from 'lucide-react';
-import type { Dispatch, FC, SetStateAction } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { type UseFormReturn, useWatch } from 'react-hook-form';
+import type { OrderFormData } from '@/lib/order.schema.ts';
 
 interface Props {
-  order: Order;
-  setOrder: Dispatch<SetStateAction<Order>>;
-  handleNext: () => void;
+  form: UseFormReturn<OrderFormData>;
 }
 
-const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
-  const { t } = useTranslation();
+const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
+  const {t} = useTranslation();
 
-  const isOfficeSelected = !!order.originOffice;
+  const {
+    setValue,
+  } = form;
+  const [originCity, originOffice] = useWatch({
+    control: form.control,
+    name: ['originCity', 'originOffice']
+  });
+  const isOfficeSelected = !!originOffice;
 
   const handleOfficeSelect = (officeId: number) => {
     const selectedOffice = offices.find((o) => o.id === officeId);
@@ -23,13 +29,10 @@ const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
       return;
     }
 
-    const city = selectedOffice.address || selectedOffice.name.split(' - ')[1] || order.originCity;
+    const city = selectedOffice.address || selectedOffice.name.split(' - ')[1] || originCity;
 
-    setOrder((prev) => ({
-      ...prev,
-      originOffice: officeId,
-      originCity: city,
-    }));
+    setValue('originOffice', officeId);
+    setValue('originCity', city);
   };
 
   return (
@@ -39,9 +42,9 @@ const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
           {t('deliveryCostCalculator.stepTwoForm.title')}
         </h3>
         {isOfficeSelected ? (
-          <CheckCircle className="text-green-500" size={24} />
+          <CheckCircle className="text-green-500" size={24}/>
         ) : (
-          <XCircle className="text-gray-300" size={24} />
+          <XCircle className="text-gray-300" size={24}/>
         )}
       </div>
 
@@ -54,7 +57,7 @@ const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5">
         {offices.map((office) => {
-          const isSelected = order.originOffice === office.id;
+          const isSelected = originOffice === office.id;
 
           return (
             <button
@@ -65,15 +68,15 @@ const Step2SenderOfficeSelection: FC<Props> = ({ order, setOrder }) => {
                 p-6 border-2 rounded-lg transition-all duration-300 text-left relative
                 hover:shadow-lg hover:border-orange-300 hover:scale-[1.02]
                 ${
-                  isSelected
-                    ? 'border-orange-500 bg-linear-to-br from-orange-50 to-orange-100 shadow-xl scale-105 ring-2 ring-orange-200'
-                    : 'border-gray-300 bg-white'
-                }
+                isSelected
+                  ? 'border-orange-500 bg-linear-to-br from-orange-50 to-orange-100 shadow-xl scale-105 ring-2 ring-orange-200'
+                  : 'border-gray-300 bg-white'
+              }
               `}
             >
               {isSelected && (
                 <div className="absolute top-3 right-3">
-                  <CheckCircle className="text-orange-500" size={24} />
+                  <CheckCircle className="text-orange-500" size={24}/>
                 </div>
               )}
 

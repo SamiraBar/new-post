@@ -196,6 +196,7 @@ const ParcelStatus = ({
       <div className="relative w-full overflow-x-auto scrollbar-hide pt-4">
         <div className="mx-auto min-w-[1000px] sm:min-w-[1200px] md:min-w-0 w-full max-w-6xl px-6 sm:px-10">
           <div className="grid items-center gap-x-4" style={{ gridTemplateColumns }}>
+            {/* Row 1: circles + lines */}
             {Array.from({ length: totalGridCols }).map((_, idx) => {
               if (idx % 2 === 0) {
                 const stepIndex = idx / 2;

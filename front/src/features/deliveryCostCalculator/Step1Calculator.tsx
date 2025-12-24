@@ -59,7 +59,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     }
 
     void getCities(type);
-  }, [deliveryType]);
+  }, [deliveryType, getCities, setValue, clearErrors]);
 
   const originCities = isPVZ ? [PVZ_SENDER_CITY] : senderCities;
 
@@ -99,7 +99,6 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
           <FieldSet>
             <div>
               <div className="flex flex-col gap-6 sm:flex-row sm:gap-10">
-                {/* Sender */}
                 <FieldGroup className="gap-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -118,7 +117,6 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
 
                   <Select
                     required
-                    disabled={isPVZ}
                     onValueChange={(value: string) => {
                       setValue('originCity', value);
                       clearErrors('originCity');
