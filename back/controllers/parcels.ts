@@ -42,6 +42,7 @@ export const createParcel = async (
       deliveryType,
       partnerType,
       pvzData,
+      distributionCenter,
     } = req.body;
 
     if (!originCity || !destinationCity || !weight) {
@@ -122,6 +123,7 @@ export const createParcel = async (
       status: "draft",
       deliveryType,
       partnerType,
+      distributionCenter: distributionCenter || '',
     };
 
     if (originOffice !== undefined && originOffice !== null) {
@@ -154,7 +156,7 @@ export const createParcel = async (
 
     let ekitWarning: string | undefined;
 
-    if (partnerType === 'KCE') {
+    if (partnerType === 'E-Kit') {
       try {
         const populatedParcel = await Parcel.findById(newParcel._id)
             .populate("sender")

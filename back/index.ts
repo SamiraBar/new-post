@@ -6,6 +6,7 @@ import adminsRouter from "./routers/admins";
 import pricesRouter from "./routers/prices";
 import parcelsRouter from "./routers/parcels";
 import printerRouter from "./routers/printer";
+import i18nContentRouter from "./routers/i18nContent";
 
 const app = express();
 
@@ -16,10 +17,11 @@ app.use("/admins", adminsRouter);
 app.use("/prices", pricesRouter);
 app.use("/parcels", parcelsRouter);
 app.use("/printer", printerRouter);
+app.use("/i18n-content", i18nContentRouter);
 
 const run = async () => {
   await mongoose.connect(config.db);
-  app.listen(config.port, () => {
+  app.listen(config.port as number, "0.0.0.0", () => {
     console.log(`Server on port ${config.port}`);
   });
 };
