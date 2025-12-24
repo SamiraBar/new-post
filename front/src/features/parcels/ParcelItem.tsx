@@ -57,8 +57,14 @@ const ParcelItem = ({ parcel }: Props) => {
 
   const navigate = useNavigate();
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [stickerType, setStickerType] = useState<'own' | 'partner'>('own');
 
   const deliveryLabel = deliveryType === 'pickup' ? 'ПВЗ' : 'Курьер';
+
+  const handleOpenPrintModal = (type: 'own' | 'partner') => {
+    setStickerType(type);
+    setIsPrintModalOpen(true);
+  };
 
   return (
     <>
@@ -148,14 +154,17 @@ const ParcelItem = ({ parcel }: Props) => {
 
                     {partnerStickerReceived && (
                       <div className="relative group">
-                        <a
-                          href="#"
-                          className="p-2 rounded-lg hover:bg-amber-100 transition-colors hover:scale-110 duration-300 flex items-center justify-center"
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleOpenPrintModal('partner');
+                          }}
+                          className="p-2 rounded-lg hover:bg-amber-100 transition-colors hover:scale-110 duration-300 flex items-center justify-center cursor-pointer"
                         >
                           <StickyNote color="#6b6b6b" strokeWidth={3} size={24} />
-                        </a>
+                        </button>
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                          Стикер партнёра получен
+                          Стикер партнёра
                         </div>
                       </div>
                     )}
@@ -164,7 +173,7 @@ const ParcelItem = ({ parcel }: Props) => {
                       <button
                         onClick={(e) => {
                           e.preventDefault();
-                          setIsPrintModalOpen(true);
+                          handleOpenPrintModal('own');
                         }}
                         className="p-2 rounded-lg hover:bg-amber-100 transition-colors hover:scale-110 duration-300 flex items-center justify-center cursor-pointer"
                       >
@@ -223,6 +232,7 @@ const ParcelItem = ({ parcel }: Props) => {
         isOpen={isPrintModalOpen}
         onClose={() => setIsPrintModalOpen(false)}
         parcel={parcel}
+        stickerType={stickerType}
       />
     </>
   );

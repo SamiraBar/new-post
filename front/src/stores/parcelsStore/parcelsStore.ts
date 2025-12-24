@@ -25,9 +25,17 @@ interface ExtendedParcelState extends ParcelState {
   ) => Promise<boolean>;
   printStickerLoading: boolean;
   printStickerError: { error: string } | null;
+
   printSticker: (
     trackingNumber: string,
     recipientName: string,
+    address: string,
+  ) => Promise<boolean>;
+  printPartnerSticker: (
+    partnerTrackingNumber: string,
+    recipientName: string,
+    quantityOfPlace: number,
+    pvzCode: string,
     address: string,
   ) => Promise<boolean>;
 }
@@ -315,7 +323,7 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
     set({ printStickerLoading: true, printStickerError: null });
     try {
       const { data } = await axiosApi.post<{ success: boolean; message: string }>(
-        '/printer/print',
+        '/printer/printSticker',
         {
           trackingNumber,
           recipientName,
@@ -326,7 +334,7 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       set({ printStickerLoading: false });
       return data.success;
     } catch (e: unknown) {
-      let errorMessage = 'Failed to print sticker';
+      let errorMessage = 'Не удалось отправить на печать';
 
       if (axios.isAxiosError(e)) {
         errorMessage = e.response?.data?.error || e.message;
@@ -340,6 +348,59 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         printStickerError: { error: errorMessage },
         printStickerLoading: false,
       });
+
+      const { toast } = await import('sonner');
+      toast.error('Error:', {
+        description: errorMessage,
+      });
+
+      return false;
+    }
+  },
+
+  async printPartnerSticker(
+    partnerTrackingNumber: string,
+    recipientName: string,
+    quantityOfPlace: number,
+    pvzCode: string,
+    address: string,
+  ) {
+    set({ printStickerLoading: true, printStickerError: null });
+    try {
+      const { data } = await axiosApi.post<{ success: boolean; message: string }>(
+        '/printer/printPartnerSticker',
+        {
+          partnerTrackingNumber,
+          recipientName,
+          quantityOfPlace,
+          pvzCode,
+          address,
+        },
+      );
+
+      set({ printStickerLoading: false });
+      return data.success;
+    } catch (e: unknown) {
+      let errorMessage = 'Не удалось отправить на печать';
+
+      if (axios.isAxiosError(e)) {
+        errorMessage = e.response?.data?.error || e.message;
+      } else if (e instanceof Error) {
+        errorMessage = e.message;
+      } else if (typeof e === 'string') {
+        errorMessage = e;
+      }
+
+      set({
+        printStickerError: { error: errorMessage },
+        printStickerLoading: false,
+      });
+
+      const { toast } = await import('sonner');
+      toast.error('Error:', {
+        description: errorMessage,
+      });
+
       return false;
     }
   },
