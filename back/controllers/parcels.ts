@@ -47,6 +47,58 @@ export const createParcel = async (
       distributionCenter,
     } = req.body;
 
+    console.log('📦 ДЕТАЛЬНЫЙ АНАЛИЗ ДАННЫХ ПОСЫЛКИ:');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('1. ОСНОВНЫЕ ДАННЫЕ:');
+    console.log('   - Партнёрский трек-номер:', partnerTrackingNumber || 'не указан');
+    console.log('   - Город отправления (originCity):', originCity);
+    console.log('   - Город назначения (destinationCity):', destinationCity);
+    console.log('   - Пункт отправления (originOffice):', originOffice || 'не указан');
+    console.log('   - Пункт назначения (destinationOffice):', destinationOffice || 'не указан');
+    console.log('   - Вес (weight):', weight);
+    console.log('   - Тип доставки (deliveryType):', deliveryType);
+    console.log('   - Тип партнёра (partnerType):', partnerType);
+    console.log('   - РЦ из запроса (distributionCenter):', distributionCenter || 'не указан');
+    console.log('   - Оплачено (isPaid):', isPaid || false);
+    console.log('   - Стикер получен (partnerStickerReceived):', partnerStickerReceived || false);
+
+    console.log('\n2. ДАННЫЕ ОТПРАВИТЕЛЯ:');
+    console.log('   - ФИО:', sender?.fullName);
+    console.log('   - Телефон:', sender?.phoneNumber);
+    console.log('   - Email:', sender?.email);
+    console.log('   - Описание:', sender?.description);
+    console.log('   - Город:', sender?.city || 'не указан');
+    console.log('   - Адрес:', sender?.address || 'не указан');
+    console.log('   - Улица:', sender?.street || 'не указан');
+    console.log('   - Дом:', sender?.house || 'не указан');
+    console.log('   - Квартира:', sender?.apartment || 'не указан');
+
+    console.log('\n3. ДАННЫЕ ПОЛУЧАТЕЛЯ:');
+    console.log('   - ФИО:', recipient?.fullName);
+    console.log('   - Телефон:', recipient?.phoneNumber);
+    console.log('   - Email:', recipient?.email);
+    console.log('   - Описание:', recipient?.description);
+    console.log('   - Город:', recipient?.city || 'не указан');
+    console.log('   - Адрес:', recipient?.address || 'не указан');
+    console.log('   - Улица:', recipient?.street || 'не указан');
+    console.log('   - Дом:', recipient?.house || 'не указан');
+    console.log('   - Квартира:', recipient?.apartment || 'не указан');
+
+    console.log('\n4. ДАННЫЕ ПВЗ (только для pickup):');
+    if (pvzData && deliveryType === 'pickup') {
+      console.log('   - Код ПВЗ:', pvzData.code);
+      console.log('   - Название:', pvzData.name);
+      console.log('   - Адрес:', pvzData.address);
+      console.log('   - Город:', pvzData.town);
+      console.log('   - Родительский код (parentcode):', pvzData.parentcode || 'не указан');
+      console.log('   - Родительское название:', pvzData.parentname || 'не указан');
+      console.log('   - Регион:', pvzData.region || 'не указан');
+      console.log('   - Город-код (towncode):', pvzData.towncode || 'не указан');
+    } else {
+      console.log('   - Нет данных ПВЗ (доставка курьером или не указано)');
+    }
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
     if (!originCity || !destinationCity || !weight) {
       return res.status(400).json({
         error: "Not all required fields are filled",
@@ -152,47 +204,32 @@ export const createParcel = async (
         acceptcard: pvzData.acceptcard || 0,
       };
 
-      if (pvzData.parentcode) {
-        if (pvzData.parentcode === '2495') {
-          parcelData.distributionCenter = 'ЕКБ';
-          parcelData.serviceCode = '15';
-        } else if (pvzData.parentcode === '18483') {
-          parcelData.distributionCenter = 'МСК';
-          parcelData.serviceCode = '14';
+      let determinedDC = '';
+      let determinedServiceCode = '';
+
+      if (pvzData.parentname) {
+        const parentnameUpper = pvzData.parentname.toUpperCase();
+        if (parentnameUpper.includes('ЕКБ')) {
+          determinedDC = 'ЕКБ';
+          determinedServiceCode = '15';
+        } else if (parentnameUpper.includes('МСК')) {
+          determinedDC = 'МСК';
+          determinedServiceCode = '14';
         }
+        console.log(`Определено по parentname: "${pvzData.parentname}" -> ${determinedDC} (service: ${determinedServiceCode})`);
+      }
+
+      if (determinedDC) {
+        parcelData.distributionCenter = determinedDC;
+        parcelData.serviceCode = determinedServiceCode;
+      } else {
+        console.log(`Не удалось определить РЦ! parentname: "${pvzData.parentname}", parentcode: "${pvzData.parentcode}"`);
       }
     }
 
     const newParcel = new Parcel(parcelData);
     await newParcel.save();
 
-    // let ekitWarning: string | undefined;
-    //
-    // if (partnerType === 'E-Kit') {
-    //   try {
-    //     const populatedParcel = await Parcel.findById(newParcel._id)
-    //         .populate("sender")
-    //         .populate("recipient");
-    //
-    //     if (!populatedParcel) {
-    //       throw new Error('Failed to populate parcel data');
-    //     }
-    //
-    //     const ekitResult = await createOrderInEKit(populatedParcel);
-    //
-    //     newParcel.partnerTrackingNumber = ekitResult.ekitBarcode;
-    //     newParcel.status = 'created';
-    //     await newParcel.save();
-    //
-    //   } catch (ekitError: any) {
-    //     console.error(' E-Kit sync failed:', ekitError.message);
-    //
-    //     newParcel.status = 'draft';
-    //     await newParcel.save();
-    //
-    //     ekitWarning = `Order created but E-Kit sync failed: ${ekitError.message}. Manual processing required.`;
-    //   }
-    // }
     const populatedParcel = await Parcel.findById(newParcel._id)
         .populate("sender")
         .populate("recipient");

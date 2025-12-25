@@ -200,6 +200,15 @@ const ParcelSchema = new Schema(
             required: [true, "Weight is required"],
             min: [0.1, "Weight must be greater than 0"],
         },
+        distributionCenter: {
+            type: String,
+            default: '',
+        },
+        serviceCode: {
+            type: String,
+            enum: ['14', '15'],
+            default: null,
+        },
         draftedAt: {
             type: Date,
             default: Date.now,
@@ -231,11 +240,7 @@ const ParcelSchema = new Schema(
         deliveredAt: {
             type: Date,
             default: null,
-        },
-        distributionCenter: {
-            type: String,
-            default: '',
-        },
+        }
     },
     {
         timestamps: false,

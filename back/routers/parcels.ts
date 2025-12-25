@@ -3,13 +3,15 @@ import auth from "../middleware/auth";
 import {
     createParcel, getEKitStatus, getParcelById,
     getParcelByTrackingNumber,
-    getParcels, syncAllParcels, syncParcelWithEKit, syncSingleParcel,
+    getParcels, sendToEKIT, syncAllParcels, syncParcelWithEKit, syncSingleParcel,
     updateParcelStatus, updatePartnerTrackingNumber,
 } from "../controllers/parcels";
 
 const parcelsRouter = express.Router();
 
 parcelsRouter.post("/", createParcel);
+
+parcelsRouter.post("/send-to-ekit", sendToEKIT);
 
 parcelsRouter.post("/sync-all", auth, syncAllParcels);
 

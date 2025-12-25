@@ -182,9 +182,9 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
   </order>
 </neworder>`;
 
-    console.log('\n XML для отправки в E-Kit (первые 500 символов):');
+    console.log('\n XML для отправки в E-Kit (первые 1500 символов):');
     console.log('━'.repeat(80));
-    console.log(xmlRequest.substring(0, 500));
+    console.log(xmlRequest.substring(0, 1500));
     console.log('━'.repeat(80));
 
     console.log('\n КЛЮЧЕВЫЕ ПОЛЯ:');
