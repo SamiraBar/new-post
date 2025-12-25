@@ -97,7 +97,7 @@ const run = async () => {
 
   await Parcel.create([
     {
-      trackingNumber: "KGZ-312-SLFKDJEWSL 1",
+      trackingNumber: "KGZ-312-SLFKDJEWSL",
       partnerTrackingNumber: "LSDFKJEWXOXS",
       sender: senderOne._id,
       recipient: recipientOne._id,
