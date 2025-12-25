@@ -151,53 +151,109 @@ export const createParcel = async (
         acceptcash: pvzData.acceptcash || 0,
         acceptcard: pvzData.acceptcard || 0,
       };
+
+      if (pvzData.parentcode) {
+        if (pvzData.parentcode === '2495') {
+          parcelData.distributionCenter = 'ЕКБ';
+          parcelData.serviceCode = '15';
+        } else if (pvzData.parentcode === '18483') {
+          parcelData.distributionCenter = 'МСК';
+          parcelData.serviceCode = '14';
+        }
+      }
     }
 
     const newParcel = new Parcel(parcelData);
     await newParcel.save();
 
-    let ekitWarning: string | undefined;
-
-    if (partnerType === 'E-Kit') {
-      try {
-        const populatedParcel = await Parcel.findById(newParcel._id)
-            .populate("sender")
-            .populate("recipient");
-
-        if (!populatedParcel) {
-          throw new Error('Failed to populate parcel data');
-        }
-
-        const ekitResult = await createOrderInEKit(populatedParcel);
-
-        newParcel.partnerTrackingNumber = ekitResult.ekitBarcode;
-        newParcel.status = 'created';
-        await newParcel.save();
-
-      } catch (ekitError: any) {
-        console.error(' E-Kit sync failed:', ekitError.message);
-
-        newParcel.status = 'draft';
-        await newParcel.save();
-
-        ekitWarning = `Order created but E-Kit sync failed: ${ekitError.message}. Manual processing required.`;
-      }
-    }
+    // let ekitWarning: string | undefined;
+    //
+    // if (partnerType === 'E-Kit') {
+    //   try {
+    //     const populatedParcel = await Parcel.findById(newParcel._id)
+    //         .populate("sender")
+    //         .populate("recipient");
+    //
+    //     if (!populatedParcel) {
+    //       throw new Error('Failed to populate parcel data');
+    //     }
+    //
+    //     const ekitResult = await createOrderInEKit(populatedParcel);
+    //
+    //     newParcel.partnerTrackingNumber = ekitResult.ekitBarcode;
+    //     newParcel.status = 'created';
+    //     await newParcel.save();
+    //
+    //   } catch (ekitError: any) {
+    //     console.error(' E-Kit sync failed:', ekitError.message);
+    //
+    //     newParcel.status = 'draft';
+    //     await newParcel.save();
+    //
+    //     ekitWarning = `Order created but E-Kit sync failed: ${ekitError.message}. Manual processing required.`;
+    //   }
+    // }
     const populatedParcel = await Parcel.findById(newParcel._id)
         .populate("sender")
         .populate("recipient");
 
     const response: CreateParcelResponse = {
-      message: ekitWarning ? "Parcel created with warnings" : "Parcel created successfully",
+      message: "Parcel created successfully as draft",
       parcel: populatedParcel,
       trackingNumber,
     };
+    res.status(201).json(response);
+  } catch (e) {
+    next(e);
+  }
+};
 
-    if (ekitWarning) {
-      response.warning = ekitWarning;
+export const sendToEKIT = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+  try {
+    const { trackingNumber } = req.body;
+
+    if (!trackingNumber) {
+      return res.status(400).json({
+        success: false,
+        error: "Tracking number is required"
+      });
     }
 
-    res.status(201).json(response);
+    const parcel = await Parcel.findOne({ trackingNumber })
+        .populate("sender")
+        .populate("recipient");
+
+    if (!parcel) {
+      return res.status(404).json({
+        success: false,
+        error: "Parcel not found"
+      });
+    }
+
+    if (parcel.status === 'created' && parcel.partnerTrackingNumber) {
+      return res.status(400).json({
+        success: false,
+        error: "Parcel already sent to E-Kit"
+      });
+    }
+
+    const ekitResult = await createOrderInEKit(parcel);
+
+    parcel.partnerTrackingNumber = ekitResult.ekitBarcode;
+    parcel.status = 'created';
+    await parcel.save();
+
+    res.json({
+      success: true,
+      message: "Parcel successfully sent to E-Kit",
+      ekitOrderNo: ekitResult.ekitOrderNo,
+      ekitBarcode: ekitResult.ekitBarcode,
+    });
+
   } catch (e) {
     next(e);
   }

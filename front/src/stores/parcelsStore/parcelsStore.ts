@@ -38,6 +38,10 @@ interface ExtendedParcelState extends ParcelState {
     pvzCode: string,
     address: string,
   ) => Promise<boolean>;
+
+  sendParcelToEKitLoading: boolean;
+  sendParcelToEKitError: { error: string } | null;
+  sendParcelToEKit: (trackingNumber: string) => Promise<{ success: boolean; message?: string }>;
 }
 
 export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
@@ -58,6 +62,63 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
   updatePartnerTrackingNumberError: null,
   printStickerLoading: false,
   printStickerError: null,
+  sendParcelToEKitLoading: false,
+  sendParcelToEKitError: null,
+
+  async sendParcelToEKit(trackingNumber: string) {
+    set({
+      sendParcelToEKitLoading: true,
+      sendParcelToEKitError: null,
+    });
+
+    try {
+      const { data } = await axiosApi.post<{
+        success: boolean;
+        message?: string;
+        ekitOrderNo?: string;
+        ekitBarcode?: string;
+        warning?: string;
+      }>('/parcels/send-to-ekit', { trackingNumber });
+
+      if (data.success) {
+        const currentParcel = get().parcel;
+        if (currentParcel && currentParcel.trackingNumber === trackingNumber) {
+          set({
+            parcel: {
+              ...currentParcel,
+              status: 'created',
+              partnerTrackingNumber: data.ekitBarcode || currentParcel.partnerTrackingNumber,
+            },
+          });
+        }
+        await get().getParcels(1);
+
+        if (data.warning) {
+          console.warn('Предупреждение при отправке в E-Kit:', data.warning);
+        }
+
+        set({ sendParcelToEKitLoading: false });
+        return { success: true, message: data.message };
+      } else {
+        throw new Error(data.message || 'Неизвестная ошибка отправки в E-Kit');
+      }
+    } catch (e: unknown) {
+      let errorMessage = 'Не удалось отправить посылку в E-Kit';
+
+      if (axios.isAxiosError(e)) {
+        errorMessage = e.response?.data?.error || e.message;
+      } else if (e instanceof Error) {
+        errorMessage = e.message;
+      }
+
+      set({
+        sendParcelToEKitError: { error: errorMessage },
+        sendParcelToEKitLoading: false,
+      });
+
+      return { success: false, message: errorMessage };
+    }
+  },
 
   setSearchFilters(filters: SearchFilters) {
     set({ searchFilters: filters });
