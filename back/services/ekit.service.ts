@@ -3,6 +3,7 @@ import {IContact} from "../models/Contact";
 import axios from 'axios';
 import xml2js from 'xml2js';
 import {EKitOrderResult} from "../types";
+import PriceToPvz from "../models/ PriceToPvz";
 
 interface EKitConfig {
     extra: string;
@@ -39,36 +40,40 @@ function escapeXml(text: string): string {
         .replace(/'/g, '&apos;');
 }
 
-export function getSenderInfo(parcel: IParcel): SenderInfo {
-    const origin = parcel.originCity?.toLowerCase() || '';
-    const distributionCenter = parcel.distributionCenter?.toLowerCase() || '';
+async function getSenderInfo(parcel: IParcel): Promise<SenderInfo> {
+    try {
+        console.log('Поиск РЦ для города:', parcel.destinationCity);
+        const cityData = await PriceToPvz.findOne({
+            city: parcel.destinationCity
+        });
 
-    console.log('Определение РЦ:', {
-        originCity: parcel.originCity,
-        distributionCenter: parcel.distributionCenter,
-        origin
-    });
+        if (cityData && cityData.distributionCenter === 'ЕКБ') {
+            console.log('Найден РЦ: Екатеринбург для города', parcel.destinationCity);
+            return {
+                town: 'Екатеринбург',
+                address: '8 Марта 269',
+                phone: '+79991234000',
+                service: '14'
+            };
+        }
 
-    if (distributionCenter.includes('екб') ||
-        distributionCenter.includes('екатеринбург') ||
-        origin.includes('екатеринбург') ||
-        origin.includes('екб')) {
-        console.log('Выбран РЦ: Екатеринбург');
+        console.log('РЦ не найден или это МСК. Использую Москву по умолчанию.');
         return {
-            town: 'Екатеринбург',
-            address: '8 Марта 269',
+            town: 'Москва',
+            address: 'МКАД 43км',
+            phone: '+79991234000',
+            service: '14'
+        };
+
+    } catch (error) {
+        console.error('Ошибка при поиске РЦ в БД:', error);
+        return {
+            town: 'Москва',
+            address: 'МКАД 43км',
             phone: '+79991234000',
             service: '14'
         };
     }
-
-    console.log('Выбран РЦ: Москва (по умолчанию)');
-    return {
-        town: 'Москва',
-        address: 'МКАД 43км',
-        phone: '+79991234000',
-        service: '14'
-    };
 }
 
 export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResult> {
@@ -102,7 +107,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
         recipientCity = parcel.pvzData?.town || parcel.destinationCity;
         recipientAddress = parcel.pvzData?.address || recipient.address || 'Not selected';
     }
-    console.log('🔍 Проверка данных для XML:', {
+    console.log('Проверка данных для XML:', {
         originCity: parcel.originCity,
         senderAddress: sender.address,
         senderFullName: sender.fullName,
@@ -116,10 +121,10 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
 
     const senderInfo = getSenderInfo(parcel);
 
-    console.log('📄 Данные отправителя для E-Kit:', senderInfo);
-    console.log('📦 Код ПВЗ:', parcel.pvzData?.code);
-    console.log('🏙️ Город получателя:', recipientCity);
-    console.log('📍 Адрес получателя:', recipientAddress);
+    console.log('Данные отправителя для E-Kit:', senderInfo);
+    console.log('Код ПВЗ:', parcel.pvzData?.code);
+    console.log('Город получателя:', recipientCity);
+    console.log('Адрес получателя:', recipientAddress);
 
     const xmlRequest = `<?xml version="1.0" encoding="UTF-8"?>
 <neworder newfolder="YES">
@@ -131,7 +136,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     <sender>
       <company>Ваша компания (NewPost)</company>
       <person>Ваша компания (NewPost)</person>
-      <phone>${senderInfo.phone}</phone>
+      <phone>${sender.phoneNumber}</phone>
       <town>Екатеринбург</town>
       <address>8 Марта 269</address>
     </sender>
@@ -149,7 +154,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     <inshprice>0</inshprice>
     <weight>${parcel.weight}</weight>
     <quantity>1</quantity>
-    <service>${senderInfo.service || '14'}</service>
+    <service>14</service>
     <type>3</type>
     <paytype>NO</paytype>
     <return>NO</return>
@@ -158,7 +163,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
   </order>
 </neworder>`;
 
-    console.log('📤 Отправляемый XML (первые 500 символов):', xmlRequest.substring(0, 500));
+    console.log('Отправляемый XML (первые 500 символов):', xmlRequest.substring(0, 500));
 
     console.log('Formed XML (first 200 chars):', xmlRequest.substring(0, 200));
     console.log('Полный XML с весом:', xmlRequest);
@@ -173,7 +178,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
 
         const response = await axios.post(config.apiUrl, xmlRequest, {
             headers: { 'Content-Type': 'application/xml' },
-            timeout: 30000,
+            timeout: 50000,
         });
 
         console.log('Raw response status:', response.status);
