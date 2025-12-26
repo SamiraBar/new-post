@@ -6,7 +6,8 @@ import { generateTrackingNumber } from "../utils/generateTrackingNumber";
 import { createOrderInEKit, getOrderStatus } from "../services/ekit.service";
 import { CreateParcelResponse, EKitOrderResult, ParcelCreateData } from "../types";
 
-const PVZ_ORIGIN_CITY = "Bishkek";
+const ORIGIN_CITY_FIXED = "Bishkek";
+const ORIGIN_OFFICE_FIXED = 1;
 
 function normalizeCity(value: unknown): string {
   return String(value ?? "")
@@ -38,7 +39,6 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       recipient,
       originCity,
       destinationCity,
-      originOffice,
       destinationOffice,
       weight,
       isPaid,
@@ -49,10 +49,10 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       distributionCenter,
     } = req.body;
 
-    if (!originCity || !destinationCity || !weight) {
+    if (!destinationCity || !weight) {
       return res.status(400).json({
         error: "Not all required fields are filled",
-        required: ["originCity", "destinationCity", "weight"],
+        required: ["destinationCity", "weight"],
       });
     }
 
@@ -73,7 +73,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       return res.status(400).json({ error: "Weight must be a positive number" });
     }
 
-    const validDeliveryTypes = ["pickup", "courier"];
+    const validDeliveryTypes = ["pickup", "courier"] as const;
     if (!validDeliveryTypes.includes(deliveryType)) {
       return res.status(400).json({
         error: "Invalid deliveryType",
@@ -82,7 +82,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       });
     }
 
-    const validPartnerTypes = ["E-Kit", "KCE"];
+    const validPartnerTypes = ["E-Kit", "KCE"] as const;
     if (!validPartnerTypes.includes(partnerType)) {
       return res.status(400).json({
         error: "Invalid partnerType",
@@ -95,14 +95,6 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
     const isCourier = deliveryType === "courier";
 
     if (isPickup) {
-      if (normalizeCity(originCity) !== normalizeCity(PVZ_ORIGIN_CITY)) {
-        return res.status(400).json({
-          error: "Invalid originCity for pickup",
-          rule: `originCity must be "${PVZ_ORIGIN_CITY}" for pickup`,
-          provided: originCity,
-        });
-      }
-
       if (!pvzData || !pvzData.code || !pvzData.name || !pvzData.address) {
         return res.status(400).json({
           error: "pvzData is required for pickup delivery",
@@ -110,24 +102,20 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
         });
       }
 
-      if (pvzData.town) {
-        if (normalizeCity(destinationCity) !== normalizeCity(pvzData.town)) {
-          return res.status(400).json({
-            error: "Invalid destinationCity for selected PVZ",
-            rule: "destinationCity must match pvzData.town for pickup",
-            destinationCity,
-            pvzTown: pvzData.town,
-          });
-        }
+      if (pvzData.town && normalizeCity(destinationCity) !== normalizeCity(pvzData.town)) {
+        return res.status(400).json({
+          error: "Invalid destinationCity for selected PVZ",
+          rule: "destinationCity must match pvzData.town for pickup",
+          destinationCity,
+          pvzTown: pvzData.town,
+        });
       }
     }
 
-    if (isCourier) {
-      if (pvzData) {
-        return res.status(400).json({
-          error: "pvzData must not be provided for courier delivery",
-        });
-      }
+    if (isCourier && pvzData) {
+      return res.status(400).json({
+        error: "pvzData must not be provided for courier delivery",
+      });
     }
 
     const trackingNumber = await generateTrackingNumber();
@@ -140,7 +128,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       partnerTrackingNumber,
       sender: newSender._id as mongoose.Types.ObjectId,
       recipient: newRecipient._id as mongoose.Types.ObjectId,
-      originCity: isPickup ? PVZ_ORIGIN_CITY : originCity,
+      originCity: ORIGIN_CITY_FIXED,
       destinationCity,
       weight: weightValue,
       isPaid: isPaid || false,
@@ -149,17 +137,11 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       deliveryType,
       partnerType,
       distributionCenter: distributionCenter || "",
+      originOffice: ORIGIN_OFFICE_FIXED,
     };
-
-    if (!isPickup) {
-      if (originOffice !== undefined && originOffice !== null) {
-        parcelData.originOffice = originOffice;
-      }
-      if (destinationOffice !== undefined && destinationOffice !== null) {
-        parcelData.destinationOffice = destinationOffice;
-      }
+    if (destinationOffice !== undefined && destinationOffice !== null) {
+      parcelData.destinationOffice = destinationOffice;
     }
-
     if (isPickup) {
       parcelData.pvzData = {
         code: pvzData.code,
@@ -176,7 +158,6 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
         acceptcash: pvzData.acceptcash || 0,
         acceptcard: pvzData.acceptcard || 0,
       };
-
       if (!parcelData.destinationCity && pvzData.town) {
         parcelData.destinationCity = pvzData.town;
       }
@@ -186,7 +167,8 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
     await newParcel.save();
 
     let ekitWarning: string | undefined;
-    if (partnerType === 'E-Kit') {
+
+    if (partnerType === "E-Kit") {
       try {
         const populatedParcel = await Parcel.findById(newParcel._id)
             .populate("sender")
@@ -223,7 +205,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
 
     if (ekitWarning) response.warning = ekitWarning;
 
-    return res.status(201).json(response);
+    res.status(201).json(response);
   } catch (e) {
     next(e);
   }
@@ -237,11 +219,7 @@ export const getParcels = async (req: Request, res: Response, next: NextFunction
 
     let query: MongoQuery = {};
 
-    if (
-        req.query.trackingNumber &&
-        typeof req.query.trackingNumber === "string" &&
-        req.query.trackingNumber.trim() !== ""
-    ) {
+    if (req.query.trackingNumber && typeof req.query.trackingNumber === "string" && req.query.trackingNumber.trim() !== "") {
       query.trackingNumber = new RegExp(req.query.trackingNumber.trim(), "i");
     }
 
@@ -257,11 +235,7 @@ export const getParcels = async (req: Request, res: Response, next: NextFunction
         });
     }
 
-    if (
-        req.query.recipient &&
-        typeof req.query.recipient === "string" &&
-        req.query.recipient.trim() !== ""
-    ) {
+    if (req.query.recipient && typeof req.query.recipient === "string" && req.query.recipient.trim() !== "") {
       const recipientIds = await findContactIds("recipient", req.query.recipient.trim());
       if (recipientIds.length > 0) query.recipient = { $in: recipientIds };
       else
@@ -306,7 +280,10 @@ export const getParcelById = async (req: Request, res: Response, next: NextFunct
 export const getParcelByTrackingNumber = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { trackingNumber } = req.params;
-    const parcel = await Parcel.findOne({ trackingNumber }).populate("sender").populate("recipient");
+
+    const parcel = await Parcel.findOne({ trackingNumber })
+        .populate("sender")
+        .populate("recipient");
 
     if (!parcel) {
       return res.status(404).json({ error: "Parcel with this tracking number not found" });
@@ -335,7 +312,6 @@ export const updateParcelStatus = async (req: Request, res: Response, next: Next
       "at_pickup_point",
       "delivered",
     ];
-
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         error: "Invalid status",
@@ -345,9 +321,7 @@ export const updateParcelStatus = async (req: Request, res: Response, next: Next
     }
 
     const parcel = await Parcel.findOne({ trackingNumber }).populate("sender").populate("recipient");
-    if (!parcel) {
-      return res.status(404).json({ error: "Parcel with this tracking number not found" });
-    }
+    if (!parcel) return res.status(404).json({ error: "Parcel with this tracking number not found" });
 
     parcel.status = status;
     await parcel.save();
@@ -368,9 +342,7 @@ export const updatePartnerTrackingNumber = async (req: Request, res: Response, n
     const { id } = req.params;
     const { partnerTrackingNumber } = req.body;
 
-    if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ error: "Invalid parcel ID" });
-    }
+    if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: "Invalid parcel ID" });
 
     const parcel = await Parcel.findById(id);
     if (!parcel) return res.status(404).json({ error: "Parcel not found" });
@@ -399,9 +371,7 @@ export const syncParcelWithEKit = async (req: Request, res: Response, next: Next
   try {
     const { id } = req.params;
 
-    if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ error: "Invalid parcel ID" });
-    }
+    if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: "Invalid parcel ID" });
 
     const parcel = await Parcel.findById(id).populate("sender").populate("recipient");
     if (!parcel) return res.status(404).json({ error: "Parcel not found" });
@@ -448,24 +418,29 @@ export const getEKitStatus = async (req: Request, res: Response, next: NextFunct
   try {
     const { id } = req.params;
 
-    if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ error: "Invalid parcel ID" });
-    }
+    if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: "Invalid parcel ID" });
 
     const parcel = await Parcel.findById(id);
     if (!parcel) return res.status(404).json({ error: "Parcel not found" });
 
     if (parcel.partnerType !== "E-Kit") {
-      return res.status(400).json({ error: "This parcel is not for E-Kit delivery" });
+      return res.status(400).json({
+        error: "This parcel is not for E-Kit delivery",
+      });
     }
 
     if (!parcel.partnerTrackingNumber) {
-      return res.status(400).json({ error: "Parcel not synced with E-Kit yet" });
+      return res.status(400).json({
+        error: "Parcel not synced with E-Kit yet",
+      });
     }
 
     const statusData = await getOrderStatus(parcel.trackingNumber);
+
     if (!statusData) {
-      return res.status(404).json({ error: "Could not get status from E-Kit" });
+      return res.status(404).json({
+        error: "Could not get status from E-Kit",
+      });
     }
 
     res.json({

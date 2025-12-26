@@ -1,4 +1,4 @@
-import { type ChangeEvent, type FC, useEffect, useState } from 'react';
+import { type ChangeEvent, type FC, useEffect, useMemo, useState } from 'react';
 import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field.tsx';
 import TruckIconA from '@/features/deliveryCostCalculator/components/icons/TruckIconA.tsx';
 import TruckIconB from '@/features/deliveryCostCalculator/components/icons/TruckIconB.tsx';
@@ -12,7 +12,6 @@ import {
 import { Input } from '@/components/ui/input.tsx';
 import { AlertCircle, CheckCircle, Clock, HandCoins, Weight, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
-import { cities as senderCities } from '@/constants.ts';
 import useFileStore from '@/stores/fileStore/fileStore.ts';
 import { useTranslation } from 'react-i18next';
 import { type UseFormReturn, useWatch } from 'react-hook-form';
@@ -23,11 +22,13 @@ interface Props {
   handleNext: () => void;
 }
 
-const PVZ_SENDER_CITY = 'Bishkek';
+const ORIGIN_CITY_VALUE = 'Bishkek';
+const ORIGIN_CITY_LABEL_RU = 'Бишкек';
+const ORIGIN_OFFICE_ID = 1;
 
 const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
   const { citiesPVZ, citiesHand, getCities, loadingCities } = useFileStore();
-  const [citySearch, setCitySearch] = useState({ origin: '', destination: '' });
+  const [citySearch, setCitySearch] = useState({ destination: '' });
   const { t } = useTranslation();
 
   const {
@@ -44,44 +45,47 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     name: ['originCity', 'destinationCity', 'parcelValue', 'parcelWeight', 'deliveryType'],
   });
 
-  const isPVZ = deliveryType === 'pickup';
-
-  useEffect(() => {
-    const type: 'PVZ' | 'Hand' = deliveryType === 'courier' ? 'Hand' : 'PVZ';
-
-    setValue('destinationCity', '');
-    clearErrors('destinationCity');
-
-    if (deliveryType === 'pickup') {
-      setValue('originCity', PVZ_SENDER_CITY);
-      clearErrors('originCity');
-      setCitySearch((prev) => ({ ...prev, origin: '' }));
-    }
-
-    void getCities(type);
-  }, [deliveryType, getCities, setValue, clearErrors]);
-
-  const originCities = isPVZ ? [PVZ_SENDER_CITY] : senderCities;
-
-  const filteredOriginCities = originCities.filter((c) =>
-    c.toLowerCase().includes((citySearch.origin || '').toLowerCase()),
-  );
-
-  const recipientCities = deliveryType === 'courier' ? citiesHand : citiesPVZ;
-
-  const filteredDestinationCities = recipientCities.filter((c) =>
-    c.city.toLowerCase().includes((citySearch.destination || '').toLowerCase()),
-  );
-
-  const selectedPrice = watch('totalCost') || 0;
+  const trError = (msg: unknown) => {
+    const key = String(msg ?? '').trim();
+    if (!key) return '';
+    const translated = t(key);
+    return translated === key ? key : translated;
+  };
 
   const isOriginCityValid = !!originCity;
   const isDestinationCityValid = !!destinationCity;
   const isParcelValueValid = Number(parcelValue) > 0 && Number(parcelValue) <= 50000;
   const isParcelWeightValid = Number(parcelWeight) > 0 && Number(parcelWeight) <= 15;
 
+  useEffect(() => {
+    setValue('originCity', ORIGIN_CITY_VALUE, { shouldDirty: true, shouldValidate: true });
+    clearErrors('originCity');
+
+    setValue('originOffice', ORIGIN_OFFICE_ID as any, { shouldDirty: true, shouldValidate: true });
+    clearErrors('originOffice');
+  }, [clearErrors, setValue]);
+
+  useEffect(() => {
+    const type: 'PVZ' | 'Hand' = deliveryType === 'courier' ? 'Hand' : 'PVZ';
+
+    setValue('destinationCity', '', { shouldDirty: true, shouldValidate: true });
+    clearErrors('destinationCity');
+    setCitySearch({ destination: '' });
+
+    void getCities(type);
+  }, [deliveryType, clearErrors, getCities, setValue]);
+
+  const recipientCities = deliveryType === 'courier' ? citiesHand : citiesPVZ;
+
+  const filteredDestinationCities = useMemo(() => {
+    const q = (citySearch.destination || '').toLowerCase();
+    return recipientCities.filter((c) => c.city.toLowerCase().includes(q));
+  }, [recipientCities, citySearch.destination]);
+
+  const selectedPrice = watch('totalCost') || 0;
+
   const canProceed =
-    !!originCity &&
+    ORIGIN_CITY_VALUE === originCity &&
     !!destinationCity &&
     Number(parcelValue) > 0 &&
     Number(parcelWeight) > 0 &&
@@ -99,6 +103,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
           <FieldSet>
             <div>
               <div className="flex flex-col gap-6 sm:flex-row sm:gap-10">
+
                 <FieldGroup className="gap-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -115,49 +120,25 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                     </span>
                   </div>
 
-                  <Select
-                    required
-                    onValueChange={(value: string) => {
-                      setValue('originCity', value);
-                      clearErrors('originCity');
-                    }}
-                    value={originCity || ''}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue
-                        placeholder={t('deliveryCostCalculator.stepOneForm.senderPlaceholder')}
-                      />
-                    </SelectTrigger>
+                  <Select value={ORIGIN_CITY_VALUE} disabled>
+                    <SelectTrigger className="w-full bg-gray-100 text-gray-600 cursor-not-allowed">
 
+                      <SelectValue placeholder={ORIGIN_CITY_LABEL_RU} />
+                    </SelectTrigger>
                     <SelectContent
                       position="popper"
                       side="bottom"
                       align="start"
                       avoidCollisions={false}
                     >
-                      {!isPVZ && (
-                        <Input
-                          name="origin"
-                          value={citySearch.origin}
-                          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                            setCitySearch((prev) => ({ ...prev, origin: e.target.value }))
-                          }
-                          className="w-full"
-                        />
-                      )}
-
-                      {filteredOriginCities.map((city) => (
-                        <SelectItem key={city} value={city}>
-                          {city}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value={ORIGIN_CITY_VALUE}>{ORIGIN_CITY_LABEL_RU}</SelectItem>
                     </SelectContent>
                   </Select>
 
                   {errors.originCity && (
                     <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
                       <AlertCircle size={14} className="shrink-0" />
-                      <p>{String(errors.originCity.message)}</p>
+                      <p>{trError(errors.originCity.message)}</p>
                     </div>
                   )}
                 </FieldGroup>
@@ -182,7 +163,10 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                     required
                     disabled={loadingCities || recipientCities.length === 0}
                     onValueChange={(value: string) => {
-                      setValue('destinationCity', value);
+                      setValue('destinationCity', value, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
                       clearErrors('destinationCity');
                     }}
                     value={destinationCity || ''}
@@ -206,7 +190,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                       <Input
                         value={citySearch.destination}
                         onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                          setCitySearch((prev) => ({ ...prev, destination: e.target.value }))
+                          setCitySearch({ destination: e.target.value })
                         }
                       />
 
@@ -221,7 +205,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                   {errors.destinationCity && (
                     <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
                       <AlertCircle size={14} className="shrink-0" />
-                      <p>{String(errors.destinationCity.message)}</p>
+                      <p>{trError(errors.destinationCity.message)}</p>
                     </div>
                   )}
                 </FieldGroup>
@@ -256,7 +240,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                   {errors.parcelValue && (
                     <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
                       <AlertCircle size={14} className="shrink-0" />
-                      <p>{String(errors.parcelValue.message)}</p>
+                      <p>{trError(errors.parcelValue.message)}</p>
                     </div>
                   )}
 
@@ -289,7 +273,10 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                           const value = parseFloat(e.target.value);
                           if (!isNaN(value)) {
                             const rounded = Math.ceil(value);
-                            setValue('parcelWeight', String(rounded));
+                            setValue('parcelWeight', String(rounded), {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
                           }
                         },
                       })}
@@ -303,7 +290,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                   {errors.parcelWeight && (
                     <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
                       <AlertCircle size={14} className="shrink-0" />
-                      <p>{String(errors.parcelWeight.message)}</p>
+                      <p>{trError(errors.parcelWeight.message)}</p>
                     </div>
                   )}
 
