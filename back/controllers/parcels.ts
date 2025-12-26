@@ -45,7 +45,7 @@ export const createParcel = async (
       distributionCenter,
       description,
     } = req.body;
-
+    console.log('Incoming request body:', req.body);
     if (!originCity || !destinationCity || !weight) {
       return res.status(400).json({
         error: "Not all required fields are filled",
@@ -114,6 +114,10 @@ export const createParcel = async (
       partnerType,
       distributionCenter: distributionCenter || '',
     };
+
+    if (!description) {
+      return res.status(400).json({ error: "Description is required" });
+    }
 
     if (originOffice !== undefined && originOffice !== null) {
       parcelData.originOffice = originOffice;
@@ -324,6 +328,7 @@ export const updateParcelStatus = async (
       "at_pickup_point",
       "delivered",
     ];
+
     if (!validStatuses.includes(status))
       return res.status(400).json({
         error: "Invalid status",
@@ -334,12 +339,33 @@ export const updateParcelStatus = async (
     const parcel = await Parcel.findOne({ trackingNumber })
         .populate("sender")
         .populate("recipient");
+
     if (!parcel)
       return res
           .status(404)
           .json({ error: "Parcel with this tracking number not found" });
 
     parcel.status = status;
+
+    switch (status) {
+      case "draft":
+      case "created":
+        parcel.isPaid = false;
+        parcel.partnerStickerReceived = false;
+        break;
+      case "accepted":
+        parcel.isPaid = true;
+        parcel.partnerStickerReceived = true;
+        break;
+      case "shipped":
+      case "in_country":
+      case "in_city":
+      case "at_pickup_point":
+      case "delivered":
+        parcel.partnerStickerReceived = true;
+        break;
+    }
+
     await parcel.save();
 
     const freshParcel = await Parcel.findById(parcel._id)
