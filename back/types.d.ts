@@ -47,6 +47,7 @@ export interface ParcelCreateData {
   partnerType: "E-Kit" | "KCE";
   pvzData?: IPvzData;
   distributionCenter?: string,
+  serviceCode?: string,
 }
 
 interface CreateParcelResponse {

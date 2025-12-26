@@ -19,6 +19,7 @@ import { useState, useEffect } from 'react';
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore.ts';
 import dayjs from 'dayjs';
 import React from 'react';
+import { toast } from 'sonner';
 
 interface StatusStep {
   id: number;
@@ -107,7 +108,8 @@ const ParcelStatus = ({
   const [isEditing, setIsEditing] = useState(false);
   const [newStatus, setNewStatus] = useState<string | null>(null);
   const [pulsingStep, setPulsingStep] = useState<number | null>(null);
-  const { editParcelStatus, editParcelStatusLoading } = useParcelsStore();
+  const { editParcelStatus, editParcelStatusLoading, sendParcelToEKit, sendParcelToEKitLoading} = useParcelsStore();
+
 
   const getCurrentStep = (statusValue: string) => {
     const step = steps.find(s => s.statusValue === statusValue);
@@ -135,11 +137,23 @@ const ParcelStatus = ({
   const save = async () => {
     if (!newStatus || !trackingNumber) return;
     await editParcelStatus(trackingNumber, newStatus);
+
+    if (newStatus === 'created') {
+      const result = await sendParcelToEKit(trackingNumber);
+
+      if (result.success) {
+        toast.success('Посылка успешно отправлена в E-Kit');
+      } else {
+        toast.error(`Ошибка отправки в E-Kit: ${result.message}`);
+      }
+    }
+
     setIsEditing(false);
     setNewStatus(null);
   };
 
   const totalGridCols = steps.length * 2 - 1;
+  const isLoading = editParcelStatusLoading || sendParcelToEKitLoading;
 
   return (
     <div
@@ -159,9 +173,9 @@ const ParcelStatus = ({
             size="icon"
             className="size-9 hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all duration-200 relative group"
             onClick={save}
-            disabled={!newStatus || editParcelStatusLoading}
+            disabled={!newStatus || isLoading}
           >
-            {editParcelStatusLoading ? (
+            {editParcelStatusLoading || isLoading ? (
               <Loader2 data-testid="status-save-loader" className="w-4 h-4 animate-spin" />
             ) : (
               <Save className="w-4 h-4" />
