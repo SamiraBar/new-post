@@ -175,12 +175,7 @@ const ParcelStatus = ({
             onClick={save}
             disabled={!newStatus || isLoading}
           >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            {editParcelStatusLoading ? (
+            {editParcelStatusLoading || isLoading ? (
               <Loader2 data-testid="status-save-loader" className="w-4 h-4 animate-spin" />
             ) : (
               <Save className="w-4 h-4" />
