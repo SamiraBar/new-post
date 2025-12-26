@@ -51,7 +51,7 @@ const ContactSchema = new mongoose.Schema(
         },
         description: {
             type: String,
-            required: true,
+            required: false,
         },
         inn_passport: {
             type: String,

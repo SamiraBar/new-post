@@ -185,12 +185,12 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
     try {
       const parcelData: CreateParcelData = {
         partnerTrackingNumber: null,
+        description: order.inParcel,
         distributionCenter: order.distributionCenter,
         sender: {
           fullName: order.sender.name,
           phoneNumber: order.sender.phone,
           email: order.sender.email,
-          description: order.inParcel || 'No description',
           address: order.originCity,
           inn_passport: order.sender.inn_passport,
         },
@@ -199,7 +199,6 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
           phoneNumber: order.receiver.phone,
           email: order.receiver.email,
           address: order.destinationCity,
-          description: 'Recipient',
           city: order.destinationCity,
         },
         originCity: order.originCity,

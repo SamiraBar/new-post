@@ -117,6 +117,10 @@ const ParcelSchema = new Schema(
             type: String,
             default: null,
         },
+        description: {
+            type: String,
+            required: true
+        },
         deliveryType: {
             type: String,
             enum: ["courier", "pickup"],

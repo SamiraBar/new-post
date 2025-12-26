@@ -143,6 +143,7 @@ const DeliveryCostCalculator = () => {
       deliveryCost: Number(values.deliveryCost),
       insuranceCost: Number(values.insuranceCost),
       totalCost: Number(values.totalCost),
+      parcelDescription: values.inParcel || '',
     };
 
     const trackingNumber = await createParcel(orderPayload);

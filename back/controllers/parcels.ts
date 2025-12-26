@@ -43,6 +43,7 @@ export const createParcel = async (
       partnerType,
       pvzData,
       distributionCenter,
+      description,
     } = req.body;
 
     if (!originCity || !destinationCity || !weight) {
@@ -56,25 +57,12 @@ export const createParcel = async (
           .status(400)
           .json({ error: "Sender and recipient data are required" });
     }
-    if (
-        !sender.fullName ||
-        !sender.phoneNumber ||
-        !sender.email ||
-        !sender.description
-    ) {
-      return res
-          .status(400)
-          .json({ error: "Not all required sender fields are filled" });
+    if (!sender.fullName || !sender.phoneNumber || !sender.email) {
+      return res.status(400).json({ error: "Not all required sender fields are filled" });
     }
-    if (
-        !recipient.fullName ||
-        !recipient.phoneNumber ||
-        !recipient.email ||
-        !recipient.description
-    ) {
-      return res
-          .status(400)
-          .json({ error: "Not all required recipient fields are filled" });
+
+    if (!recipient.fullName || !recipient.phoneNumber || !recipient.email) {
+      return res.status(400).json({ error: "Not all required recipient fields are filled" });
     }
 
     const weightValue = parseFloat(weight);
@@ -113,6 +101,7 @@ export const createParcel = async (
     const parcelData: ParcelCreateData = {
       trackingNumber,
       partnerTrackingNumber,
+      description: description,
       sender: newSender._id as mongoose.Types.ObjectId,
       recipient: newRecipient._id as mongoose.Types.ObjectId,
       originCity,
