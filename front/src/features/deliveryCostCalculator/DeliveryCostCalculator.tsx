@@ -22,7 +22,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type OrderFormData, orderSchema } from '@/lib/order.schema.ts';
 
 const DeliveryCostCalculator = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(2);
   const [isAgreed, setIsAgreed] = useState(false);
   const [agreementError, setAgreementError] = useState(false);
   const agreementRef = useRef<HTMLDivElement | null>(null);
@@ -54,7 +54,7 @@ const DeliveryCostCalculator = () => {
       originCity: '',
       destinationCity: '',
       distributionCenter: '',
-      originOffice: 0,
+      originOffice: '',
       destinationOffice: 0,
       parcelValue: '',
       parcelWeight: '',

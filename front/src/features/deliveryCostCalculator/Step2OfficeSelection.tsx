@@ -1,9 +1,10 @@
-import { offices } from '@/constants.ts';
-import { CheckCircle, MapPin, XCircle } from 'lucide-react';
-import type { FC } from 'react';
+// import { offices } from '@/constants.ts';
+import { CheckCircle, LoaderCircle, MapPin, XCircle } from 'lucide-react';
+import { type FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type UseFormReturn, useWatch } from 'react-hook-form';
 import type { OrderFormData } from '@/lib/order.schema.ts';
+import useOfficesStore from '@/stores/officesStore/officesStore.ts';
 
 interface Props {
   form: UseFormReturn<OrderFormData>;
@@ -11,7 +12,7 @@ interface Props {
 
 const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
   const {t} = useTranslation();
-
+  const {getOffices, offices, getOfficesLoading} = useOfficesStore();
   const {
     setValue,
   } = form;
@@ -21,8 +22,8 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
   });
   const isOfficeSelected = !!originOffice;
 
-  const handleOfficeSelect = (officeId: number) => {
-    const selectedOffice = offices.find((o) => o.id === officeId);
+  const handleOfficeSelect = (officeId: string) => {
+    const selectedOffice = offices.find((o) => o._id === officeId);
 
     if (!selectedOffice) {
       console.error(`Office with id ${officeId} not found`);
@@ -34,6 +35,10 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
     setValue('originOffice', officeId);
     setValue('originCity', city);
   };
+
+  useEffect(() => {
+    void getOffices('all');
+  }, [getOffices]);
 
   return (
     <div className="w-full pt-5">
@@ -55,15 +60,34 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5">
+      {getOfficesLoading ?
+        <div className="flex items-center justify-center">
+          <LoaderCircle className="animate-spin text-brand h-12 w-12" />
+          <div className="animate-ping">
+            <LoaderCircle className="text-brand/20 h-12 w-12" />
+          </div>
+        </div> : offices.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+            <div className="rounded-full bg-orange-50 p-6 mb-4">
+              <MapPin className="h-12 w-12 text-orange-300" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2 text-gray-800">
+              {t('deliveryCostCalculator.stepTwoForm.notFound')}
+            </h3>
+            <p className="text-sm text-gray-600 max-w-md">
+              {t('deliveryCostCalculator.stepTwoForm.noOfficesDescription')}
+            </p>
+          </div>
+        ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5">
         {offices.map((office) => {
-          const isSelected = originOffice === office.id;
+          const isSelected = originOffice === office._id;
 
           return (
             <button
               type="button"
-              key={office.id}
-              onClick={() => handleOfficeSelect(office.id)}
+              key={office._id}
+              onClick={() => handleOfficeSelect(office._id)}
               className={`
                 p-6 border-2 rounded-lg transition-all duration-300 text-left relative
                 hover:shadow-lg hover:border-orange-300 hover:scale-[1.02]
@@ -102,7 +126,7 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
             </button>
           );
         })}
-      </div>
+      </div>)}
       {!isOfficeSelected && (
         <div className="mt-4 p-3 bg-amber-50 border border-amber-300 rounded-lg mx-5">
           <p className="text-amber-700 text-sm font-medium">

@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 import AdminModeration from '@/features/adminPanel/AdminModeration.tsx';
 import ParcelDetails from './features/parcels/admin/ParcelDetails';
 import AdminSiteContent from '@/features/adminPanel/AdminSiteContent.tsx';
+import OfficesList from '@/features/offices/OfficesList.tsx';
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
           <Route path="admin/login" element={<AdminLoginForm />} />
           <Route path="admin/moderation" element={<AdminModeration />} />
           <Route path="/admin/site-content" element={<AdminSiteContent />} />
+          <Route path="/admin/offices" element={<OfficesList />} />
           <Route path="parcels/:id" element={<ParcelDetails />} />
         </Routes>
       </BrowserRouter>

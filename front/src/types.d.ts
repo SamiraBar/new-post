@@ -157,7 +157,7 @@ export interface Order {
   originCity: string;
   destinationCity: string;
   distributionCenter?: string;
-  originOffice: number;
+  originOffice: string;
   destinationOffice: number;
   parcelValue: number;
   parcelWeight: number;
