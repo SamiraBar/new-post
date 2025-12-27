@@ -48,6 +48,7 @@ export interface ParcelCreateData {
   pvzData?: IPvzData;
   distributionCenter?: string,
   description: string;
+  serviceCode?: string,
 }
 
 interface CreateParcelResponse {

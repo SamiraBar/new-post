@@ -150,6 +150,7 @@ export interface Order {
   originCity: string;
   destinationCity: string;
   distributionCenter?: string;
+  serviceCode?: '14' | '15';
   originOffice: number;
   destinationOffice: number;
   parcelValue: number;
