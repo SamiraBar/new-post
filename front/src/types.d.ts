@@ -158,6 +158,7 @@ export interface Order {
   destinationCity: string;
   distributionCenter?: string;
   originOffice: string;
+  serviceCode?: '14' | '15';
   destinationOffice: number;
   parcelValue: number;
   parcelWeight: number;

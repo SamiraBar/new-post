@@ -22,7 +22,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type OrderFormData, orderSchema } from '@/lib/order.schema.ts';
 
 const DeliveryCostCalculator = () => {
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(1);
   const [isAgreed, setIsAgreed] = useState(false);
   const [agreementError, setAgreementError] = useState(false);
   const agreementRef = useRef<HTMLDivElement | null>(null);
@@ -54,6 +54,7 @@ const DeliveryCostCalculator = () => {
       originCity: '',
       destinationCity: '',
       distributionCenter: '',
+      serviceCode: undefined,
       originOffice: '',
       destinationOffice: 0,
       parcelValue: '',
@@ -118,6 +119,12 @@ const DeliveryCostCalculator = () => {
       setValue('insuranceCost', insurance, { shouldDirty: false });
       setValue('totalCost', delivery.totalCost + insurance, { shouldDirty: false });
       setValue('distributionCenter', isPickup ? (delivery.distributionCenter ?? '') : '', { shouldDirty: false });
+
+      if (isPickup && delivery.distributionCenter) {
+        const service = delivery.distributionCenter === 'ЕКБ' ? '15' : '14';
+        setValue('serviceCode', service, { shouldDirty: false });
+        console.log('📦 Определен service код:', service, 'для РЦ:', delivery.distributionCenter);
+      }
     };
 
     void calculatePrices();
@@ -129,6 +136,7 @@ const DeliveryCostCalculator = () => {
     fetchDeliveryCost,
     calculateInsuranceCost,
     setValue,
+    isPickup,
   ]);
 
   const handleSubmit = async (e: FormEvent) => {
