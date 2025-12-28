@@ -3,8 +3,10 @@ export interface IOffice {
   name: string;
   address: string;
   mapUrl: string;
+  city: string;
+  phone: string;
+  worktime: string;
   createdAt?: string;
-  updatedAt?: string;
 }
 
 export interface IAdminOffice extends IOffice {
@@ -15,10 +17,16 @@ export interface CreateOfficeData {
   name: string;
   address: string;
   mapUrl: string;
+  city: string;
+  phone: string;
+  worktime: string;
 }
 
 export interface UpdateOfficeData {
   name?: string;
   address?: string;
   mapUrl?: string;
+  city?: string;
+  phone?: string;
+  worktime?: string;
 }

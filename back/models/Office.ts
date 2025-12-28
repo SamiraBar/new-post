@@ -4,6 +4,11 @@ interface OfficeTypes {
   name: string;
   address: string;
   mapUrl: string;
+  isActive: boolean,
+  city: string,
+  phone: string,
+  worktime: string,
+  createdAt: Date,
 }
 
 const OfficeSchema = new Schema({
@@ -23,12 +28,21 @@ const OfficeSchema = new Schema({
     type: Boolean,
     default: true
   },
+  city: {
+    type: String,
+    required: true
+  },
+  phone: {
+    type: String,
+    required: true
+  },
+  worktime: {
+    type: String,
+  }
+  ,
   createdAt: {
     type: Date,
     default: Date.now
-  },
-  updatedAt: {
-    type: Date,
   }
 });
 

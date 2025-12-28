@@ -22,10 +22,10 @@ export const getAdminOffices = async (req: Request, res: Response, next: NextFun
 
 export const createOffice = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { name, address, mapUrl } = req.body;
+    const { name, address, mapUrl, city, phone, worktime } = req.body;
 
-    if (!name || !address || !mapUrl) {
-      res.status(200).json({error: 'All fields are required: name, address, mapUrl'});
+    if (!name || !address || !mapUrl || !city || !phone || !worktime) {
+      res.status(200).json({error: 'All fields are required'});
       return;
     }
 
@@ -35,7 +35,14 @@ export const createOffice = async (req: Request, res: Response, next: NextFuncti
       return;
     }
 
-    const office = new Office({ name, address, mapUrl });
+    const office = new Office({
+      name,
+      address,
+      mapUrl,
+      city,
+      phone,
+      worktime
+    });
     await office.save();
 
     res.status(201).json(office);
@@ -54,7 +61,6 @@ export const getOfficeById = async (req: Request, res: Response, next: NextFunct
 
     if (!isValidObjectId(id)) {
       res.status(400).json({error: 'Invalid office ID format'});
-
       return;
     }
 
@@ -62,7 +68,6 @@ export const getOfficeById = async (req: Request, res: Response, next: NextFunct
 
     if (!office) {
       res.status(404).json({error: 'Office not found'});
-
       return;
     }
 
@@ -87,11 +92,12 @@ export const updateOffice = async (req: Request, res: Response, next: NextFuncti
       return;
     }
 
-    const updateData: Partial<OfficeBody> = {};
-    if (name !== undefined) updateData.name = name;
-    if (address !== undefined) updateData.address = address;
-    if (mapUrl !== undefined) updateData.mapUrl = mapUrl;
-    if (isActive !== undefined) updateData.isActive = isActive;
+    const updateData: Partial<OfficeBody> = {
+      ...(name !== undefined && { name }),
+      ...(address !== undefined && { address }),
+      ...(mapUrl !== undefined && { mapUrl }),
+      ...(isActive !== undefined && { isActive }),
+    };
 
 
     const office = await Office.findByIdAndUpdate(

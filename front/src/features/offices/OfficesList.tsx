@@ -10,11 +10,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import EditOfficeDialog from '@/features/offices/EditOfficeDialog.tsx';
 
 const OfficesList = () => {
-
   const {
     getOffices,
     adminOffices,
-    deleteOffice
+    deleteOffice,
+    getAdminOfficesLoading
   } = useOfficesStore();
   const [editingOfficeId, setEditingOfficeId] = useState<string | null>(null);
 
@@ -26,11 +26,17 @@ const OfficesList = () => {
     setEditingOfficeId(id);
   };
 
-  console.log(adminOffices);
-
   useEffect(() => {
     void getOffices('admin');
   }, [getOffices]);
+
+  if (getAdminOfficesLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-200"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
@@ -45,7 +51,7 @@ const OfficesList = () => {
               </Link>
 
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold">Офисы</h1>
+                <h1 className="text-xl sm:text-2xl font-bold">Филиалы</h1>
                 <p className="text-sm text-muted-foreground">
                 </p>
               </div>
@@ -60,57 +66,72 @@ const OfficesList = () => {
       </div>
 
       <div className="container py-6">
-        <Table className="mt-10">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">Название</TableHead>
-              <TableHead>Адрес</TableHead>
-              <TableHead>Ссылка</TableHead>
-              <TableHead>Статус</TableHead>
-              <TableHead>Дата создания</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {
-              adminOffices.map(office => (
-                <TableRow
-                  key={office._id}
-                >
-                  <TableCell>{office.name}</TableCell>
-                  <TableCell>{office.address}</TableCell>
-                  <TableCell>
-                    <a
-                      href={office.mapUrl}
-                      target="_blank"
-                      className="text-blue-600">
-                      {office.mapUrl}
-                    </a>
-                  </TableCell>
-                  <TableCell>{office.isActive ? 'Активен' : 'Не активен'}</TableCell>
-                  <TableCell>{dayjs(office.createdAt).format('HH:mm DD.MM.YYYY')}</TableCell>
-                  <TableCell className="flex gap-2 items-center">
-                    <Button
-                      variant="outline"
-                      className="bg-amber-300"
-                      size="icon"
-                      onClick={() => editOfficeById(office._id)}
-                    >
-                      <Pencil color="white" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="bg-red-600"
-                      size="icon"
-                      onClick={() => deleteOfficeById(office._id)}
-                    >
-                      <Trash color="white"/>
-                    </Button>
-                  </TableCell>
+        {
+          adminOffices.length > 0 ? (
+            <Table className="mt-10">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Город</TableHead>
+                  <TableHead>Адрес</TableHead>
+                  <TableHead className="w-[100px]">Название</TableHead>
+                  <TableHead>Телефон</TableHead>
+                  <TableHead>График работы</TableHead>
+                  <TableHead>Ссылка</TableHead>
+                  <TableHead>Дата создания</TableHead>
+                  <TableHead>Статус</TableHead>
                 </TableRow>
-              ))
-            }
-          </TableBody>
-        </Table>
+              </TableHeader>
+              <TableBody>
+                {
+                  adminOffices.map(office => (
+                    <TableRow
+                      key={office._id}
+                    >
+                      <TableCell>{office.city}</TableCell>
+                      <TableCell>{office.address}</TableCell>
+                      <TableCell>{office.name}</TableCell>
+                      <TableCell>{office.phone}</TableCell>
+                      <TableCell>{office.worktime}</TableCell>
+                      <TableCell>
+                        <a
+                          href={office.mapUrl}
+                          target="_blank"
+                          className="text-blue-600">
+                          {office.mapUrl}
+                        </a>
+                      </TableCell>
+                      <TableCell>{dayjs(office.createdAt).format('HH:mm DD.MM.YYYY')}</TableCell>
+                      <TableCell>{office.isActive ? 'Активен' : 'Не активен'}</TableCell>
+                      <TableCell className="flex gap-2 items-center">
+                        <Button
+                          variant="outline"
+                          className="bg-amber-300"
+                          size="icon"
+                          onClick={() => editOfficeById(office._id)}
+                        >
+                          <Pencil color="white" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="bg-red-600"
+                          size="icon"
+                          onClick={() => deleteOfficeById(office._id)}
+                        >
+                          <Trash color="white"/>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                }
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="mt-10 text-center text-gray-500">
+              <p>Офисы не найдены. Добавьте первый офис.</p>
+            </div>
+          )
+        }
+
       </div>
       {editingOfficeId && (
         <EditOfficeDialog

@@ -4,6 +4,7 @@ import Admin from "./models/Admin";
 import { randomUUID } from "node:crypto";
 import Parcel from "./models/Parcel";
 import Contact from "./models/Contact";
+import Office from './models/Office';
 
 const run = async () => {
   await mongoose.connect(config.db);
@@ -13,6 +14,7 @@ const run = async () => {
     await db.dropCollection("admins");
     await db.dropCollection("parcels");
     await db.dropCollection("contacts");
+    await db.dropCollection("offices");
   } catch (e) {
     console.log("No collection, skipping", e);
   }
@@ -465,6 +467,49 @@ const run = async () => {
       },
     }
   );
+
+  await Office.create([
+    {
+    name: 'Новая почта',
+    city: 'Бишкек',
+    address: 'Улица Льва Толстого, 24/1',
+    worktime: 'Ежедневно с 09:00 до 20:00',
+    phone: '+996778465557',
+    mapUrl: 'https://go.2gis.com/sgcnj'
+    },
+    {
+    name: 'Новая почта',
+    city: 'Бишкек',
+    address: 'ТЦ Дордой Плаза Улица Ибраимова, 115/2 - 1 этаж',
+    worktime: 'Пн — Пт 10:00–19:00 \n Перерыв 13:00–14:00',
+    phone: '+996778465557',
+    mapUrl: 'https://go.2gis.com/8wVAq'
+    },
+    {
+    name: 'Новая почта',
+    city: 'Манас - Джалал-Абад',
+    address: 'Проспект Тумонбая Байзакова, 18',
+    worktime: 'Пн — Пт 09:00–18:00',
+    phone: '+996778465557',
+    mapUrl: 'https://go.2gis.com/2uwVo'
+    },
+    {
+    name: 'Новая почта',
+    city: 'Каракол',
+    address: 'Улица Торгоева, 35',
+    worktime: 'Пн — Пт 09:00–19:00',
+    phone: '+996778465557',
+    mapUrl: 'https://go.2gis.com/ushEH'
+    },
+    {
+    name: 'Новая почта',
+    city: 'ОШ',
+    address: 'ЖК "Сулайман Тоо" Улица Курманжан датка, 121в1 этаж',
+    worktime: 'Пн — Пт 09:00–18:00',
+    phone: '+996778465557',
+    mapUrl: 'https://go.2gis.com/DJSnL'
+    }
+    ])
 
   await db.close();
 };

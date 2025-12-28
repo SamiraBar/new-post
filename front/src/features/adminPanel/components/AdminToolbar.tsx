@@ -204,7 +204,7 @@ export const AdminToolbar = () => {
                       <DropdownMenuItem>Редактировать сайт</DropdownMenuItem>
                     </Link>
                     <Link to="offices">
-                      <DropdownMenuItem>Офисы</DropdownMenuItem>
+                      <DropdownMenuItem>Филиалы</DropdownMenuItem>
                     </Link>
                     <DropdownMenuItem
                       onSelect={(e) => e.preventDefault()}

@@ -3,8 +3,6 @@ import axiosApi from '@/axiosApi.ts';
 import axios from 'axios';
 import type { CreateOfficeData, IAdminOffice, IOffice, UpdateOfficeData } from '@/stores/officesStore/types.ts';
 
-
-
 interface OfficeState {
   offices: IOffice[];
   adminOffices: IAdminOffice[];
@@ -21,7 +19,6 @@ interface OfficeState {
   updateOfficeError: { error: string } | null;
   deleteOfficeLoading: boolean;
   deleteOfficeError: { error: string } | null;
-
   getOffices: (type: 'admin' | 'all') => Promise<boolean>;
   getOfficeById: (id: string) => Promise<boolean>;
   createOffice: (officeData: CreateOfficeData) => Promise<IOffice | null>;
@@ -100,7 +97,6 @@ export const useOfficesStore = create<OfficeState>()((set) => ({
           getOfficesLoading: false,
         });
       }
-
       return false;
     }
   },

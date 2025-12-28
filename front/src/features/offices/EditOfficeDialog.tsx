@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 import useOfficesStore from '@/stores/officesStore/officesStore.ts';
 import { type OfficeFormData, officeSchema } from '@/lib/office.schema.ts';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
-
+import PhoneInput from '@/features/deliveryCostCalculator/components/phoneInput.tsx';
 
 interface EditOfficeDialogProps {
   officeId: string;
@@ -32,14 +32,19 @@ const EditOfficeDialog = ({ officeId, open, onOpenChange }: EditOfficeDialogProp
     formState: { errors },
     reset,
     watch,
-    setValue
+    setValue,
+    getValues,
+    trigger
   } = useForm<OfficeFormData>({
     resolver: zodResolver(officeSchema),
     defaultValues: {
       name: '',
       address: '',
       mapUrl: '',
-      isActive: undefined,
+      city: '',
+      phone: '',
+      worktime: '',
+      isActive: false,
     },
   });
 
@@ -55,6 +60,9 @@ const EditOfficeDialog = ({ officeId, open, onOpenChange }: EditOfficeDialogProp
         name: office.name,
         address: office.address,
         mapUrl: office.mapUrl,
+        city: office.city,
+        phone: office.phone,
+        worktime: office.worktime,
         isActive: office.isActive
       });
     }
@@ -67,11 +75,18 @@ const EditOfficeDialog = ({ officeId, open, onOpenChange }: EditOfficeDialogProp
     }
   };
 
+  const handleOpenChange = (isOpen: boolean) => {
+    onOpenChange(isOpen);
+    if (!isOpen) {
+      reset();
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle></DialogTitle>
+          <DialogTitle className="text-center">Редактировать филиал</DialogTitle>
         </DialogHeader>
 
         {getOfficeLoading ? (
@@ -122,6 +137,47 @@ const EditOfficeDialog = ({ officeId, open, onOpenChange }: EditOfficeDialogProp
               )}
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="edit-city">Город</Label>
+              <Input
+                id="edit-city"
+                type="text"
+                placeholder="Город"
+                {...register('city')}
+                className={errors.city ? 'border-red-500' : ''}
+              />
+              {errors.city && (
+                <p className="text-sm text-red-500">{errors.city.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-worktime">График работы</Label>
+              <Input
+                id="edit-worktime"
+                type="text"
+                placeholder="Пн-Пт: 8:00 - 18:00"
+                {...register('worktime')}
+                className={errors.worktime ? 'border-red-500' : ''}
+              />
+              {errors.worktime && (
+                <p className="text-sm text-red-500">{errors.worktime.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">Номер телефона</Label>
+              <PhoneInput
+                value={getValues('phone') ?? ''}
+                onChange={async (phone) => {
+                  setValue('phone', phone);
+                  await trigger('phone');
+                }}
+                error={errors.phone?.message}
+                defaultCountry="KG"
+              />
+            </div>
+
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="edit-isActive"
@@ -139,11 +195,12 @@ const EditOfficeDialog = ({ officeId, open, onOpenChange }: EditOfficeDialogProp
                 {watch('isActive') ? 'Активен' : 'Не активен'}
               </Label>
             </div>
+
             <div className="flex gap-2 pt-4">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={() => handleOpenChange(false)}
                 className="flex-1"
                 disabled={updateOfficeLoading}
               >
