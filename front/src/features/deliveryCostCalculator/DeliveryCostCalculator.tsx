@@ -118,13 +118,6 @@ const DeliveryCostCalculator = () => {
       setValue('deliveryCost', delivery.totalCost, { shouldDirty: false });
       setValue('insuranceCost', insurance, { shouldDirty: false });
       setValue('totalCost', delivery.totalCost + insurance, { shouldDirty: false });
-      setValue('distributionCenter', isPickup ? (delivery.distributionCenter ?? '') : '', { shouldDirty: false });
-
-      if (isPickup && delivery.distributionCenter) {
-        const service = delivery.distributionCenter === 'ЕКБ' ? '15' : '14';
-        setValue('serviceCode', service, { shouldDirty: false });
-        console.log('📦 Определен service код:', service, 'для РЦ:', delivery.distributionCenter);
-      }
     };
 
     void calculatePrices();
@@ -136,7 +129,6 @@ const DeliveryCostCalculator = () => {
     fetchDeliveryCost,
     calculateInsuranceCost,
     setValue,
-    isPickup,
   ]);
 
   const handleSubmit = async (e: FormEvent) => {

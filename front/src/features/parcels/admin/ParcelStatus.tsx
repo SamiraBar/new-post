@@ -136,16 +136,30 @@ const ParcelStatus = ({
 
   const save = async () => {
     if (!newStatus || !trackingNumber) return;
-    await editParcelStatus(trackingNumber, newStatus);
 
-    if (newStatus === 'created') {
+    console.log('💾 Сохранение нового статуса:', {
+      currentStatus: status,
+      newStatus: newStatus,
+      shouldSendToEKit: status === 'created' && newStatus === 'accepted'
+    });
+
+    if (status === 'created' && newStatus === 'accepted') {
+      console.log('Условие выполнено: отправляем в E-Kit');
+
       const result = await sendParcelToEKit(trackingNumber);
 
       if (result.success) {
-        toast.success('Посылка успешно отправлена в E-Kit');
+        toast.success('Посылка успешно отправлена в E-Kit и статус изменен на "Принят"');
+        await editParcelStatus(trackingNumber, newStatus);
       } else {
         toast.error(`Ошибка отправки в E-Kit: ${result.message}`);
+        setIsEditing(false);
+        setNewStatus(null);
+        return;
       }
+    } else {
+      console.log('Обычная смена статуса (без отправки в E-Kit)');
+      await editParcelStatus(trackingNumber, newStatus);
     }
 
     setIsEditing(false);
@@ -162,7 +176,9 @@ const ParcelStatus = ({
     >
       {isEditing && (
         <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-100 text-blue-700 text-xs font-medium rounded-full px-3 py-1 border border-blue-200">
-          Выберите новый статус
+          {status === 'created' && newStatus === 'accepted'
+            ? 'Будет отправлено в E-Kit'
+            : 'Выберите новый статус'}
         </span>
       )}
 
@@ -175,13 +191,17 @@ const ParcelStatus = ({
             onClick={save}
             disabled={!newStatus || isLoading}
           >
-            {editParcelStatusLoading || isLoading ? (
+            {isLoading ? (
               <Loader2 data-testid="status-save-loader" className="w-4 h-4 animate-spin" />
             ) : (
               <Save className="w-4 h-4" />
             )}
             <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-              {editParcelStatusLoading ? 'Сохранение...' : 'Сохранить статус'}
+              {isLoading
+                ? 'Отправка в E-Kit...'
+                : status === 'created' && newStatus === 'accepted'
+                  ? 'Отправить в E-Kit и принять'
+                  : 'Сохранить статус'}
             </div>
           </Button>
         )}

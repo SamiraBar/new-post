@@ -30,29 +30,21 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
     watch
   } = form;
   const deliveryType = watch('deliveryType');
+
   const handlePvzSelect = (pvzData: PvzData) => {
     const normalizedCity = normalizeCityName(pvzData.town || '');
 
-    console.log('🎯 Обработка выбранного ПВЗ в Step3:');
-    console.log('  - Код ПВЗ:', pvzData.code);
-    console.log('  - Название:', pvzData.name);
-    console.log('  - Город (оригинал):', pvzData.town);
-    console.log('  - Город (нормализованный):', normalizedCity);
-    console.log('  - 🔑 ParentCode:', pvzData.parentcode);
-    console.log('  - 📍 ParentName:', pvzData.parentname);
-
-    const currentDistributionCenter = getValues('distributionCenter');
-
-    console.log('  - 📦 Текущий РЦ из формы:', currentDistributionCenter);
+    console.log('Обработка выбранного ПВЗ в Step3:');
+    console.log(' Код ПВЗ:', pvzData.code);
+    console.log('ParentCode:', pvzData.parentcode);
 
     let serviceCode: '14' | '15' = '14';
-
-    if (currentDistributionCenter === 'ЕКБ') {
+    if (pvzData.parentcode === '2495') {
       serviceCode = '15';
+      console.log('ЕКБ (service 15)');
+    } else {
+      console.log('МСК (service 14)');
     }
-
-    console.log('  - 🚚 Service код:', serviceCode);
-    console.log('  - 🚚 Service код для E-Kit:', serviceCode);
 
     setValue('pvzData', {
       ...pvzData,
@@ -66,6 +58,8 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
       city: normalizedCity || getValues('receiver.city'),
       address: pvzData.address || getValues('receiver.address'),
     });
+
+    console.log('Сохранен serviceCode:', serviceCode);
   };
 
   if (!deliveryType) return null;

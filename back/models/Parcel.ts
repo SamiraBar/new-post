@@ -207,7 +207,7 @@ const ParcelSchema = new Schema(
         serviceCode: {
             type: String,
             enum: ['14', '15'],
-            default: null,
+            required: false,
         },
         draftedAt: {
             type: Date,

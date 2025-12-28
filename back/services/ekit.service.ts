@@ -3,20 +3,12 @@ import {IContact} from "../models/Contact";
 import axios from 'axios';
 import xml2js from 'xml2js';
 import {EKitOrderResult} from "../types";
-import PriceToPvz from "../models/ PriceToPvz";
 
 interface EKitConfig {
     extra: string;
     login: string;
     pass: string;
     apiUrl: string;
-}
-
-interface SenderInfo {
-    town: string;
-    address: string;
-    phone?: string;
-    service?: string;
 }
 
 const config: EKitConfig = {
@@ -40,68 +32,13 @@ function escapeXml(text: string): string {
         .replace(/'/g, '&apos;');
 }
 
-async function getSenderInfo(parcel: IParcel): Promise<SenderInfo> {
-    try {
-        console.log('Поиск РЦ для города:', parcel.destinationCity);
-        const cityData = await PriceToPvz.findOne({
-            city: parcel.destinationCity
-        });
-
-        if (cityData && cityData.distributionCenter === 'ЕКБ') {
-            console.log('Найден РЦ: Екатеринбург для города', parcel.destinationCity);
-            return {
-                town: 'Екатеринбург',
-                address: '8 Марта 269',
-                phone: '+79991234000',
-                service: '14'
-            };
-        }
-
-        console.log('РЦ не найден или это МСК. Использую Москву по умолчанию.');
-        return {
-            town: 'Москва',
-            address: 'МКАД 43км',
-            phone: '+79991234000',
-            service: '14'
-        };
-
-    } catch (error) {
-        console.error('Ошибка при поиске РЦ в БД:', error);
-        return {
-            town: 'Москва',
-            address: 'МКАД 43км',
-            phone: '+79991234000',
-            service: '14'
-        };
-    }
-}
-
 export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResult> {
-    console.log(' Начало создания заказа в E-Kit:');
-    console.log(' Базовая информация о посылке:');
-    console.log('  - Трек-номер:', parcel.trackingNumber);
-    console.log('  - Город назначения:', parcel.destinationCity);
-    console.log('  - Тип доставки:', parcel.deliveryType);
-    console.log('  - Вес посылки:', parcel.weight);
-    console.log('\n Данные о РЦ:');
-    console.log('  - Distribution Center из БД:', parcel.distributionCenter);
-    console.log('  - Service Code из формы:', parcel.serviceCode);
-
-    let serviceCode: '14' | '15' = '14';
-    let senderTown = 'Москва';
-    let senderAddress = 'МКАД 43км';
-
-    if (parcel.serviceCode) {
-        serviceCode = parcel.serviceCode;
-        if (serviceCode === '15') {
-            senderTown = 'Екатеринбург';
-            senderAddress = '8 Марта 269';
-        }
-    } else if (parcel.distributionCenter === 'ЕКБ') {
-        serviceCode = '15';
-        senderTown = 'Екатеринбург';
-        senderAddress = '8 Марта 269';
-    }
+    console.log('Начало создания заказа в E-Kit:');
+    console.log('Базовая информация:');
+    console.log('Трек-номер:', parcel.trackingNumber);
+    console.log('Город назначения:', parcel.destinationCity);
+    console.log('Тип доставки:', parcel.deliveryType);
+    console.log('Вес:', parcel.weight);
 
     const authExtra = config.extra;
     const authLogin = config.login;
@@ -109,6 +46,26 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
 
     const sender = parcel.sender as IContact;
     const recipient = parcel.recipient as IContact;
+
+    let serviceCode: '14' | '15' = '14';
+    let senderTown = 'Москва';
+    let senderAddress = 'МКАД 43км';
+
+    if (parcel.pvzData?.parentcode === '2495') {
+        serviceCode = '15';
+        senderTown = 'Екатеринбург';
+        senderAddress = '8 Марта 269';
+        console.log('ParentCode 2495 → ЕКБ (service 15)');
+    } else {
+        console.log('ParentCode', parcel.pvzData?.parentcode, '→ МСК (service 14)');
+    }
+
+    console.log('\n Определение РЦ:');
+    console.log('ParentCode из ПВЗ:', parcel.pvzData?.parentcode || 'не указан');
+    console.log('Правило: parentcode === "2495" → ЕКБ, остальное → МСК');
+    console.log('Service код:', serviceCode);
+    console.log('Город отправителя:', senderTown);
+    console.log('Адрес отправителя:', senderAddress);
 
     let recipientAddress = '';
     let recipientCity = '';
@@ -128,22 +85,18 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
 
     console.log('\n Данные ПВЗ:');
     if (parcel.pvzData) {
-        console.log('  - Код ПВЗ:', parcel.pvzData.code);
-        console.log('  - Название:', parcel.pvzData.name);
-        console.log('  - Город:', parcel.pvzData.town);
+        console.log('Код:', parcel.pvzData.code);
+        console.log('Название:', parcel.pvzData.name);
+        console.log('ParentCode:', parcel.pvzData.parentcode);
+        console.log('ParentName:', parcel.pvzData.parentname);
+    } else {
+        console.log('ПВЗ не выбран (курьерская доставка)');
     }
 
-    console.log('\n Итоговое определение РЦ:');
-    console.log('  - Источник:', parcel.serviceCode ? 'serviceCode из формы' : 'distributionCenter из БД');
-    console.log('  - РЦ:', serviceCode === '15' ? 'ЕКБ' : 'МСК');
-    console.log('  - Service код:', serviceCode);
-    console.log('  - Город отправителя:', senderTown);
-    console.log('  - Адрес отправителя:', senderAddress);
-
-    console.log('\n Данные получателя:');
-    console.log('  - Имя:', recipient.fullName);
-    console.log('  - Город:', recipientCity);
-    console.log('  - Адрес:', recipientAddress);
+    console.log('\nПолучатель:');
+    console.log('Имя:', recipient.fullName);
+    console.log('Город:', recipientCity);
+    console.log('Адрес:', recipientAddress);
 
     const xmlRequest = `<?xml version="1.0" encoding="UTF-8"?>
 <neworder newfolder="YES">
@@ -173,7 +126,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     <inshprice>0</inshprice>
     <weight>${parcel.weight}</weight>
     <quantity>1</quantity>
-    <service>${serviceCode}</service> 
+    <service>${serviceCode}</service>
     <type>3</type>
     <paytype>NO</paytype>
     <return>NO</return>
@@ -182,9 +135,9 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
   </order>
 </neworder>`;
 
-    console.log('\n XML для отправки в E-Kit (первые 1500 символов):');
+    console.log('\n XML для отправки:');
     console.log('━'.repeat(80));
-    console.log(xmlRequest.substring(0, 1500));
+    console.log(xmlRequest);
     console.log('━'.repeat(80));
 
     console.log('\n КЛЮЧЕВЫЕ ПОЛЯ:');
@@ -202,8 +155,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
             timeout: 50000,
         });
 
-        console.log('Ответ от E-Kit получен. Статус:', response.status);
-        console.log('Сырой ответ:', response.data);
+        console.log('Ответ получен. Статус:', response.status);
 
         const result = await xml2js.parseStringPromise(response.data);
 
@@ -214,7 +166,11 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
         const createOrder = result.neworder.createorder[0].$;
 
         if (createOrder.error === '0') {
-            console.log('Заказ в E-Kit успешно создан! Номер:', createOrder.orderno);
+            console.log('Заказ успешно создан!');
+            console.log('Номер заказа:', createOrder.orderno);
+            console.log('Баркод:', createOrder.barcode);
+            console.log('Стоимость:', createOrder.orderprice);
+
             return {
                 success: true,
                 ekitOrderNo: createOrder.orderno,
@@ -223,17 +179,23 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
             };
         } else {
             const errorMsg = createOrder.errormsgru || createOrder.errormsg || 'Неизвестная ошибка';
-            console.error('Ошибка API E-Kit:', { код: createOrder.error, сообщение: errorMsg });
-            throw new Error(`Ошибка API E-Kit (${createOrder.error}): ${errorMsg}`);
+            console.error('Ошибка API E-Kit:');
+            console.error('Код:', createOrder.error);
+            console.error('Сообщение:', errorMsg);
+
+            throw new Error(`E-Kit API error (${createOrder.error}): ${errorMsg}`);
         }
     } catch (error) {
         console.error('Не удалось создать заказ в E-Kit:', error instanceof Error ? error.message : String(error));
+
         if (process.env.NODE_ENV === 'development') {
             console.error('Отправленный XML:', xmlRequest);
         }
+
         throw error;
     }
 }
+
 
 export async function getOrderStatus(trackingNumber: string) {
     const authExtra = config.extra;

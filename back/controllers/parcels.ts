@@ -44,7 +44,7 @@ export const createParcel = async (
       deliveryType,
       partnerType,
       pvzData,
-      distributionCenter,
+      serviceCode,
     } = req.body;
 
     console.log('📦 ДЕТАЛЬНЫЙ АНАЛИЗ ДАННЫХ ПОСЫЛКИ:');
@@ -58,7 +58,6 @@ export const createParcel = async (
     console.log('   - Вес (weight):', weight);
     console.log('   - Тип доставки (deliveryType):', deliveryType);
     console.log('   - Тип партнёра (partnerType):', partnerType);
-    console.log('   - РЦ из запроса (distributionCenter):', distributionCenter || 'не указан');
     console.log('   - Оплачено (isPaid):', isPaid || false);
     console.log('   - Стикер получен (partnerStickerReceived):', partnerStickerReceived || false);
 
@@ -177,7 +176,7 @@ export const createParcel = async (
       status: "draft",
       deliveryType,
       partnerType,
-      distributionCenter: distributionCenter || '',
+          serviceCode: serviceCode || undefined,
     };
 
     if (originOffice !== undefined && originOffice !== null) {
@@ -203,28 +202,6 @@ export const createParcel = async (
         acceptcash: pvzData.acceptcash || 0,
         acceptcard: pvzData.acceptcard || 0,
       };
-
-      let determinedDC = '';
-      let determinedServiceCode = '';
-
-      if (pvzData.parentname) {
-        const parentnameUpper = pvzData.parentname.toUpperCase();
-        if (parentnameUpper.includes('ЕКБ')) {
-          determinedDC = 'ЕКБ';
-          determinedServiceCode = '15';
-        } else if (parentnameUpper.includes('МСК')) {
-          determinedDC = 'МСК';
-          determinedServiceCode = '14';
-        }
-        console.log(`Определено по parentname: "${pvzData.parentname}" -> ${determinedDC} (service: ${determinedServiceCode})`);
-      }
-
-      if (determinedDC) {
-        parcelData.distributionCenter = determinedDC;
-        parcelData.serviceCode = determinedServiceCode;
-      } else {
-        console.log(`Не удалось определить РЦ! parentname: "${pvzData.parentname}", parentcode: "${pvzData.parentcode}"`);
-      }
     }
 
     const newParcel = new Parcel(parcelData);
