@@ -22,6 +22,11 @@ export interface AdminEditing {
   password: string;
 }
 
+export interface AdminSelfEdit {
+  email: string;
+  password?: string;
+}
+
 export interface IParcel {
   _id: string;
   trackingNumber: string;
@@ -59,7 +64,15 @@ export interface IParcel {
   originOffice?: number;
   destinationOffice?: number;
   pvzData?: PvzData;
-  status: 'draft' | 'created' | 'accepted' | 'shipped' | 'in_country' | 'in_city' | 'at_pickup_point' | 'delivered';
+  status:
+    | 'draft'
+    | 'created'
+    | 'accepted'
+    | 'shipped'
+    | 'in_country'
+    | 'in_city'
+    | 'at_pickup_point'
+    | 'delivered';
   isPaid: boolean;
   partnerStickerReceived: boolean;
   weight: number;
