@@ -8,6 +8,7 @@ interface DeliveryStore {
   isPickup: boolean;
   modalSelectDeliveryVariant: boolean;
   calcModal: boolean;
+  deliveryType: 'pickup' | 'courier';
 
   openOrCloseModalSelectDeliveryVariant: (open: boolean) => void;
   selectDoorDelivery: () => void;
@@ -34,6 +35,7 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
   },
   selectedPrice: 0,
   totalCost: 0,
+  deliveryType: 'pickup',
 
   openOrCloseModalSelectDeliveryVariant: (open?: boolean) =>
     set({
@@ -46,6 +48,7 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
     set({
       isDoorDelivery: true,
       isPickup: false,
+      deliveryType: 'courier',
       modalSelectDeliveryVariant: false,
       calcModal: false,
     }),
@@ -54,6 +57,7 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
     set({
       isDoorDelivery: false,
       isPickup: true,
+      deliveryType: 'pickup',
       modalSelectDeliveryVariant: false,
       calcModal: false,
     }),
@@ -62,6 +66,7 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
     set({
       isDoorDelivery: false,
       isPickup: false,
+      deliveryType: 'pickup',
     }),
 
   fetchDeliveryCost: async (city: string, weight: number) => {

@@ -1,8 +1,14 @@
-import { type ChangeEvent, type FC, useEffect, useState, } from 'react';
+import { type ChangeEvent, type FC, useEffect, useState } from 'react';
 import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field.tsx';
 import TruckIconA from '@/features/deliveryCostCalculator/components/icons/TruckIconA.tsx';
 import TruckIconB from '@/features/deliveryCostCalculator/components/icons/TruckIconB.tsx';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select.tsx';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { AlertCircle, CheckCircle, Clock, HandCoins, Weight, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
@@ -11,49 +17,35 @@ import useFileStore from '@/stores/fileStore/fileStore.ts';
 import { useTranslation } from 'react-i18next';
 import { type UseFormReturn, useWatch } from 'react-hook-form';
 import type { OrderFormData } from '@/lib/order.schema.ts';
+import { useDeliveryStore } from '@/stores/deliveryStore/deliveryStore.ts';
 
 interface Props {
   form: UseFormReturn<OrderFormData>;
   handleNext: () => void;
 }
 
-const Step1Calculator: FC<Props> = ({handleNext, form}) => {
-  const {
-    citiesPVZ,
-    citiesHand,
-    getCities,
-    loadingCities
-  } = useFileStore();
+const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
+  const { citiesPVZ, citiesHand, getCities, loadingCities } = useFileStore();
+  const deliveryType = useDeliveryStore((state) => state.deliveryType);
+  console.log('🔍 Current deliveryType:', deliveryType);
   const [citySearch, setCitySearch] = useState({
     origin: '',
-    destination: ''
+    destination: '',
   });
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const {
     register,
     watch,
-    formState: {errors},
+    formState: { errors },
     setValue,
     trigger,
-    clearErrors
+    clearErrors,
   } = form;
 
-  const [
-    originCity,
-    destinationCity,
-    parcelValue,
-    parcelWeight,
-    deliveryType
-  ] = useWatch({
+  const [originCity, destinationCity, parcelValue, parcelWeight] = useWatch({
     control: form.control,
-    name: [
-      'originCity',
-      'destinationCity',
-      'parcelValue',
-      'parcelWeight',
-      'deliveryType'
-    ]
+    name: ['originCity', 'destinationCity', 'parcelValue', 'parcelWeight'],
   });
 
   const selectedPrice = watch('totalCost') || 0;
@@ -75,13 +67,88 @@ const Step1Calculator: FC<Props> = ({handleNext, form}) => {
   const parcelWeightNum = Number(parcelWeight || 0);
   const maxWeight = deliveryType === 'courier' ? 15 : 12;
   const isParcelWeightValid = parcelWeightNum > 0 && parcelWeightNum <= maxWeight;
-  const isNextDisabled = !!originCity && !!destinationCity && !!parcelValue && parcelValueNum > 0 && !!parcelWeight && parcelWeightNum > 0 && !(Object.keys(errors).length > 0);
+  const isNextDisabled =
+    !!originCity &&
+    !!destinationCity &&
+    !!parcelValue &&
+    parcelValueNum > 0 &&
+    !!parcelWeight &&
+    parcelWeightNum > 0 &&
+    !(Object.keys(errors).length > 0);
 
   const recipientCities = deliveryType === 'courier' ? citiesHand : citiesPVZ;
 
   const filteredDestinationCities = recipientCities.filter((c) =>
     c.city.toLowerCase().includes(citySearch.destination.toLowerCase()),
   );
+
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === 'parcelWeight' || name === undefined) {
+        const weight = value.parcelWeight || '';
+        const weightNum = parseFloat(weight);
+        const currentMax = deliveryType === 'courier' ? 15 : 12;
+        const typeText = t(`delivery.${deliveryType}`);
+
+        if (!isNaN(weightNum) && weightNum > 0) {
+          if (weightNum > currentMax) {
+            const errorMsg = t('deliveryCostCalculator.stepOneForm.maxWeightError', {
+              weight: currentMax,
+              type: typeText,
+            });
+
+            setTimeout(() => {
+              form.setError(
+                'parcelWeight',
+                {
+                  type: 'manual',
+                  message: errorMsg,
+                },
+                {
+                  shouldFocus: false,
+                },
+              );
+            }, 50);
+          } else {
+            form.clearErrors('parcelWeight');
+          }
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, deliveryType, form, t]);
+
+  useEffect(() => {
+    const weight = watch('parcelWeight');
+    const weightNum = parseFloat(weight);
+
+    if (!isNaN(weightNum) && weightNum > 0) {
+      const currentMax = deliveryType === 'courier' ? 15 : 12;
+      const typeText = t(`delivery.${deliveryType}`);
+
+      if (weightNum > currentMax) {
+        const errorMsg = t('deliveryCostCalculator.stepOneForm.maxWeightError', {
+          weight: currentMax,
+          type: typeText,
+        });
+
+        setTimeout(() => {
+          form.setError(
+            'parcelWeight',
+            {
+              type: 'manual',
+              message: errorMsg,
+            },
+            {
+              shouldFocus: false,
+            },
+          );
+        }, 50);
+      } else {
+        form.clearErrors('parcelWeight');
+      }
+    }
+  }, [deliveryType, watch, form, t]);
 
   const handleNextClick = async () => {
     if (!isNextDisabled) {
@@ -245,9 +312,6 @@ const Step1Calculator: FC<Props> = ({handleNext, form}) => {
                       <p>{errors.parcelValue.message}</p>
                     </div>
                   )}
-                  <div className="mt-1 text-red-500 text-xs sm:text-sm italic">
-                    {t('deliveryCostCalculator.stepOneForm.maxPrice')} - 50000 сом
-                  </div>
                 </Field>
                 <Field>
                   <div className="flex items-center">
@@ -269,27 +333,14 @@ const Step1Calculator: FC<Props> = ({handleNext, form}) => {
                           ? 'border-red-300'
                           : ''
                       }`}
-                      {...register('parcelWeight', {
-                        validate: (value) => {
-                          const weightNum = Number(value);
-                          if (isNaN(weightNum) || weightNum <= 0) {
-                            return t('deliveryCostCalculator.validateError.parcelWeight');
-                          }
-                          if (weightNum > maxWeight) {
-                            return t('deliveryCostCalculator.stepOneForm.maxWeight', {
-                              weight: maxWeight,
-                            });
-                          }
-                          return true;
-                        },
-                        onBlur: (e) => {
-                          const value = parseFloat(e.target.value);
-                          if (!isNaN(value)) {
-                            const rounded = Math.ceil(value);
-                            setValue('parcelWeight', String(rounded));
-                          }
-                        },
-                      })}
+                      {...register('parcelWeight')}
+                      onBlur={(e) => {
+                        const value = parseFloat(e.target.value);
+                        if (!isNaN(value)) {
+                          const rounded = Math.ceil(value);
+                          setValue('parcelWeight', String(rounded), { shouldValidate: true });
+                        }
+                      }}
                     />
                     <Weight
                       size={20}
@@ -302,9 +353,6 @@ const Step1Calculator: FC<Props> = ({handleNext, form}) => {
                       <p>{errors.parcelWeight.message}</p>
                     </div>
                   )}
-                  <div className="mt-1 text-red-500 text-xs sm:text-sm italic">
-                    {t('deliveryCostCalculator.stepOneForm.maxWeight')} - {maxWeight} кг
-                  </div>
                 </Field>
               </FieldGroup>
             </div>
