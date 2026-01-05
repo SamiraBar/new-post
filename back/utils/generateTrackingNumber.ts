@@ -1,7 +1,20 @@
-import { v4 as uuidv4 } from 'uuid';
+import Parcel from '../models/Parcel';
 
-export const generateTrackingNumber = (): string => {
-    const uuid = uuidv4().replace(/-/g, '').toUpperCase().substring(0, 10);
-    const randomDigits = Math.floor(100 + Math.random() * 900);
-    return `KGZ-${randomDigits}-${uuid}`;
+export const generateTrackingNumber = async (): Promise<string> => {
+    const lastParcel = await Parcel.findOne({
+        trackingNumber: /^KGZ-\d{6}$/
+    })
+        .sort({ trackingNumber: -1 })
+        .lean();
+
+    let nextNumber = 1;
+
+    if (lastParcel?.trackingNumber) {
+        const lastNumber = Number(
+            lastParcel.trackingNumber.replace('KGZ-', '')
+        );
+        nextNumber = lastNumber + 1;
+    }
+
+    return `KGZ-${String(nextNumber).padStart(6, '0')}`;
 };
