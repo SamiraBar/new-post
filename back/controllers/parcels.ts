@@ -45,7 +45,9 @@ export const createParcel = async (
       partnerType,
       pvzData,
       distributionCenter,
+      description,
     } = req.body;
+    console.log('Incoming request body:', req.body);
 
     console.log('📦 ДЕТАЛЬНЫЙ АНАЛИЗ ДАННЫХ ПОСЫЛКИ:');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -110,25 +112,12 @@ export const createParcel = async (
           .status(400)
           .json({ error: "Sender and recipient data are required" });
     }
-    if (
-        !sender.fullName ||
-        !sender.phoneNumber ||
-        !sender.email ||
-        !sender.description
-    ) {
-      return res
-          .status(400)
-          .json({ error: "Not all required sender fields are filled" });
+    if (!sender.fullName || !sender.phoneNumber || !sender.email) {
+      return res.status(400).json({ error: "Not all required sender fields are filled" });
     }
-    if (
-        !recipient.fullName ||
-        !recipient.phoneNumber ||
-        !recipient.email ||
-        !recipient.description
-    ) {
-      return res
-          .status(400)
-          .json({ error: "Not all required recipient fields are filled" });
+
+    if (!recipient.fullName || !recipient.phoneNumber || !recipient.email) {
+      return res.status(400).json({ error: "Not all required recipient fields are filled" });
     }
 
     const weightValue = parseFloat(weight);
@@ -167,6 +156,7 @@ export const createParcel = async (
     const parcelData: ParcelCreateData = {
       trackingNumber,
       partnerTrackingNumber,
+      description: description,
       sender: newSender._id as mongoose.Types.ObjectId,
       recipient: newRecipient._id as mongoose.Types.ObjectId,
       originCity,
@@ -179,6 +169,10 @@ export const createParcel = async (
       partnerType,
       distributionCenter: distributionCenter || '',
     };
+
+    if (!description) {
+      return res.status(400).json({ error: "Description is required" });
+    }
 
     if (originOffice !== undefined && originOffice !== null) {
       parcelData.originOffice = originOffice;
@@ -203,28 +197,6 @@ export const createParcel = async (
         acceptcash: pvzData.acceptcash || 0,
         acceptcard: pvzData.acceptcard || 0,
       };
-
-      let determinedDC = '';
-      let determinedServiceCode = '';
-
-      if (pvzData.parentname) {
-        const parentnameUpper = pvzData.parentname.toUpperCase();
-        if (parentnameUpper.includes('ЕКБ')) {
-          determinedDC = 'ЕКБ';
-          determinedServiceCode = '15';
-        } else if (parentnameUpper.includes('МСК')) {
-          determinedDC = 'МСК';
-          determinedServiceCode = '14';
-        }
-        console.log(`Определено по parentname: "${pvzData.parentname}" -> ${determinedDC} (service: ${determinedServiceCode})`);
-      }
-
-      if (determinedDC) {
-        parcelData.distributionCenter = determinedDC;
-        parcelData.serviceCode = determinedServiceCode;
-      } else {
-        console.log(`Не удалось определить РЦ! parentname: "${pvzData.parentname}", parentcode: "${pvzData.parentcode}"`);
-      }
     }
 
     const newParcel = new Parcel(parcelData);
@@ -446,6 +418,26 @@ export const updateParcelStatus = async (
           .json({ error: "Parcel with this tracking number not found" });
 
     parcel.status = status;
+
+    switch (status) {
+      case "draft":
+      case "created":
+        parcel.isPaid = false;
+        parcel.partnerStickerReceived = false;
+        break;
+      case "accepted":
+        parcel.isPaid = true;
+        parcel.partnerStickerReceived = true;
+        break;
+      case "shipped":
+      case "in_country":
+      case "in_city":
+      case "at_pickup_point":
+      case "delivered":
+        parcel.partnerStickerReceived = true;
+        break;
+    }
+
     await parcel.save();
 
     const freshParcel = await Parcel.findById(parcel._id)

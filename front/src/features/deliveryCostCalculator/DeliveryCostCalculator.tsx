@@ -42,14 +42,12 @@ const DeliveryCostCalculator = () => {
 
   const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
 
-  const schema = useMemo(
-    () => orderSchema(t),
-    [t]
-  );
+  const schema = useMemo(() => orderSchema(t), [t]);
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(schema),
     mode: 'onChange',
+    reValidateMode: 'onChange',
     defaultValues: {
       originCity: '',
       destinationCity: '',
@@ -68,13 +66,13 @@ const DeliveryCostCalculator = () => {
         name: '',
         email: '',
         phone: '',
-        inn_passport: ''
+        inn_passport: '',
       },
       receiver: {
         name: '',
         email: '',
         phone: '',
-        address: ''
+        address: '',
       },
       deliveryType: 'pickup',
       partnerType: 'E-Kit',
@@ -84,7 +82,7 @@ const DeliveryCostCalculator = () => {
   const {
     setValue,
     reset,
-    formState: {errors},
+    formState: { errors },
   } = form;
 
   const [destinationCity, pvzData, parcelWeight, parcelValue] = useWatch({
@@ -96,7 +94,6 @@ const DeliveryCostCalculator = () => {
     setValue('deliveryType', isPickup ? 'pickup' : 'courier');
     setValue('partnerType', isPickup ? 'E-Kit' : 'KCE');
   }, [isPickup, setValue]);
-
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
@@ -118,7 +115,9 @@ const DeliveryCostCalculator = () => {
       setValue('deliveryCost', delivery.totalCost, { shouldDirty: false });
       setValue('insuranceCost', insurance, { shouldDirty: false });
       setValue('totalCost', delivery.totalCost + insurance, { shouldDirty: false });
-      setValue('distributionCenter', isPickup ? (delivery.distributionCenter ?? '') : '', { shouldDirty: false });
+      setValue('distributionCenter', isPickup ? (delivery.distributionCenter ?? '') : '', {
+        shouldDirty: false,
+      });
 
       if (isPickup && delivery.distributionCenter) {
         const service = delivery.distributionCenter === 'ЕКБ' ? '15' : '14';
@@ -151,6 +150,7 @@ const DeliveryCostCalculator = () => {
       deliveryCost: Number(values.deliveryCost),
       insuranceCost: Number(values.insuranceCost),
       totalCost: Number(values.totalCost),
+      parcelDescription: values.inParcel || '',
     };
 
     const trackingNumber = await createParcel(orderPayload);
@@ -177,29 +177,38 @@ const DeliveryCostCalculator = () => {
     setCreatedTrackingNumber('');
   };
 
-
-  const step2 = useWatch({ control: form.control, name: 'originOffice', disabled: currentStep !== 2 });
+  const step2 = useWatch({
+    control: form.control,
+    name: 'originOffice',
+    disabled: currentStep !== 2,
+  });
 
   const step3Door = useWatch({
     control: form.control,
     name: ['receiver.city', 'destinationCity', 'receiver.street', 'receiver.house'],
-    disabled: currentStep !== 3 || !isDoorDelivery
+    disabled: currentStep !== 3 || !isDoorDelivery,
   });
 
   const step3Office = useWatch({
     control: form.control,
     name: 'destinationOffice',
-    disabled: currentStep !== 3 || isDoorDelivery
+    disabled: currentStep !== 3 || isDoorDelivery,
   });
 
   const step4 = useWatch({
     control: form.control,
     name: [
-      'sender.name', 'sender.email', 'sender.phone', 'sender.inn_passport',
-      'receiver.name', 'receiver.email', 'receiver.phone', 'receiver.address',
+      'sender.name',
+      'sender.email',
+      'sender.phone',
+      'sender.inn_passport',
+      'receiver.name',
+      'receiver.email',
+      'receiver.phone',
+      'receiver.address',
       'inParcel',
     ],
-    disabled: currentStep !== 4
+    disabled: currentStep !== 4,
   });
 
   const isNextDisabled = useMemo(() => {
@@ -207,16 +216,26 @@ const DeliveryCostCalculator = () => {
       case 2:
         return !step2 || !!errors.originOffice;
       case 3:
-          if (isDoorDelivery) {
-            const [city, dest, street, house] = step3Door;
-            return !city || !dest || !street || !house;
-          }
-          return !step3Office || !!errors.destinationOffice;
+        if (isDoorDelivery) {
+          const [city, dest, street, house] = step3Door;
+          return !city || !dest || !street || !house;
+        }
+        return !step3Office || !!errors.destinationOffice;
 
       case 4: {
         const [sName, sEmail, sPhone, sInn, rName, rEmail, rPhone, rAddr, inParcel] = step4;
 
-        if (!sName || !sEmail || !sPhone || !sInn || !rName || !rEmail || !rPhone || !inParcel || !isAgreed) {
+        if (
+          !sName ||
+          !sEmail ||
+          !sPhone ||
+          !sInn ||
+          !rName ||
+          !rEmail ||
+          !rPhone ||
+          !inParcel ||
+          !isAgreed
+        ) {
           return true;
         }
 
@@ -230,7 +249,6 @@ const DeliveryCostCalculator = () => {
     }
   }, [currentStep, step2, step3Door, step3Office, step4, isDoorDelivery, errors, isAgreed]);
 
-
   const handleNext = async () => {
     if (currentStep === 1) {
       if (!isDoorDelivery && !isPickup) openOrCloseCalcModal();
@@ -243,7 +261,12 @@ const DeliveryCostCalculator = () => {
       setCurrentStep(3);
     } else if (currentStep === 3) {
       if (isDoorDelivery) {
-        const valid = await form.trigger(['receiver.city', 'destinationCity', 'receiver.street', 'receiver.house']);
+        const valid = await form.trigger([
+          'receiver.city',
+          'destinationCity',
+          'receiver.street',
+          'receiver.house',
+        ]);
         if (!valid) {
           return;
         }
@@ -276,37 +299,19 @@ const DeliveryCostCalculator = () => {
   let steps: JSX.Element | null = null;
   switch (currentStep) {
     case 1:
-      steps = (
-        <Step1Calculator
-          form={form}
-          handleNext={handleNext}
-        />
-      );
+      steps = <Step1Calculator form={form} handleNext={handleNext} />;
       break;
     case 2:
-      steps = (
-        <Step2SenderOfficeSelection
-          form={form}
-        />
-      );
+      steps = <Step2SenderOfficeSelection form={form} />;
       break;
     case 3:
-      steps = (
-        <Step3RecipientOfficeSelection
-          form={form}
-        />
-      );
+      steps = <Step3RecipientOfficeSelection form={form} />;
       break;
     case 4:
-      steps = (
-        <Step4SenderRecipientForm
-          form={form}
-          doorDelivery={isDoorDelivery}
-        />
-      );
+      steps = <Step4SenderRecipientForm form={form} doorDelivery={isDoorDelivery} />;
       break;
     case 5:
-      steps = <Step5Review doorDelivery={isDoorDelivery} form={form}/>;
+      steps = <Step5Review doorDelivery={isDoorDelivery} form={form} />;
       break;
   }
 
@@ -323,34 +328,43 @@ const DeliveryCostCalculator = () => {
 
       <h3 className="text-xl font-medium text-center mb-4">{t('deliveryCostCalculator.title')}</h3>
 
-      <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
-        <p className="text-lg font-medium text-gray-700">{t('delivery.chooseType')}</p>
+      <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
+        <p className="text-lg font-medium text-gray-700 text-center">{t('delivery.chooseType')}</p>
+        <div className="flex gap-4 flex-nowrap">
+          <Button
+            onClick={selectPickup}
+            className={`
+        px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
+        active:scale-95 active:shadow-lg
+        ${
+          isPickup
+            ? 'bg-orange-500 text-white border-orange-500'
+            : 'bg-white text-orange-500 border-gray-300'
+        }
+        hover:bg-white hover:text-orange-500
+      `}
+            disabled={currentStep > 1}
+          >
+            {t('delivery.pickup')}
+          </Button>
 
-        <Button
-          onClick={selectPickup}
-          className={`
-            px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
-            active:scale-95 active:shadow-lg
-            ${isPickup ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
-            hover:bg-white hover:text-orange-500
-          `}
-          disabled={currentStep > 1}
-        >
-          {t('delivery.pickup')}
-        </Button>
-
-        <Button
-          onClick={selectDoorDelivery}
-          className={`
-            px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
-            active:scale-95 active:shadow-lg
-            ${isDoorDelivery ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-orange-500 border-gray-300'}
-            hover:bg-white hover:text-orange-500
-          `}
-          disabled={currentStep > 1}
-        >
-          {t('delivery.courier')}
-        </Button>
+          <Button
+            onClick={selectDoorDelivery}
+            className={`
+        px-6 py-2 rounded-xl border-2 transition-all duration-200 shadow-md
+        active:scale-95 active:shadow-lg
+        ${
+          isDoorDelivery
+            ? 'bg-orange-500 text-white border-orange-500'
+            : 'bg-white text-orange-500 border-gray-300'
+        }
+        hover:bg-white hover:text-orange-500
+      `}
+            disabled={currentStep > 1}
+          >
+            {t('delivery.courier')}
+          </Button>
+        </div>
       </div>
 
       <div className="p-2 sm:p-5 bg-yellow-50 rounded-lg">
