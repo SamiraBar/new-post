@@ -149,6 +149,7 @@ const ParcelStatus = ({
     setNewStatus(null);
   };
 
+  const CIRCLE_COL = '44px';
   const totalGridCols = steps.length * 2 - 1;
   const isLoading = editParcelStatusLoading || sendParcelToEKitLoading;
   const gridTemplateColumns = Array.from({ length: totalGridCols }, (_, i) =>

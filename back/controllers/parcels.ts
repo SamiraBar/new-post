@@ -117,11 +117,11 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       return res.status(400).json({ error: "Sender and recipient data are required" });
     }
 
-    if (!sender.fullName || !sender.phoneNumber || !sender.email || !sender.description) {
+    if (!sender.fullName || !sender.phoneNumber || !sender.email) {
       return res.status(400).json({ error: "Not all required sender fields are filled" });
     }
 
-    if (!recipient.fullName || !recipient.phoneNumber || !recipient.email || !recipient.description) {
+    if (!recipient.fullName || !recipient.phoneNumber || !recipient.email) {
       return res.status(400).json({ error: "Not all required recipient fields are filled" });
     }
 
