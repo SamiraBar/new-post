@@ -91,6 +91,74 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     Number(parcelWeight) > 0 &&
     Object.keys(errors).length === 0;
 
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === 'parcelWeight' || name === undefined) {
+        const weight = value.parcelWeight || '';
+        const weightNum = parseFloat(weight);
+        const currentMax = deliveryType === 'courier' ? 15 : 12;
+        const typeText = t(`delivery.${deliveryType}`);
+
+        if (!isNaN(weightNum) && weightNum > 0) {
+          if (weightNum > currentMax) {
+            const errorMsg = t('deliveryCostCalculator.stepOneForm.maxWeightError', {
+              weight: currentMax,
+              type: typeText,
+            });
+
+            setTimeout(() => {
+              form.setError(
+                'parcelWeight',
+                {
+                  type: 'manual',
+                  message: errorMsg,
+                },
+                {
+                  shouldFocus: false,
+                },
+              );
+            }, 50);
+          } else {
+            form.clearErrors('parcelWeight');
+          }
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, deliveryType, form, t]);
+
+  useEffect(() => {
+    const weight = watch('parcelWeight');
+    const weightNum = parseFloat(weight);
+
+    if (!isNaN(weightNum) && weightNum > 0) {
+      const currentMax = deliveryType === 'courier' ? 15 : 12;
+      const typeText = t(`delivery.${deliveryType}`);
+
+      if (weightNum > currentMax) {
+        const errorMsg = t('deliveryCostCalculator.stepOneForm.maxWeightError', {
+          weight: currentMax,
+          type: typeText,
+        });
+
+        setTimeout(() => {
+          form.setError(
+            'parcelWeight',
+            {
+              type: 'manual',
+              message: errorMsg,
+            },
+            {
+              shouldFocus: false,
+            },
+          );
+        }, 50);
+      } else {
+        form.clearErrors('parcelWeight');
+      }
+    }
+  }, [deliveryType, watch, form, t]);
+
   const handleNextClick = async () => {
     const valid = await trigger(['destinationCity', 'originCity', 'parcelWeight', 'parcelValue']);
     if (valid) handleNext();

@@ -3,12 +3,20 @@ import {IContact} from "../models/Contact";
 import axios from 'axios';
 import xml2js from 'xml2js';
 import {EKitOrderResult} from "../types";
+import PriceToPvz from "../models/ PriceToPvz";
 
 interface EKitConfig {
     extra: string;
     login: string;
     pass: string;
     apiUrl: string;
+}
+
+interface SenderInfo {
+    town: string;
+    address: string;
+    phone?: string;
+    service?: string;
 }
 
 const config: EKitConfig = {
@@ -32,158 +40,199 @@ function escapeXml(text: string): string {
         .replace(/'/g, '&apos;');
 }
 
-export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResult> {
-//     console.log('E-Kit auth check:', {
-//         extra: config.extra,
-//         login: config.login,
-//         pass: config.pass,
-//         apiUrl: config.apiUrl
-//     });
-//
-//     const authExtra = config.extra;
-//     const authLogin = config.login;
-//     const authPass = config.pass;
-//
-//     const sender = parcel.sender as IContact;
-//     const recipient = parcel.recipient as IContact;
-//
-//     let recipientAddress = '';
-//     let recipientCity = '';
-//
-//     if(parcel.deliveryType === 'courier') {
-//         recipientCity = recipient.city || parcel.destinationCity;
-//         const parts = [
-//             recipient.street,
-//             recipient.house ? `д. ${recipient.house}` : '',
-//             recipient.apartment ? `кв. ${recipient.apartment}` : '',
-//         ].filter(Boolean);
-//         recipientAddress = parts.length > 0 ? parts.join(', ') : recipient.address || 'Not selected';
-//     } else {
-//         recipientCity = parcel.pvzData?.town || parcel.destinationCity;
-//         recipientAddress = parcel.pvzData?.address || recipient.address || 'Not selected';
-//     }
-//     console.log('🔍 Проверка данных для XML:', {
-//         originCity: parcel.originCity,
-//         senderAddress: sender.address,
-//         senderFullName: sender.fullName,
-//         senderPhone: sender.phoneNumber
-//     });
-//     console.log('Проверяем код ПВЗ из parcel:', {
-//         pvzCodeFromParcel: parcel.pvzData?.code,
-//         pvzCodeWeWillSend: '261457'
-//     });
-//     let finalPvzCode = parcel.pvzData?.code;
-//
-//
-//     const xmlRequest = `<?xml version="1.0" encoding="UTF-8"?>
-// <neworder newfolder="YES">
-//   <auth extra="${authExtra}" login="${authLogin}" pass="${authPass}"></auth>
-//   <order orderno="${parcel.trackingNumber}">
-//     <respstore>8</respstore>
-//     <barcode>${parcel.trackingNumber}</barcode>
-//
-//     <sender>
-//       <company>Ваша компания (NewPost)</company>
-//       <person>Ваша компания (NewPost)</person>
-//       <phone>+79991234000</phone>
-//       <town>Москва</town>
-//       <address>МКАД 43км</address>
-//     </sender>
-//
-//     <receiver>
-//       <company>${escapeXml(recipient.fullName)}</company>
-//       <person>${escapeXml(recipient.fullName)}</person>
-//       <phone>${recipient.phoneNumber}</phone>
-//       <town>${escapeXml(recipientCity)}</town>
-//       <address>${escapeXml(recipientAddress)}</address>
-//       ${parcel.deliveryType === 'pickup' && parcel.pvzData ? `<pvz>${finalPvzCode}</pvz>` : ''}
-//     </receiver>
-//
-//     <price>0</price>
-//     <inshprice>0</inshprice>
-//     <weight>${parcel.weight}</weight>
-//     <quantity>1</quantity>
-//     <service>14</service>
-//     <type>3</type>
-//     <paytype>NO</paytype>
-//     <return>NO</return>
-//     <pickup>NO</pickup>
-//     <acceptpartially>NO</acceptpartially>
-//   </order>
-// </neworder>`;
-//
-//     console.log('Formed XML (first 200 chars):', xmlRequest.substring(0, 200));
-//     console.log('Полный XML с весом:', xmlRequest);
-//     try {
-//         console.log('📤 Sending order to E-Kit:', {
-//             trackingNumber: parcel.trackingNumber,
-//             deliveryType: parcel.deliveryType,
-//             pvzCode: parcel.pvzData?.code,
-//             recipientCity,
-//             recipientAddress,
-//         });
-//
-//         const response = await axios.post(config.apiUrl, xmlRequest, {
-//             headers: { 'Content-Type': 'application/xml' },
-//             timeout: 30000,
-//         });
-//
-//         console.log('Raw response status:', response.status);
-//         console.log('Raw response data:', response.data);
-//
-//         const result = await xml2js.parseStringPromise(response.data);
-//
-//         if (!result.neworder?.createorder?.[0]) {
-//             throw new Error('Invalid response structure from E-Kit');
-//         }
-//
-//         const createOrder = result.neworder.createorder[0].$;
-//
-//         if (createOrder.error === '0') {
-//             console.log('E-Kit order created successfully:', {
-//                 orderno: createOrder.orderno,
-//                 barcode: createOrder.barcode,
-//             });
-//
-//             return {
-//                 success: true,
-//                 ekitOrderNo: createOrder.orderno,
-//                 ekitBarcode: createOrder.barcode,
-//                 ekitOrderPrice: createOrder.orderprice,
-//             };
-//         } else {
-//             const errorMsg = createOrder.errormsgru || createOrder.errormsg || 'Unknown error';
-//             console.error('E-Kit API error:', {
-//                 code: createOrder.error,
-//                 message: errorMsg,
-//             });
-//
-//             throw new Error(`E-Kit API error (${createOrder.error}): ${errorMsg}`);
-//         }
-//     } catch (error) {
-//         if (error instanceof Error) {
-//             console.error('Failed to create order in E-Kit:', error.message);
-//         } else {
-//             console.error('Failed to create order in E-Kit:', String(error));
-//         }
-//
-//         if (process.env.NODE_ENV === 'development') {
-//             console.error('Request XML:', xmlRequest);
-//         }
-//
-//         throw error;
-//     }
-    console.log('🚫 [E-KIT API ЗАГЛУШКА АКТИВНА] Запрос к E-Kit был бы отправлен.');
-    console.log('   Трек-номер посылки:', parcel.trackingNumber);
-    console.log('   Тип доставки:', parcel.deliveryType);
-    console.log('   Город получателя:', parcel.destinationCity);
+async function getSenderInfo(parcel: IParcel): Promise<SenderInfo> {
+    try {
+        console.log('Поиск РЦ для города:', parcel.destinationCity);
+        const cityData = await PriceToPvz.findOne({
+            city: parcel.destinationCity
+        });
 
-    return {
-        success: true,
-        ekitOrderNo: 'MOCK-EKIT-' + parcel.trackingNumber,
-        ekitBarcode: 'MOCK-EKIT-' + parcel.trackingNumber,
-        ekitOrderPrice: '0',
-    };
+        if (cityData && cityData.distributionCenter === 'ЕКБ') {
+            console.log('Найден РЦ: Екатеринбург для города', parcel.destinationCity);
+            return {
+                town: 'Екатеринбург',
+                address: '8 Марта 269',
+                phone: '+79991234000',
+                service: '14'
+            };
+        }
+
+        console.log('РЦ не найден или это МСК. Использую Москву по умолчанию.');
+        return {
+            town: 'Москва',
+            address: 'МКАД 43км',
+            phone: '+79991234000',
+            service: '14'
+        };
+
+    } catch (error) {
+        console.error('Ошибка при поиске РЦ в БД:', error);
+        return {
+            town: 'Москва',
+            address: 'МКАД 43км',
+            phone: '+79991234000',
+            service: '14'
+        };
+    }
+}
+
+export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResult> {
+    console.log(' Начало создания заказа в E-Kit:');
+    console.log(' Базовая информация о посылке:');
+    console.log('  - Трек-номер:', parcel.trackingNumber);
+    console.log('  - Город назначения:', parcel.destinationCity);
+    console.log('  - Тип доставки:', parcel.deliveryType);
+    console.log('  - Вес посылки:', parcel.weight);
+    console.log('\n Данные о РЦ:');
+    console.log('  - Distribution Center из БД:', parcel.distributionCenter);
+    console.log('  - Service Code из формы:', parcel.serviceCode);
+
+    let serviceCode: '14' | '15' = '14';
+    let senderTown = 'Москва';
+    let senderAddress = 'МКАД 43км';
+
+    if (parcel.serviceCode) {
+        serviceCode = parcel.serviceCode;
+        if (serviceCode === '15') {
+            senderTown = 'Екатеринбург';
+            senderAddress = '8 Марта 269';
+        }
+    } else if (parcel.distributionCenter === 'ЕКБ') {
+        serviceCode = '15';
+        senderTown = 'Екатеринбург';
+        senderAddress = '8 Марта 269';
+    }
+
+    const authExtra = config.extra;
+    const authLogin = config.login;
+    const authPass = config.pass;
+
+    const sender = parcel.sender as IContact;
+    const recipient = parcel.recipient as IContact;
+
+    let recipientAddress = '';
+    let recipientCity = '';
+
+    if(parcel.deliveryType === 'courier') {
+        recipientCity = recipient.city || parcel.destinationCity;
+        const parts = [
+            recipient.street,
+            recipient.house ? `д. ${recipient.house}` : '',
+            recipient.apartment ? `кв. ${recipient.apartment}` : '',
+        ].filter(Boolean);
+        recipientAddress = parts.length > 0 ? parts.join(', ') : recipient.address || 'Not selected';
+    } else {
+        recipientCity = parcel.pvzData?.town || parcel.destinationCity;
+        recipientAddress = parcel.pvzData?.address || recipient.address || 'Not selected';
+    }
+
+    console.log('\n Данные ПВЗ:');
+    if (parcel.pvzData) {
+        console.log('  - Код ПВЗ:', parcel.pvzData.code);
+        console.log('  - Название:', parcel.pvzData.name);
+        console.log('  - Город:', parcel.pvzData.town);
+    }
+
+    console.log('\n Итоговое определение РЦ:');
+    console.log('  - Источник:', parcel.serviceCode ? 'serviceCode из формы' : 'distributionCenter из БД');
+    console.log('  - РЦ:', serviceCode === '15' ? 'ЕКБ' : 'МСК');
+    console.log('  - Service код:', serviceCode);
+    console.log('  - Город отправителя:', senderTown);
+    console.log('  - Адрес отправителя:', senderAddress);
+
+    console.log('\n Данные получателя:');
+    console.log('  - Имя:', recipient.fullName);
+    console.log('  - Город:', recipientCity);
+    console.log('  - Адрес:', recipientAddress);
+
+    const xmlRequest = `<?xml version="1.0" encoding="UTF-8"?>
+<neworder newfolder="YES">
+  <auth extra="${authExtra}" login="${authLogin}" pass="${authPass}"></auth>
+  <order orderno="${parcel.trackingNumber}">
+    <respstore>8</respstore>
+    <barcode>${parcel.trackingNumber}</barcode>
+
+    <sender>
+      <company>Ваша компания (NewPost)</company>
+      <person>Ваша компания (NewPost)</person>
+      <phone>${sender.phoneNumber}</phone>
+      <town>${senderTown}</town>
+      <address>${senderAddress}</address>
+    </sender>
+
+    <receiver>
+      <company>${escapeXml(recipient.fullName)}</company>
+      <person>${escapeXml(recipient.fullName)}</person>
+      <phone>${recipient.phoneNumber}</phone>
+      <town>${escapeXml(recipientCity)}</town>
+      <address>${escapeXml(recipientAddress)}</address>
+      ${parcel.deliveryType === 'pickup' && parcel.pvzData ? `<pvz>${parcel.pvzData.code}</pvz>` : ''}
+    </receiver>
+
+    <price>0</price>
+    <inshprice>0</inshprice>
+    <weight>${parcel.weight}</weight>
+    <quantity>1</quantity>
+    <service>${serviceCode}</service> 
+    <type>3</type>
+    <paytype>NO</paytype>
+    <return>NO</return>
+    <pickup>NO</pickup>
+    <acceptpartially>NO</acceptpartially>
+  </order>
+</neworder>`;
+
+    console.log('\n XML для отправки в E-Kit (первые 1500 символов):');
+    console.log('━'.repeat(80));
+    console.log(xmlRequest.substring(0, 1500));
+    console.log('━'.repeat(80));
+
+    console.log('\n КЛЮЧЕВЫЕ ПОЛЯ:');
+    console.log('  <service>' + serviceCode + '</service>  ← 15=ЕКБ, 14=МСК');
+    console.log('  <town>' + senderTown + '</town>  ← Город РЦ');
+    console.log('  <address>' + senderAddress + '</address>  ← Адрес РЦ');
+    if (parcel.pvzData) {
+        console.log('  <pvz>' + parcel.pvzData.code + '</pvz>  ← Код ПВЗ');
+    }
+
+    try {
+        console.log('\n Отправляю заказ в E-Kit...');
+        const response = await axios.post(config.apiUrl, xmlRequest, {
+            headers: { 'Content-Type': 'application/xml' },
+            timeout: 50000,
+        });
+
+        console.log('Ответ от E-Kit получен. Статус:', response.status);
+        console.log('Сырой ответ:', response.data);
+
+        const result = await xml2js.parseStringPromise(response.data);
+
+        if (!result.neworder?.createorder?.[0]) {
+            throw new Error('Неверная структура ответа от E-Kit');
+        }
+
+        const createOrder = result.neworder.createorder[0].$;
+
+        if (createOrder.error === '0') {
+            console.log('Заказ в E-Kit успешно создан! Номер:', createOrder.orderno);
+            return {
+                success: true,
+                ekitOrderNo: createOrder.orderno,
+                ekitBarcode: createOrder.barcode,
+                ekitOrderPrice: createOrder.orderprice,
+            };
+        } else {
+            const errorMsg = createOrder.errormsgru || createOrder.errormsg || 'Неизвестная ошибка';
+            console.error('Ошибка API E-Kit:', { код: createOrder.error, сообщение: errorMsg });
+            throw new Error(`Ошибка API E-Kit (${createOrder.error}): ${errorMsg}`);
+        }
+    } catch (error) {
+        console.error('Не удалось создать заказ в E-Kit:', error instanceof Error ? error.message : String(error));
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Отправленный XML:', xmlRequest);
+        }
+        throw error;
+    }
 }
 
 export async function getOrderStatus(trackingNumber: string) {

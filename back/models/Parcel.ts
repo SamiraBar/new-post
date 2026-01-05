@@ -25,7 +25,7 @@ export interface IParcel extends mongoose.Document {
     weight: number;
     deliveryType?: "courier" | "pickup";
     partnerType?: "E-Kit" | "KCE";
-
+    description?: string;
     pvzData?: IPvzData;
 
     senderFullName?: string;
@@ -40,6 +40,7 @@ export interface IParcel extends mongoose.Document {
     inCityAt?: Date;
     atPickupPointAt?: Date;
     deliveredAt?: Date;
+    distributionCenter?: string;
 
     draftedAtFormatted?: string;
     createdAtFormatted?: string;
@@ -49,6 +50,7 @@ export interface IParcel extends mongoose.Document {
     inCityAtFormatted?: string;
     atPickupPointAtFormatted?: string;
     deliveredAtFormatted?: string;
+    serviceCode?: '14' | '15';
 }
 
 const PvzDataSchema = new Schema({
@@ -116,6 +118,10 @@ const ParcelSchema = new Schema(
         partnerTrackingNumber: {
             type: String,
             default: null,
+        },
+        description: {
+            type: String,
+            required: true
         },
         deliveryType: {
             type: String,
@@ -198,6 +204,15 @@ const ParcelSchema = new Schema(
             required: [true, "Weight is required"],
             min: [0.1, "Weight must be greater than 0"],
         },
+        distributionCenter: {
+            type: String,
+            default: '',
+        },
+        serviceCode: {
+            type: String,
+            enum: ['14', '15'],
+            default: null,
+        },
         draftedAt: {
             type: Date,
             default: Date.now,
@@ -229,11 +244,7 @@ const ParcelSchema = new Schema(
         deliveredAt: {
             type: Date,
             default: null,
-        },
-        distributionCenter: {
-            type: String,
-            default: '',
-        },
+        }
     },
     {
         timestamps: false,
