@@ -10,3 +10,5 @@ export const offices = [
   { id: 5, name: 'Офис Нарын', address: 'ул. Ленина 23' },
   { id: 6, name: 'Офис Джалал-Абад', address: 'ул. Токтогула 78' },
 ];
+
+export const TRACKING_REGEX = /^KGZ-\d{6}$/;
