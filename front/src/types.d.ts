@@ -22,6 +22,11 @@ export interface AdminEditing {
   password: string;
 }
 
+export interface AdminSelfEdit {
+  email: string;
+  password?: string;
+}
+
 export interface IParcel {
   _id: string;
   trackingNumber: string;
