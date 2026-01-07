@@ -1,20 +1,19 @@
-import Parcel from '../models/Parcel';
+import Parcel from "../models/Parcel";
 
-export const generateTrackingNumber = async (): Promise<string> => {
-    const lastParcel = await Parcel.findOne({
-        trackingNumber: /^KGZ-\d{6}$/
-    })
+export async function generateTrackingNumber(): Promise<string> {
+    const lastParcel = await Parcel
+        .findOne({ trackingNumber: /^KGZ-\d{6}$/ })
         .sort({ trackingNumber: -1 })
+        .select("trackingNumber")
         .lean();
 
     let nextNumber = 1;
 
     if (lastParcel?.trackingNumber) {
-        const lastNumber = Number(
-            lastParcel.trackingNumber.replace('KGZ-', '')
-        );
-        nextNumber = lastNumber + 1;
+        const numericPart = Number(lastParcel.trackingNumber.replace("KGZ-", ""));
+        nextNumber = numericPart + 1;
     }
 
-    return `KGZ-${String(nextNumber).padStart(6, '0')}`;
-};
+    const padded = String(nextNumber).padStart(6, "0");
+    return `KGZ-${padded}`;
+}

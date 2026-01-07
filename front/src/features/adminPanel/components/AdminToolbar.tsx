@@ -20,7 +20,6 @@ import {
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore';
 import { toast } from 'sonner';
 import { useBarcodeScanner } from './hooks/useBarcodeScanner';
-import { TRACKING_REGEX } from '@/constants.ts';
 
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -95,8 +94,8 @@ export const AdminToolbar = () => {
 
   const trackingChangeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
     if (value.length > 10) return;
-    if (!/^KGZ-[0-9]*$/i.test(value) && value !== '') return;
 
     setSearch((prev) => ({ ...prev, [name]: value.toUpperCase() }));
   }, []);
@@ -109,13 +108,11 @@ export const AdminToolbar = () => {
   const handleTrackingKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
-        const value = e.currentTarget.value.trim().toUpperCase();
-        if (!TRACKING_REGEX.test(value)) {
-          toast.error('Неверный формат трек-номера. Используйте KGZ-000001');
-          return;
-        }
-
-        setSearchFilters({ trackingNumber: value, sender: '', recipient: '' });
+        setSearchFilters({
+          trackingNumber: e.currentTarget.value.trim(),
+          sender: '',
+          recipient: '',
+        });
       }
     },
     [setSearchFilters],

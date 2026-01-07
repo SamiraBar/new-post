@@ -312,16 +312,11 @@ export const getParcels = async (
         req.query.trackingNumber &&
         typeof req.query.trackingNumber === "string"
     ) {
-      const trimmed = req.query.trackingNumber.trim();
-      const trackingRegex = /^KGZ-\d{6}$/;
+      const value = req.query.trackingNumber.trim();
 
-      if (!trackingRegex.test(trimmed)) {
-        return res.status(400).json({
-          error: "Invalid tracking number format. Expected KGZ-000001",
-        });
+      if (value !== "") {
+        query.trackingNumber = new RegExp(value, "i");
       }
-
-      query.trackingNumber = new RegExp(req.query.trackingNumber.trim(), "i");
     }
 
     if (
