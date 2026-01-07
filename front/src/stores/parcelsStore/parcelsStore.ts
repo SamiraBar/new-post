@@ -322,6 +322,7 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         parcel: IParcel;
         trackingNumber: string;
         warning?: string;
+        emailNotificationTriggered?: boolean;
       }>('/parcels', parcelData);
 
       if (data.warning) {
@@ -333,6 +334,18 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         parcel: data.parcel,
         createdTrackingNumber: data.trackingNumber,
       });
+
+      const { toast } = await import('sonner');
+
+      if (data.emailNotificationTriggered) {
+        toast.success('Письмо отправлено отправителю', {
+          description: `Email: ${order.sender.email}\nГород: ${order.destinationCity}\nТрек-номер: ${data.trackingNumber}`,
+        });
+      } else {
+        toast.success('Посылка создана', {
+          description: `Трек-номер: ${data.trackingNumber}`,
+        });
+      }
 
       return data.trackingNumber;
     } catch (e: unknown) {
