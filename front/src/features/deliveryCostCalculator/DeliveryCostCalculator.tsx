@@ -118,6 +118,8 @@ const DeliveryCostCalculator = () => {
       setValue('deliveryCost', delivery.totalCost, { shouldDirty: false });
       setValue('insuranceCost', insurance, { shouldDirty: false });
       setValue('totalCost', delivery.totalCost + insurance, { shouldDirty: false });
+      setValue('distributionCenter', isPickup ? (delivery.distributionCenter ?? '') : '', { shouldDirty: false });
+
     };
 
     void calculatePrices();
@@ -129,6 +131,7 @@ const DeliveryCostCalculator = () => {
     fetchDeliveryCost,
     calculateInsuranceCost,
     setValue,
+    isPickup,
   ]);
 
   const handleSubmit = async (e: FormEvent) => {
