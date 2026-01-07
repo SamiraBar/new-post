@@ -1,5 +1,13 @@
 import express from "express";
-import { adminCreate, adminDelete, adminEdit, adminLogin, adminLogout, allAdmins } from '../controllers/admin';
+import {
+  adminCreate,
+  adminDelete,
+  adminEdit,
+  adminEditSelf,
+  adminLogin,
+  adminLogout,
+  allAdmins,
+} from "../controllers/admin";
 import auth from "../middleware/auth";
 import permit from "../middleware/permit";
 
@@ -10,6 +18,7 @@ adminsRouter.post("/", adminLogin);
 adminsRouter.post("/create", auth, permit("superAdmin"), adminCreate);
 adminsRouter.delete("/:id", auth, permit("superAdmin"), adminDelete);
 adminsRouter.patch("/:id", auth, permit("superAdmin"), adminEdit);
-adminsRouter.delete('/', adminLogout);
+adminsRouter.patch("/profile/me", auth, permit("superAdmin"), adminEditSelf);
+adminsRouter.delete("/", adminLogout);
 
 export default adminsRouter;
