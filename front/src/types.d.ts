@@ -22,9 +22,15 @@ export interface AdminEditing {
   password: string;
 }
 
+export interface AdminSelfEdit {
+  email: string;
+  password?: string;
+}
+
 export interface IParcel {
   _id: string;
   trackingNumber: string;
+  description: string;
   partnerTrackingNumber?: string;
   deliveryType: DeliveryType;
   partnerType: 'E-Kit' | 'KCE';
@@ -59,7 +65,15 @@ export interface IParcel {
   originOffice?: number;
   destinationOffice?: number;
   pvzData?: PvzData;
-  status: 'draft' | 'created' | 'accepted' | 'shipped' | 'in_country' | 'in_city' | 'at_pickup_point' | 'delivered';
+  status:
+    | 'draft'
+    | 'created'
+    | 'accepted'
+    | 'shipped'
+    | 'in_country'
+    | 'in_city'
+    | 'at_pickup_point'
+    | 'delivered';
   isPaid: boolean;
   partnerStickerReceived: boolean;
   weight: number;
@@ -73,29 +87,14 @@ export interface IParcel {
   deliveredAt?: string;
 }
 
-export interface IContact {
-  _id: string;
-  fullName: string;
-  phoneNumber: string;
-  email: string;
-  address: string;
-  description?: string;
-  type: 'sender' | 'recipient';
-  createdAt: Date;
-  city?: string;
-  street?: string;
-  house?: string;
-  apartment?: string;
-}
-
 export interface CreateParcelData {
   partnerTrackingNumber: string | null;
+  description: string;
   distributionCenter?: string;
   sender: {
     fullName: string;
     phoneNumber: string;
     email: string;
-    description: string;
     address: string;
     city?: string;
     inn_passport: string;
@@ -105,7 +104,6 @@ export interface CreateParcelData {
     phoneNumber: string;
     email: string;
     address: string;
-    description: string;
     city: string;
     street?: string;
     house?: string;
@@ -172,6 +170,7 @@ export interface Order {
   deliveryType: DeliveryType;
   partnerType: PartnerType;
   pvzData?: PvzData;
+  parcelDescription?: string;
 }
 
 export interface PvzData {

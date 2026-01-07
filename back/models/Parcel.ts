@@ -25,7 +25,7 @@ export interface IParcel extends mongoose.Document {
     weight: number;
     deliveryType?: "courier" | "pickup";
     partnerType?: "E-Kit" | "KCE";
-
+    description?: string;
     pvzData?: IPvzData;
 
     senderFullName?: string;
@@ -119,6 +119,10 @@ const ParcelSchema = new Schema(
         partnerTrackingNumber: {
             type: String,
             default: null,
+        },
+        description: {
+            type: String,
+            required: true
         },
         deliveryType: {
             type: String,

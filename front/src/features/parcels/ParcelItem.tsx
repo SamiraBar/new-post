@@ -23,6 +23,7 @@ import icCalendar from '../../assets/images/calendar-clock.svg';
 import { useNavigate } from 'react-router-dom';
 import PrintStickerModal from './admin/PrintStickerModal';
 import { useState } from 'react';
+import { getIconsVisibility } from '../.././utils/getIconsVisibility.ts'
 
 const steps = [
   { icon: <FileText size={25} />, statusValue: 'draft' },
@@ -65,6 +66,12 @@ const ParcelItem = ({ parcel }: Props) => {
     setStickerType(type);
     setIsPrintModalOpen(true);
   };
+
+  const { showPaidIcon, showPartnerStickerIcon } = getIconsVisibility(
+    status,
+    isPaid,
+    partnerStickerReceived,
+  );
 
   return (
     <>
@@ -143,16 +150,22 @@ const ParcelItem = ({ parcel }: Props) => {
               </div>
 
               <div className="flex justify-between md:justify-end gap-4 md:col-span-5 md:flex-row sm:flex-col lg:items-center">
-                {isPaid && (
+                {(showPaidIcon || showPartnerStickerIcon) && (
                   <div className="flex items-center gap-2">
-                    <div className="relative group">
-                      <img src={icBanknote} alt="Banknote icon" className="w-8 h-8 md:w-9 md:h-9" />
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                        Оплачено
+                    {showPaidIcon && (
+                      <div className="relative group">
+                        <img
+                          src={icBanknote}
+                          alt="Banknote icon"
+                          className="w-8 h-8 md:w-9 md:h-9"
+                        />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                          Оплачено
+                        </div>
                       </div>
-                    </div>
+                    )}
 
-                    {partnerStickerReceived && (
+                    {showPartnerStickerIcon && (
                       <div className="relative group">
                         <button
                           onClick={(e) => {
@@ -185,7 +198,6 @@ const ParcelItem = ({ parcel }: Props) => {
                     </div>
                   </div>
                 )}
-
                 <div className="flex gap-4 items-center">
                   <div className="flex gap-2 items-center">
                     <img src={icWeight} alt="Weight icon" className="w-5 h-5" />
