@@ -50,6 +50,7 @@ const ParcelDetails = () => {
       </Link>
       <div className="mt-10">
         <ParcelStatus
+          parcelId={parcel._id}
           status={parcel.status}
           trackingNumber={parcel.trackingNumber}
           draftedAt={parcel.draftedAt}

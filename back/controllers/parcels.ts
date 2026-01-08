@@ -269,30 +269,43 @@ export const sendToEKIT = async (
       });
     }
 
-    if (parcel.status === 'created' && parcel.partnerTrackingNumber) {
+    if (parcel.partnerTrackingNumber) {
       return res.status(400).json({
         success: false,
-        error: "Parcel already sent to E-Kit"
+        error: "Parcel already sent to E-Kit",
+        ekitTracking: parcel.partnerTrackingNumber,
       });
     }
 
-    const ekitResult = await createOrderInEKit(parcel);
+    let ekitWarning: string | undefined;
 
-    parcel.partnerTrackingNumber = ekitResult.ekitBarcode;
-    parcel.status = 'created';
-    await parcel.save();
+    try {
+      const ekitResult = await createOrderInEKit(parcel);
 
-    res.json({
-      success: true,
-      message: "Parcel successfully sent to E-Kit",
-      ekitOrderNo: ekitResult.ekitOrderNo,
-      ekitBarcode: ekitResult.ekitBarcode,
-    });
+      parcel.partnerTrackingNumber = ekitResult.ekitBarcode;
 
+      await parcel.save();
+
+      return res.json({
+        success: true,
+        message: "Parcel successfully sent to E-Kit",
+        ekitOrderNo: ekitResult.ekitOrderNo,
+        ekitBarcode: ekitResult.ekitBarcode,
+      });
+    } catch (ekitError: any) {
+      ekitWarning = ekitError?.message ? String(ekitError.message) : "Unknown E-Kit error";
+
+      return res.status(502).json({
+        success: false,
+        message: "E-Kit sync failed. Manual processing required.",
+        warning: ekitWarning,
+      });
+    }
   } catch (e) {
     next(e);
   }
 };
+
 
 export const getParcels = async (
     req: Request,

@@ -89,6 +89,7 @@ const steps: StatusStep[] = [
 ];
 
 interface ParcelStatusProps {
+  parcelId: string;
   status: string;
   trackingNumber: string;
   draftedAt?: string;
@@ -104,11 +105,12 @@ const ParcelStatus = ({
   createdAt,
   acceptedAt,
   shippedAt,
+  parcelId,
 }: ParcelStatusProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newStatus, setNewStatus] = useState<string | null>(null);
   const [pulsingStep, setPulsingStep] = useState<number | null>(null);
-  const { editParcelStatus, editParcelStatusLoading, sendParcelToEKit, sendParcelToEKitLoading} = useParcelsStore();
+  const { editParcelStatus, editParcelStatusLoading, sendParcelToEKit, sendParcelToEKitLoading, getParcelById } = useParcelsStore();
 
 
   const getCurrentStep = (statusValue: string) => {
@@ -140,6 +142,7 @@ const ParcelStatus = ({
 
       if (result.success) {
         toast.success('Посылка успешно отправлена в E-Kit');
+        await getParcelById(parcelId);
       } else {
         toast.error(`Ошибка отправки в E-Kit: ${result.message}`);
       }
