@@ -135,7 +135,7 @@ const ParcelStatus = ({
     if (!newStatus || !trackingNumber) return;
     await editParcelStatus(trackingNumber, newStatus);
 
-    if (newStatus === 'created') {
+    if (newStatus === 'accepted') {
       const result = await sendParcelToEKit(trackingNumber);
 
       if (result.success) {

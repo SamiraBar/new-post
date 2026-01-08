@@ -227,33 +227,6 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
     const newParcel = new Parcel(parcelData);
     await newParcel.save();
 
-    let ekitWarning: string | undefined;
-
-    if (partnerType === "E-Kit") {
-      try {
-        const populatedParcel = await Parcel.findById(newParcel._id)
-            .populate("sender")
-            .populate("recipient");
-
-        if (!populatedParcel) {
-          throw new Error("Failed to populate parcel data");
-        }
-
-        const ekitResult = await createOrderInEKit(populatedParcel);
-
-        newParcel.partnerTrackingNumber = ekitResult.ekitBarcode;
-        newParcel.status = "created";
-        await newParcel.save();
-      } catch (ekitError: any) {
-        console.error("E-Kit sync failed:", ekitError.message);
-
-        newParcel.status = "draft";
-        await newParcel.save();
-
-        ekitWarning = `Order created but E-Kit sync failed: ${ekitError.message}. Manual processing required.`;
-      }
-    }
-
     const populatedParcel = await Parcel.findById(newParcel._id)
         .populate("sender")
         .populate("recipient");
@@ -263,8 +236,6 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       parcel: populatedParcel,
       trackingNumber,
     };
-
-    if (ekitWarning) response.warning = ekitWarning;
 
     res.status(201).json(response);
   } catch (e) {
