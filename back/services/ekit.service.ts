@@ -3,7 +3,6 @@ import {IContact} from "../models/Contact";
 import axios from 'axios';
 import xml2js from 'xml2js';
 import {EKitOrderResult} from "../types";
-import PriceToPvz from "../models/ PriceToPvz";
 
 interface EKitConfig {
     extra: string;
@@ -40,41 +39,27 @@ function escapeXml(text: string): string {
         .replace(/'/g, '&apos;');
 }
 
-async function getSenderInfo(parcel: IParcel): Promise<SenderInfo> {
-    try {
-        console.log('Поиск РЦ для города:', parcel.destinationCity);
-        const cityData = await PriceToPvz.findOne({
-            city: parcel.destinationCity
-        });
+function resolveDistributionCenter(parcel: IParcel): {
+    serviceCode: '14' | '15';
+    senderTown: string;
+    senderAddress: string;
+} {
+    let serviceCode: '14' | '15' = '14';
+    let senderTown = 'Москва';
+    let senderAddress = 'МКАД 43км';
 
-        if (cityData && cityData.distributionCenter === 'ЕКБ') {
-            console.log('Найден РЦ: Екатеринбург для города', parcel.destinationCity);
-            return {
-                town: 'Екатеринбург',
-                address: '8 Марта 269',
-                phone: '+79991234000',
-                service: '14'
-            };
-        }
-
-        console.log('РЦ не найден или это МСК. Использую Москву по умолчанию.');
-        return {
-            town: 'Москва',
-            address: 'МКАД 43км',
-            phone: '+79991234000',
-            service: '14'
-        };
-
-    } catch (error) {
-        console.error('Ошибка при поиске РЦ в БД:', error);
-        return {
-            town: 'Москва',
-            address: 'МКАД 43км',
-            phone: '+79991234000',
-            service: '14'
-        };
+    if (parcel.pvzData?.parentcode === '2495') {
+        serviceCode = '15';
+        senderTown = 'Екатеринбург';
+        senderAddress = '8 Марта 269';
+        console.log('ParentCode 2495 → ЕКБ (service 15)');
+    } else {
+        console.log('ParentCode', parcel.pvzData?.parentcode, '→ МСК (service 14)');
     }
+
+    return { serviceCode, senderTown, senderAddress };
 }
+
 
 export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResult> {
     console.log(' Начало создания заказа в E-Kit:');
@@ -86,22 +71,10 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     console.log('\n Данные о РЦ:');
     console.log('  - Distribution Center из БД:', parcel.distributionCenter);
     console.log('  - Service Code из формы:', parcel.serviceCode);
+    console.log('  - ParentCode:', parcel.pvzData?.parentcode);
 
-    let serviceCode: '14' | '15' = '14';
-    let senderTown = 'Москва';
-    let senderAddress = 'МКАД 43км';
 
-    if (parcel.serviceCode) {
-        serviceCode = parcel.serviceCode;
-        if (serviceCode === '15') {
-            senderTown = 'Екатеринбург';
-            senderAddress = '8 Марта 269';
-        }
-    } else if (parcel.distributionCenter === 'ЕКБ') {
-        serviceCode = '15';
-        senderTown = 'Екатеринбург';
-        senderAddress = '8 Марта 269';
-    }
+    const { serviceCode, senderTown, senderAddress } = resolveDistributionCenter(parcel);
 
     const authExtra = config.extra;
     const authLogin = config.login;

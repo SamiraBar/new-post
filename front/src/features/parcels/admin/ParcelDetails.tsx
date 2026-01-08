@@ -50,6 +50,7 @@ const ParcelDetails = () => {
       </Link>
       <div className="mt-10">
         <ParcelStatus
+          parcelId={parcel._id}
           status={parcel.status}
           trackingNumber={parcel.trackingNumber}
           draftedAt={parcel.draftedAt}
@@ -67,7 +68,7 @@ const ParcelDetails = () => {
                 ['Трек Номер Новая Почта', parcel.trackingNumber],
                 ['Дата создания', new Date(parcel.draftedAt).toLocaleString()],
                 ['Дата оплаты', parcel.isPaid ? 'Оплачено' : 'Не оплачено'],
-                ...(parcel.deliveryType === 'pickup' ? [['РЦ', parcel.distributionCenter]] : []),
+                ...(parcel.deliveryType === 'pickup' ? [['РЦ', parcel.serviceCity]] : []),
               ].map(([label, value], i) => (
                 <div
                   key={i}
@@ -277,12 +278,12 @@ const ParcelDetails = () => {
                 <span>{parcel.recipient.address || 'Адрес не указан'}</span>
               </div>
 
-              {parcel.partnerStickerReceived && (
+              {parcel.description && (
                 <div className="bg-gray-100 rounded-md mt-4 p-4 flex items-start gap-3">
                   <Package className="text-gray-600 shrink-0 mt-1" size={20} />
                   <div>
                     <p className="font-semibold text-gray-900">Вложение посылки</p>
-                    <p className="text-gray-700">Одежда, джинсы, термос, мед, сухофрукты, орехи</p>
+                    <p className="text-gray-700">{parcel.description}</p>
                   </div>
                 </div>
               )}

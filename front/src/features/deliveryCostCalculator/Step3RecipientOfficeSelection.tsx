@@ -41,15 +41,14 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
     console.log('  - 🔑 ParentCode:', pvzData.parentcode);
     console.log('  - 📍 ParentName:', pvzData.parentname);
 
-    const currentDistributionCenter = getValues('distributionCenter');
-
-    console.log('  - 📦 Текущий РЦ из формы:', currentDistributionCenter);
-
     let serviceCode: '14' | '15' = '14';
+    let serviceCity: 'МСК' | 'ЕКБ' = 'МСК';
 
-    if (currentDistributionCenter === 'ЕКБ') {
+    if (pvzData.parentcode === '2495') {
       serviceCode = '15';
+      serviceCity = 'ЕКБ'
     }
+
 
     console.log('  - 🚚 Service код:', serviceCode);
     console.log('  - 🚚 Service код для E-Kit:', serviceCode);
@@ -61,6 +60,7 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
     setValue('destinationOffice', parseInt(pvzData.code) || 0);
     setValue('destinationCity', normalizedCity || getValues('destinationCity'));
     setValue('serviceCode', serviceCode);
+    setValue('serviceCity', serviceCity);
     setValue('receiver', {
       ...getValues('receiver'),
       city: normalizedCity || getValues('receiver.city'),

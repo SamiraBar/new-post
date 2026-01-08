@@ -7,6 +7,7 @@ import AdminModeration from '@/features/adminPanel/AdminModeration.tsx';
 import ParcelDetails from './features/parcels/admin/ParcelDetails';
 import AdminSiteContent from '@/features/adminPanel/AdminSiteContent.tsx';
 import OfficesList from '@/features/offices/OfficesList.tsx';
+import AdminProfileEdit from '@/features/adminPanel/components/AdminProfileEdit.tsx';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
           <Route path="admin/moderation" element={<AdminModeration />} />
           <Route path="/admin/site-content" element={<AdminSiteContent />} />
           <Route path="/admin/offices" element={<OfficesList />} />
+          <Route path="/admin/profile" element={<AdminProfileEdit />} />
           <Route path="parcels/:id" element={<ParcelDetails />} />
         </Routes>
       </BrowserRouter>

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import axiosApi from '@/axiosApi.ts';
 import type { AdminState } from '@/stores/adminStore/types.ts';
-import type { Admin, AdminEditing, AdminMutation } from '@/types';
+import type { Admin, AdminEditing, AdminMutation, AdminSelfEdit } from '@/types';
 import axios, { isAxiosError } from 'axios';
 import { persist } from 'zustand/middleware';
 
@@ -14,6 +14,7 @@ export const useAdminStore = create<AdminState>()(
       loginError: null,
       createAdminError: null,
       editAdminError: null,
+      editSelfError: null,
 
       async login(data) {
         try {
@@ -70,8 +71,7 @@ export const useAdminStore = create<AdminState>()(
 
         try {
           await axiosApi.delete('/admins/');
-        } catch {
-        }
+        } catch {}
       },
 
       async editAdmin(data: AdminEditing) {
@@ -87,6 +87,31 @@ export const useAdminStore = create<AdminState>()(
           if (isAxiosError(e)) {
             const errors = e.response?.data?.error?.message || e.message;
             set({ editAdminError: errors });
+          }
+          return false;
+        }
+      },
+
+      async editSelf(data: AdminSelfEdit) {
+        try {
+          set({ editSelfError: null });
+
+          const payload: { email: string; password?: string } = {
+            email: data.email,
+          };
+
+          if (data.password) {
+            payload.password = data.password;
+          }
+
+          const { data: updatedAdmin } = await axiosApi.patch<Admin>('/admins/profile/me', payload);
+
+          set({ admin: updatedAdmin });
+          return true;
+        } catch (e) {
+          if (isAxiosError(e)) {
+            const errors = e.response?.data?.error?.message || e.message;
+            set({ editSelfError: errors });
           }
           return false;
         }
