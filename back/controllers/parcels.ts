@@ -45,6 +45,7 @@ export const createParcel = async (
       partnerType,
       pvzData,
       serviceCode,
+      distributionCenter,
     } = req.body;
 
     console.log('📦 ДЕТАЛЬНЫЙ АНАЛИЗ ДАННЫХ ПОСЫЛКИ:');
@@ -176,7 +177,8 @@ export const createParcel = async (
       status: "draft",
       deliveryType,
       partnerType,
-          serviceCode: serviceCode || undefined,
+      serviceCode: serviceCode || undefined,
+      distributionCenter: distributionCenter || null,
     };
 
     if (originOffice !== undefined && originOffice !== null) {
@@ -257,8 +259,11 @@ export const sendToEKIT = async (
 
     const ekitResult = await createOrderInEKit(parcel);
 
+    const actualDistributionCenter = parcel.pvzData?.parentcode === '2495' ? 'ЕКБ' : 'МСК';
+
     parcel.partnerTrackingNumber = ekitResult.ekitBarcode;
     parcel.status = 'created';
+    parcel.distributionCenter = actualDistributionCenter;
     await parcel.save();
 
     res.json({
@@ -266,6 +271,7 @@ export const sendToEKIT = async (
       message: "Parcel successfully sent to E-Kit",
       ekitOrderNo: ekitResult.ekitOrderNo,
       ekitBarcode: ekitResult.ekitBarcode,
+      actualDistributionCenter,
     });
 
   } catch (e) {
