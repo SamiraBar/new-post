@@ -49,7 +49,7 @@ const PartnerTrackingRow = ({ parcel }: { parcel: IParcel }) => {
                   data-testid="save-partner-tracking"
                   onClick={savePartnerTracking}
                   disabled={updatePartnerTrackingNumberLoading}
-                  className="p-2 rounded hover:bg-green-100 disabled:opacity-50 transition cursor-pointer"
+                  className="p-2 rounded hover:bg-green-100 disabled:opacity-50 transition"
                 >
                   <Check size={18} className="text-green-600" />
                 </button>
@@ -62,7 +62,7 @@ const PartnerTrackingRow = ({ parcel }: { parcel: IParcel }) => {
                 <button
                   data-testid="cancel-partner-tracking"
                   onClick={() => setState((prev) => ({ ...prev, editing: false }))}
-                  className="p-2 rounded hover:bg-red-100 transition cursor-pointer"
+                  className="p-2 rounded hover:bg-red-100 transition"
                 >
                   <X size={18} className="text-red-600" />
                 </button>
@@ -84,7 +84,7 @@ const PartnerTrackingRow = ({ parcel }: { parcel: IParcel }) => {
                 <button
                   data-testid="edit-partner-tracking"
                   onClick={() => setState((prev) => ({ ...prev, editing: true }))}
-                  className="p-2 rounded hover:bg-blue-100 transition cursor-pointer"
+                  className="p-2 rounded hover:bg-blue-100 transition"
                 >
                   <Edit2 size={18} className="text-blue-600" />
                 </button>

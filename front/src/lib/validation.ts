@@ -2,8 +2,6 @@ import type { Order } from '@/types';
 import { isValidPhoneNumber } from 'libphonenumber-js';
 import type { TFunction } from 'i18next';
 
-const PVZ_SENDER_CITY = 'Bishkek';
-
 export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -25,9 +23,6 @@ export const validateInnPassport = (inn_passport: string): boolean => {
 
 export const validateStep1 = (order: Order, t: TFunction): string | null => {
   if (!order.originCity) return t('deliveryCostCalculator.validateError.cityOfSender');
-  if (order.deliveryType === 'pickup' && order.originCity !== PVZ_SENDER_CITY) {
-    return t('deliveryCostCalculator.validateError.pvzOriginMustBeBishkek');
-  }
   if (!order.destinationCity) return t('deliveryCostCalculator.validateError.cityOfReceiver');
   if (!order.parcelValue || order.parcelValue <= 0)
     return t('deliveryCostCalculator.validateError.value');

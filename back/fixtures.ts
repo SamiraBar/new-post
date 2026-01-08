@@ -110,7 +110,6 @@ const run = async () => {
       deliveryType: "pickup",
       partnerType: "E-Kit",
       weight: 0.6,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-478-QWERTYUIOP 2",
@@ -125,7 +124,6 @@ const run = async () => {
       deliveryType: "pickup",
       partnerType: "E-Kit",
       weight: 1.25,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-999-TESTTRACK 3",
@@ -140,7 +138,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 2.1,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-001-TESTA 4",
@@ -155,7 +152,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 0.8,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-002-TESTB 5",
@@ -170,7 +166,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 1.4,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-003-TESTC 6",
@@ -185,7 +180,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 3.2,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-004-TESTD 7",
@@ -200,7 +194,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 0.55,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-005-TESTE 8",
@@ -215,7 +208,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 1.1,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-006-TESTF 9",
@@ -230,7 +222,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 1.9,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-007-TESTG10",
@@ -245,7 +236,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 0.7,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-008-TESTH11",
@@ -260,7 +250,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 2.0,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-009-TESTI12",
@@ -275,7 +264,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 1.3,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-010-TESTJ13",
@@ -290,7 +278,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 4.1,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-011-TESTK14",
@@ -305,7 +292,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 0.9,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-012-TESTL15",
@@ -320,7 +306,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 2.5,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-013-TESTM16",
@@ -335,7 +320,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 1.45,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-014-TESTN17",
@@ -350,7 +334,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 3.3,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-015-TESTO18",
@@ -365,7 +348,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 0.75,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-016-TESTP19",
@@ -380,7 +362,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 1.6,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-017-TESTQ20",
@@ -395,7 +376,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 2.9,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-018-TESTR21",
@@ -410,7 +390,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 3.7,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-019-TESTS22",
@@ -425,7 +404,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 1.0,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-020-TESTT23",
@@ -440,7 +418,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 2.2,
-      description: "Посылка с одеждой",
     },
     {
       trackingNumber: "KGZ-020-A1B2C3D4F5",
@@ -455,7 +432,6 @@ const run = async () => {
       deliveryType: "courier",
       partnerType: "KCE",
       weight: 2.2,
-      description: "Посылка с одеждой",
     },
   ]);
 
@@ -470,7 +446,6 @@ const run = async () => {
     isPaid: true,
     partnerStickerReceived: true,
     weight: 2.5,
-    description: "Полная история посылки",
   });
 
   await fullHistoryParcel.save();

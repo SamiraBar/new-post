@@ -11,11 +11,9 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useTranslation } from 'react-i18next';
 import TrackingSearch from '@/features/deliveryCalculating/components/TrackingSearch.tsx';
 import { Package, Truck, X } from 'lucide-react';
-import { useRef } from 'react';
 
 const DeliveryActions = () => {
   const { t } = useTranslation();
-  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const {
     modalSelectDeliveryVariant,
@@ -43,12 +41,7 @@ const DeliveryActions = () => {
     }
 
     openOrCloseModalSelectDeliveryVariant(false);
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        scrollToCalculator();
-      });
-    });
+    setTimeout(scrollToCalculator, 300);
   };
 
   const handleCloseModal = () => {
@@ -69,7 +62,6 @@ const DeliveryActions = () => {
           >
             <DialogTrigger asChild>
               <Button
-                ref={triggerRef}
                 className="w-full max-w-80 sm:max-w-96 md:max-w-110 h-12 border-2 border-orange-500 bg-orange-500 text-white
                 hover:bg-white hover:text-black rounded-xl
                 active:scale-95 active:shadow-lg active:bg-orange-500 transition-all duration-200 shadow-md hover:shadow-lg"
@@ -81,9 +73,6 @@ const DeliveryActions = () => {
             <DialogContent
               onInteractOutside={handleCloseModal}
               onEscapeKeyDown={handleCloseModal}
-              onCloseAutoFocus={(e) => {
-                e.preventDefault();
-              }}
               className="max-w-lg max-h-[90vh] overflow-y-auto p-0 gap-0 m-1 sm:m-0 w-[calc(100%-2rem)] sm:w-full
                         border-none shadow-2xl bg-transparent"
             >

@@ -197,9 +197,6 @@ export const AdminToolbar = () => {
               <DropdownMenuGroup>
                 {!isSuperAdmin ? null : (
                   <>
-                    <Link to="profile">
-                      <DropdownMenuItem>Мой профиль</DropdownMenuItem>
-                    </Link>
                     <Link to="moderation">
                       <DropdownMenuItem>Администраторы</DropdownMenuItem>
                     </Link>
