@@ -49,7 +49,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       deliveryType,
       partnerType,
       pvzData,
-      distributionCenter,
+      serviceCity,
       description,
     } = req.body;
     console.log('Incoming request body:', req.body);
@@ -65,7 +65,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
     console.log('   - Вес (weight):', weight);
     console.log('   - Тип доставки (deliveryType):', deliveryType);
     console.log('   - Тип партнёра (partnerType):', partnerType);
-    console.log('   - РЦ из запроса (distributionCenter):', distributionCenter || 'не указан');
+    console.log('   - РЦ из запроса (serviceCity):', serviceCity || 'не указан');
     console.log('   - Оплачено (isPaid):', isPaid || false);
     console.log('   - Стикер получен (partnerStickerReceived):', partnerStickerReceived || false);
 
@@ -180,6 +180,9 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
     const newSender = await Contact.create({ ...sender, type: "sender" });
     const newRecipient = await Contact.create({ ...recipient, type: "recipient" });
 
+    const byParentcode = String(pvzData?.parentcode ?? '');
+    const computedServiceCity: 'МСК' | 'ЕКБ' = byParentcode === '2495' ? 'ЕКБ' : 'МСК';
+
     const parcelData: ParcelCreateData = {
       trackingNumber,
       partnerTrackingNumber,
@@ -194,7 +197,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       status: "draft",
       deliveryType,
       partnerType,
-      distributionCenter: distributionCenter || "",
+      serviceCity: computedServiceCity,
       originOffice: ORIGIN_OFFICE_FIXED,
     };
     if (destinationOffice !== undefined && destinationOffice !== null) {

@@ -29,8 +29,8 @@ export const orderSchema = (t: TFunction) =>
       .string()
       .min(3, t('deliveryCostCalculator.validateError.inParcel'))
       .max(70, t('deliveryCostCalculator.stepForForm.errors.inParcelMaxError')),
-    distributionCenter: z.string().optional(),
     serviceCode: z.enum(['14', '15']).optional(),
+    serviceCity: z.enum(['МСК', 'ЕКБ']).optional(),
     sender: z.object({
       name: z
         .string()

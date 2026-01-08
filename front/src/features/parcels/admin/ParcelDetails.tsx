@@ -67,7 +67,7 @@ const ParcelDetails = () => {
                 ['Трек Номер Новая Почта', parcel.trackingNumber],
                 ['Дата создания', new Date(parcel.draftedAt).toLocaleString()],
                 ['Дата оплаты', parcel.isPaid ? 'Оплачено' : 'Не оплачено'],
-                ...(parcel.deliveryType === 'pickup' ? [['РЦ', parcel.distributionCenter]] : []),
+                ...(parcel.deliveryType === 'pickup' ? [['РЦ', parcel.serviceCity]] : []),
               ].map(([label, value], i) => (
                 <div
                   key={i}
