@@ -1,12 +1,13 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Search, X, Package, MapPin, Calendar, CheckCircle2, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTrackingStore } from '@/stores/trackingStore/trackingStore';
 import { useTranslation } from 'react-i18next';
+import { TRACKING_REGEX } from '@/constants.ts';
 
 const TrackingSearch = () => {
   const { t } = useTranslation();
-
   const {
     trackNumber,
     parcelInfo,
@@ -17,7 +18,17 @@ const TrackingSearch = () => {
     closeModal,
   } = useTrackingStore();
 
+  const [errorMessage, setErrorMessage] = useState('');
+
   const handleSearch = () => {
+    const value = trackNumber.trim().toUpperCase();
+
+    if (!TRACKING_REGEX.test(value)) {
+      setErrorMessage(t('deliveryCalculation.trackingSearch.err'));
+      return;
+    }
+
+    setErrorMessage('');
     searchParcel();
   };
 
@@ -29,15 +40,16 @@ const TrackingSearch = () => {
 
   return (
     <>
-      <div className="space-y-4 text-center">
+      <div className="space-y-2 text-center">
         <div className="flex gap-0 w-full max-w-80 sm:max-w-96 md:max-w-110 mx-auto">
           <input
             type="text"
             placeholder="Трек-номер..."
             value={trackNumber}
-            onChange={(e) => setTrackNumber(e.target.value)}
+            onChange={(e) => setTrackNumber(e.target.value.toUpperCase())}
             onKeyPress={handleKeyPress}
             disabled={isLoading}
+            maxLength={10}
             className="flex-1 p-2 rounded-l-xl border-2 border-orange-500 border-r-0
              focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500
              transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
@@ -57,6 +69,8 @@ const TrackingSearch = () => {
             )}
           </Button>
         </div>
+
+        {errorMessage && <p className="text-red-600 font-semibold text-sm mt-1">{errorMessage}</p>}
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={closeModal}>

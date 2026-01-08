@@ -112,8 +112,9 @@ const ParcelSchema = new Schema(
     {
         trackingNumber: {
             type: String,
-            required: [true, "Tracking number is required"],
+            required: true,
             unique: true,
+            match: [/^KGZ-\d{6}$/, 'Invalid tracking number format'],
         },
         partnerTrackingNumber: {
             type: String,

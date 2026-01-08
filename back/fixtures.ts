@@ -97,7 +97,7 @@ const run = async () => {
 
   await Parcel.create([
     {
-      trackingNumber: "KGZ-312-SLFKDJEWSL",
+      trackingNumber: "KGZ-000001",
       partnerTrackingNumber: "LSDFKJEWXOXS",
       sender: senderOne._id,
       recipient: recipientOne._id,
@@ -112,7 +112,7 @@ const run = async () => {
       weight: 0.6,
     },
     {
-      trackingNumber: "KGZ-478-QWERTYUIOP 2",
+      trackingNumber: "KGZ-000002",
       partnerTrackingNumber: "PLKJHGFDSA",
       sender: senderTwo._id,
       recipient: recipientTwo._id,
@@ -126,7 +126,7 @@ const run = async () => {
       weight: 1.25,
     },
     {
-      trackingNumber: "KGZ-999-TESTTRACK 3",
+      trackingNumber: "KGZ-000003",
       partnerTrackingNumber: "TEST123456",
       sender: senderOne._id,
       recipient: recipientTwo._id,
@@ -140,7 +140,7 @@ const run = async () => {
       weight: 2.1,
     },
     {
-      trackingNumber: "KGZ-001-TESTA 4",
+      trackingNumber: "KGZ-000004",
       partnerTrackingNumber: "PTN-001-A",
       sender: senderOne._id,
       recipient: recipientOne._id,
@@ -154,7 +154,7 @@ const run = async () => {
       weight: 0.8,
     },
     {
-      trackingNumber: "KGZ-002-TESTB 5",
+      trackingNumber: "KGZ-000005",
       partnerTrackingNumber: "PTN-002-B",
       sender: senderTwo._id,
       recipient: recipientTwo._id,
@@ -168,7 +168,7 @@ const run = async () => {
       weight: 1.4,
     },
     {
-      trackingNumber: "KGZ-003-TESTC 6",
+      trackingNumber: "KGZ-000006",
       partnerTrackingNumber: "PTN-003-C",
       sender: senderOne._id,
       recipient: recipientTwo._id,
@@ -182,7 +182,7 @@ const run = async () => {
       weight: 3.2,
     },
     {
-      trackingNumber: "KGZ-004-TESTD 7",
+      trackingNumber: "KGZ-000007",
       partnerTrackingNumber: "PTN-004-D",
       sender: senderTwo._id,
       recipient: recipientOne._id,
@@ -196,7 +196,7 @@ const run = async () => {
       weight: 0.55,
     },
     {
-      trackingNumber: "KGZ-005-TESTE 8",
+      trackingNumber: "KGZ-000008",
       partnerTrackingNumber: "PTN-005-E",
       sender: senderOne._id,
       recipient: recipientOne._id,
@@ -210,7 +210,7 @@ const run = async () => {
       weight: 1.1,
     },
     {
-      trackingNumber: "KGZ-006-TESTF 9",
+      trackingNumber: "KGZ-000009",
       partnerTrackingNumber: "PTN-006-F",
       sender: senderTwo._id,
       recipient: recipientTwo._id,
@@ -224,7 +224,7 @@ const run = async () => {
       weight: 1.9,
     },
     {
-      trackingNumber: "KGZ-007-TESTG10",
+      trackingNumber: "KGZ-000010",
       partnerTrackingNumber: "PTN-007-G",
       sender: senderOne._id,
       recipient: recipientTwo._id,
@@ -238,7 +238,7 @@ const run = async () => {
       weight: 0.7,
     },
     {
-      trackingNumber: "KGZ-008-TESTH11",
+      trackingNumber: "KGZ-000011",
       partnerTrackingNumber: "PTN-008-H",
       sender: senderTwo._id,
       recipient: recipientOne._id,
@@ -252,7 +252,7 @@ const run = async () => {
       weight: 2.0,
     },
     {
-      trackingNumber: "KGZ-009-TESTI12",
+      trackingNumber: "KGZ-000012",
       partnerTrackingNumber: "PTN-009-I",
       sender: senderOne._id,
       recipient: recipientOne._id,
@@ -266,7 +266,7 @@ const run = async () => {
       weight: 1.3,
     },
     {
-      trackingNumber: "KGZ-010-TESTJ13",
+      trackingNumber: "KGZ-000013",
       partnerTrackingNumber: "PTN-010-J",
       sender: senderTwo._id,
       recipient: recipientTwo._id,
@@ -280,7 +280,7 @@ const run = async () => {
       weight: 4.1,
     },
     {
-      trackingNumber: "KGZ-011-TESTK14",
+      trackingNumber: "KGZ-000014",
       partnerTrackingNumber: "PTN-011-K",
       sender: senderOne._id,
       recipient: recipientOne._id,
@@ -294,7 +294,7 @@ const run = async () => {
       weight: 0.9,
     },
     {
-      trackingNumber: "KGZ-012-TESTL15",
+      trackingNumber: "KGZ-000015",
       partnerTrackingNumber: "PTN-012-L",
       sender: senderTwo._id,
       recipient: recipientTwo._id,
@@ -308,7 +308,7 @@ const run = async () => {
       weight: 2.5,
     },
     {
-      trackingNumber: "KGZ-013-TESTM16",
+      trackingNumber: "KGZ-000016",
       partnerTrackingNumber: "PTN-013-M",
       sender: senderOne._id,
       recipient: recipientTwo._id,
@@ -322,7 +322,7 @@ const run = async () => {
       weight: 1.45,
     },
     {
-      trackingNumber: "KGZ-014-TESTN17",
+      trackingNumber: "KGZ-000017",
       partnerTrackingNumber: "PTN-014-N",
       sender: senderTwo._id,
       recipient: recipientOne._id,
@@ -336,7 +336,7 @@ const run = async () => {
       weight: 3.3,
     },
     {
-      trackingNumber: "KGZ-015-TESTO18",
+      trackingNumber: "KGZ-000018",
       partnerTrackingNumber: "PTN-015-O",
       sender: senderOne._id,
       recipient: recipientOne._id,
@@ -350,7 +350,7 @@ const run = async () => {
       weight: 0.75,
     },
     {
-      trackingNumber: "KGZ-016-TESTP19",
+      trackingNumber: "KGZ-000019",
       partnerTrackingNumber: "PTN-016-P",
       sender: senderTwo._id,
       recipient: recipientTwo._id,
@@ -364,7 +364,7 @@ const run = async () => {
       weight: 1.6,
     },
     {
-      trackingNumber: "KGZ-017-TESTQ20",
+      trackingNumber: "KGZ-000020",
       partnerTrackingNumber: "PTN-017-Q",
       sender: senderOne._id,
       recipient: recipientTwo._id,
@@ -378,7 +378,7 @@ const run = async () => {
       weight: 2.9,
     },
     {
-      trackingNumber: "KGZ-018-TESTR21",
+      trackingNumber: "KGZ-000021",
       partnerTrackingNumber: "PTN-018-R",
       sender: senderTwo._id,
       recipient: recipientOne._id,
@@ -392,7 +392,7 @@ const run = async () => {
       weight: 3.7,
     },
     {
-      trackingNumber: "KGZ-019-TESTS22",
+      trackingNumber: "KGZ-000022",
       partnerTrackingNumber: "PTN-019-S",
       sender: senderOne._id,
       recipient: recipientOne._id,
@@ -406,7 +406,7 @@ const run = async () => {
       weight: 1.0,
     },
     {
-      trackingNumber: "KGZ-020-TESTT23",
+      trackingNumber: "KGZ-000023",
       partnerTrackingNumber: "PTN-020-T",
       sender: senderTwo._id,
       recipient: recipientTwo._id,
@@ -420,7 +420,7 @@ const run = async () => {
       weight: 2.2,
     },
     {
-      trackingNumber: "KGZ-020-A1B2C3D4F5",
+      trackingNumber: "KGZ-000024",
       partnerTrackingNumber: "PTN-020-TAFWDDDDS2",
       sender: senderTwo._id,
       recipient: recipientTwo._id,
@@ -436,7 +436,7 @@ const run = async () => {
   ]);
 
   const fullHistoryParcel = new Parcel({
-    trackingNumber: "KGZ-FULL-HISTORY-2025",
+    trackingNumber: "KGZ-000025",
     partnerTrackingNumber: "FULL-TRACK-001",
     sender: senderOne._id,
     recipient: recipientTwo._id,
