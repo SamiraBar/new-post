@@ -40,13 +40,13 @@ const useDebounce = (value: string, delay: number) => {
 export const AdminToolbar = () => {
   const { logout } = useAdminStore();
   const admin = useAdminStore((s) => s.admin);
-  const { parcelsResponse } = useParcelsStore();
+  const { parcelsResponse, setSearchFilters } = useParcelsStore();
+
   const [search, setSearch] = useState({
     trackingNumber: '',
     sender: '',
     recipient: '',
   });
-  const { setSearchFilters } = useParcelsStore();
 
   const debouncedTrackingNumber = useDebounce(search.trackingNumber, 500);
   const debouncedSender = useDebounce(search.sender, 500);
@@ -59,13 +59,11 @@ export const AdminToolbar = () => {
         sender: '',
         recipient: '',
       });
-
       setSearch({
         trackingNumber: barcode,
         sender: '',
         recipient: '',
       });
-
       toast.success(`Отсканирован баркод: ${barcode}`);
     },
     minLength: 4,
@@ -83,39 +81,35 @@ export const AdminToolbar = () => {
   }, [debouncedTrackingNumber, debouncedSender, debouncedRecipient, setSearchFilters]);
 
   const parcels = parcelsResponse?.parcels ?? [];
-
   const hasSearchParams =
     Boolean(debouncedTrackingNumber) || Boolean(debouncedSender) || Boolean(debouncedRecipient);
-
   const notFound = parcels.length === 0 && hasSearchParams;
 
   useEffect(() => {
     if (notFound) {
       toast.error('Ничего не найдено');
-      setSearchFilters({
-        trackingNumber: '',
-        sender: '',
-        recipient: '',
-      });
+      setSearchFilters({ trackingNumber: '', sender: '', recipient: '' });
     }
   }, [parcelsResponse, notFound, setSearchFilters]);
 
-  const inputChangeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+  const trackingChangeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setSearch((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+
+    if (value.length > 10) return;
+
+    setSearch((prev) => ({ ...prev, [name]: value.toUpperCase() }));
+  }, []);
+
+  const textChangeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setSearch((prev) => ({ ...prev, [name]: value }));
   }, []);
 
   const handleTrackingKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
-        const value = e.currentTarget.value.trim();
-        if (!value) return;
-
         setSearchFilters({
-          trackingNumber: value,
+          trackingNumber: e.currentTarget.value.trim(),
           sender: '',
           recipient: '',
         });
@@ -128,21 +122,7 @@ export const AdminToolbar = () => {
 
   return (
     <NavigationMenu className="py-3 md:py-4 [&>div]:w-full container">
-      <NavigationMenuList
-        className="
-        grid
-        w-full
-        gap-x-5
-        md:gap-y-3
-        lg:gap-3
-        pb-5
-        md:py-5
-        grid-cols-2
-        grid-rows-2
-        lg:grid-cols-[auto_1fr_auto]
-        lg:grid-rows-1
-  "
-      >
+      <NavigationMenuList className="grid w-full gap-x-5 md:gap-y-3 lg:gap-3 pb-5 md:py-5 grid-cols-2 grid-rows-2 lg:grid-cols-[auto_1fr_auto] lg:grid-rows-1">
         <NavigationMenuItem className="flex justify-end col-start-1 row-start-1">
           <Link to={'/admin'}>
             <img src={logoImage} alt="logo" className="w-30 md:w-25" />
@@ -157,11 +137,13 @@ export const AdminToolbar = () => {
               id="trackingNumber"
               placeholder="Трек номер посылки"
               value={search.trackingNumber}
-              onChange={inputChangeHandler}
+              onChange={trackingChangeHandler}
               onKeyDown={handleTrackingKeyDown}
+              maxLength={10}
               className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1 w-full"
             />
           </NavigationMenuItem>
+
           <NavigationMenuItem className="flex-1">
             <Input
               type="search"
@@ -169,10 +151,11 @@ export const AdminToolbar = () => {
               id="sender"
               placeholder="ФИО отправителя"
               value={search.sender}
-              onChange={inputChangeHandler}
+              onChange={textChangeHandler}
               className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1 w-full"
             />
           </NavigationMenuItem>
+
           <NavigationMenuItem className="flex-1">
             <Input
               type="search"
@@ -180,7 +163,7 @@ export const AdminToolbar = () => {
               id="recipient"
               placeholder="ФИО получателя"
               value={search.recipient}
-              onChange={inputChangeHandler}
+              onChange={textChangeHandler}
               className="focus-visible:border-amber-600 focus-visible:ring-amber-600 focus-visible:ring-1 w-full"
             />
           </NavigationMenuItem>
@@ -195,7 +178,7 @@ export const AdminToolbar = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-48" align="end">
               <DropdownMenuGroup>
-                {!isSuperAdmin ? null : (
+                {isSuperAdmin && (
                   <>
                     <Link to="profile">
                       <DropdownMenuItem>Мой профиль</DropdownMenuItem>
@@ -208,7 +191,7 @@ export const AdminToolbar = () => {
                     </Link>
                     <DropdownMenuItem
                       onSelect={(e) => e.preventDefault()}
-                      className="hidden sm:flex "
+                      className="hidden sm:flex"
                     >
                       <ModalFile />
                     </DropdownMenuItem>

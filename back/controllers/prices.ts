@@ -32,7 +32,6 @@ export const uploadPrices = async (
       PVZ: {
         city: "Название города",
         region: "Регион",
-        distributionCenter: "РЦ",
         basePrice: "Стоимость доставки весом до 1кг, сом",
         pricePerOneLessThree:
           "Стоимость доставки за каждый дополнительный полный/неполный 1кг, сом (до общего веса 3кг)",
@@ -231,7 +230,6 @@ export const calculatePrice = async (req: Request, res: Response) => {
       return res.json({
         totalCost: price,
         billedWeight: w,
-        distributionCenter: priceData.distributionCenter,
       });
     }
 
