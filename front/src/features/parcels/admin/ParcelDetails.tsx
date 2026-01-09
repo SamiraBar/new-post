@@ -50,6 +50,7 @@ const ParcelDetails = () => {
       </Link>
       <div className="mt-10">
         <ParcelStatus
+          parcelId={parcel._id}
           status={parcel.status}
           trackingNumber={parcel.trackingNumber}
           draftedAt={parcel.draftedAt}
@@ -67,7 +68,7 @@ const ParcelDetails = () => {
                 ['Трек Номер Новая Почта', parcel.trackingNumber],
                 ['Дата создания', new Date(parcel.draftedAt).toLocaleString()],
                 ['Дата оплаты', parcel.isPaid ? 'Оплачено' : 'Не оплачено'],
-                ...(parcel.deliveryType === 'pickup' ? [['РЦ', parcel.distributionCenter]] : []),
+                ...(parcel.deliveryType === 'pickup' ? [['РЦ', parcel.serviceCity]] : []),
               ].map(([label, value], i) => (
                 <div
                   key={i}

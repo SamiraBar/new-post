@@ -49,7 +49,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       deliveryType,
       partnerType,
       pvzData,
-      distributionCenter,
+      serviceCity,
       description,
     } = req.body;
     console.log('Incoming request body:', req.body);
@@ -65,7 +65,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
     console.log('   - Вес (weight):', weight);
     console.log('   - Тип доставки (deliveryType):', deliveryType);
     console.log('   - Тип партнёра (partnerType):', partnerType);
-    console.log('   - РЦ из запроса (distributionCenter):', distributionCenter || 'не указан');
+    console.log('   - РЦ из запроса (serviceCity):', serviceCity || 'не указан');
     console.log('   - Оплачено (isPaid):', isPaid || false);
     console.log('   - Стикер получен (partnerStickerReceived):', partnerStickerReceived || false);
 
@@ -180,6 +180,9 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
     const newSender = await Contact.create({ ...sender, type: "sender" });
     const newRecipient = await Contact.create({ ...recipient, type: "recipient" });
 
+    const byParentcode = String(pvzData?.parentcode ?? '');
+    const computedServiceCity: 'МСК' | 'ЕКБ' = byParentcode === '2495' ? 'ЕКБ' : 'МСК';
+
     const parcelData: ParcelCreateData = {
       trackingNumber,
       partnerTrackingNumber,
@@ -194,7 +197,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       status: "draft",
       deliveryType,
       partnerType,
-      distributionCenter: distributionCenter || "",
+      serviceCity: computedServiceCity,
       originOffice: ORIGIN_OFFICE_FIXED,
     };
     if (destinationOffice !== undefined && destinationOffice !== null) {
@@ -224,33 +227,6 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
     const newParcel = new Parcel(parcelData);
     await newParcel.save();
 
-    let ekitWarning: string | undefined;
-
-    if (partnerType === "E-Kit") {
-      try {
-        const populatedParcel = await Parcel.findById(newParcel._id)
-            .populate("sender")
-            .populate("recipient");
-
-        if (!populatedParcel) {
-          throw new Error("Failed to populate parcel data");
-        }
-
-        const ekitResult = await createOrderInEKit(populatedParcel);
-
-        newParcel.partnerTrackingNumber = ekitResult.ekitBarcode;
-        newParcel.status = "created";
-        await newParcel.save();
-      } catch (ekitError: any) {
-        console.error("E-Kit sync failed:", ekitError.message);
-
-        newParcel.status = "draft";
-        await newParcel.save();
-
-        ekitWarning = `Order created but E-Kit sync failed: ${ekitError.message}. Manual processing required.`;
-      }
-    }
-
     const populatedParcel = await Parcel.findById(newParcel._id)
         .populate("sender")
         .populate("recipient");
@@ -260,8 +236,6 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       parcel: populatedParcel,
       trackingNumber,
     };
-
-    if (ekitWarning) response.warning = ekitWarning;
 
     res.status(201).json(response);
   } catch (e) {
@@ -295,30 +269,43 @@ export const sendToEKIT = async (
       });
     }
 
-    if (parcel.status === 'created' && parcel.partnerTrackingNumber) {
+    if (parcel.partnerTrackingNumber) {
       return res.status(400).json({
         success: false,
-        error: "Parcel already sent to E-Kit"
+        error: "Parcel already sent to E-Kit",
+        ekitTracking: parcel.partnerTrackingNumber,
       });
     }
 
-    const ekitResult = await createOrderInEKit(parcel);
+    let ekitWarning: string | undefined;
 
-    parcel.partnerTrackingNumber = ekitResult.ekitBarcode;
-    parcel.status = 'created';
-    await parcel.save();
+    try {
+      const ekitResult = await createOrderInEKit(parcel);
 
-    res.json({
-      success: true,
-      message: "Parcel successfully sent to E-Kit",
-      ekitOrderNo: ekitResult.ekitOrderNo,
-      ekitBarcode: ekitResult.ekitBarcode,
-    });
+      parcel.partnerTrackingNumber = ekitResult.ekitBarcode;
 
+      await parcel.save();
+
+      return res.json({
+        success: true,
+        message: "Parcel successfully sent to E-Kit",
+        ekitOrderNo: ekitResult.ekitOrderNo,
+        ekitBarcode: ekitResult.ekitBarcode,
+      });
+    } catch (ekitError: any) {
+      ekitWarning = ekitError?.message ? String(ekitError.message) : "Unknown E-Kit error";
+
+      return res.status(502).json({
+        success: false,
+        message: "E-Kit sync failed. Manual processing required.",
+        warning: ekitWarning,
+      });
+    }
   } catch (e) {
     next(e);
   }
 };
+
 
 export const getParcels = async (
     req: Request,

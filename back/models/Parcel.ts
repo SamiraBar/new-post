@@ -51,6 +51,7 @@ export interface IParcel extends mongoose.Document {
     atPickupPointAtFormatted?: string;
     deliveredAtFormatted?: string;
     serviceCode?: '14' | '15';
+    serviceCity?: "МСК" | "ЕКБ"
 }
 
 const PvzDataSchema = new Schema({
@@ -112,8 +113,9 @@ const ParcelSchema = new Schema(
     {
         trackingNumber: {
             type: String,
-            required: [true, "Tracking number is required"],
+            required: true,
             unique: true,
+            match: [/^KGZ-\d{6}$/, 'Invalid tracking number format'],
         },
         partnerTrackingNumber: {
             type: String,
@@ -204,14 +206,15 @@ const ParcelSchema = new Schema(
             required: [true, "Weight is required"],
             min: [0.1, "Weight must be greater than 0"],
         },
-        distributionCenter: {
+        serviceCity: {
             type: String,
-            default: '',
+            enum: ['МСК', 'ЕКБ'],
+            required: false,
         },
         serviceCode: {
             type: String,
             enum: ['14', '15'],
-            default: null,
+            required: false,
         },
         draftedAt: {
             type: Date,

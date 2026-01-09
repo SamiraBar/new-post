@@ -46,7 +46,7 @@ export interface ParcelCreateData {
   deliveryType: "courier" | "pickup";
   partnerType: "E-Kit" | "KCE";
   pvzData?: IPvzData;
-  distributionCenter?: string,
+  serviceCity?: string,
   description: string;
   serviceCode?: string,
 }

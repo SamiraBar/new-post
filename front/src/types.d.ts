@@ -34,7 +34,7 @@ export interface IParcel {
   partnerTrackingNumber?: string;
   deliveryType: DeliveryType;
   partnerType: 'E-Kit' | 'KCE';
-  distributionCenter: string;
+  serviceCity: "МСК" | "ЕКБ";
   sender: {
     _id: string;
     fullName: string;
@@ -90,7 +90,7 @@ export interface IParcel {
 export interface CreateParcelData {
   partnerTrackingNumber: string | null;
   description: string;
-  distributionCenter?: string;
+  serviceCity?: string;
   sender: {
     fullName: string;
     phoneNumber: string;
@@ -156,6 +156,7 @@ export interface Order {
   destinationCity: string;
   distributionCenter?: string;
   serviceCode?: '14' | '15';
+  serviceCity?: "МСК" | "ЕКБ";
   originOffice: number;
   destinationOffice: number;
   parcelValue: number;
