@@ -3,6 +3,7 @@ import { Copy, Edit2, Check, X } from 'lucide-react';
 import useParcelsStore from '../../stores/parcelsStore/parcelsStore.ts';
 import { toast } from 'sonner';
 import type { IParcel } from '@/types';
+import SyncStatusButton from '@/features/parcels/SyncStatusButton.tsx';
 
 interface State {
   editing: boolean;
@@ -92,6 +93,11 @@ const PartnerTrackingRow = ({ parcel }: { parcel: IParcel }) => {
                   Изменить
                 </div>
               </div>
+              <SyncStatusButton
+                trackingNumber={parcel.trackingNumber}
+                partnerTrackingNumber={parcel.partnerTrackingNumber}
+                partnerType={parcel.partnerType}
+              />
             </>
           )
         ) : (
