@@ -2,7 +2,7 @@ import Parcel from "../models/Parcel";
 import { getOrderStatus } from "./ekit.service";
 
 const EKIT_STATUS_MAPPING: Record<string, string | null> = {
-    "Новая": null,
+    "Новый": null,
     "Принято": "in_country",
     "Отправлен в город назначения": null,
     "В пути": null,
