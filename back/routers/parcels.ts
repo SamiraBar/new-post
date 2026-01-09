@@ -15,11 +15,11 @@ parcelsRouter.post("/send-to-ekit", sendToEKIT);
 
 parcelsRouter.post("/sync-all", auth, syncAllParcels);
 
+parcelsRouter.post("/tracking/:trackingNumber/sync", auth, syncSingleParcel);
+
 parcelsRouter.post("/parcels/:id/sync-ekit", syncParcelWithEKit);
 
 parcelsRouter.get("/track/:trackingNumber", getParcelByTrackingNumber);
-
-parcelsRouter.post("/track/:trackingNumber/sync", auth, syncSingleParcel);
 
 parcelsRouter.get("/", auth, getParcels);
 

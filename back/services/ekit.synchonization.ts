@@ -3,7 +3,7 @@ import { getOrderStatus } from "./ekit.service";
 
 const EKIT_STATUS_MAPPING: Record<string, string | null> = {
     "Новая": null,
-    "Принято": "accepted",
+    "Принято": "in_country",
     "Отправлен в город назначения": null,
     "В пути": null,
     "В городе": "in_city",
@@ -48,32 +48,32 @@ export async function syncAllEKitStatuses(): Promise<SyncResult> {
             .populate("sender")
             .populate("recipient");
 
-        console.log(`Starting E-Kit status sync for ${parcels.length} parcels`);
+        console.log(`\nНачинаем синхронизацию статусов для ${parcels.length} посылок E-Kit`);
+        console.log(`${"═".repeat(80)}`);
         result.totalChecked = parcels.length;
 
         for (const parcel of parcels) {
             try {
+                console.log(`\n Обработка посылки: ${parcel.trackingNumber}`);
+                console.log(`   Текущий статус NewPost: ${parcel.status}`);
+                console.log(`   E-Kit трек-номер: ${parcel.partnerTrackingNumber}`);
+
                 const statusData = await getOrderStatus(parcel.trackingNumber);
 
                 if (!statusData || !statusData.statusTitle) {
-                    console.warn(`No status data from E-Kit for ${parcel.trackingNumber}`);
+                    console.warn(` Не удалось получить статус из E-Kit`);
                     result.skipped++;
                     continue;
                 }
 
                 const ekitStatusTitle = statusData.statusTitle;
-                console.log(` ${parcel.trackingNumber}: E-Kit status = "${ekitStatusTitle}"`);
+                console.log(`   E-Kit статус: "${ekitStatusTitle}"`);
 
                 const newStatus = EKIT_STATUS_MAPPING[ekitStatusTitle];
 
-                if (newStatus === null) {
-                    console.log(`Status "${ekitStatusTitle}" doesn't require update`);
-                    result.skipped++;
-                    continue;
-                }
-
                 if (newStatus === undefined) {
-                    console.warn(`Unknown E-Kit status: "${ekitStatusTitle}"`);
+                    console.warn(` Неизвестный статус E-Kit: "${ekitStatusTitle}"`);
+                    console.warn(` Добавьте этот статус в EKIT_STATUS_MAPPING!`);
                     result.skipped++;
                     result.errors.push({
                         trackingNumber: parcel.trackingNumber,
@@ -82,8 +82,14 @@ export async function syncAllEKitStatuses(): Promise<SyncResult> {
                     continue;
                 }
 
+                if (newStatus === null) {
+                    console.log(`Статус "${ekitStatusTitle}" не требует обновления (промежуточный)`);
+                    result.skipped++;
+                    continue;
+                }
+
                 if (parcel.status === newStatus) {
-                    console.log(`Status already up to date: ${newStatus}`);
+                    console.log(` Статус уже актуален: ${newStatus}`);
                     result.skipped++;
                     continue;
                 }
@@ -92,7 +98,7 @@ export async function syncAllEKitStatuses(): Promise<SyncResult> {
                 parcel.status = newStatus as any;
                 await parcel.save();
 
-                console.log(`Updated: ${oldStatus} → ${newStatus}`);
+                console.log(`ОБНОВЛЕНО: ${oldStatus} → ${newStatus}`);
                 result.updated++;
                 result.details.push({
                     trackingNumber: parcel.trackingNumber,
@@ -103,7 +109,7 @@ export async function syncAllEKitStatuses(): Promise<SyncResult> {
 
             } catch (error) {
                 const errorMsg = error instanceof Error ? error.message : String(error);
-                console.error(`Failed to sync ${parcel.trackingNumber}:`, errorMsg);
+                console.error(`Ошибка синхронизации ${parcel.trackingNumber}:`, errorMsg);
                 result.failed++;
                 result.errors.push({
                     trackingNumber: parcel.trackingNumber,
@@ -114,17 +120,18 @@ export async function syncAllEKitStatuses(): Promise<SyncResult> {
             await new Promise(resolve => setTimeout(resolve, 500));
         }
 
-        console.log(`\n Sync completed:`, {
-            total: result.totalChecked,
-            updated: result.updated,
-            skipped: result.skipped,
-            failed: result.failed,
-        });
+        console.log(`\n${"═".repeat(80)}`);
+        console.log(`Итоги синхронизации:`);
+        console.log(`Всего проверено: ${result.totalChecked}`);
+        console.log(`Обновлено: ${result.updated}`);
+        console.log(`Пропущено: ${result.skipped}`);
+        console.log(`Ошибок: ${result.failed}`);
+        console.log(`${"═".repeat(80)}\n`);
 
         return result;
 
     } catch (error) {
-        console.error("Fatal error during E-Kit sync:", error);
+        console.error("Критическая ошибка при синхронизации E-Kit:", error);
         throw error;
     }
 }
@@ -139,66 +146,85 @@ export async function syncSingleParcelStatus(
     message: string;
 }> {
     try {
+        console.log(`\n Синхронизация одной посылки: ${trackingNumber}`);
+        console.log(`${"─".repeat(60)}`);
+
         const parcel = await Parcel.findOne({ trackingNumber })
             .populate("sender")
             .populate("recipient");
 
         if (!parcel) {
+            console.log(` Посылка не найдена`);
             return {
                 success: false,
-                message: "Parcel not found",
+                message: "Посылка не найдена",
             };
         }
 
+        console.log(`Посылка найдена`);
+        console.log(`Текущий статус: ${parcel.status}`);
+        console.log(`Тип партнера: ${parcel.partnerType}`);
+
         if (parcel.partnerType !== "E-Kit") {
+            console.log(`Посылка не для E-Kit`);
             return {
                 success: false,
-                message: "Parcel is not for E-Kit delivery",
+                message: "Посылка не для E-Kit доставки",
             };
         }
 
         if (!parcel.partnerTrackingNumber) {
+            console.log(`Посылка еще не синхронизирована с E-Kit`);
             return {
                 success: false,
-                message: "Parcel not synced with E-Kit yet",
+                message: "Посылка еще не синхронизирована с E-Kit",
             };
         }
+
+        console.log(`E-Kit трек-номер: ${parcel.partnerTrackingNumber}`);
+        console.log(`Запрашиваем статус из E-Kit...`);
 
         const statusData = await getOrderStatus(parcel.trackingNumber);
 
         if (!statusData || !statusData.statusTitle) {
+            console.log(`Не удалось получить статус из E-Kit`);
             return {
                 success: false,
-                message: "Could not get status from E-Kit",
+                message: "Не удалось получить статус из E-Kit",
             };
         }
 
         const ekitStatusTitle = statusData.statusTitle;
+        console.log(`   E-Kit статус: "${ekitStatusTitle}"`);
+
         const newStatus = EKIT_STATUS_MAPPING[ekitStatusTitle];
 
-        if (newStatus === null) {
-            return {
-                success: true,
-                ekitStatus: ekitStatusTitle,
-                message: `E-Kit status "${ekitStatusTitle}" doesn't require update`,
-            };
-        }
-
         if (newStatus === undefined) {
+            console.log(`Неизвестный статус E-Kit: "${ekitStatusTitle}"`);
             return {
                 success: false,
                 ekitStatus: ekitStatusTitle,
-                message: `Unknown E-Kit status: ${ekitStatusTitle}`,
+                message: `Неизвестный статус E-Kit: ${ekitStatusTitle}`,
+            };
+        }
+
+        if (newStatus === null) {
+            console.log(`Статус "${ekitStatusTitle}" не требует обновления (промежуточный)`);
+            return {
+                success: true,
+                ekitStatus: ekitStatusTitle,
+                message: `Статус E-Kit "${ekitStatusTitle}" не требует обновления`,
             };
         }
 
         if (parcel.status === newStatus) {
+            console.log(`Статус уже актуален: ${newStatus}`);
             return {
                 success: true,
                 oldStatus: parcel.status,
                 newStatus: parcel.status,
                 ekitStatus: ekitStatusTitle,
-                message: "Status already up to date",
+                message: "Статус уже актуален",
             };
         }
 
@@ -206,19 +232,23 @@ export async function syncSingleParcelStatus(
         parcel.status = newStatus as any;
         await parcel.save();
 
+        console.log(`Статус обновлен: ${oldStatus} → ${newStatus}`);
+        console.log(`${"─".repeat(60)}\n`);
+
         return {
             success: true,
             oldStatus,
             newStatus,
             ekitStatus: ekitStatusTitle,
-            message: `Status updated from ${oldStatus} to ${newStatus}`,
+            message: `Статус обновлен с ${oldStatus} на ${newStatus}`,
         };
 
     } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
+        console.error(`Ошибка синхронизации:`, errorMsg);
         return {
             success: false,
-            message: `Sync failed: ${errorMsg}`,
+            message: `Ошибка синхронизации: ${errorMsg}`,
         };
     }
 }
