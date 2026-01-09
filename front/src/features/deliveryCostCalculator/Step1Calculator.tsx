@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select.tsx';
 import { Input } from '@/components/ui/input.tsx';
-import { AlertCircle, CheckCircle, Clock, HandCoins, Weight, XCircle } from 'lucide-react';
+import { AlertCircle, Clock, HandCoins, Weight } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
 import useFileStore from '@/stores/fileStore/fileStore.ts';
 import { useTranslation } from 'react-i18next';
@@ -52,8 +52,6 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     return translated === key ? key : translated;
   };
 
-  const isOriginCityValid = !!originCity;
-  const isDestinationCityValid = !!destinationCity;
   const isParcelValueValid = Number(parcelValue) > 0 && Number(parcelValue) <= 50000;
   const isParcelWeightValid = Number(parcelWeight) > 0 && Number(parcelWeight) <= 15;
 
@@ -171,16 +169,10 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
           <FieldSet>
             <div>
               <div className="flex flex-col gap-6 sm:flex-row sm:gap-10">
-
                 <FieldGroup className="gap-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <FieldLabel>{t('deliveryCostCalculator.stepOneForm.sender')}</FieldLabel>
-                      {isOriginCityValid ? (
-                        <CheckCircle className="text-green-500" size={20} />
-                      ) : (
-                        <XCircle className="text-gray-300" size={20} />
-                      )}
                     </div>
 
                     <span className="w-[140px] flex justify-end">
@@ -190,7 +182,6 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
 
                   <Select value={ORIGIN_CITY_VALUE} disabled>
                     <SelectTrigger className="w-full bg-gray-100 text-gray-600 cursor-not-allowed">
-
                       <SelectValue placeholder={ORIGIN_CITY_LABEL_RU} />
                     </SelectTrigger>
                     <SelectContent
@@ -202,24 +193,12 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                       <SelectItem value={ORIGIN_CITY_VALUE}>{ORIGIN_CITY_LABEL_RU}</SelectItem>
                     </SelectContent>
                   </Select>
-
-                  {errors.originCity && (
-                    <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
-                      <AlertCircle size={14} className="shrink-0" />
-                      <p>{trError(errors.originCity.message)}</p>
-                    </div>
-                  )}
                 </FieldGroup>
 
                 <FieldGroup className="gap-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <FieldLabel>{t('deliveryCostCalculator.stepOneForm.recipient')}</FieldLabel>
-                      {isDestinationCityValid ? (
-                        <CheckCircle className="text-green-500" size={20} />
-                      ) : (
-                        <XCircle className="text-gray-300" size={20} />
-                      )}
                     </div>
 
                     <span className="w-[140px] flex justify-end">
@@ -269,13 +248,6 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                       ))}
                     </SelectContent>
                   </Select>
-
-                  {errors.destinationCity && (
-                    <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
-                      <AlertCircle size={14} className="shrink-0" />
-                      <p>{trError(errors.destinationCity.message)}</p>
-                    </div>
-                  )}
                 </FieldGroup>
               </div>
 
@@ -283,11 +255,6 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                 <Field>
                   <div className="flex items-center gap-2">
                     <FieldLabel>{t('deliveryCostCalculator.stepOneForm.parcelValue')}</FieldLabel>
-                    {isParcelValueValid ? (
-                      <CheckCircle className="text-green-500" size={20} />
-                    ) : (
-                      <XCircle className="text-gray-300" size={20} />
-                    )}
                   </div>
 
                   <div className="relative">
@@ -305,26 +272,19 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                     />
                   </div>
 
-                  {errors.parcelValue && (
-                    <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
-                      <AlertCircle size={14} className="shrink-0" />
-                      <p>{trError(errors.parcelValue.message)}</p>
-                    </div>
-                  )}
-
-                  <div className="mt-1 text-red-500 text-xs sm:text-sm italic">
-                    {t('deliveryCostCalculator.stepOneForm.maxPrice')} - 50000 сом
+                  <div className="h-6 mt-1">
+                    {errors.parcelValue && (
+                      <div className="flex items-center gap-1.5 text-red-500 text-sm">
+                        <AlertCircle size={14} className="shrink-0" />
+                        <p>{trError(errors.parcelValue.message)}</p>
+                      </div>
+                    )}
                   </div>
                 </Field>
 
                 <Field>
                   <div className="flex items-center gap-2">
                     <FieldLabel>{t('deliveryCostCalculator.stepOneForm.parcelWeight')}</FieldLabel>
-                    {isParcelWeightValid ? (
-                      <CheckCircle className="text-green-500" size={20} />
-                    ) : (
-                      <XCircle className="text-gray-300" size={20} />
-                    )}
                   </div>
 
                   <div className="relative">
@@ -355,15 +315,13 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                     />
                   </div>
 
-                  {errors.parcelWeight && (
-                    <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
-                      <AlertCircle size={14} className="shrink-0" />
-                      <p>{trError(errors.parcelWeight.message)}</p>
-                    </div>
-                  )}
-
-                  <div className="mt-1 text-red-500 text-xs sm:text-sm italic">
-                    {t('deliveryCostCalculator.stepOneForm.maxWeight')} - 15кг
+                  <div className="h-6 mt-1">
+                    {errors.parcelWeight && (
+                      <div className="flex items-center gap-1.5 text-red-500 text-sm animate-in fade-in slide-in-from-top-1">
+                        <AlertCircle size={14} className="shrink-0" />
+                        <p>{trError(errors.parcelWeight.message)}</p>
+                      </div>
+                    )}
                   </div>
                 </Field>
               </FieldGroup>

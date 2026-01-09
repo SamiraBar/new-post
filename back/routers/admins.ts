@@ -19,6 +19,6 @@ adminsRouter.post("/create", auth, permit("superAdmin"), adminCreate);
 adminsRouter.delete("/:id", auth, permit("superAdmin"), adminDelete);
 adminsRouter.patch("/:id", auth, permit("superAdmin"), adminEdit);
 adminsRouter.patch("/profile/me", auth, permit("superAdmin"), adminEditSelf);
-adminsRouter.delete("/", adminLogout);
+adminsRouter.delete("/", auth, adminLogout);
 
 export default adminsRouter;
