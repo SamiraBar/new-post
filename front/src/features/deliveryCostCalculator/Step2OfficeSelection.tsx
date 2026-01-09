@@ -1,5 +1,5 @@
 import { offices } from '@/constants.ts';
-import { CheckCircle, MapPin, XCircle } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type UseFormReturn, useWatch } from 'react-hook-form';
@@ -9,15 +9,13 @@ interface Props {
   form: UseFormReturn<OrderFormData>;
 }
 
-const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
-  const {t} = useTranslation();
+const Step2SenderOfficeSelection: FC<Props> = ({ form }) => {
+  const { t } = useTranslation();
 
-  const {
-    setValue,
-  } = form;
+  const { setValue } = form;
   const [originCity, originOffice] = useWatch({
     control: form.control,
-    name: ['originCity', 'originOffice']
+    name: ['originCity', 'originOffice'],
   });
   const isOfficeSelected = !!originOffice;
 
@@ -41,11 +39,6 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
         <h3 className="text-2xl font-bold text-center">
           {t('deliveryCostCalculator.stepTwoForm.title')}
         </h3>
-        {isOfficeSelected ? (
-          <CheckCircle className="text-green-500" size={24}/>
-        ) : (
-          <XCircle className="text-gray-300" size={24}/>
-        )}
       </div>
 
       <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -68,18 +61,12 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
                 p-6 border-2 rounded-lg transition-all duration-300 text-left relative
                 hover:shadow-lg hover:border-orange-300 hover:scale-[1.02]
                 ${
-                isSelected
-                  ? 'border-orange-500 bg-linear-to-br from-orange-50 to-orange-100 shadow-xl scale-105 ring-2 ring-orange-200'
-                  : 'border-gray-300 bg-white'
-              }
+                  isSelected
+                    ? 'border-orange-500 bg-linear-to-br from-orange-50 to-orange-100 shadow-xl scale-105 ring-2 ring-orange-200'
+                    : 'border-gray-300 bg-white'
+                }
               `}
             >
-              {isSelected && (
-                <div className="absolute top-3 right-3">
-                  <CheckCircle className="text-orange-500" size={24}/>
-                </div>
-              )}
-
               <div className="flex flex-col h-full">
                 <div className="flex items-start gap-2 mb-2">
                   <MapPin

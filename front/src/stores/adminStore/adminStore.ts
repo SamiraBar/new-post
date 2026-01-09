@@ -65,13 +65,18 @@ export const useAdminStore = create<AdminState>()(
       },
 
       async logout(forced?: boolean) {
-        set({ admin: null });
-
-        if (forced) return;
+        if (forced) {
+          set({ admin: null });
+          return;
+        }
 
         try {
           await axiosApi.delete('/admins/');
-        } catch {}
+          set({ admin: null });
+        } catch (error) {
+          console.error('Logout error:', error);
+          set({ admin: null });
+        }
       },
 
       async editAdmin(data: AdminEditing) {

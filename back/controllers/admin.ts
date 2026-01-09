@@ -8,7 +8,7 @@ import { RequestWithAdmin } from "../middleware/auth";
 export const adminLogin = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const admin = await Admin.findOne({ email: req.body.email });
@@ -39,7 +39,7 @@ export const adminLogin = async (
 export const adminCreate = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const adminData: Omit<AdminDef, "token" | "role"> = {
     email: req.body.email,
@@ -72,7 +72,7 @@ export const adminCreate = async (
 export const adminDelete = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const removeUser = await Admin.findById(req.params.id);
@@ -93,7 +93,7 @@ export const adminDelete = async (
 export const allAdmins = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const admins = await Admin.find().sort({ role: -1 });
@@ -106,7 +106,7 @@ export const allAdmins = async (
 export const adminLogout = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const token = req.get("Authorization");
@@ -116,9 +116,10 @@ export const adminLogout = async (
     if (!admin) return res.status(204).send();
 
     admin.isActive = false;
-    admin.token = "";
+    admin.generateToken();
     await admin.save();
 
+    console.log("Admin logged out:", admin.email);
     res.status(204).send();
   } catch (error) {
     next(error);
@@ -128,7 +129,7 @@ export const adminLogout = async (
 export const adminEdit = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const id = req.params.id;
@@ -157,7 +158,7 @@ export const adminEdit = async (
 export const adminEditSelf = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const adminReq = req as RequestWithAdmin;

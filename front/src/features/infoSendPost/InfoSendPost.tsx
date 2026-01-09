@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
-import parcelOnline from '../../assets/images/parcel-online.png'
+import parcelOnline from '../../assets/images/parcel-online.png';
 import number from '../../assets/images/number.png';
 import office from '../../assets/images/office.png';
 import tracking from '../../assets/images/tracking.png';
@@ -22,7 +22,7 @@ const InfoSendPost = () => {
               alt="Оформление посылки"
               className="object-cover w-[160px] h-[158px] ml-[10px]"
             />
-            <AvatarFallback>Оформление посылки</AvatarFallback>120px
+            <AvatarFallback>Оформление посылки</AvatarFallback>
           </Avatar>
         </div>
 

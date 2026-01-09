@@ -1,6 +1,12 @@
 import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,6 +57,13 @@ const AdminModeration = () => {
     void getAllAdmins();
   }, [navigate, admin, getAllAdmins]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      void getAllAdmins();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [getAllAdmins]);
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewAdmin((prev) => ({ ...prev, [name]: value }));
