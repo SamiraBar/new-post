@@ -522,53 +522,6 @@ export const updatePartnerTrackingNumber = async (req: Request, res: Response, n
   }
 };
 
-export const syncParcelWithEKit = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { id } = req.params;
-
-    if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: "Invalid parcel ID" });
-
-    const parcel = await Parcel.findById(id).populate("sender").populate("recipient");
-    if (!parcel) return res.status(404).json({ error: "Parcel not found" });
-
-    if (parcel.partnerType !== "E-Kit") {
-      return res.status(400).json({
-        error: "Parcel is not for E-Kit delivery",
-        partnerType: parcel.partnerType,
-      });
-    }
-
-    if (parcel.partnerTrackingNumber) {
-      return res.status(400).json({
-        error: "Parcel already synced with E-Kit",
-        ekitTracking: parcel.partnerTrackingNumber,
-      });
-    }
-
-    const ekitResult: EKitOrderResult = await createOrderInEKit(parcel);
-
-    parcel.partnerTrackingNumber = ekitResult.ekitBarcode;
-    parcel.status = "created";
-    await parcel.save();
-
-    const fresh = await Parcel.findById(id).populate("sender").populate("recipient");
-
-    res.json({
-      message: "Successfully synced with E-Kit",
-      parcel: fresh,
-      ekitTracking: ekitResult.ekitBarcode,
-    });
-  } catch (e) {
-    if (e instanceof Error) {
-      console.error("Manual sync failed:", e.message);
-      next(e);
-    } else {
-      console.error("Manual sync failed with unknown error:", e);
-      next(new Error(String(e)));
-    }
-  }
-};
-
 export const getEKitStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;

@@ -91,6 +91,7 @@ export interface CreateParcelData {
   partnerTrackingNumber: string | null;
   description: string;
   serviceCity?: string;
+  distributionCenter?: string;
   sender: {
     fullName: string;
     phoneNumber: string;

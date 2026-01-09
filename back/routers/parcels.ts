@@ -3,7 +3,7 @@ import auth from "../middleware/auth";
 import {
     createParcel, getEKitStatus, getParcelById,
     getParcelByTrackingNumber,
-    getParcels, sendToEKIT, syncAllParcels, syncParcelWithEKit, syncSingleParcel,
+    getParcels, sendToEKIT, syncAllParcels, syncSingleParcel,
     updateParcelStatus, updatePartnerTrackingNumber,
 } from "../controllers/parcels";
 
@@ -15,11 +15,9 @@ parcelsRouter.post("/send-to-ekit", sendToEKIT);
 
 parcelsRouter.post("/sync-all", auth, syncAllParcels);
 
-parcelsRouter.post("/parcels/:id/sync-ekit", syncParcelWithEKit);
+parcelsRouter.post("/tracking/:trackingNumber/sync", auth, syncSingleParcel);
 
 parcelsRouter.get("/track/:trackingNumber", getParcelByTrackingNumber);
-
-parcelsRouter.post("/track/:trackingNumber/sync", auth, syncSingleParcel);
 
 parcelsRouter.get("/", auth, getParcels);
 
