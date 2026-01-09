@@ -3,6 +3,7 @@ import axiosApi from '@/axiosApi.ts';
 import axios, { isAxiosError } from 'axios';
 import type { ParcelState } from './types';
 import type { CreateParcelData, IParcel, Order, PaginatedParcelsResponse } from '@/types';
+import { toast } from 'sonner';
 
 interface SearchFilters {
   trackingNumber?: string;
@@ -247,7 +248,6 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       const parcelData: CreateParcelData = {
         partnerTrackingNumber: null,
         description: order.inParcel,
-        distributionCenter: order.distributionCenter,
         sender: {
           fullName: order.sender.name,
           phoneNumber: order.sender.phone,
@@ -335,15 +335,9 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         createdTrackingNumber: data.trackingNumber,
       });
 
-      const { toast } = await import('sonner');
-
       if (data.emailNotificationTriggered) {
-        toast.success('Письмо отправлено отправителю', {
+        toast.success('Посылка создана. Уведомление отправлено!', {
           description: `Email: ${order.sender.email}\nГород: ${order.destinationCity}\nТрек-номер: ${data.trackingNumber}`,
-        });
-      } else {
-        toast.success('Посылка создана', {
-          description: `Трек-номер: ${data.trackingNumber}`,
         });
       }
 
