@@ -56,6 +56,7 @@ interface CreateParcelResponse {
   parcel: IParcel | null;
   trackingNumber: string;
   warning?: string;
+  emailNotificationTriggered?: boolean;
 }
 
 export interface EKitOrderResult {
