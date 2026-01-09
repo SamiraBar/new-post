@@ -30,7 +30,7 @@ const run = async () => {
     console.log("Ручная синхронизация доступна через API:");
     console.log("   - POST /parcels/sync-all (синхронизировать все посылки)");
     console.log("   - POST /parcels/tracking/:trackingNumber/sync (синхронизировать одну)");
-    console.log("🔒 Оба роута требуют авторизации (заголовок Authorization)");
+    console.log(" Оба роута требуют авторизации (заголовок Authorization)");
 
     app.listen(config.port as number, "0.0.0.0", () => {
       console.log(`Server running on port ${config.port}`);
