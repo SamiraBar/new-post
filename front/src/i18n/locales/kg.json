@@ -209,6 +209,10 @@
   "footer": {
     "address": "“ЖАНЫ ПОЧТА” ЖЧК Бишкек шаары, Лев Толстой көчөсү, 24/1"
   },
+  "contacts": {
+    "phone": "+996 123 456 789",
+    "email": "info@company.kg"
+  },
   "parcelSuccessModal": {
     "title": "Посылка ийгиликтүү түзүлдү!",
     "trackingNumberLabel": "Сиздин трек-номер:",

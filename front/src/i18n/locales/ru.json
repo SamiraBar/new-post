@@ -210,6 +210,10 @@
   "footer": {
     "address": "ОСОО “Новая Почта”, г. Бишкек, ул. Льва Толстого 24/1"
   },
+  "contacts": {
+    "phone": "+996 555 555 555",
+    "email": "newemail@company.kg"
+  },
   "parcelSuccessModal": {
     "title": "Посылка успешно создана!",
     "trackingNumberLabel": "Ваш трек-номер:",
