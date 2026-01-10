@@ -5,7 +5,7 @@ import AdminLoginForm from '@/features/adminPanel/AdminLoginForm.tsx';
 import { Toaster } from '@/components/ui/sonner';
 import AdminModeration from '@/features/adminPanel/AdminModeration.tsx';
 import ParcelDetails from './features/parcels/admin/ParcelDetails';
-import AdminSiteContent from '@/features/adminPanel/AdminSiteContent.tsx';
+import AdminSiteContent from '@/features/adminPanel/components/AdminSiteContent/AdminSiteContent.tsx';
 import AdminProfileEdit from '@/features/adminPanel/components/AdminProfileEdit.tsx';
 
 const App = () => {
