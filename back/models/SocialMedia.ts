@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export interface ISocialMedia extends mongoose.Document {
   name: string;
   url: string;
-  icon: string; // Путь: "uploads/social/instagram.png"
+  icon: string;
   order: number;
 }
 
@@ -13,7 +13,7 @@ const SocialMediaSchema = new mongoose.Schema(
       type: String,
       required: [true, "Name is required"],
       trim: true,
-      unique: true, // ✅ Валидация дублей на уровне БД
+      unique: true,
     },
     url: {
       type: String,

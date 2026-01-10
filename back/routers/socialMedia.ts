@@ -11,10 +11,8 @@ import permit from "../middleware/permit";
 
 const router = express.Router();
 
-// Публичный эндпоинт (для FooterComponent)
 router.get("/social-networks", getAllSocialNetworks);
 
-// Защищенные эндпоинты (только для superAdmin)
 router.post(
   "/social-networks",
   permit("superAdmin"),

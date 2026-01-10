@@ -1,10 +1,8 @@
-// back/controllers/socialMedia.ts
 import { Request, Response } from "express";
 import SocialMedia from "../models/SocialMedia";
 import fs from "fs";
 import path from "path";
 
-// GET /api/social-networks - Получить все
 export const getAllSocialNetworks = async (req: Request, res: Response) => {
   try {
     const socials = await SocialMedia.find().sort({ order: 1 });
@@ -16,12 +14,10 @@ export const getAllSocialNetworks = async (req: Request, res: Response) => {
   }
 };
 
-// POST /api/social-networks - Создать
 export const createSocialNetwork = async (req: Request, res: Response) => {
   try {
     const { name, url, order } = req.body;
 
-    // Проверка лимита (максимум 6)
     const count = await SocialMedia.countDocuments();
     if (count >= 6) {
       return res.status(400).json({ error: "Максимум 6 социальных сетей" });
@@ -42,11 +38,10 @@ export const createSocialNetwork = async (req: Request, res: Response) => {
 
     res.status(201).json(social);
   } catch (error) {
-    // Удаляем загруженный файл если ошибка
     if (req.file) {
       const filePath = path.join(
         __dirname,
-        "../../public/uploads/social",
+        "../public/uploads/social",
         req.file.filename,
       );
       if (fs.existsSync(filePath)) {
@@ -66,7 +61,6 @@ export const createSocialNetwork = async (req: Request, res: Response) => {
   }
 };
 
-// PATCH /api/social-networks/:id - Обновить
 export const updateSocialNetwork = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -77,10 +71,8 @@ export const updateSocialNetwork = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Социальная сеть не найдена" });
     }
 
-    // Если загружена новая иконка
     if (req.file) {
-      // Удаляем старую иконку
-      const oldIconPath = path.join(__dirname, "../../public", social.icon);
+      const oldIconPath = path.join(__dirname, "../public", social.icon);
       if (fs.existsSync(oldIconPath)) {
         fs.unlinkSync(oldIconPath);
       }
@@ -105,7 +97,6 @@ export const updateSocialNetwork = async (req: Request, res: Response) => {
   }
 };
 
-// DELETE /api/social-networks/:id - Удалить
 export const deleteSocialNetwork = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -115,8 +106,7 @@ export const deleteSocialNetwork = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Социальная сеть не найдена" });
     }
 
-    // Удаляем файл иконки
-    const iconPath = path.join(__dirname, "../../public", social.icon);
+    const iconPath = path.join(__dirname, "../public", social.icon);
     if (fs.existsSync(iconPath)) {
       fs.unlinkSync(iconPath);
     }
@@ -130,16 +120,14 @@ export const deleteSocialNetwork = async (req: Request, res: Response) => {
   }
 };
 
-// PATCH /api/social-networks/reorder - Изменить порядок
 export const reorderSocialNetworks = async (req: Request, res: Response) => {
   try {
-    const { items } = req.body; // [{ id: "...", order: 0 }, ...]
+    const { items } = req.body;
 
     if (!Array.isArray(items)) {
       return res.status(400).json({ error: "Items должны быть массивом" });
     }
 
-    // Обновляем order для каждого элемента
     const updates = items.map((item) =>
       SocialMedia.findByIdAndUpdate(item.id, { order: item.order }),
     );

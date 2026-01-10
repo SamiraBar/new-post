@@ -1,6 +1,4 @@
 import SocialMedia from "../models/SocialMedia";
-import fs from "fs";
-import path from "path";
 
 export const seedSocialNetworks = async () => {
   try {
@@ -10,46 +8,6 @@ export const seedSocialNetworks = async () => {
       return;
     }
 
-    // Создаем папку для иконок
-    const uploadDir = path.join(__dirname, "../../public/uploads/social");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-      console.log("📁 Created uploads/social directory");
-    }
-
-    // Пытаемся скопировать иконки из фронта
-    const frontIconsDir = path.join(
-      __dirname,
-      "../../../front/src/assets/cosialIcons",
-    );
-
-    try {
-      if (fs.existsSync(path.join(frontIconsDir, "whatsapp.png"))) {
-        fs.copyFileSync(
-          path.join(frontIconsDir, "whatsapp.png"),
-          path.join(uploadDir, "whatsapp.png"),
-        );
-        console.log("✅ Copied WhatsApp icon");
-      }
-
-      if (fs.existsSync(path.join(frontIconsDir, "instagram.png"))) {
-        fs.copyFileSync(
-          path.join(frontIconsDir, "instagram.png"),
-          path.join(uploadDir, "instagram.png"),
-        );
-        console.log("✅ Copied Instagram icon");
-      }
-    } catch (copyError) {
-      console.log(
-        "⚠️  Could not copy icons automatically. Please copy manually:",
-      );
-      console.log("   whatsapp.png → back/public/uploads/social/whatsapp.png");
-      console.log(
-        "   instagram.png → back/public/uploads/social/instagram.png",
-      );
-    }
-
-    // Создаем записи в БД
     const defaultSocials = [
       {
         name: "WhatsApp",
