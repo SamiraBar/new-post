@@ -35,8 +35,6 @@ const CreateOffice = () => {
     },
   });
 
-  console.log(createOfficeError);
-
   const onSubmit = async (data: OfficeFormData) => {
     const office = await createOffice(data);
     if (office) {

@@ -1,10 +1,9 @@
-import { CheckCircle, LoaderCircle, MapPin, XCircle } from 'lucide-react';
+import { LoaderCircle, Map, MapPin, Phone } from 'lucide-react';
 import { type FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type UseFormReturn, useWatch } from 'react-hook-form';
 import type { OrderFormData } from '@/lib/order.schema.ts';
 import useOfficesStore from '@/stores/officesStore/officesStore.ts';
-import { Button } from '@/components/ui/button.tsx';
 
 interface Props {
   form: UseFormReturn<OrderFormData>;
@@ -93,78 +92,79 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
             const isSelected = originOffice === office._id;
 
             return (
-              <button
+              <div
                 key={office._id}
-                type="button"
                 role="radio"
                 aria-checked={isSelected}
-                aria-pressed={isSelected}
+                tabIndex={0}
                 onClick={() => handleOfficeSelect(office._id)}
-                className={`${cardBase} ${
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleOfficeSelect(office._id);
+                  }
+                }}
+                className={`${cardBase} cursor-pointer group ${
                   isSelected ? cardSelected : cardDefault
-                }`}
+                } relative transition-all`}
               >
-                {isSelected && (
-                  <CheckCircle
-                    className="absolute top-3 right-3 text-orange-500"
-                    size={24}
-                  />
-                )}
-
                 <div className="flex flex-col h-full gap-2">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(office.mapUrl, '_blank');
-                      }}
-                      aria-label="Open map"
-                    >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
                       <MapPin
                         size={20}
                         className={isSelected ? 'text-orange-500' : 'text-gray-400'}
                       />
-                    </Button>
-
-                    <h4 className="font-bold text-lg">{office.city}</h4>
+                      <h4 className="font-bold text-lg">{office.city}</h4>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(office.mapUrl, '_blank');
+                      }}
+                      className="flex items-center gap-1 text-xs hover:text-blue-700 font-medium p-1 rounded hover:bg-blue-50 transition-colors"
+                      aria-label="Open map"
+                    >
+                      <Map className="text-blue-600" />
+                    </button>
                   </div>
 
-                  {
-                    office.name && (
-                      <p className="not-italic text-sm text-gray-600">
-                        {t('deliveryCostCalculator.stepTwoForm.name')}: {office.name}
-                      </p>
-                    )
-                  }
+                  {office.name && (
+                    <p className="not-italic text-sm text-gray-600">
+                      <span className="font-medium">{t('deliveryCostCalculator.stepTwoForm.name')}:</span> {office.name}
+                    </p>
+                  )}
 
-                  <address className="not-italic text-sm text-gray-600">
-                    {t('deliveryCostCalculator.stepTwoForm.address')}: {office.address}
-                  </address>
+                  <div className="not-italic text-sm text-gray-600">
+                    <span className="font-medium">{t('deliveryCostCalculator.stepTwoForm.address')}:</span> {office.address}
+                  </div>
 
                   <a
                     href={`tel:${office.phone}`}
-                    className="text-sm text-gray-600 hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-sm text-orange-600 hover:text-orange-700 font-semibold flex items-center gap-1 w-fit mt-1"
                   >
-                    {t('deliveryCostCalculator.stepTwoForm.phone')}: {office.phone}
+                    <Phone size={14} />
+                    {office.phone}
                   </a>
 
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-500 mt-1">
                     {t('deliveryCostCalculator.stepTwoForm.schedule')}: {office.worktime}
                   </p>
 
-                  <span
-                    className={`mt-3 text-sm font-medium ${
-                      isSelected ? 'text-orange-600' : 'text-gray-500'
+                  <div
+                    className={`mt-auto pt-3 text-sm font-medium flex items-center gap-2 ${
+                      isSelected ? 'text-orange-600' : 'text-gray-400 group-hover:text-gray-600'
                     }`}
                   >
-                  {isSelected
-                    ? '✓ ' + t('deliveryCostCalculator.stepTwoForm.checkSelected')
-                    : t('deliveryCostCalculator.stepTwoForm.checkSelect')}
-                </span>
+                    <div className={`w-2 h-2 rounded-full ${isSelected ? 'bg-orange-500' : 'bg-gray-300'}`} />
+                    {isSelected
+                      ? t('deliveryCostCalculator.stepTwoForm.checkSelected')
+                      : t('deliveryCostCalculator.stepTwoForm.checkSelect')}
+                  </div>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>

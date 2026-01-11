@@ -73,10 +73,8 @@ const OfficesList = () => {
                 <TableRow>
                   <TableHead>Город</TableHead>
                   <TableHead>Адрес</TableHead>
-                  <TableHead className="w-[100px]">Название</TableHead>
                   <TableHead>Телефон</TableHead>
-                  <TableHead>График работы</TableHead>
-                  <TableHead>Ссылка</TableHead>
+                  <TableHead>Карта</TableHead>
                   <TableHead>Дата создания</TableHead>
                   <TableHead>Статус</TableHead>
                 </TableRow>
@@ -89,9 +87,7 @@ const OfficesList = () => {
                     >
                       <TableCell>{office.city}</TableCell>
                       <TableCell>{office.address}</TableCell>
-                      <TableCell>{office.name}</TableCell>
                       <TableCell>{office.phone}</TableCell>
-                      <TableCell>{office.worktime}</TableCell>
                       <TableCell>
                         <a
                           href={office.mapUrl}

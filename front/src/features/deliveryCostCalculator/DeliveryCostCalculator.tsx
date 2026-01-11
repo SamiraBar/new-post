@@ -50,7 +50,6 @@ const DeliveryCostCalculator = () => {
   const form = useForm<OrderFormData>({
     resolver: zodResolver(schema),
     mode: 'onChange',
-    reValidateMode: 'onChange',
     defaultValues: {
       originCity: '',
       destinationCity: '',
