@@ -19,29 +19,31 @@ const priceStorage = multer.diskStorage({
 
 const companyFileStorage = multer.diskStorage({
   destination: async (_req, _file, callback) => {
-    const destDir = path.join(config.publicPath, 'company-files');
+    const destDir = path.join(config.publicPath, "company-files");
     await fs.mkdir(destDir, { recursive: true });
     callback(null, destDir);
   },
   filename: (_req, file, callback) => {
     const extension = path.extname(file.originalname);
-    const newFileName = randomUUID() + extension;
+    const nameWithoutExt = path.basename(file.originalname, extension)
+        .normalize('NFC')
+        .replace(/[\\/:"*?<>|]+/g, "_");
+
+    const newFileName = `${Date.now()}_${nameWithoutExt}${extension}`;
     callback(null, newFileName);
   }
 });
 
 export const companyFileUpload = multer({
   storage: companyFileStorage,
-  fileFilter: (_req, file, cb: (error: Error | null, acceptFile?: boolean) => void) => {
+  fileFilter: (_req, file, cb: multer.FileFilterCallback) => {
     if (file.mimetype !== "application/pdf") {
-      cb(new Error("Only PDF files are allowed"), false);
-      return;
+      return cb(null, false);
     }
     cb(null, true);
   },
-  limits: {
-    fileSize: 10 * 1024 * 1024
-  }
+  limits: { fileSize: 10 * 1024 * 1024 },
 });
+
 
 export const pricesUpload = multer({storage: priceStorage});

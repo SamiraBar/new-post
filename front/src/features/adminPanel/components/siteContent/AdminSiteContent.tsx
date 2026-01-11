@@ -1,18 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { Label } from '@/components/ui/label.tsx';
+import { Textarea } from '@/components/ui/textarea.tsx';
+import { Separator } from '@/components/ui/separator.tsx';
 import { toast } from 'sonner';
-import useAdminStore from '@/stores/adminStore/adminStore';
+import useAdminStore from '@/stores/adminStore/adminStore.ts';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Info, Eye, Pencil, Package } from 'lucide-react';
-import axiosApi from '@/axiosApi';
+import axiosApi from '@/axiosApi.ts';
 import { isHeadingLine, splitBlocks } from '@/components/ui/contentBlocks.ts';
-import logoDark from '../../assets/logo/logo-2.png';
-import whatsappIcon from '../../assets/cosialIcons/WhatsApp.png';
-import instagramIcon from '../../assets/cosialIcons/Instagram.png';
+import logoDark from '../../../../assets/logo/logo-2.png';
+import whatsappIcon from '../../../../assets/cosialIcons/WhatsApp.png';
+import instagramIcon from '../../../../assets/cosialIcons/Instagram.png';
+import CompanyFilesCard from './CompanyFilesCard';
 
 type Lang = 'ru' | 'kg';
 type Mode = 'edit' | 'preview';
@@ -305,6 +306,7 @@ const AdminSiteContent = () => {
               />
             </CardContent>
           </Card>
+          <CompanyFilesCard />
         </>
       ) : (
         <div className="space-y-10 pb-10">

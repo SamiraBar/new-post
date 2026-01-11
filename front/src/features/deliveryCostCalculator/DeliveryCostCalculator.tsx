@@ -2,8 +2,6 @@ import { type FormEvent, type JSX, useCallback, useEffect, useMemo, useRef, useS
 import { Button } from '@/components/ui/button.tsx';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
-import { Label } from '@/components/ui/label.tsx';
-import { Checkbox } from '@/components/ui/checkbox.tsx';
 import type { Order } from '@/types';
 import { WarningNotices } from './WarningNotices';
 import { StepIndicator } from '@/features/deliveryCostCalculator/StepIndicator.tsx';
@@ -20,6 +18,7 @@ import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type OrderFormData, orderSchema } from '@/lib/order.schema.ts';
+import AgreementCheckbox from './components/AgreementCheckbox';
 
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -376,53 +375,13 @@ const DeliveryCostCalculator = () => {
               </Button>
 
               {currentStep === 4 && (
-                <div
-                  ref={agreementRef}
-                  className={[
-                    'w-full sm:min-w-[420px] -order-1 sm:order-0',
-                    'rounded-2xl border-2 p-4 shadow-sm',
-                    'flex items-center gap-4',
-                    agreementError && !isAgreed
-                      ? 'border-red-500 bg-red-50'
-                      : 'border-orange-300 bg-orange-50',
-                  ].join(' ')}
-                >
-                  <div className="flex items-center justify-center">
-                    <Checkbox
-                      checked={isAgreed}
-                      className={[
-                        'size-6 rounded-md border-2 shadow-sm',
-                        agreementError && !isAgreed
-                          ? 'border-red-500 ring-4 ring-red-200'
-                          : 'border-orange-500',
-                        isAgreed
-                          ? 'data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500'
-                          : '',
-                      ].join(' ')}
-                      onCheckedChange={(checked) => {
-                        setIsAgreed(checked === true);
-                        setAgreementError(false);
-                      }}
-                    />
-                  </div>
-
-                  <div className="text-left">
-                    <Label
-                      className={[
-                        'block text-sm leading-snug mt-1',
-                        agreementError && !isAgreed ? 'text-red-700' : 'text-gray-700',
-                      ].join(' ')}
-                    >
-                      {t('deliveryCostCalculator.buttons.agreement')}
-                    </Label>
-
-                    <p className="text-xs text-gray-600 mt-1">
-                      {t('deliveryCostCalculator.buttons.agreementHint')}
-                    </p>
-                  </div>
-                </div>
+                <AgreementCheckbox
+                  isAgreed={isAgreed}
+                  setIsAgreed={setIsAgreed}
+                  agreementError={agreementError}
+                  setAgreementError={setAgreementError}
+                />
               )}
-
               {currentStep === 5 ? (
                 <Button
                   type="button"

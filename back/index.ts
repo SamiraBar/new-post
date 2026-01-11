@@ -7,7 +7,7 @@ import pricesRouter from "./routers/prices";
 import parcelsRouter from "./routers/parcels";
 import printerRouter from "./routers/printer";
 import i18nContentRouter from "./routers/i18nContent";
-import companyFilesRouter from "./routers/companyFilesRouter";
+import companyFilesRouter from "./routers/companyFiles";
 
 const app = express();
 
