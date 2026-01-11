@@ -6,6 +6,7 @@ import { generateTrackingNumber } from "../utils/generateTrackingNumber";
 import { createOrderInEKit, getOrderStatus } from "../services/ekit.service";
 import { CreateParcelResponse, EKitOrderResult, ParcelCreateData } from "../types";
 import {syncAllEKitStatuses, syncSingleParcelStatus} from "../services/ekit.synchonization";
+import {sendParcelCreatedEmail} from "../services/email.service";
 
 const ORIGIN_CITY_FIXED = "Bishkek";
 const ORIGIN_OFFICE_FIXED = 1;
@@ -227,6 +228,39 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
     const newParcel = new Parcel(parcelData);
     await newParcel.save();
 
+    void (async () => {
+      try {
+        const senderContact = await Contact.findById(newSender._id).select("email fullName");
+
+        if (!senderContact?.email) {
+          console.error("[email] sender email missing", {
+            parcelId: newParcel._id,
+            trackingNumber,
+            senderId: newSender._id,
+          });
+          return;
+        }
+
+        await sendParcelCreatedEmail({
+          to: senderContact.email,
+          fullName: senderContact.fullName || sender.fullName,
+          city: destinationCity,
+          trackingNumber,
+        });
+
+        console.log("[email] parcel-created email sent", {
+          trackingNumber,
+          to: senderContact.email,
+        });
+      } catch (err: any) {
+        console.error("[email] failed to send parcel-created email", {
+          parcelId: newParcel._id,
+          trackingNumber,
+          error: err?.message || String(err),
+        });
+      }
+    })();
+
     const populatedParcel = await Parcel.findById(newParcel._id)
         .populate("sender")
         .populate("recipient");
@@ -235,6 +269,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       message: "Parcel created successfully as draft",
       parcel: populatedParcel,
       trackingNumber,
+      emailNotificationTriggered: true,
     };
 
     res.status(201).json(response);
@@ -484,53 +519,6 @@ export const updatePartnerTrackingNumber = async (req: Request, res: Response, n
     });
   } catch (e) {
     next(e);
-  }
-};
-
-export const syncParcelWithEKit = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { id } = req.params;
-
-    if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: "Invalid parcel ID" });
-
-    const parcel = await Parcel.findById(id).populate("sender").populate("recipient");
-    if (!parcel) return res.status(404).json({ error: "Parcel not found" });
-
-    if (parcel.partnerType !== "E-Kit") {
-      return res.status(400).json({
-        error: "Parcel is not for E-Kit delivery",
-        partnerType: parcel.partnerType,
-      });
-    }
-
-    if (parcel.partnerTrackingNumber) {
-      return res.status(400).json({
-        error: "Parcel already synced with E-Kit",
-        ekitTracking: parcel.partnerTrackingNumber,
-      });
-    }
-
-    const ekitResult: EKitOrderResult = await createOrderInEKit(parcel);
-
-    parcel.partnerTrackingNumber = ekitResult.ekitBarcode;
-    parcel.status = "created";
-    await parcel.save();
-
-    const fresh = await Parcel.findById(id).populate("sender").populate("recipient");
-
-    res.json({
-      message: "Successfully synced with E-Kit",
-      parcel: fresh,
-      ekitTracking: ekitResult.ekitBarcode,
-    });
-  } catch (e) {
-    if (e instanceof Error) {
-      console.error("Manual sync failed:", e.message);
-      next(e);
-    } else {
-      console.error("Manual sync failed with unknown error:", e);
-      next(new Error(String(e)));
-    }
   }
 };
 

@@ -3,6 +3,7 @@ import axiosApi from '@/axiosApi.ts';
 import axios, { isAxiosError } from 'axios';
 import type { ParcelState } from './types';
 import type { CreateParcelData, IParcel, Order, PaginatedParcelsResponse } from '@/types';
+import { toast } from 'sonner';
 
 interface SearchFilters {
   trackingNumber?: string;
@@ -42,6 +43,16 @@ interface ExtendedParcelState extends ParcelState {
   sendParcelToEKitLoading: boolean;
   sendParcelToEKitError: { error: string } | null;
   sendParcelToEKit: (trackingNumber: string) => Promise<{ success: boolean; message?: string }>;
+
+  syncSingleParcelLoading: boolean;
+  syncSingleParcelError: { error: string } | null;
+  syncSingleParcel: (trackingNumber: string) => Promise<{
+    success: boolean;
+    message: string;
+    oldStatus?: string;
+    newStatus?: string;
+    ekitStatus?: string;
+  }>;
 }
 
 export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
@@ -64,6 +75,8 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
   printStickerError: null,
   sendParcelToEKitLoading: false,
   sendParcelToEKitError: null,
+  syncSingleParcelLoading: false,
+  syncSingleParcelError: null,
 
   async sendParcelToEKit(trackingNumber: string) {
     set({
@@ -247,7 +260,6 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       const parcelData: CreateParcelData = {
         partnerTrackingNumber: null,
         description: order.inParcel,
-        distributionCenter: order.distributionCenter,
         sender: {
           fullName: order.sender.name,
           phoneNumber: order.sender.phone,
@@ -322,6 +334,7 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         parcel: IParcel;
         trackingNumber: string;
         warning?: string;
+        emailNotificationTriggered?: boolean;
       }>('/parcels', parcelData);
 
       if (data.warning) {
@@ -333,6 +346,12 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         parcel: data.parcel,
         createdTrackingNumber: data.trackingNumber,
       });
+
+      if (data.emailNotificationTriggered) {
+        toast.success('Посылка создана. Уведомление отправлено!', {
+          description: `Email: ${order.sender.email}\nГород: ${order.destinationCity}\nТрек-номер: ${data.trackingNumber}`,
+        });
+      }
 
       return data.trackingNumber;
     } catch (e: unknown) {
@@ -462,6 +481,64 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
       });
 
       return false;
+    }
+  },
+
+  async syncSingleParcel(trackingNumber: string) {
+    set({
+      syncSingleParcelLoading: true,
+      syncSingleParcelError: null,
+    });
+
+    try {
+      const { data } = await axiosApi.post<{
+        success?: boolean;
+        message: string;
+        trackingNumber?: string;
+        oldStatus?: string;
+        newStatus?: string;
+        ekitStatus?: string;
+        error?: string;
+      }>(`/parcels/tracking/${trackingNumber}/sync`);
+
+      if (data.newStatus && data.newStatus !== data.oldStatus) {
+        const currentParcel = get().parcel;
+        if (currentParcel && currentParcel.trackingNumber === trackingNumber) {
+          await get().getParcelById(currentParcel._id);
+        }
+
+        await get().getParcels(1);
+      }
+
+      set({ syncSingleParcelLoading: false });
+
+      return {
+        success: true,
+        message: data.message,
+        oldStatus: data.oldStatus,
+        newStatus: data.newStatus,
+        ekitStatus: data.ekitStatus,
+      };
+    } catch (e: unknown) {
+      let errorMessage = 'Не удалось синхронизировать посылку';
+
+      if (axios.isAxiosError(e)) {
+        errorMessage = e.response?.data?.error || e.response?.data?.message || e.message;
+      } else if (e instanceof Error) {
+        errorMessage = e.message;
+      } else if (typeof e === 'string') {
+        errorMessage = e;
+      }
+
+      set({
+        syncSingleParcelError: { error: errorMessage },
+        syncSingleParcelLoading: false,
+      });
+
+      return {
+        success: false,
+        message: errorMessage,
+      };
     }
   },
 }));

@@ -18,7 +18,7 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
   } = form;
   const [originCity, originOffice] = useWatch({
     control: form.control,
-    name: ['originCity', 'originOffice']
+    name: ['originCity', 'originOffice'],
   });
   const isOfficeSelected = !!originOffice;
 
@@ -55,19 +55,11 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
         <h3 className="text-2xl font-bold text-center">
           {t('deliveryCostCalculator.stepTwoForm.title')}
         </h3>
-
-        {isOfficeSelected ? (
-          <CheckCircle className="text-green-500" size={24} />
-        ) : (
-          <XCircle className="text-gray-300" size={24} />
-        )}
       </div>
 
       <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <p className="text-blue-800 text-sm">
-        <span className="font-medium">
-          {t('deliveryCostCalculator.stepTwoForm.spanOne')}
-        </span>
+          <span className="font-medium">{t('deliveryCostCalculator.stepTwoForm.spanOne')}</span>
           {t('deliveryCostCalculator.stepTwoForm.spanTwo')}
         </p>
       </div>
@@ -187,7 +179,6 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
       )}
     </div>
   );
-
 };
 
 export default Step2SenderOfficeSelection;
