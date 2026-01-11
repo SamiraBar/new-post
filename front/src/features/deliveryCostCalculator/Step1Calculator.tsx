@@ -59,7 +59,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     setValue('originCity', ORIGIN_CITY_VALUE, { shouldDirty: true, shouldValidate: true });
     clearErrors('originCity');
 
-    setValue('originOffice', ORIGIN_OFFICE_ID as any, { shouldDirty: true, shouldValidate: true });
+    setValue('originOffice', ORIGIN_OFFICE_ID, { shouldDirty: true, shouldValidate: true });
     clearErrors('originOffice');
   }, [clearErrors, setValue]);
 

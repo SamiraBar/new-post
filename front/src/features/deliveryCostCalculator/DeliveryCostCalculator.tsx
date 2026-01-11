@@ -46,7 +46,7 @@ const DeliveryCostCalculator = () => {
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(schema),
-    mode: 'onChange',
+    mode: 'onBlur',
     reValidateMode: 'onChange',
     defaultValues: {
       originCity: '',
@@ -109,8 +109,19 @@ const DeliveryCostCalculator = () => {
       }
       const cityForCalculation = pvzData?.town || destinationCity;
 
+      console.log('Пересчёт цен в DeliveryCostCalculator:');
+      console.log('  - destinationCity:', destinationCity);
+      console.log('  - pvzData?.town:', pvzData?.town);
+      console.log('  - Город для расчёта:', cityForCalculation);
+      console.log('  - Вес посылки:', parcelWeight);
+      console.log('  - Стоимость посылки:', parcelValue);
+
       const delivery = await fetchDeliveryCost(cityForCalculation, Number(parcelWeight));
       const insurance = calculateInsuranceCost(Number(parcelValue));
+
+      console.log('  - Стоимость доставки:', delivery.totalCost);
+      console.log('  - Стоимость страховки:', insurance);
+      console.log('  - Итого:', delivery.totalCost + insurance);
 
       setValue('deliveryCost', delivery.totalCost, { shouldDirty: false });
       setValue('insuranceCost', insurance, { shouldDirty: false });

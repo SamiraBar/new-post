@@ -33,39 +33,55 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
   const handlePvzSelect = (pvzData: PvzData) => {
     const normalizedCity = normalizeCityName(pvzData.town || '');
 
-    console.log('🎯 Обработка выбранного ПВЗ в Step3:');
+    console.log(' Обработка выбранного ПВЗ в Step3:');
     console.log('  - Код ПВЗ:', pvzData.code);
     console.log('  - Название:', pvzData.name);
     console.log('  - Город (оригинал):', pvzData.town);
     console.log('  - Город (нормализованный):', normalizedCity);
-    console.log('  - 🔑 ParentCode:', pvzData.parentcode);
-    console.log('  - 📍 ParentName:', pvzData.parentname);
+    console.log('  - ParentCode:', pvzData.parentcode);
+    console.log('  - ParentName:', pvzData.parentname);
 
     let serviceCode: '14' | '15' = '14';
     let serviceCity: 'МСК' | 'ЕКБ' = 'МСК';
 
     if (pvzData.parentcode === '2495') {
       serviceCode = '15';
-      serviceCity = 'ЕКБ'
+      serviceCity = 'ЕКБ';
     }
 
+    console.log('  - Service код:', serviceCode);
+    console.log('  - Service город:', serviceCity);
 
-    console.log('  - 🚚 Service код:', serviceCode);
-    console.log('  - 🚚 Service код для E-Kit:', serviceCode);
+    setValue('destinationCity', normalizedCity, {
+      shouldDirty: true,
+      shouldValidate: true
+    });
 
     setValue('pvzData', {
       ...pvzData,
       town: normalizedCity
+    }, { shouldDirty: true });
+
+    setValue('destinationOffice', parseInt(pvzData.code) || 0, {
+      shouldDirty: true,
+      shouldValidate: true
     });
-    setValue('destinationOffice', parseInt(pvzData.code) || 0);
-    setValue('destinationCity', normalizedCity || getValues('destinationCity'));
-    setValue('serviceCode', serviceCode);
-    setValue('serviceCity', serviceCity);
+
+    setValue('serviceCode', serviceCode, { shouldDirty: true });
+    setValue('serviceCity', serviceCity, { shouldDirty: true });
+
+    const currentReceiver = getValues('receiver');
     setValue('receiver', {
-      ...getValues('receiver'),
-      city: normalizedCity || getValues('receiver.city'),
-      address: pvzData.address || getValues('receiver.address'),
+      ...currentReceiver,
+      city: normalizedCity,
+      address: pvzData.address || currentReceiver.address,
+    }, {
+      shouldDirty: true,
+      shouldValidate: true
     });
+
+    console.log('Все поля обновлены. Город:', normalizedCity);
+    console.log('useEffect в родительском компоненте пересчитает цены автоматически');
   };
 
   if (!deliveryType) return null;
