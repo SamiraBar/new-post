@@ -8,6 +8,7 @@ import parcelsRouter from "./routers/parcels";
 import printerRouter from "./routers/printer";
 import i18nContentRouter from "./routers/i18nContent";
 import {setupTestSyncCron} from "./services/ekit.cron";
+import officeRouter from './routers/offices';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use("/prices", pricesRouter);
 app.use("/parcels", parcelsRouter);
 app.use("/printer", printerRouter);
 app.use("/i18n-content", i18nContentRouter);
+app.use("/offices", officeRouter);
 
 const run = async () => {
   try {

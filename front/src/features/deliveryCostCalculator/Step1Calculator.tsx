@@ -2,13 +2,7 @@ import { type ChangeEvent, type FC, useEffect, useMemo, useState } from 'react';
 import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field.tsx';
 import TruckIconA from '@/features/deliveryCostCalculator/components/icons/TruckIconA.tsx';
 import TruckIconB from '@/features/deliveryCostCalculator/components/icons/TruckIconB.tsx';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select.tsx';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { AlertCircle, Clock, HandCoins, Weight } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
@@ -16,20 +10,18 @@ import useFileStore from '@/stores/fileStore/fileStore.ts';
 import { useTranslation } from 'react-i18next';
 import { type UseFormReturn, useWatch } from 'react-hook-form';
 import type { OrderFormData } from '@/lib/order.schema.ts';
+import useOfficesStore from '@/stores/officesStore/officesStore.ts';
 
 interface Props {
   form: UseFormReturn<OrderFormData>;
   handleNext: () => void;
 }
 
-const ORIGIN_CITY_VALUE = 'Bishkek';
-const ORIGIN_CITY_LABEL_RU = 'Бишкек';
-const ORIGIN_OFFICE_ID = 1;
-
 const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
   const { citiesPVZ, citiesHand, getCities, loadingCities } = useFileStore();
   const [citySearch, setCitySearch] = useState({ destination: '' });
   const { t } = useTranslation();
+  const {originCities, getOriginCities} = useOfficesStore();
 
   const {
     register,
@@ -56,20 +48,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
   const isParcelWeightValid = Number(parcelWeight) > 0 && Number(parcelWeight) <= 15;
 
   useEffect(() => {
-    setValue('originCity', ORIGIN_CITY_VALUE, { shouldDirty: true, shouldValidate: true });
-    clearErrors('originCity');
-
-    setValue('originOffice', ORIGIN_OFFICE_ID, { shouldDirty: true, shouldValidate: true });
-    clearErrors('originOffice');
-  }, [clearErrors, setValue]);
-
-  useEffect(() => {
     const type: 'PVZ' | 'Hand' = deliveryType === 'courier' ? 'Hand' : 'PVZ';
-
-    setValue('destinationCity', '', { shouldDirty: true, shouldValidate: true });
-    clearErrors('destinationCity');
-    setCitySearch({ destination: '' });
-
     void getCities(type);
   }, [deliveryType, clearErrors, getCities, setValue]);
 
@@ -83,8 +62,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
   const selectedPrice = watch('totalCost') || 0;
 
   const canProceed =
-    ORIGIN_CITY_VALUE === originCity &&
-    !!destinationCity &&
+    originCity && destinationCity &&
     Number(parcelValue) > 0 &&
     Number(parcelWeight) > 0 &&
     Object.keys(errors).length === 0;
@@ -157,6 +135,10 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     }
   }, [deliveryType, watch, form, t]);
 
+  useEffect(() => {
+    void getOriginCities()
+  }, [getOriginCities]);
+
   const handleNextClick = async () => {
     const valid = await trigger(['destinationCity', 'originCity', 'parcelWeight', 'parcelValue']);
     if (valid) handleNext();
@@ -180,9 +162,17 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                     </span>
                   </div>
 
-                  <Select value={ORIGIN_CITY_VALUE} disabled>
-                    <SelectTrigger className="w-full bg-gray-100 text-gray-600 cursor-not-allowed">
-                      <SelectValue placeholder={ORIGIN_CITY_LABEL_RU} />
+                  <Select
+                    onValueChange={(value: string) => {
+                      setValue('originCity', value, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+                      clearErrors('originCity');
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t('deliveryCostCalculator.stepOneForm.senderPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent
                       position="popper"
@@ -190,7 +180,15 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                       align="start"
                       avoidCollisions={false}
                     >
-                      <SelectItem value={ORIGIN_CITY_VALUE}>{ORIGIN_CITY_LABEL_RU}</SelectItem>
+                      {
+                        originCities.length > 0 ? (
+                          originCities.map((o) => (
+                            <SelectItem value={o.city.toString()} key={o._id}>{o.label}</SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="0">Офисы не найдены</SelectItem>
+                        )
+                      }
                     </SelectContent>
                   </Select>
                 </FieldGroup>
@@ -363,10 +361,8 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
 
         <Button
           disabled={!canProceed}
-          className={`bg-orange-500 hover:bg-orange-600 text-white px-5 py-5 md:py-6 mt-2 text-sm md:text-base font-medium transition-colors ${
-            !canProceed ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
           onClick={handleNextClick}
+          className="mt-2 w-full bg-orange-500 px-5 py-5 text-sm font-medium text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50 md:py-6 md:text-base"
         >
           {t('deliveryCostCalculator.buttons.forward')}
         </Button>

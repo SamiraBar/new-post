@@ -235,7 +235,7 @@ const ParcelDetails = () => {
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="text-gray-600" size={18} />
-                <span>{parcel.sender.address || 'Адрес не указан'}</span>
+                <span>{parcel.sender.addressName || parcel.sender.address || 'Адрес не указан'}</span>
               </div>
               <div className="flex items-center gap-3">
                 <UserRoundSearch className="text-gray-600" size={18} />
