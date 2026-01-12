@@ -189,6 +189,9 @@ export const AdminToolbar = () => {
                     <Link to="site-content">
                       <DropdownMenuItem>Редактировать сайт</DropdownMenuItem>
                     </Link>
+                    <Link to="offices">
+                      <DropdownMenuItem>Филиалы</DropdownMenuItem>
+                    </Link>
                     <DropdownMenuItem
                       onSelect={(e) => e.preventDefault()}
                       className="hidden sm:flex"

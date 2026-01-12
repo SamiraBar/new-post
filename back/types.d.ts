@@ -65,3 +65,15 @@ export interface EKitOrderResult {
   ekitBarcode: string;
   ekitOrderPrice: string;
 }
+
+export interface OfficeBody {
+  name: string;
+  address: string;
+  mapUrl: string;
+  isActive: boolean;
+  city: string;
+  label: string;
+  phone: string;
+  worktime: string;
+  createdAt: Date;
+}

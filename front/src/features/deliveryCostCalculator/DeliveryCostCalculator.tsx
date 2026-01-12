@@ -42,18 +42,20 @@ const DeliveryCostCalculator = () => {
 
   const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
 
-  const schema = useMemo(() => orderSchema(t), [t]);
+  const schema = useMemo(
+    () => orderSchema(t),
+    [t]
+  );
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(schema),
     mode: 'onChange',
-    reValidateMode: 'onChange',
     defaultValues: {
       originCity: '',
       destinationCity: '',
       serviceCode: undefined,
       serviceCity: undefined,
-      originOffice: 0,
+      originOffice: '',
       destinationOffice: 0,
       parcelValue: '',
       parcelWeight: '',
@@ -79,6 +81,8 @@ const DeliveryCostCalculator = () => {
     },
   });
 
+  console.log(form.watch());
+
   const {
     setValue,
     reset,
@@ -94,6 +98,7 @@ const DeliveryCostCalculator = () => {
     setValue('deliveryType', isPickup ? 'pickup' : 'courier');
     setValue('partnerType', isPickup ? 'E-Kit' : 'KCE');
   }, [isPickup, setValue]);
+
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
@@ -239,6 +244,7 @@ const DeliveryCostCalculator = () => {
         return false;
     }
   }, [currentStep, step2, step3Door, step3Office, step4, isDoorDelivery, errors, isAgreed]);
+
 
   const handleNext = async () => {
     if (currentStep === 1) {

@@ -7,6 +7,7 @@ import pricesRouter from "./routers/prices";
 import parcelsRouter from "./routers/parcels";
 import printerRouter from "./routers/printer";
 import i18nContentRouter from "./routers/i18nContent";
+import officeRouter from './routers/offices';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use("/prices", pricesRouter);
 app.use("/parcels", parcelsRouter);
 app.use("/printer", printerRouter);
 app.use("/i18n-content", i18nContentRouter);
+app.use("/offices", officeRouter);
 
 const run = async () => {
   try {

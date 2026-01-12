@@ -6,7 +6,7 @@ export const orderSchema = (t: TFunction) =>
   z.object({
     originCity: z.string().min(1, 'deliveryCostCalculator.validateError.cityOfSender'),
     destinationCity: z.string().min(1, 'deliveryCostCalculator.validateError.cityOfReceiver'),
-    originOffice: z.number().min(1, t('deliveryCostCalculator.validateError.chooseOffice')),
+    originOffice: z.string().min(1, t('deliveryCostCalculator.validateError.chooseOffice')),
     destinationOffice: z
       .number()
       .min(1, t('deliveryCostCalculator.validateError.selectReceivingOffice')),

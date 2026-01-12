@@ -41,6 +41,7 @@ export interface IParcel {
     phoneNumber: string;
     email: string;
     address: string;
+    addressName?: string;
     description?: string;
     type: 'sender';
     createdAt: Date;
@@ -97,6 +98,7 @@ export interface CreateParcelData {
     phoneNumber: string;
     email: string;
     address: string;
+    addressName?: string;
     city?: string;
     inn_passport: string;
   };
@@ -112,7 +114,7 @@ export interface CreateParcelData {
   };
   originCity: string;
   destinationCity: string;
-  originOffice: number | null;
+  originOffice: string | null;
   destinationOffice: number | null;
   weight: number;
   isPaid: boolean;
@@ -158,7 +160,7 @@ export interface Order {
   distributionCenter?: string;
   serviceCode?: '14' | '15';
   serviceCity?: "МСК" | "ЕКБ";
-  originOffice: number;
+  originOffice: string;
   destinationOffice: number;
   parcelValue: number;
   parcelWeight: number;
