@@ -7,6 +7,7 @@ import pricesRouter from "./routers/prices";
 import parcelsRouter from "./routers/parcels";
 import printerRouter from "./routers/printer";
 import i18nContentRouter from "./routers/i18nContent";
+import {setupTestSyncCron} from "./services/ekit.cron";
 import officeRouter from './routers/offices';
 
 const app = express();
@@ -26,7 +27,7 @@ const run = async () => {
     await mongoose.connect(config.db);
     console.log("✅ Connected to MongoDB");
 
-    // setupTestSyncCron(); // 🔴 НЕ РАСКОММЕНТИРОВАТЬ!
+    // setupTestSyncCron();  🔴 НЕ РАСКОММЕНТИРОВАТЬ!
 
     console.log("Автоматический Cron: ОТКЛЮЧЕН (для безопасности)");
     console.log("Ручная синхронизация доступна через API:");
