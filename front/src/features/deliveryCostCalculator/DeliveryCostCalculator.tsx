@@ -42,18 +42,20 @@ const DeliveryCostCalculator = () => {
 
   const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
 
-  const schema = useMemo(() => orderSchema(t), [t]);
+  const schema = useMemo(
+    () => orderSchema(t),
+    [t]
+  );
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(schema),
-    mode: 'onChange',
-    reValidateMode: 'onChange',
+    mode: 'onBlur',
     defaultValues: {
       originCity: '',
       destinationCity: '',
       serviceCode: undefined,
       serviceCity: undefined,
-      originOffice: 0,
+      originOffice: '',
       destinationOffice: 0,
       parcelValue: '',
       parcelWeight: '',
@@ -79,6 +81,8 @@ const DeliveryCostCalculator = () => {
     },
   });
 
+  console.log(form.watch());
+
   const {
     setValue,
     reset,
@@ -95,6 +99,7 @@ const DeliveryCostCalculator = () => {
     setValue('partnerType', isPickup ? 'E-Kit' : 'KCE');
   }, [isPickup, setValue]);
 
+
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
     if (parcelValue <= 10000) return parcelValue * 0.01;
@@ -109,8 +114,19 @@ const DeliveryCostCalculator = () => {
       }
       const cityForCalculation = pvzData?.town || destinationCity;
 
+      console.log('Пересчёт цен в DeliveryCostCalculator:');
+      console.log('  - destinationCity:', destinationCity);
+      console.log('  - pvzData?.town:', pvzData?.town);
+      console.log('  - Город для расчёта:', cityForCalculation);
+      console.log('  - Вес посылки:', parcelWeight);
+      console.log('  - Стоимость посылки:', parcelValue);
+
       const delivery = await fetchDeliveryCost(cityForCalculation, Number(parcelWeight));
       const insurance = calculateInsuranceCost(Number(parcelValue));
+
+      console.log('  - Стоимость доставки:', delivery.totalCost);
+      console.log('  - Стоимость страховки:', insurance);
+      console.log('  - Итого:', delivery.totalCost + insurance);
 
       setValue('deliveryCost', delivery.totalCost, { shouldDirty: false });
       setValue('insuranceCost', insurance, { shouldDirty: false });
@@ -239,6 +255,7 @@ const DeliveryCostCalculator = () => {
         return false;
     }
   }, [currentStep, step2, step3Door, step3Office, step4, isDoorDelivery, errors, isAgreed]);
+
 
   const handleNext = async () => {
     if (currentStep === 1) {

@@ -5,6 +5,7 @@ import AdminLoginForm from '@/features/adminPanel/AdminLoginForm.tsx';
 import { Toaster } from '@/components/ui/sonner';
 import AdminModeration from '@/features/adminPanel/AdminModeration.tsx';
 import ParcelDetails from './features/parcels/admin/ParcelDetails';
+import OfficesList from '@/features/offices/OfficesList.tsx';
 import AdminSiteContent from '@/features/adminPanel/components/AdminSiteContent/AdminSiteContent.tsx';
 import AdminProfileEdit from '@/features/adminPanel/components/AdminProfileEdit.tsx';
 
@@ -20,6 +21,7 @@ const App = () => {
           <Route path="admin/login" element={<AdminLoginForm />} />
           <Route path="admin/moderation" element={<AdminModeration />} />
           <Route path="/admin/site-content" element={<AdminSiteContent />} />
+          <Route path="/admin/offices" element={<OfficesList />} />
           <Route path="/admin/profile" element={<AdminProfileEdit />} />
           <Route path="parcels/:id" element={<ParcelDetails />} />
         </Routes>
