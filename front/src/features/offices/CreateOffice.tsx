@@ -111,11 +111,11 @@ const CreateOffice = () => {
               id="city"
               type="text"
               placeholder="Город"
-              {...register('city')}
-              className={errors.city ? 'border-red-500' : ''}
+              {...register('label')}
+              className={errors.label ? 'border-red-500' : ''}
             />
-            {errors.city && (
-              <p className="text-sm text-red-500">{errors.city.message}</p>
+            {errors.label && (
+              <p className="text-sm text-red-500">{errors.label.message}</p>
             )}
           </div>
 
@@ -123,12 +123,12 @@ const CreateOffice = () => {
             <Label>Город (латиница, без цифр и спецсимволов)</Label>
             <Input
               type="text"
-              placeholder="Город"
-              {...register('label')}
-              className={errors.label ? 'border-red-500' : ''}
+              placeholder="bishkek"
+              {...register('city')}
+              className={errors.city ? 'border-red-500' : ''}
             />
-            {errors.label && (
-              <p className="text-sm text-red-500">{errors.label.message}</p>
+            {errors.city && (
+              <p className="text-sm text-red-500">{errors.city.message}</p>
             )}
           </div>
 

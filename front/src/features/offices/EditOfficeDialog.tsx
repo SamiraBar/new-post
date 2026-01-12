@@ -145,11 +145,11 @@ const EditOfficeDialog = ({ officeId, open, onOpenChange }: EditOfficeDialogProp
                 id="edit-city"
                 type="text"
                 placeholder="Город"
-                {...register('city')}
-                className={errors.city ? 'border-red-500' : ''}
+                {...register('label')}
+                className={errors.label ? 'border-red-500' : ''}
               />
-              {errors.city && (
-                <p className="text-sm text-red-500">{errors.city.message}</p>
+              {errors.label && (
+                <p className="text-sm text-red-500">{errors.label.message}</p>
               )}
             </div>
 
@@ -158,11 +158,11 @@ const EditOfficeDialog = ({ officeId, open, onOpenChange }: EditOfficeDialogProp
               <Input
                 type="text"
                 placeholder="Город"
-                {...register('label')}
-                className={errors.label ? 'border-red-500' : ''}
+                {...register('city')}
+                className={errors.city ? 'border-red-500' : ''}
               />
-              {errors.label && (
-                <p className="text-sm text-red-500">{errors.label.message}</p>
+              {errors.city && (
+                <p className="text-sm text-red-500">{errors.city.message}</p>
               )}
             </div>
 
