@@ -1,11 +1,33 @@
+import { useEffect, useState } from 'react';
 import logoDark from '../../assets/logo/logo-2.png';
-import whatsappIcon from '../../assets/cosialIcons/WhatsApp.png';
-import instagramIcon from '../../assets/cosialIcons/Instagram.png';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import axiosApi from '@/axiosApi';
+
+interface SocialNetwork {
+  _id: string;
+  name: string;
+  url: string;
+  icon: string;
+  order: number;
+}
 
 const FooterComponent = () => {
   const { t } = useTranslation();
+  const [socialNetworks, setSocialNetworks] = useState<SocialNetwork[]>([]);
+
+  useEffect(() => {
+    const loadSocials = async () => {
+      try {
+        const { data } = await axiosApi.get('/social-networks');
+        setSocialNetworks(data.socialNetworks || []);
+      } catch (error) {
+        console.error('Failed to load social networks:', error);
+      }
+    };
+
+    void loadSocials();
+  }, []);
 
   return (
     <footer
@@ -61,57 +83,39 @@ const FooterComponent = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <a
-            href="https://wa.me/996778465557?text=Здравствуйте%2C+у+меня+есть+вопрос"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="WhatsApp"
-            className="group"
-          >
-            <div
-              className="
-                w-11 h-11
-                flex items-center justify-center
-                rounded-full
-                bg-neutral-800
-                border border-neutral-700
-                transition-all duration-300
-                group-hover:border-green-500/70
-              "
-            >
-              <img
-                src={whatsappIcon}
-                alt="WhatsApp"
-                className="w-6 h-6 transition-transform duration-300 group-hover:scale-110"
-              />
-            </div>
-          </a>
-
-          <a
-            href="https://www.instagram.com/newpost.kg/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram"
-            className="group"
-          >
-            <div
-              className="
-                w-11 h-11
-                flex items-center justify-center
-                rounded-full
-                bg-neutral-800
-                border border-neutral-700
-                transition-all duration-300
-                group-hover:border-pink-500/70
-              "
-            >
-              <img
-                src={instagramIcon}
-                alt="Instagram"
-                className="w-6 h-6 transition-transform duration-300 group-hover:scale-110"
-              />
-            </div>
-          </a>
+          {socialNetworks.length > 0
+            ? socialNetworks.map((social) => (
+                <a
+                  key={social._id}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  className="group"
+                >
+                  <div
+                    className="
+                    w-11 h-11
+                    flex items-center justify-center
+                    rounded-full
+                    bg-neutral-800
+                    border border-neutral-700
+                    transition-all duration-300
+                    group-hover:border-amber-500/70
+                  "
+                  >
+                    <img
+                      src={`${import.meta.env.VITE_API_URL}/${social.icon}`}
+                      alt={social.name}
+                      className="w-6 h-6 transition-transform duration-300 group-hover:scale-110"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                </a>
+              ))
+            : null}
         </div>
       </div>
     </footer>

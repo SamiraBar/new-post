@@ -4,22 +4,31 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import useAdminStore from '@/stores/adminStore/adminStore';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Info, Eye, Pencil, Package } from 'lucide-react';
 import axiosApi from '@/axiosApi';
 import { isHeadingLine, splitBlocks } from '@/components/ui/contentBlocks.ts';
-import logoDark from '../../assets/logo/logo-2.png';
-import whatsappIcon from '../../assets/cosialIcons/WhatsApp.png';
-import instagramIcon from '../../assets/cosialIcons/Instagram.png';
-
+import logoDark from '@/assets/logo/logo-2.png';
+import AdminSocialNetworks from './AdminSocialNetworks';
 
 type Lang = 'ru' | 'kg';
 type Mode = 'edit' | 'preview';
 
-const getDeep = (obj: any, dotted: string) =>
-  dotted.split('.').reduce((acc, k) => (acc ? acc[k] : undefined), obj);
+interface SocialNetwork {
+  _id: string;
+  name: string;
+  url: string;
+  icon: string;
+  order: number;
+}
+
+const getDeep = (obj: Record<string, unknown>, dotted: string): unknown =>
+  dotted
+    .split('.')
+    .reduce((acc, k) => (acc ? (acc as Record<string, unknown>)[k] : undefined), obj as unknown);
 
 const AdminSiteContent = () => {
   const admin = useAdminStore((s) => s.admin);
@@ -34,6 +43,8 @@ const AdminSiteContent = () => {
   const [footer, setFooter] = useState('');
 
   const [orig, setOrig] = useState({ about: '', important: '', footer: '' });
+
+  const [socialNetworks, setSocialNetworks] = useState<SocialNetwork[]>([]);
 
   useEffect(() => {
     if (!admin || admin.role !== 'superAdmin') navigate('/admin');
@@ -54,8 +65,10 @@ const AdminSiteContent = () => {
       setImportant(importantStr);
       setFooter(footerStr);
       setOrig({ about: aboutStr, important: importantStr, footer: footerStr });
-    } catch (e: any) {
-      toast.error(e?.message || 'Ошибка загрузки');
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.error(e.message || 'Ошибка загрузки');
+      }
     } finally {
       if (!silent) setLoading(false);
     }
@@ -69,7 +82,6 @@ const AdminSiteContent = () => {
   const hasChanges = about !== orig.about || important !== orig.important || footer !== orig.footer;
 
   const save = async () => {
-    console.log('SAVE CLICKED');
     setLoading(true);
     try {
       await axiosApi.patch(`/i18n-content/${lang}`, {
@@ -81,9 +93,9 @@ const AdminSiteContent = () => {
       });
 
       toast.success('Сохранено');
-
-    } catch (e: any) {
-      toast.error(e?.response?.data?.error || e?.message || 'Ошибка сохранения');
+    } catch (e) {
+      const error = e as { response?: { data?: { error?: string } }; message?: string };
+      toast.error(error.response?.data?.error || error.message || 'Ошибка сохранения');
     } finally {
       setLoading(false);
     }
@@ -225,45 +237,56 @@ const AdminSiteContent = () => {
       </div>
 
       {mode === 'edit' ? (
-        <>
-          <Card className="rounded-2xl border border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl font-semibold">Важная информация</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 pb-8">
-              <Label>Текст ({lang.toUpperCase()})</Label>
-              <Textarea
-                value={important}
-                onChange={(e) => setImportant(e.target.value)}
-                rows={10}
-              />
-              {formattingHelp}
-            </CardContent>
-          </Card>
+        <Tabs defaultValue="content" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="content">Текстовый контент</TabsTrigger>
+            <TabsTrigger value="social">Социальные сети</TabsTrigger>
+          </TabsList>
 
-          <Card className="rounded-2xl border border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl font-semibold">О компании</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 pb-8">
-              <Label>Текст ({lang.toUpperCase()})</Label>
-              <Textarea value={about} onChange={(e) => setAbout(e.target.value)} rows={12} />
-              {formattingHelp}
-            </CardContent>
-          </Card>
+          <TabsContent value="content" className="space-y-6">
+            <Card className="rounded-2xl border border-gray-200 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl font-semibold">
+                  Важная информация
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 pb-8">
+                <Label>Текст ({lang.toUpperCase()})</Label>
+                <Textarea
+                  value={important}
+                  onChange={(e) => setImportant(e.target.value)}
+                  rows={10}
+                />
+                {formattingHelp}
+              </CardContent>
+            </Card>
 
-          <Card className="rounded-2xl border border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl font-semibold">Адрес в футере</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 pb-8">
-              <Label>Текст ({lang.toUpperCase()})</Label>
-              <Textarea value={footer} onChange={(e) => setFooter(e.target.value)} rows={3} />
-            </CardContent>
-          </Card>
+            <Card className="rounded-2xl border border-gray-200 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl font-semibold">О компании</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 pb-8">
+                <Label>Текст ({lang.toUpperCase()})</Label>
+                <Textarea value={about} onChange={(e) => setAbout(e.target.value)} rows={12} />
+                {formattingHelp}
+              </CardContent>
+            </Card>
 
-          <div className="h-6" />
-        </>
+            <Card className="rounded-2xl border border-gray-200 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl font-semibold">Адрес в футере</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 pb-8">
+                <Label>Текст ({lang.toUpperCase()})</Label>
+                <Textarea value={footer} onChange={(e) => setFooter(e.target.value)} rows={3} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="social">
+            <AdminSocialNetworks onSocialsChange={setSocialNetworks} />
+          </TabsContent>
+        </Tabs>
       ) : (
         <div className="space-y-10 pb-10">
           <section className="container px-0">
@@ -327,37 +350,28 @@ const AdminSiteContent = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <a
-                    href="https://wa.me/996778465557?text=Здравствуйте%2C+у+меня+есть+вопрос"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="WhatsApp"
-                    className="group"
-                  >
-                    <div className="w-11 h-11 flex items-center justify-center rounded-full bg-neutral-800 border border-neutral-700 transition-all duration-300 group-hover:border-green-500/70">
-                      <img
-                        src={whatsappIcon}
-                        alt="WhatsApp"
-                        className="w-6 h-6 transition-transform duration-300 group-hover:scale-110"
-                      />
-                    </div>
-                  </a>
-
-                  <a
-                    href="https://www.instagram.com/newpost.kg/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Instagram"
-                    className="group"
-                  >
-                    <div className="w-11 h-11 flex items-center justify-center rounded-full bg-neutral-800 border border-neutral-700 transition-all duration-300 group-hover:border-pink-500/70">
-                      <img
-                        src={instagramIcon}
-                        alt="Instagram"
-                        className="w-6 h-6 transition-transform duration-300 group-hover:scale-110"
-                      />
-                    </div>
-                  </a>
+                  {socialNetworks.length > 0 ? (
+                    socialNetworks.map((social) => (
+                      <a
+                        key={social._id}
+                        href={social.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={social.name}
+                        className="group"
+                      >
+                        <div className="w-11 h-11 flex items-center justify-center rounded-full bg-neutral-800 border border-neutral-700 transition-all duration-300 group-hover:border-amber-500/70">
+                          <img
+                            src={`${import.meta.env.VITE_API_URL}/${social.icon}`}
+                            alt={social.name}
+                            className="w-6 h-6 transition-transform duration-300 group-hover:scale-110"
+                          />
+                        </div>
+                      </a>
+                    ))
+                  ) : (
+                    <p className="text-xs text-neutral-500">Нет социальных сетей</p>
+                  )}
                 </div>
               </div>
             </footer>
