@@ -15,9 +15,9 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
   const {
     setValue,
   } = form;
-  const [originCity, originOffice] = useWatch({
+  const [originOffice, originCity] = useWatch({
     control: form.control,
-    name: ['originCity', 'originOffice'],
+    name: ['originOffice', 'originCity'],
   });
   const isOfficeSelected = !!originOffice;
 
@@ -28,16 +28,12 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
       console.error(`Office with id ${officeId} not found`);
       return;
     }
-
-    const city = selectedOffice.address || selectedOffice.name.split(' - ')[1] || originCity;
-
     setValue('originOffice', officeId);
-    setValue('originCity', city);
   };
 
   useEffect(() => {
-    void getOffices('all');
-  }, [getOffices]);
+    void getOffices(originCity);
+  }, [getOffices, originCity]);
 
   const cardBase =
     'p-6 border-2 rounded-lg transition-all duration-300 text-left relative focus:outline-none focus:ring-2';
@@ -115,7 +111,7 @@ const Step2SenderOfficeSelection: FC<Props> = ({form}) => {
                         size={20}
                         className={isSelected ? 'text-orange-500' : 'text-gray-400'}
                       />
-                      <h4 className="font-bold text-lg">{office.city}</h4>
+                      <h4 className="font-bold text-lg">{office.label}</h4>
                     </div>
                     <button
                       type="button"

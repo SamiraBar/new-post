@@ -6,6 +6,7 @@ interface OfficeTypes {
   mapUrl: string;
   isActive: boolean,
   city: string,
+  label: string,
   phone: string,
   worktime: string,
   createdAt: Date,
@@ -28,7 +29,13 @@ const OfficeSchema = new Schema({
     type: Boolean,
     default: true
   },
+
   city: {
+    type: String,
+    required: true,
+    lowercase: true
+  },
+  label: {
     type: String,
     required: true
   },

@@ -7,6 +7,7 @@ export const officeSchema = z.object({
   mapUrl: z.string().url('Некорректная ссылка'),
   isActive: z.boolean().optional(),
   city: z.string().min(2, 'Минимум 2 символа').max(30, 'Максимум 30 символов'),
+  label: z.string().min(2, 'Минимум 2 символа').max(30, 'Максимум 30 символов').regex(/^[A-Za-z]+$/, 'Используйте только латинские буквы без пробелов и цифр'),
   phone:  z.string().refine(v => isValidPhoneNumber(v, 'KG'), 'Не корректный номер телефона'),
   worktime: z.string().min(2, 'Минимум 2 символа').max(30, 'Максимум 30 символов'),
 });

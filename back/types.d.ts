@@ -72,6 +72,7 @@ export interface OfficeBody {
   mapUrl: string;
   isActive: boolean;
   city: string;
+  label: string;
   phone: string;
   worktime: string;
   createdAt: Date;

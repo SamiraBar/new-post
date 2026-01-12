@@ -30,6 +30,7 @@ const CreateOffice = () => {
       address: '',
       mapUrl: '',
       city: '',
+      label: '',
       phone: '',
       worktime: ''
     },
@@ -115,6 +116,19 @@ const CreateOffice = () => {
             />
             {errors.city && (
               <p className="text-sm text-red-500">{errors.city.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Город (латиница, без цифр и спецсимволов)</Label>
+            <Input
+              type="text"
+              placeholder="Город"
+              {...register('label')}
+              className={errors.label ? 'border-red-500' : ''}
+            />
+            {errors.label && (
+              <p className="text-sm text-red-500">{errors.label.message}</p>
             )}
           </div>
 

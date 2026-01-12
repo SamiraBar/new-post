@@ -81,6 +81,8 @@ const DeliveryCostCalculator = () => {
     },
   });
 
+  console.log(form.watch());
+
   const {
     setValue,
     reset,

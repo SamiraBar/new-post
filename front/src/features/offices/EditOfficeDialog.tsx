@@ -42,6 +42,7 @@ const EditOfficeDialog = ({ officeId, open, onOpenChange }: EditOfficeDialogProp
       address: '',
       mapUrl: '',
       city: '',
+      label: '',
       phone: '',
       worktime: '',
       isActive: false,
@@ -61,6 +62,7 @@ const EditOfficeDialog = ({ officeId, open, onOpenChange }: EditOfficeDialogProp
         address: office.address,
         mapUrl: office.mapUrl,
         city: office.city,
+        label: office.label,
         phone: office.phone,
         worktime: office.worktime,
         isActive: office.isActive
@@ -148,6 +150,19 @@ const EditOfficeDialog = ({ officeId, open, onOpenChange }: EditOfficeDialogProp
               />
               {errors.city && (
                 <p className="text-sm text-red-500">{errors.city.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Город (латиница, без цифр и спецсимволов)</Label>
+              <Input
+                type="text"
+                placeholder="Город"
+                {...register('label')}
+                className={errors.label ? 'border-red-500' : ''}
+              />
+              {errors.label && (
+                <p className="text-sm text-red-500">{errors.label.message}</p>
               )}
             </div>
 

@@ -4,6 +4,7 @@ export interface IOffice {
   address: string;
   mapUrl: string;
   city: string;
+  label: string;
   phone: string;
   worktime: string;
   createdAt?: string;
@@ -11,6 +12,12 @@ export interface IOffice {
 
 export interface IAdminOffice extends IOffice {
   isActive: boolean;
+}
+
+export interface ICity {
+  _id: string;
+  label: string;
+  city: string;
 }
 
 export interface CreateOfficeData {

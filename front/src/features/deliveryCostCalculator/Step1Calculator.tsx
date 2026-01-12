@@ -21,7 +21,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
   const { citiesPVZ, citiesHand, getCities, loadingCities } = useFileStore();
   const [citySearch, setCitySearch] = useState({ destination: '' });
   const { t } = useTranslation();
-  const {offices, getOffices} = useOfficesStore();
+  const {originCities, getOriginCities} = useOfficesStore();
 
   const {
     register,
@@ -136,8 +136,8 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
   }, [deliveryType, watch, form, t]);
 
   useEffect(() => {
-    void getOffices('all')
-  }, [getOffices]);
+    void getOriginCities()
+  }, [getOriginCities]);
 
   const handleNextClick = async () => {
     const valid = await trigger(['destinationCity', 'originCity', 'parcelWeight', 'parcelValue']);
@@ -181,9 +181,9 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                       avoidCollisions={false}
                     >
                       {
-                        offices.length > 0 ? (
-                          offices.map((o) => (
-                            <SelectItem value={o._id.toString()} key={o._id}>{o.city}</SelectItem>
+                        originCities.length > 0 ? (
+                          originCities.map((o) => (
+                            <SelectItem value={o.city.toString()} key={o._id}>{o.label}</SelectItem>
                           ))
                         ) : (
                           <SelectItem value="0">Офисы не найдены</SelectItem>

@@ -2,7 +2,7 @@ import express from 'express';
 import {
   createOffice,
   deleteOffice,
-  getAdminOffices,
+  getAdminOffices, getCities,
   getOfficeById,
   getOffices,
   updateOffice
@@ -13,6 +13,7 @@ import permit from '../middleware/permit';
 const officeRouter = express.Router();
 
 officeRouter.get('/', getOffices);
+officeRouter.get('/cities', getCities);
 officeRouter.get('/admin', auth, permit('superAdmin'), getAdminOffices);
 officeRouter.post('/', auth, permit('superAdmin'), createOffice);
 officeRouter.get('/:id', getOfficeById);

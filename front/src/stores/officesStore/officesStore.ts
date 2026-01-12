@@ -1,12 +1,15 @@
 import { create } from 'zustand';
 import axiosApi from '@/axiosApi.ts';
 import axios from 'axios';
-import type { CreateOfficeData, IAdminOffice, IOffice, UpdateOfficeData } from '@/stores/officesStore/types.ts';
+import type { CreateOfficeData, IAdminOffice, ICity, IOffice, UpdateOfficeData } from '@/stores/officesStore/types.ts';
 
 interface OfficeState {
   offices: IOffice[];
   adminOffices: IAdminOffice[];
   office: IAdminOffice | null;
+  originCities: ICity[];
+  originCitiesLoading: boolean;
+  originCitiesError: { error: string } | null;
   getOfficesLoading: boolean;
   getOfficesError: { error: string } | null;
   getAdminOfficesLoading: boolean;
@@ -19,7 +22,8 @@ interface OfficeState {
   updateOfficeError: { error: string } | null;
   deleteOfficeLoading: boolean;
   deleteOfficeError: { error: string } | null;
-  getOffices: (type: 'admin' | 'all') => Promise<boolean>;
+  getOffices: (type: string) => Promise<boolean>;
+  getOriginCities: () => void;
   getOfficeById: (id: string) => Promise<boolean>;
   createOffice: (officeData: CreateOfficeData) => Promise<IOffice | null>;
   updateOffice: (id: string, officeData: UpdateOfficeData) => Promise<boolean>;
@@ -31,6 +35,9 @@ export const useOfficesStore = create<OfficeState>()((set) => ({
   offices: [],
   adminOffices: [],
   office: null,
+  originCities: [],
+  originCitiesLoading: false,
+  originCitiesError: null,
   getOfficesLoading: false,
   getOfficesError: null,
   getAdminOfficesLoading: false,
@@ -44,7 +51,7 @@ export const useOfficesStore = create<OfficeState>()((set) => ({
   deleteOfficeLoading: false,
   deleteOfficeError: null,
 
-  async getOffices(type: 'admin' | 'all' = 'all') {
+  async getOffices(type: string) {
     try {
       if (type === 'admin') {
         set({
@@ -58,7 +65,7 @@ export const useOfficesStore = create<OfficeState>()((set) => ({
         });
       }
 
-      const endpoint = type === 'admin' ? '/offices/admin' : '/offices';
+      const endpoint = type === 'admin' ? '/offices/admin' : '/offices?city=' + type;
 
       if (type === 'admin') {
         const { data } = await axiosApi.get<IAdminOffice[]>(endpoint);
@@ -100,7 +107,20 @@ export const useOfficesStore = create<OfficeState>()((set) => ({
       return false;
     }
   },
-
+  async getOriginCities() {
+    try {
+      set({originCitiesLoading: true});
+      const {data} = await axiosApi.get<ICity[]>('/offices/cities');
+      set({
+        originCities: data,
+        originCitiesLoading: false
+      })
+    } catch (e) {
+      if (axios.isAxiosError(e) && e.response?.data?.error) {
+        set({originCitiesError: {error: e.response.data.error}});
+      }
+    }
+  },
   async getOfficeById(id: string) {
     try {
       set({
