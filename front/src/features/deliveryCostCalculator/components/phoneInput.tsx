@@ -5,6 +5,7 @@ import { useState } from 'react';
 interface PhoneInputProps {
   value: string;
   onChange: (phone: string) => void;
+  onBlur?: () => void;
   error?: string;
   placeholder?: string;
   defaultCountry?: 'RU' | 'KZ' | 'BY' | 'KG';
@@ -46,6 +47,7 @@ const selectableCountries: Array<'RU' | 'KZ' | 'BY'> = ['RU', 'KZ', 'BY'];
 export const PhoneInput = ({
                              value,
                              onChange,
+                             onBlur,
                              error,
                              placeholder,
                              defaultCountry = 'RU'
@@ -70,6 +72,7 @@ export const PhoneInput = ({
             <button
               type="button"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
               className={`
                 flex items-center gap-2 p-2 border-2 rounded-lg transition-all
                 bg-gray-50 hover:bg-white
@@ -125,6 +128,7 @@ export const PhoneInput = ({
             value={value}
             unmask={false}
             onAccept={(value) => onChange(value)}
+            onBlur={onBlur}
             placeholder={placeholder || currentCountry.placeholder}
             className={`
               w-full p-3 border-2 rounded-lg transition-all

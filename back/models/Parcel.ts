@@ -22,6 +22,8 @@ export interface IParcel extends mongoose.Document {
     status: "draft" | "created" | "accepted" | "shipped" | "in_country" | "in_city" | "at_pickup_point" | "delivered";
     isPaid: boolean;
     partnerStickerReceived: boolean;
+    price: number;
+    inshprice: number;
     weight: number;
     deliveryType?: "courier" | "pickup";
     partnerType?: "E-Kit" | "KCE";
@@ -205,6 +207,16 @@ const ParcelSchema = new Schema(
             type: Number,
             required: [true, "Weight is required"],
             min: [0.1, "Weight must be greater than 0"],
+        },
+        inshprice: {
+            type: Number,
+            required: [true, "Inshprice is required"],
+            min: [0.1, "Inshprice must be greater than 0"],
+        },
+        price: {
+            type: Number,
+            required: [true, "Price is required"],
+            min: [0.1, "Price must be greater than 0"],
         },
         serviceCity: {
             type: String,

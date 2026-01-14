@@ -39,6 +39,8 @@ export interface ParcelCreateData {
   destinationCity: string;
   originOffice?: number | null;
   destinationOffice?: number | null;
+  price: number;
+  inshprice: number;
   weight: number;
   isPaid: boolean;
   partnerStickerReceived: boolean;
@@ -64,4 +66,16 @@ export interface EKitOrderResult {
   ekitOrderNo: string;
   ekitBarcode: string;
   ekitOrderPrice: string;
+}
+
+export interface OfficeBody {
+  name: string;
+  address: string;
+  mapUrl: string;
+  isActive: boolean;
+  city: string;
+  label: string;
+  phone: string;
+  worktime: string;
+  createdAt: Date;
 }

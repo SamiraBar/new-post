@@ -1,22 +1,30 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { Label } from '@/components/ui/label.tsx';
-import { Textarea } from '@/components/ui/textarea.tsx';
-import { Separator } from '@/components/ui/separator.tsx';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import useAdminStore from '@/stores/adminStore/adminStore.ts';
+import useAdminStore from '@/stores/adminStore/adminStore';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Info, Eye, Pencil, Package } from 'lucide-react';
-import axiosApi from '@/axiosApi.ts';
+import axiosApi from '@/axiosApi';
 import { isHeadingLine, splitBlocks } from '@/components/ui/contentBlocks.ts';
-import logoDark from '../../../../assets/logo/logo-2.png';
-import whatsappIcon from '../../../../assets/cosialIcons/WhatsApp.png';
-import instagramIcon from '../../../../assets/cosialIcons/Instagram.png';
+import logoDark from '@/assets/logo/logo-2.png';
+import AdminSocialNetworks from './AdminSocialNetworks';
 import CompanyFilesCard from './CompanyFilesCard';
 
 type Lang = 'ru' | 'kg';
 type Mode = 'edit' | 'preview';
+
+interface SocialNetwork {
+  _id: string;
+  name: string;
+  url: string;
+  icon: string;
+  order: number;
+}
 
 interface IContentData {
   aboutCompany: { textInfo: string };
@@ -53,13 +61,17 @@ const AdminSiteContent = () => {
   const [orig, setOrig] = useState({ about: '', important: '', footer: '' });
   const [origContacts, setOrigContacts] = useState({ phone: '', email: '' });
 
+  const [socialNetworks, setSocialNetworks] = useState<SocialNetwork[]>([]);
+
   useEffect(() => {
     if (!admin || admin.role !== 'superAdmin') navigate('/admin');
   }, [admin, navigate]);
 
   const load = async (lng: Lang, opts?: { silent?: boolean }) => {
     const silent = Boolean(opts?.silent);
+
     if (!silent) setLoading(true);
+
     try {
       const { data } = await axiosApi.get<IContentData>(`/i18n-content/${lng}`);
       const aboutStr = getDeep(data, 'aboutCompany.textInfo') ?? '';
@@ -211,6 +223,7 @@ const AdminSiteContent = () => {
               <Pencil className="h-4 w-4" />
               Редактирование
             </Button>
+
             <Button
               variant={mode === 'preview' ? 'default' : 'outline'}
               onClick={() => setMode('preview')}
@@ -220,7 +233,9 @@ const AdminSiteContent = () => {
               <Eye className="h-4 w-4" />
               Предпросмотр
             </Button>
+
             <Separator orientation="vertical" className="hidden md:block h-8 mx-1" />
+
             <Button
               variant={lang === 'ru' ? 'default' : 'outline'}
               onClick={() => setLang('ru')}
@@ -235,6 +250,7 @@ const AdminSiteContent = () => {
             >
               KG
             </Button>
+
             <Button
               type="button"
               className="bg-brand hover:bg-amber-600"
@@ -248,42 +264,51 @@ const AdminSiteContent = () => {
       </div>
 
       {mode === 'edit' ? (
-        <>
-          <Card className="rounded-2xl border border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl font-semibold">Важная информация</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 pb-8">
-              <Label>Текст ({lang.toUpperCase()})</Label>
-              <Textarea
-                value={important}
-                onChange={(e) => setImportant(e.target.value)}
-                rows={10}
-              />
-              {formattingHelp}
-            </CardContent>
-          </Card>
+        <Tabs defaultValue="content" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="content">Текстовый контент</TabsTrigger>
+            <TabsTrigger value="social">Социальные сети</TabsTrigger>
+          </TabsList>
 
-          <Card className="rounded-2xl border border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl font-semibold">О компании</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 pb-8">
-              <Label>Текст ({lang.toUpperCase()})</Label>
-              <Textarea value={about} onChange={(e) => setAbout(e.target.value)} rows={12} />
-              {formattingHelp}
-            </CardContent>
-          </Card>
+          <TabsContent value="content" className="space-y-6">
+            <Card className="rounded-2xl border border-gray-200 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl font-semibold">
+                  Важная информация
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 pb-8">
+                <Label>Текст ({lang.toUpperCase()})</Label>
+                <Textarea
+                  value={important}
+                  onChange={(e) => setImportant(e.target.value)}
+                  rows={10}
+                />
+                {formattingHelp}
+              </CardContent>
+            </Card>
 
-          <Card className="rounded-2xl border border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl font-semibold">Адрес в футере</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 pb-8">
-              <Label>Текст ({lang.toUpperCase()})</Label>
-              <Textarea value={footer} onChange={(e) => setFooter(e.target.value)} rows={3} />
-            </CardContent>
-          </Card>
+            <Card className="rounded-2xl border border-gray-200 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl font-semibold">О компании</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 pb-8">
+                <Label>Текст ({lang.toUpperCase()})</Label>
+                <Textarea value={about} onChange={(e) => setAbout(e.target.value)} rows={12} />
+                {formattingHelp}
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl border border-gray-200 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl font-semibold">Адрес в футере</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 pb-8">
+                <Label>Текст ({lang.toUpperCase()})</Label>
+                <Textarea value={footer} onChange={(e) => setFooter(e.target.value)} rows={3} />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <Card className="rounded-2xl border border-gray-200 shadow-sm">
             <CardHeader>
@@ -306,8 +331,13 @@ const AdminSiteContent = () => {
               />
             </CardContent>
           </Card>
+
           <CompanyFilesCard />
-        </>
+
+          <TabsContent value="social">
+            <AdminSocialNetworks onSocialsChange={setSocialNetworks} />
+          </TabsContent>
+        </Tabs>
       ) : (
         <div className="space-y-10 pb-10">
           <section className="container px-0">
@@ -368,36 +398,28 @@ const AdminSiteContent = () => {
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <a
-                    href={`https://wa.me/${contacts.phone?.replace(/\D/g, '')}?text=Здравствуйте%2C+у+меня+есть+вопрос`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="WhatsApp"
-                    className="group"
-                  >
-                    <div className="w-11 h-11 flex items-center justify-center rounded-full bg-neutral-800 border border-neutral-700 transition-all duration-300 group-hover:border-green-500/70">
-                      <img
-                        src={whatsappIcon}
-                        alt="WhatsApp"
-                        className="w-6 h-6 transition-transform duration-300 group-hover:scale-110"
-                      />
-                    </div>
-                  </a>
-                  <a
-                    href="https://www.instagram.com/newpost.kg/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Instagram"
-                    className="group"
-                  >
-                    <div className="w-11 h-11 flex items-center justify-center rounded-full bg-neutral-800 border border-neutral-700 transition-all duration-300 group-hover:border-pink-500/70">
-                      <img
-                        src={instagramIcon}
-                        alt="Instagram"
-                        className="w-6 h-6 transition-transform duration-300 group-hover:scale-110"
-                      />
-                    </div>
-                  </a>
+                  {socialNetworks.length > 0 ? (
+                    socialNetworks.map((social) => (
+                      <a
+                        key={social._id}
+                        href={social.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={social.name}
+                        className="group"
+                      >
+                        <div className="w-11 h-11 flex items-center justify-center rounded-full bg-neutral-800 border border-neutral-700 transition-all duration-300 group-hover:border-amber-500/70">
+                          <img
+                            src={`${import.meta.env.VITE_API_URL}/${social.icon}`}
+                            alt={social.name}
+                            className="w-6 h-6 transition-transform duration-300 group-hover:scale-110"
+                          />
+                        </div>
+                      </a>
+                    ))
+                  ) : (
+                    <p className="text-xs text-neutral-500">Нет социальных сетей</p>
+                  )}
                 </div>
               </div>
             </footer>

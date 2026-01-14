@@ -18,14 +18,17 @@ const Step5Review: FC<Props> = ({ form, doorDelivery }) => {
     const ensurePrice = async () => {
       if (order.deliveryCost === 0 && order.destinationCity && Number(order.parcelWeight) > 0) {
         console.log('Step5: No delivery cost, recalculating...');
-        await fetchDeliveryCost(order.destinationCity, Number(order.parcelWeight));
+        const cityForCalculation = order.pvzData?.town || order.destinationCity;
+        console.log('  - Город для пересчёта:', cityForCalculation);
+        console.log('  - Вес:', order.parcelWeight);
+        await fetchDeliveryCost(cityForCalculation, Number(order.parcelWeight));
       } else {
         console.log('Step5: Delivery cost already set:', order.deliveryCost);
       }
     };
 
     void ensurePrice();
-  }, [fetchDeliveryCost, order.deliveryCost, order.destinationCity, order.parcelWeight]);
+  }, [fetchDeliveryCost, order.deliveryCost, order.destinationCity, order.parcelWeight, order.pvzData]);
 
   return (
     <div className="w-full pt-5">

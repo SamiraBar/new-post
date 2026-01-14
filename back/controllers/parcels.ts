@@ -7,6 +7,7 @@ import { createOrderInEKit, getOrderStatus } from "../services/ekit.service";
 import { CreateParcelResponse, EKitOrderResult, ParcelCreateData } from "../types";
 import {syncAllEKitStatuses, syncSingleParcelStatus} from "../services/ekit.synchonization";
 import {sendParcelCreatedEmail} from "../services/email.service";
+import Office from "../models/Office";
 
 const ORIGIN_CITY_FIXED = "Bishkek";
 const ORIGIN_OFFICE_FIXED = 1;
@@ -44,6 +45,8 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       destinationCity,
       originOffice,
       destinationOffice,
+      price,
+      inshprice,
       weight,
       isPaid,
       partnerStickerReceived,
@@ -77,6 +80,7 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
     console.log('   - Описание:', sender?.description);
     console.log('   - Город:', sender?.city || 'не указан');
     console.log('   - Адрес:', sender?.address || 'не указан');
+    console.log('   - Адрес имя:', sender?.addressName || 'не указан');
     console.log('   - Улица:', sender?.street || 'не указан');
     console.log('   - Дом:', sender?.house || 'не указан');
     console.log('   - Квартира:', sender?.apartment || 'не указан');
@@ -178,7 +182,19 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
 
     const trackingNumber = await generateTrackingNumber();
 
-    const newSender = await Contact.create({ ...sender, type: "sender" });
+    let senderAddressName = sender?.addressName ?? null;
+
+    if (originOffice) {
+      const office = await Office.findById(originOffice).select("address label");
+
+      if (!office) {
+        return res.status(400).json({ error: "Origin office not found", originOffice });
+      }
+
+      senderAddressName = office.label + ", " + office.address;
+    }
+
+    const newSender = await Contact.create({ ...sender, addressName: senderAddressName ,type: "sender" });
     const newRecipient = await Contact.create({ ...recipient, type: "recipient" });
 
     const byParentcode = String(pvzData?.parentcode ?? '');
@@ -193,6 +209,8 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       originCity: ORIGIN_CITY_FIXED,
       destinationCity,
       weight: weightValue,
+      price,
+      inshprice,
       isPaid: isPaid || false,
       partnerStickerReceived: partnerStickerReceived || false,
       status: "draft",

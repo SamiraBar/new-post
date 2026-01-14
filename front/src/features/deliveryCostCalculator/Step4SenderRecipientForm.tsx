@@ -19,8 +19,9 @@ const Step4SenderRecipientForm: FC<Props> = ({ doorDelivery, form }) => {
     register,
     setValue,
     trigger,
-    formState: { errors },
+    formState: { errors, touchedFields },
   } = form;
+
   const [sender, receiver, inParcel] = useWatch({
     control: form.control,
     name: ['sender', 'receiver', 'inParcel'],
@@ -91,7 +92,12 @@ const Step4SenderRecipientForm: FC<Props> = ({ doorDelivery, form }) => {
                   value={sender.phone}
                   onChange={async (phone) => {
                     setValue('sender.phone', phone);
-                    await trigger('sender.phone');
+                    if (touchedFields.sender?.phone) {
+                      await trigger('sender.phone');
+                    }
+                  }}
+                  onBlur={() => {
+                    trigger('sender.phone');
                   }}
                   error={errors.sender?.phone?.message}
                   defaultCountry="KG"
@@ -167,11 +173,16 @@ const Step4SenderRecipientForm: FC<Props> = ({ doorDelivery, form }) => {
                 </div>
                 <PhoneInput
                   value={receiver.phone}
-                  onChange={async (phone) => {
-                    setValue('receiver.phone', phone);
-                    await trigger(['receiver.phone']);
+                  onChange={(phone) => {
+                    setValue('receiver.phone', phone, {
+                      shouldDirty: true,
+                      shouldValidate: false,
+                    });
                   }}
-                  error={errors.receiver?.phone?.message}
+                  onBlur={() => {
+                    trigger(['receiver.phone']);
+                  }}
+                  error={touchedFields.receiver?.phone || receiver.phone ? errors.receiver?.phone?.message : undefined}
                 />
               </div>
 
@@ -185,12 +196,12 @@ const Step4SenderRecipientForm: FC<Props> = ({ doorDelivery, form }) => {
                   className={`bg-gray-50 ${!isReceiverEmailValid && receiver.email && 'border-red-300'}`}
                   {...register('receiver.email')}
                 />
-                {errors.receiver?.email && (
-                  <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
-                    <AlertCircle size={14} className="shrink-0" />
-                    <p>{errors.receiver.email.message}</p>
-                  </div>
-                )}
+                {touchedFields.receiver?.email && errors.receiver?.email && (
+                    <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                      <AlertCircle size={14} className="shrink-0" />
+                      <p>{errors.receiver.email.message}</p>
+                    </div>
+                  )}
               </div>
             </FieldGroup>
           </div>
