@@ -244,12 +244,12 @@ const ParcelDetails = () => {
               <div className="flex justify-between border-t border-gray-300 pt-3 mt-4">
                 <div>
                   <p className="text-sm text-gray-500">объявленная стоимость</p>
-                  <p className="font-bold text-gray-900 text-lg">1000.00</p>
+                  <p className="font-bold text-gray-900 text-lg">{parcel.inshprice}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">сумма к оплате</p>
                   <p className="font-bold text-gray-900 text-lg">
-                    {parcel.isPaid ? '1205.60' : '0.00'}
+                    {parcel.price}
                   </p>
                 </div>
               </div>
