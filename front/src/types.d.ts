@@ -78,6 +78,8 @@ export interface IParcel {
   isPaid: boolean;
   partnerStickerReceived: boolean;
   weight: number;
+  price: number;
+  inshprice: number;
   draftedAt: string;
   createdAt?: string;
   acceptedAt?: string;
@@ -116,6 +118,8 @@ export interface CreateParcelData {
   destinationCity: string;
   originOffice: string | null;
   destinationOffice: number | null;
+  price: number;
+  inshprice: number;
   weight: number;
   isPaid: boolean;
   partnerStickerReceived: boolean;

@@ -126,8 +126,8 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     <barcode>${parcel.trackingNumber}</barcode>
 
     <sender>
-      <company>Ваша компания (NewPost)</company>
-      <person>Ваша компания (NewPost)</person>
+      <company>ОСОО “Новая Почта”</company>
+      <person>${sender.fullName}</person>
       <phone>${sender.phoneNumber}</phone>
       <town>${senderTown}</town>
       <address>${senderAddress}</address>
@@ -143,7 +143,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     </receiver>
 
     <price>0</price>
-    <inshprice>0</inshprice>
+    <inshprice>${parcel.inshprice}</inshprice>
     <weight>${parcel.weight}</weight>
     <quantity>1</quantity>
     <service>${serviceCode}</service> 

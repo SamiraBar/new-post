@@ -279,6 +279,8 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         originOffice: order.originOffice || null,
         destinationOffice: order.destinationOffice || null,
         weight: order.parcelWeight,
+        price:order.totalCost,
+        inshprice:order.parcelValue,
         isPaid: false,
         partnerStickerReceived: false,
         deliveryType: order.deliveryType,

@@ -39,6 +39,8 @@ export interface ParcelCreateData {
   destinationCity: string;
   originOffice?: number | null;
   destinationOffice?: number | null;
+  price: number;
+  inshprice: number;
   weight: number;
   isPaid: boolean;
   partnerStickerReceived: boolean;
