@@ -17,6 +17,7 @@ interface CompanyFilesState {
   uploadFile: (data: FormData) => Promise<void>;
   replaceFile: (id: string, data: FormData) => Promise<void>;
   deleteFile: (id: string) => Promise<void>;
+  downloadFile: (id: string, fileName: string) => void;
 }
 
 const useCompanyFilesStore = create<CompanyFilesState>((set, get) => ({
@@ -41,6 +42,22 @@ const useCompanyFilesStore = create<CompanyFilesState>((set, get) => ({
   deleteFile: async (id: string) => {
     await axiosApi.delete(`/admin/company-files/${id}`);
     await get().fetchFiles();
+  },
+
+  downloadFile: async (id: string, fileName: string) => {
+    const { data } = await axiosApi.get(
+      `/admin/company-files/download/${id}`,
+      { responseType: 'blob' }
+    );
+
+    const blobUrl = window.URL.createObjectURL(new Blob([data]));
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(blobUrl);
   },
 }));
 

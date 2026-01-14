@@ -10,7 +10,7 @@ interface UploadFormState {
 }
 
 const CompanyFilesCard = () => {
-  const { items, loading, fetchFiles, uploadFile, replaceFile, deleteFile } =
+  const { items, loading, fetchFiles, uploadFile, replaceFile, deleteFile, downloadFile } =
     useCompanyFilesStore();
 
   const [uploadForm, setUploadForm] = useState<UploadFormState>({
@@ -53,15 +53,6 @@ const CompanyFilesCard = () => {
     } catch {
       toast.error('Ошибка замены файла');
     }
-  };
-
-  const handleDownload = (fileUrl: string, fileName: string) => {
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (
@@ -140,7 +131,7 @@ const CompanyFilesCard = () => {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleDownload(file.fileUrl, file.fileName)}
+                  onClick={() => downloadFile(file._id, file.fileName)}
                 >
                   Скачать
                 </Button>

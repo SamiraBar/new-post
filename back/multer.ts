@@ -6,20 +6,20 @@ import {randomUUID} from "node:crypto";
 
 const priceStorage = multer.diskStorage({
   destination: async (_req, _file, callback) => {
-    const destDir = path.join(config.publicPath);
+    const destDir = path.join(config.publicPath, "uploads/prices/");
     await fs.mkdir(destDir, { recursive: true });
     callback(null, destDir);
   },
   filename: (_req, file, callback) => {
     const extension = path.extname(file.originalname);
     const newFileName = randomUUID() + extension;
-    callback(null, 'prices/' + newFileName);
+    callback(null, newFileName);
   }
 });
 
 const companyFileStorage = multer.diskStorage({
   destination: async (_req, _file, callback) => {
-    const destDir = path.join(config.publicPath, "company-files");
+    const destDir = path.join(config.publicPath, "uploads/company-files/");
     await fs.mkdir(destDir, { recursive: true });
     callback(null, destDir);
   },

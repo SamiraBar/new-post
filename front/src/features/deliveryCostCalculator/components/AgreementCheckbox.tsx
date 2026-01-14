@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import axiosApi from '@/axiosApi.ts';
-import type { CompanyFile } from '@/stores/fileStore/companyFilesStore.ts';
+import useCompanyFilesStore, { type CompanyFile } from '@/stores/fileStore/companyFilesStore.ts';
 
 const AgreementCheckbox = ({
   isAgreed,
@@ -16,6 +16,7 @@ const AgreementCheckbox = ({
   setAgreementError: (val: boolean) => void;
 }) => {
   const [agreementFile, setAgreementFile] = useState<CompanyFile | null>(null);
+  const { downloadFile } = useCompanyFilesStore();
 
   useEffect(() => {
     const loadAgreement = async () => {
@@ -29,6 +30,10 @@ const AgreementCheckbox = ({
     void loadAgreement();
   }, []);
 
+  const handleDownload = () => {
+    if (!agreementFile) return;
+    void downloadFile(agreementFile._id, agreementFile.fileName);
+  };
 
   return (
     <div
@@ -38,37 +43,37 @@ const AgreementCheckbox = ({
         agreementError && !isAgreed ? 'border-red-500 bg-red-50' : 'border-orange-300 bg-orange-50',
       ].join(' ')}
     >
-      <div className="flex items-center justify-center">
+      <div className="flex items-start gap-3">
         <Checkbox
+          className="mt-1"
           checked={isAgreed}
           onCheckedChange={(checked) => {
             setIsAgreed(checked === true);
             setAgreementError(false);
           }}
         />
-      </div>
 
-      <div className="text-left">
-        <Label
-          className={[
-            'block text-sm leading-snug mt-1',
-            agreementError && !isAgreed ? 'text-red-700' : 'text-gray-700',
-          ].join(' ')}
-        >
-          Я согласен с условиями{' '}
-          {agreementFile && (
-            <a
-              href={agreementFile.fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              download={agreementFile.fileName}
-              className="text-blue-600 underline ml-1"
-            >
-              ({agreementFile.fileName})
-            </a>
-          )}
-        </Label>
-        <p className="text-xs text-gray-600 mt-1">Вы можете скачать файл соглашения</p>
+        <div className="flex flex-col text-left">
+          <Label
+            className={[
+              'text-sm leading-snug',
+              agreementError && !isAgreed ? 'text-red-700' : 'text-gray-700',
+            ].join(' ')}
+          >
+            Я согласен с условиями{' '}
+            {agreementFile && (
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="text-blue-600 underline ml-1 hover:text-blue-800"
+              >
+                ({agreementFile.fileName})
+              </button>
+            )}
+          </Label>
+
+          <p className="text-xs text-gray-600 mt-1">Вы можете скачать файл соглашения</p>
+        </div>
       </div>
     </div>
   );

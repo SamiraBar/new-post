@@ -308,31 +308,32 @@ const AdminSiteContent = () => {
                 <Textarea value={footer} onChange={(e) => setFooter(e.target.value)} rows={3} />
               </CardContent>
             </Card>
+
+            <Card className="rounded-2xl border border-gray-200 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl font-semibold">Контакты</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 pb-8">
+                <Label>Телефон</Label>
+                <input
+                  type="text"
+                  className="w-full border rounded px-2 py-1"
+                  value={contacts.phone}
+                  onChange={(e) => setContacts({ ...contacts, phone: e.target.value })}
+                />
+                <Label>Электронная почта</Label>
+                <input
+                  type="email"
+                  className="w-full border rounded px-2 py-1"
+                  value={contacts.email}
+                  onChange={(e) => setContacts({ ...contacts, email: e.target.value })}
+                />
+              </CardContent>
+            </Card>
+
+            <CompanyFilesCard />
+
           </TabsContent>
-
-          <Card className="rounded-2xl border border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl font-semibold">Контакты</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 pb-8">
-              <Label>Телефон</Label>
-              <input
-                type="text"
-                className="w-full border rounded px-2 py-1"
-                value={contacts.phone}
-                onChange={(e) => setContacts({ ...contacts, phone: e.target.value })}
-              />
-              <Label>Электронная почта</Label>
-              <input
-                type="email"
-                className="w-full border rounded px-2 py-1"
-                value={contacts.email}
-                onChange={(e) => setContacts({ ...contacts, email: e.target.value })}
-              />
-            </CardContent>
-          </Card>
-
-          <CompanyFilesCard />
 
           <TabsContent value="social">
             <AdminSocialNetworks onSocialsChange={setSocialNetworks} />
