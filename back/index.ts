@@ -13,6 +13,7 @@ import socialMediaRouter from "./routers/socialMedia";
 import path from "path";
 import { seedSocialNetworks } from "./utils/seedSocialNetworks";
 import fs from "fs";
+import companyFilesRouter from "./routers/companyFiles";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use("/prices", pricesRouter);
 app.use("/parcels", parcelsRouter);
 app.use("/printer", printerRouter);
 app.use("/i18n-content", i18nContentRouter);
+app.use("/admin/company-files", companyFilesRouter);
 app.use("/offices", officeRouter);
 app.use("/", socialMediaRouter);
 

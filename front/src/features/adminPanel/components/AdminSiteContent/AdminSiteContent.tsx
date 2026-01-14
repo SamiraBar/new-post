@@ -13,6 +13,7 @@ import axiosApi from '@/axiosApi';
 import { isHeadingLine, splitBlocks } from '@/components/ui/contentBlocks.ts';
 import logoDark from '@/assets/logo/logo-2.png';
 import AdminSocialNetworks from './AdminSocialNetworks';
+import CompanyFilesCard from './CompanyFilesCard';
 
 type Lang = 'ru' | 'kg';
 type Mode = 'edit' | 'preview';
@@ -25,10 +26,21 @@ interface SocialNetwork {
   order: number;
 }
 
-const getDeep = (obj: Record<string, unknown>, dotted: string): unknown =>
-  dotted
-    .split('.')
-    .reduce((acc, k) => (acc ? (acc as Record<string, unknown>)[k] : undefined), obj as unknown);
+interface IContentData {
+  aboutCompany: { textInfo: string };
+  importantInfo: { textInfo: string };
+  footer: { address: string };
+  contacts: { phone: string; email: string };
+}
+
+const getDeep = <T, K extends string>(obj: T, path: K): string | undefined => {
+  return path.split('.').reduce<unknown>((acc, key) => {
+    if (acc && typeof acc === 'object' && key in acc) {
+      return (acc as Record<string, unknown>)[key];
+    }
+    return undefined;
+  }, obj) as string | undefined;
+};
 
 const AdminSiteContent = () => {
   const admin = useAdminStore((s) => s.admin);
@@ -38,11 +50,16 @@ const AdminSiteContent = () => {
   const [mode, setMode] = useState<Mode>('edit');
   const [loading, setLoading] = useState(false);
 
-  const [about, setAbout] = useState('');
-  const [important, setImportant] = useState('');
-  const [footer, setFooter] = useState('');
+  const [about, setAbout] = useState<string>('');
+  const [important, setImportant] = useState<string>('');
+  const [footer, setFooter] = useState<string>('');
+  const [contacts, setContacts] = useState<{ phone: string; email: string }>({
+    phone: '',
+    email: '',
+  });
 
   const [orig, setOrig] = useState({ about: '', important: '', footer: '' });
+  const [origContacts, setOrigContacts] = useState({ phone: '', email: '' });
 
   const [socialNetworks, setSocialNetworks] = useState<SocialNetwork[]>([]);
 
@@ -56,19 +73,22 @@ const AdminSiteContent = () => {
     if (!silent) setLoading(true);
 
     try {
-      const { data } = await axiosApi.get(`/i18n-content/${lng}`);
-      const aboutStr = String(getDeep(data, 'aboutCompany.textInfo') ?? '');
-      const importantStr = String(getDeep(data, 'importantInfo.textInfo') ?? '');
-      const footerStr = String(getDeep(data, 'footer.address') ?? '');
+      const { data } = await axiosApi.get<IContentData>(`/i18n-content/${lng}`);
+      const aboutStr = getDeep(data, 'aboutCompany.textInfo') ?? '';
+      const importantStr = getDeep(data, 'importantInfo.textInfo') ?? '';
+      const footerStr = getDeep(data, 'footer.address') ?? '';
+      const phone = data.contacts.phone ?? '';
+      const email = data.contacts.email ?? '';
 
       setAbout(aboutStr);
       setImportant(importantStr);
       setFooter(footerStr);
+      setContacts({ phone, email });
       setOrig({ about: aboutStr, important: importantStr, footer: footerStr });
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.error(e.message || 'Ошибка загрузки');
-      }
+      setOrigContacts({ phone, email });
+    } catch (error) {
+      const e = error instanceof Error ? error : new Error('Ошибка загрузки');
+      toast.error(e.message);
     } finally {
       if (!silent) setLoading(false);
     }
@@ -76,10 +96,14 @@ const AdminSiteContent = () => {
 
   useEffect(() => {
     void load(lang);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang]);
 
-  const hasChanges = about !== orig.about || important !== orig.important || footer !== orig.footer;
+  const hasChanges =
+    about !== orig.about ||
+    important !== orig.important ||
+    footer !== orig.footer ||
+    contacts.phone !== origContacts.phone ||
+    contacts.email !== origContacts.email;
 
   const save = async () => {
     setLoading(true);
@@ -89,13 +113,16 @@ const AdminSiteContent = () => {
           'aboutCompany.textInfo': about,
           'importantInfo.textInfo': important,
           'footer.address': footer,
+          'contacts.phone': contacts.phone,
+          'contacts.email': contacts.email,
         },
       });
-
+      setOrig({ about, important, footer });
+      setOrigContacts({ ...contacts });
       toast.success('Сохранено');
-    } catch (e) {
-      const error = e as { response?: { data?: { error?: string } }; message?: string };
-      toast.error(error.response?.data?.error || error.message || 'Ошибка сохранения');
+    } catch (error) {
+      const e = error as { response?: { data?: { error?: string } }; message?: string };
+      toast.error(e.response?.data?.error || e.message || 'Ошибка сохранения');
     } finally {
       setLoading(false);
     }
@@ -281,6 +308,31 @@ const AdminSiteContent = () => {
                 <Textarea value={footer} onChange={(e) => setFooter(e.target.value)} rows={3} />
               </CardContent>
             </Card>
+
+            <Card className="rounded-2xl border border-gray-200 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl font-semibold">Контакты</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 pb-8">
+                <Label>Телефон</Label>
+                <input
+                  type="text"
+                  className="w-full border rounded px-2 py-1"
+                  value={contacts.phone}
+                  onChange={(e) => setContacts({ ...contacts, phone: e.target.value })}
+                />
+                <Label>Электронная почта</Label>
+                <input
+                  type="email"
+                  className="w-full border rounded px-2 py-1"
+                  value={contacts.email}
+                  onChange={(e) => setContacts({ ...contacts, email: e.target.value })}
+                />
+              </CardContent>
+            </Card>
+
+            <CompanyFilesCard />
+
           </TabsContent>
 
           <TabsContent value="social">
@@ -299,7 +351,6 @@ const AdminSiteContent = () => {
                     </h3>
                     <Separator className="bg-amber-600 my-4 mx-auto w-20" />
                   </div>
-
                   <div className="space-y-4 text-sm sm:text-base">
                     {renderPreviewBlocks(importantBlocks)}
                   </div>
@@ -316,7 +367,6 @@ const AdminSiteContent = () => {
                     <h3 className="text-xl sm:text-2xl font-medium text-gray-900">О компании</h3>
                     <Separator className="bg-amber-600 my-4 mx-auto w-20" />
                   </div>
-
                   <div className="space-y-4 text-sm sm:text-base">
                     {renderPreviewBlocks(aboutBlocks)}
                   </div>
@@ -335,20 +385,19 @@ const AdminSiteContent = () => {
                     className="h-14 sm:h-16 w-auto object-contain"
                   />
                 </div>
-
                 <div className="text-sm leading-relaxed space-y-1 text-neutral-300">
                   <p>{footer || '—'}</p>
-
                   <p>
-                    Телефон: <span className="text-blue-400">+996 778 465 557</span>
+                    Телефон:{' '}
+                    <span className="text-blue-400">{contacts.phone || '+996 778 465 557'}</span>
                   </p>
-
                   <p>
                     Электронная почта:{' '}
-                    <span className="text-blue-400">janypochta.kg@gmail.com</span>
+                    <span className="text-blue-400">
+                      {contacts.email || 'janypochta.kg@gmail.com'}
+                    </span>
                   </p>
                 </div>
-
                 <div className="flex items-center gap-4">
                   {socialNetworks.length > 0 ? (
                     socialNetworks.map((social) => (

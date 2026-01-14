@@ -13,6 +13,8 @@ const allowedKeys = new Set([
     "aboutCompany.textInfo",
     "importantInfo.textInfo",
     "footer.address",
+    "contacts.phone",
+    "contacts.email",
 ]);
 
 const localePath = (lang: Lang) => path.join(LOCALES_DIR, `${lang}.json`);
