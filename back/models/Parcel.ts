@@ -24,7 +24,7 @@ export interface IParcel extends mongoose.Document {
     partnerStickerReceived: boolean;
     price: number;
     inshprice: number;
-    weight: number;
+    weight: string;
     deliveryType?: "courier" | "pickup";
     partnerType?: "E-Kit" | "KCE";
     description?: string;
