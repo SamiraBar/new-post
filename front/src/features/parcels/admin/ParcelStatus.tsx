@@ -92,6 +92,7 @@ interface ParcelStatusProps {
   parcelId: string;
   status: string;
   trackingNumber: string;
+  deliveryType?: 'pickup' | 'courier';
   draftedAt?: string;
   createdAt?: string;
   acceptedAt?: string;
@@ -101,6 +102,7 @@ interface ParcelStatusProps {
 const ParcelStatus = ({
   status,
   trackingNumber,
+  deliveryType,
   draftedAt,
   createdAt,
   acceptedAt,
@@ -137,7 +139,7 @@ const ParcelStatus = ({
     if (!newStatus || !trackingNumber) return;
     await editParcelStatus(trackingNumber, newStatus);
 
-    if (newStatus === 'accepted') {
+    if (newStatus === 'accepted' && deliveryType === 'pickup') {
       const result = await sendParcelToEKit(trackingNumber);
 
       if (result.success) {
@@ -146,6 +148,9 @@ const ParcelStatus = ({
       } else {
         toast.error(`Ошибка отправки в E-Kit: ${result.message}`);
       }
+    } else if (newStatus === 'accepted' && deliveryType === 'courier') {
+      toast.success('Статус успешно обновлен (курьерская доставка)');
+      await getParcelById(parcelId);
     }
 
     setIsEditing(false);

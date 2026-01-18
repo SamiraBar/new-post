@@ -1,6 +1,16 @@
     import Parcel from "../models/Parcel";
     import { getOrderStatus } from "./ekit.service";
-    
+
+    type ParcelStatus =
+        | "draft"
+        | "created"
+        | "accepted"
+        | "shipped"
+        | "in_country"
+        | "in_city"
+        | "at_pickup_point"
+        | "delivered";
+
     const EKIT_STATUS_MAPPING: Record<string, string | null> = {
         "Новый": null,
         "Отправлено со склада": "in_country",
@@ -93,9 +103,9 @@
                         result.skipped++;
                         continue;
                     }
-    
+
                     const oldStatus = parcel.status;
-                    parcel.status = newStatus as any;
+                    parcel.status = newStatus as ParcelStatus;
                     await parcel.save();
     
                     console.log(`ОБНОВЛЕНО: ${oldStatus} → ${newStatus}`);
@@ -227,9 +237,9 @@
                     message: "Статус уже актуален",
                 };
             }
-    
+
             const oldStatus = parcel.status;
-            parcel.status = newStatus as any;
+            parcel.status = newStatus as ParcelStatus;
             await parcel.save();
     
             console.log(`Статус обновлен: ${oldStatus} → ${newStatus}`);
