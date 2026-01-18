@@ -118,6 +118,8 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     console.log('  - Город:', recipientCity);
     console.log('  - Адрес:', recipientAddress);
 
+    const formattedWeight = Number(parcel.weight).toFixed(1);
+
     const xmlRequest = `<?xml version="1.0" encoding="UTF-8"?>
 <neworder newfolder="YES">
   <auth extra="${authExtra}" login="${authLogin}" pass="${authPass}"></auth>
@@ -142,9 +144,9 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
       ${parcel.deliveryType === 'pickup' && parcel.pvzData ? `<pvz>${parcel.pvzData.code}</pvz>` : ''}
     </receiver>
 
-    <price>0</price>
-    <inshprice>${parcel.inshprice}</inshprice>
-    <weight>${parcel.weight}</weight>
+    <price>${Number(parcel.price).toFixed(2)}</price>
+    <inshprice>${Number(parcel.inshprice).toFixed(2)}</inshprice>
+    <weight>${formattedWeight}</weight>
     <quantity>1</quantity>
     <service>${serviceCode}</service> 
     <type>3</type>

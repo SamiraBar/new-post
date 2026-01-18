@@ -15,6 +15,8 @@ interface DeliveryStore {
   selectPickup: () => void;
   openOrCloseCalcModal: () => void;
   clearActions: () => void;
+  resetAfterParcelCreation: () => void;
+
   fetchDeliveryCost: (city: string, weight: number) => Promise<DeliveryCostResult>;
   pricing: {
     pvz: number;
@@ -67,7 +69,33 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
       isDoorDelivery: false,
       isPickup: false,
       deliveryType: 'pickup',
+      pricing: {
+        pvz: 0,
+        door: 0,
+      },
+      selectedPrice: 0,
+      totalCost: 0,
     }),
+
+  resetAfterParcelCreation: () => {
+    const currentDeliveryType = get().deliveryType;
+    const isCurrentlyPickup = get().isPickup;
+    const isCurrentlyDoorDelivery = get().isDoorDelivery;
+
+    set({
+      isDoorDelivery: isCurrentlyDoorDelivery,
+      isPickup: isCurrentlyPickup,
+      deliveryType: currentDeliveryType,
+      modalSelectDeliveryVariant: false,
+      calcModal: false,
+      pricing: {
+        pvz: 0,
+        door: 0,
+      },
+      selectedPrice: 0,
+      totalCost: 0,
+    });
+  },
 
   fetchDeliveryCost: async (city: string, weight: number) => {
     if (!city || weight <= 0 || weight > 15) {
