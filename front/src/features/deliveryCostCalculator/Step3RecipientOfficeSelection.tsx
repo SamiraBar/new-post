@@ -34,9 +34,6 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ form }) => {
 
   const handlePvzSelect = (pvzData: PvzData) => {
     const actualPvzCity = normalizeCityName(pvzData.town || '');
-
-    // IMPORTANT: destinationCity — это "выбранный город потока" (шаг 3),
-    // его НЕ перезаписываем фактическим городом ПВЗ.
     const requestedDestinationCity = normalizeCityName(getValues('destinationCity') || '');
 
     console.log(' Обработка выбранного ПВЗ в Step3:');

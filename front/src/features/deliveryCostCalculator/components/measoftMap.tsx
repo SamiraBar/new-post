@@ -254,7 +254,6 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
 
   return (
     <div className="w-full">
-      {/* NOTICE: если выбран PVZ в другом городе, явно объясняем */}
       {pvzData && pvzCityDiffers && (
         <div className="mb-4 p-4 bg-yellow-50 border border-yellow-300 rounded-xl">
           <div className="font-semibold text-yellow-900">
@@ -306,7 +305,6 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
               <p className="font-semibold text-gray-800">{pvzData.name}</p>
               <p className="text-sm text-gray-600 mt-1">{pvzData.address}</p>
 
-              {/* Фактический город PVZ — всегда показываем */}
               {pvzData.town && (
                 <p className="text-sm text-gray-700 mt-2">
                   <span className="font-semibold">{t('measoftMap.actualPvzCity')}:</span>{' '}
