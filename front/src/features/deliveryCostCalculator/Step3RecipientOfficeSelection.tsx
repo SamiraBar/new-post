@@ -20,24 +20,31 @@ const normalizeCityName = (cityName: string): string => {
     .trim();
 };
 
-const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
-  const {t} = useTranslation();
+const Step3RecipientOfficeSelection: FC<Props> = ({ form }) => {
+  const { t } = useTranslation();
   const {
     register,
-    formState: {errors},
+    formState: { errors },
     setValue,
     getValues,
-    watch
+    watch,
   } = form;
+
   const deliveryType = watch('deliveryType');
+
   const handlePvzSelect = (pvzData: PvzData) => {
-    const normalizedCity = normalizeCityName(pvzData.town || '');
+    const actualPvzCity = normalizeCityName(pvzData.town || '');
+
+    // IMPORTANT: destinationCity — это "выбранный город потока" (шаг 3),
+    // его НЕ перезаписываем фактическим городом ПВЗ.
+    const requestedDestinationCity = normalizeCityName(getValues('destinationCity') || '');
 
     console.log(' Обработка выбранного ПВЗ в Step3:');
     console.log('  - Код ПВЗ:', pvzData.code);
     console.log('  - Название:', pvzData.name);
-    console.log('  - Город (оригинал):', pvzData.town);
-    console.log('  - Город (нормализованный):', normalizedCity);
+    console.log('  - Город ПВЗ (факт):', pvzData.town);
+    console.log('  - Город ПВЗ (нормализованный):', actualPvzCity);
+    console.log('  - Город по потоку (destinationCity):', requestedDestinationCity);
     console.log('  - ParentCode:', pvzData.parentcode);
     console.log('  - ParentName:', pvzData.parentname);
 
@@ -52,35 +59,48 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
     console.log('  - Service код:', serviceCode);
     console.log('  - Service город:', serviceCity);
 
-    setValue('destinationCity', normalizedCity, {
-      shouldDirty: true,
-      shouldValidate: true
-    });
+    // destinationCity НЕ трогаем.
+    // setValue('destinationCity', ...) УБРАНО ПО ЛОГИКЕ ТРЕБОВАНИЙ
 
-    setValue('pvzData', {
-      ...pvzData,
-      town: normalizedCity
-    }, { shouldDirty: true });
+    // PVZ сохраняем с фактическим городом.
+    // Дополнительно кладём requestedDestinationCity (не ломает, просто добавит поле в объект формы).
+    setValue(
+      'pvzData',
+      {
+        ...pvzData,
+        town: actualPvzCity,
+        requestedDestinationCity, // новое: город, выбранный в потоке
+      } as any,
+      { shouldDirty: true },
+    );
 
     setValue('destinationOffice', parseInt(pvzData.code) || 0, {
       shouldDirty: true,
-      shouldValidate: true
+      shouldValidate: true,
     });
 
     setValue('serviceCode', serviceCode, { shouldDirty: true });
     setValue('serviceCity', serviceCity, { shouldDirty: true });
 
+    // receiver.city — тоже НЕ перезаписываем городом ПВЗ.
+    // Адрес можно обновить адресом ПВЗ.
     const currentReceiver = getValues('receiver');
-    setValue('receiver', {
-      ...currentReceiver,
-      city: normalizedCity,
-      address: pvzData.address || currentReceiver.address,
-    }, {
-      shouldDirty: true,
-      shouldValidate: true
-    });
+    setValue(
+      'receiver',
+      {
+        ...currentReceiver,
+        city: requestedDestinationCity || currentReceiver.city,
+        address: pvzData.address || currentReceiver.address,
+      },
+      {
+        shouldDirty: true,
+        shouldValidate: true,
+      },
+    );
 
-    console.log('Все поля обновлены. Город:', normalizedCity);
+    console.log('Все поля обновлены.');
+    console.log('  - destinationCity (город потока):', requestedDestinationCity);
+    console.log('  - pvzData.town (факт город ПВЗ):', actualPvzCity);
     console.log('useEffect в родительском компоненте пересчитает цены автоматически');
   };
 
@@ -103,9 +123,8 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
                 className="h-11 md:h-10"
               />
               {errors.receiver?.city && (
-                <div
-                  className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
-                  <AlertCircle size={14} className="shrink-0"/>
+                <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                  <AlertCircle size={14} className="shrink-0" />
                   <p>{errors.receiver.city.message}</p>
                 </div>
               )}
@@ -118,9 +137,8 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
                 className="h-11 md:h-10"
               />
               {errors.receiver?.street && (
-                <div
-                  className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
-                  <AlertCircle size={14} className="shrink-0"/>
+                <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                  <AlertCircle size={14} className="shrink-0" />
                   <p>{errors.receiver.street.message}</p>
                 </div>
               )}
@@ -135,9 +153,8 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
                   className="h-11 md:h-10 sm:flex-1"
                 />
                 {errors.receiver?.house && (
-                  <div
-                    className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
-                    <AlertCircle size={14} className="shrink-0"/>
+                  <div className="flex items-center gap-1.5 mt-1 text-red-500 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                    <AlertCircle size={14} className="shrink-0" />
                     <p>{errors.receiver.house.message}</p>
                   </div>
                 )}
@@ -160,20 +177,13 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
 
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-center gap-2 text-blue-800">
-              <MapPin size={20}/>
+              <MapPin size={20} />
               <span className="font-medium">{t('measoftMap.selectPvz')}</span>
             </div>
-            <p className="text-blue-600 text-sm mt-1">
-              {t('measoftMap.selectPvzDescription')}
-            </p>
+            <p className="text-blue-600 text-sm mt-1">{t('measoftMap.selectPvzDescription')}</p>
           </div>
 
-          <MeasoftMap
-            form={form}
-            onPvzSelect={handlePvzSelect}
-            clientId="217"
-            clientCode=""
-          />
+          <MeasoftMap form={form} onPvzSelect={handlePvzSelect} clientId="217" clientCode="" />
         </>
       )}
     </div>

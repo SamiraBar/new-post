@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { type UseFormReturn, useWatch } from 'react-hook-form';
 import type { OrderFormData } from '@/lib/order.schema.ts';
 import useOfficesStore from '@/stores/officesStore/officesStore.ts';
+import { normalizeSearch } from '@/lib/normalizeSearch.ts';
 
 interface Props {
   form: UseFormReturn<OrderFormData>;
@@ -55,8 +56,10 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
   const recipientCities = deliveryType === 'courier' ? citiesHand : citiesPVZ;
 
   const filteredDestinationCities = useMemo(() => {
-    const q = (citySearch.destination || '').toLowerCase();
-    return recipientCities.filter((c) => c.city.toLowerCase().includes(q));
+    const q = normalizeSearch(citySearch.destination || '');
+    if (!q) return recipientCities;
+
+    return recipientCities.filter((c) => normalizeSearch(c.city).includes(q));
   }, [recipientCities, citySearch.destination]);
 
   const selectedPrice = watch('totalCost') || 0;

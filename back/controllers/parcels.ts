@@ -164,12 +164,15 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
         });
       }
 
+      // NOTE:
+      // destinationCity определяется выбором пользователя в потоке (step 3),
+      // но PVZ может находиться в другом городе (если в выбранном городе PVZ нет).
+      // Поэтому НЕ блокируем создание, а только логируем расхождение.
       if (pvzData.town && normalizeCity(destinationCity) !== normalizeCity(pvzData.town)) {
-        return res.status(400).json({
-          error: "Invalid destinationCity for selected PVZ",
-          rule: "destinationCity must match pvzData.town for pickup",
+        console.warn("[pvz] destinationCity differs from actual pvz town - allowed by rules", {
           destinationCity,
           pvzTown: pvzData.town,
+          pvzCode: pvzData.code,
         });
       }
     }

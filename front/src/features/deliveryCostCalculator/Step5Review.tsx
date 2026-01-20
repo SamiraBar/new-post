@@ -76,6 +76,12 @@ const Step5Review: FC<Props> = ({ form, doorDelivery }) => {
                 <div className="mt-2 p-3 bg-orange-50 rounded-lg border border-orange-200">
                   <p className="text-sm font-semibold text-orange-900">ПВЗ: {order.pvzData.name}</p>
                   <p className="text-xs text-gray-700 mt-1">{order.pvzData.address}</p>
+                  {order.pvzData.town && (
+                    <p className="text-xs text-gray-700 mt-1">
+                      <span className="font-semibold">{t('measoftMap.actualPvzCity')}:</span>{' '}
+                      {order.pvzData.town}
+                    </p>
+                  )}
                   {order.pvzData.phone && (
                     <div className="flex items-center gap-1 mt-1 text-xs text-gray-600">
                       <Phone className="w-3 h-3" />

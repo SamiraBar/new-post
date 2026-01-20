@@ -1,5 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import type { MeasoftMapConfig, MeasoftMapGlobal, MeasoftMapInstance, MeasoftMapProps, PvzFilter } from '@/types';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type {
+  MeasoftMapConfig,
+  MeasoftMapGlobal,
+  MeasoftMapInstance,
+  MeasoftMapProps,
+  PvzFilter,
+} from '@/types';
 import { useTranslation } from 'react-i18next';
 
 declare global {
@@ -9,21 +15,18 @@ declare global {
 }
 
 const MeasoftMap: React.FC<MeasoftMapProps> = ({
-                                                 form,
-                                                 onPvzSelect,
-                                                 clientId = '8',
-                                                 clientCode = ''
-                                               }) => {
+  form,
+  onPvzSelect,
+  clientId = '8',
+  clientCode = '',
+}) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const mapInstanceRef = useRef<MeasoftMapInstance | null>(null);
-  const {
-    t,
-    i18n
-  } = useTranslation();
+  const { t, i18n } = useTranslation();
 
-  const {watch} = form;
-  const {destinationCity, parcelWeight, pvzData} = watch();
+  const { watch } = form;
+  const { destinationCity, parcelWeight, pvzData } = watch();
 
   const getMapLanguage = () => {
     const currentLang = i18n.language;
@@ -59,6 +62,19 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
     };
   }, [t]);
 
+  const normalizedDestinationCity = useMemo(() => {
+    return String(destinationCity ?? '').trim();
+  }, [destinationCity]);
+
+  const normalizedPvzTown = useMemo(() => {
+    return String(pvzData?.town ?? '').trim();
+  }, [pvzData?.town]);
+
+  const pvzCityDiffers = useMemo(() => {
+    if (!normalizedDestinationCity || !normalizedPvzTown) return false;
+    return normalizedDestinationCity.toLowerCase() !== normalizedPvzTown.toLowerCase();
+  }, [normalizedDestinationCity, normalizedPvzTown]);
+
   useEffect(() => {
     if (!isScriptLoaded || !mapContainerRef.current || !window.measoftMap) {
       return;
@@ -86,9 +102,9 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
           };
 
           const parentcode = getElementValue('pvz_parentcode');
-          console.log('=' .repeat(60));
+          console.log('='.repeat(60));
           console.log('🗺️ ПВЗ выбран на карте');
-          console.log('=' .repeat(60));
+          console.log('='.repeat(60));
           console.log('📋 Базовые данные из pvzData:');
           console.log('  - code:', pvzData.code);
           console.log('  - name:', pvzData.name);
@@ -117,7 +133,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
             console.log('  ⚠️ Неизвестный parentcode:', parentcode);
             console.log('  📦 service по умолчанию: 14 (МСК)');
           }
-          console.log('=' .repeat(60));
+          console.log('='.repeat(60));
 
           onPvzSelect({
             code: pvzData.code,
@@ -143,7 +159,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
         client_code: clientCode,
         mapSize: {
           width: '100%',
-          height: '500'
+          height: '500',
         },
         centerCoords: ['42.8746', '74.5698'],
         lang: getMapLanguage(),
@@ -153,15 +169,15 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
         allowedFilterParams: ['acceptcash', 'acceptcard', 'acceptfitting'],
         choicePvzCallback: handlePvzChoice,
         townBlock: '',
-        windowFixedPosition: '0'
+        windowFixedPosition: '0',
       };
 
       mapInstanceRef.current = window.measoftMap.config(config).init();
 
-      if (destinationCity && destinationCity.trim() !== '') {
+      if (normalizedDestinationCity && normalizedDestinationCity.trim() !== '') {
         const tryToCenter = () => {
           if (window.measoftMap?.map?.getCenter) {
-            centerMapOnCity(destinationCity);
+            centerMapOnCity(normalizedDestinationCity);
           } else {
             setTimeout(tryToCenter, 500);
           }
@@ -169,7 +185,6 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
 
         setTimeout(tryToCenter, 300);
       }
-
     } catch (error) {
       console.error(t('measoftMap.errors.mapInitializationFailed'), error);
     }
@@ -179,7 +194,16 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
         mapInstanceRef.current.close();
       }
     };
-  }, [isScriptLoaded, destinationCity, parcelWeight, clientId, clientCode, onPvzSelect, t, getMapLanguage]);
+  }, [
+    isScriptLoaded,
+    normalizedDestinationCity,
+    parcelWeight,
+    clientId,
+    clientCode,
+    onPvzSelect,
+    t,
+    getMapLanguage,
+  ]);
 
   const centerMapOnCity = async (cityName: string) => {
     try {
@@ -198,7 +222,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: xml
+        body: xml,
       });
 
       if (!response.ok) {
@@ -221,7 +245,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
           console.log(`Карта центрирована на: ${cityName} (${lat}, ${lon})`);
         }
       } else {
-        console.warn(t('measoftMap.errors.cityNotFound', {city: cityName}));
+        console.warn(t('measoftMap.errors.cityNotFound', { city: cityName }));
       }
     } catch (error) {
       console.error(t('measoftMap.errors.geocodingError'), error);
@@ -230,6 +254,18 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
 
   return (
     <div className="w-full">
+      {/* NOTICE: если выбран PVZ в другом городе, явно объясняем */}
+      {pvzData && pvzCityDiffers && (
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-300 rounded-xl">
+          <div className="font-semibold text-yellow-900">
+            {t('measoftMap.notice.noPvzInCityTitle')}
+          </div>
+          <div className="text-sm text-yellow-800 mt-1">
+            {t('measoftMap.notice.noPvzInCityBody', { city: normalizedDestinationCity })}
+          </div>
+        </div>
+      )}
+
       <div
         id="measoftMapBlock"
         ref={mapContainerRef}
@@ -249,14 +285,35 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
         <div className="mt-4 p-4 bg-green-50 border-2 border-green-300 rounded-xl">
           <div className="flex items-start gap-3">
             <div className="p-2 bg-green-100 rounded-lg">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
+              <svg
+                className="w-6 h-6 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </div>
+
             <div className="flex-1">
               <h4 className="font-bold text-green-800 mb-2">{t('measoftMap.selectedTitle')}</h4>
+
               <p className="font-semibold text-gray-800">{pvzData.name}</p>
               <p className="text-sm text-gray-600 mt-1">{pvzData.address}</p>
+
+              {/* Фактический город PVZ — всегда показываем */}
+              {pvzData.town && (
+                <p className="text-sm text-gray-700 mt-2">
+                  <span className="font-semibold">{t('measoftMap.actualPvzCity')}:</span>{' '}
+                  {pvzData.town}
+                </p>
+              )}
+
               {pvzData.phone && (
                 <p className="text-sm text-gray-600">
                   {t('measoftMap.phone')}: {pvzData.phone}
