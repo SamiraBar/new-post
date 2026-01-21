@@ -55,6 +55,57 @@ interface ExtendedParcelState extends ParcelState {
   }>;
 }
 
+const openPdfAndPrint = (pdfBlob: Blob, fileName = 'sticker.pdf') => {
+  const blob = new Blob([pdfBlob], { type: 'application/pdf' });
+  const blobUrl = URL.createObjectURL(blob);
+
+  const printWindow = window.open('', '_blank');
+
+  const cleanup = () => {
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000);
+  };
+
+  if (printWindow) {
+    printWindow.document.title = fileName;
+    printWindow.location.href = blobUrl;
+
+    const tryPrint = () => {
+      try {
+        printWindow.focus();
+        printWindow.print();
+        cleanup();
+      } catch {
+        setTimeout(tryPrint, 300);
+      }
+    };
+
+    setTimeout(tryPrint, 300);
+    return;
+  }
+
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  iframe.src = blobUrl;
+
+  iframe.onload = () => {
+    try {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+    } finally {
+      cleanup();
+      setTimeout(() => iframe.remove(), 10_000);
+    }
+  };
+
+  document.body.appendChild(iframe);
+};
+
+
 export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
   parcels: [],
   parcel: null,
@@ -402,20 +453,20 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
 
   async printSticker(trackingNumber: string, recipientName: string, address: string) {
     set({ printStickerLoading: true, printStickerError: null });
+
     try {
-      const { data } = await axiosApi.post<{ success: boolean; message: string }>(
-        '/printer/printSticker',
-        {
-          trackingNumber,
-          recipientName,
-          address,
-        },
+      const { data } = await axiosApi.post(
+        '/printer/sticker-pdf',
+        { trackingNumber, recipientName, address },
+        { responseType: 'blob' },
       );
 
+      openPdfAndPrint(data, `sticker-${trackingNumber}.pdf`);
+
       set({ printStickerLoading: false });
-      return data.success;
+      return true;
     } catch (e: unknown) {
-      let errorMessage = 'Не удалось отправить на печать';
+      let errorMessage = 'Не удалось сформировать PDF для печати';
 
       if (axios.isAxiosError(e)) {
         errorMessage = e.response?.data?.error || e.message;
@@ -430,11 +481,7 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         printStickerLoading: false,
       });
 
-      const { toast } = await import('sonner');
-      toast.error('Error:', {
-        description: errorMessage,
-      });
-
+      toast.error('Ошибка печати', { description: errorMessage });
       return false;
     }
   },
@@ -447,22 +494,20 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
     address: string,
   ) {
     set({ printStickerLoading: true, printStickerError: null });
+
     try {
-      const { data } = await axiosApi.post<{ success: boolean; message: string }>(
-        '/printer/printPartnerSticker',
-        {
-          partnerTrackingNumber,
-          recipientName,
-          quantityOfPlace,
-          pvzCode,
-          address,
-        },
+      const { data } = await axiosApi.post(
+        '/printer/partner-sticker-pdf',
+        { partnerTrackingNumber, recipientName, quantityOfPlace, pvzCode, address },
+        { responseType: 'blob' },
       );
 
+      openPdfAndPrint(data, `partner-sticker-${partnerTrackingNumber}.pdf`);
+
       set({ printStickerLoading: false });
-      return data.success;
+      return true;
     } catch (e: unknown) {
-      let errorMessage = 'Не удалось отправить на печать';
+      let errorMessage = 'Не удалось сформировать PDF для печати';
 
       if (axios.isAxiosError(e)) {
         errorMessage = e.response?.data?.error || e.message;
@@ -477,11 +522,7 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
         printStickerLoading: false,
       });
 
-      const { toast } = await import('sonner');
-      toast.error('Error:', {
-        description: errorMessage,
-      });
-
+      toast.error('Ошибка печати', { description: errorMessage });
       return false;
     }
   },
