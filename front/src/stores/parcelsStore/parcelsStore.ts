@@ -488,18 +488,14 @@ export const useParcelsStore = create<ExtendedParcelState>()((set, get) => ({
 
   async printPartnerSticker(
     partnerTrackingNumber: string,
-    recipientName: string,
-    quantityOfPlace: number,
-    pvzCode: string,
-    address: string,
   ) {
     set({ printStickerLoading: true, printStickerError: null });
 
     try {
       const { data } = await axiosApi.post(
-        '/printer/partner-sticker-pdf',
-        { partnerTrackingNumber, recipientName, quantityOfPlace, pvzCode, address },
-        { responseType: 'blob' },
+        `/printer/${encodeURIComponent(partnerTrackingNumber)}/partner-sticker-pdf`,
+        {},
+        { responseType: 'blob' }
       );
 
       openPdfAndPrint(data, `partner-sticker-${partnerTrackingNumber}.pdf`);

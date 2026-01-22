@@ -5,6 +5,6 @@ import auth from "../middleware/auth";
 const printerRouter = express.Router();
 
 printerRouter.post("/sticker-pdf", auth, stickerPdf);
-printerRouter.post("/partner-sticker-pdf", auth, partnerStickerPdf);
+printerRouter.post("/:trackingNumber/partner-sticker-pdf", auth, partnerStickerPdf);
 
 export default printerRouter;

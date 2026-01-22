@@ -248,3 +248,79 @@ export async function getOrderStatus(trackingNumber: string) {
         return null;
     }
 }
+
+function normalizeBase64(input: string): string {
+    return input.replace(/\s+/g, '');
+}
+
+function safeFirst<T>(v: T | T[] | undefined | null): T | undefined {
+    if (!v) return undefined;
+    return Array.isArray(v) ? v[0] : v;
+}
+
+export async function getWaybillPdfBuffer(params: {
+    trackingNumber: string;
+    ordercode?: string;
+    form?: number;
+}): Promise<{
+    pdfBuffer: Buffer;
+    orderCode?: string;
+}> {
+    const authExtra = config.extra;
+    const authLogin = config.login;
+    const authPass = config.pass;
+
+    const { trackingNumber, ordercode, form = 2 } = params;
+
+    const xmlRequest = `<?xml version="1.0" encoding="UTF-8"?>
+<waybill>
+  <auth extra="${authExtra}" login="${authLogin}" pass="${authPass}" />
+  <client>CLIENT</client>
+  <orders>
+    <order orderno="${escapeXml(trackingNumber)}"${ordercode ? ` ordercode="${escapeXml(ordercode)}"` : ''} />
+  </orders>
+  <form>${form}</form>
+</waybill>`;
+
+    try {
+        const response = await axios.post(config.apiUrl, xmlRequest, {
+            headers: { 'Content-Type': 'application/xml' },
+            timeout: 50000,
+        });
+
+        const result = await xml2js.parseStringPromise(response.data);
+
+        if (!result?.waybill) {
+            throw new Error('Неверная структура ответа от E-Kit: нет waybill');
+        }
+
+        if (result.waybill.error?.[0]) {
+            const msg = result.waybill.error[0];
+            throw new Error(`Ошибка E-Kit: ${msg}`);
+        }
+
+        const integration = safeFirst(result.waybill.integration);
+        const order = integration?.order ? safeFirst(integration.order) : undefined;
+
+        const orderCode = order?.$?.code;
+
+        const contentRaw =
+          (order?.content ? safeFirst(order.content) : undefined) ??
+          (result.waybill.content ? safeFirst(result.waybill.content) : undefined);
+
+        if (!contentRaw || typeof contentRaw !== 'string') {
+            throw new Error('Не найден <content> с base64 в ответе E-Kit');
+        }
+
+        const b64 = normalizeBase64(contentRaw);
+        const pdfBuffer = Buffer.from(b64, 'base64');
+
+        return { pdfBuffer, orderCode };
+    } catch (error) {
+        console.error('Не удалось получить waybill PDF из E-Kit:', error instanceof Error ? error.message : String(error));
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Отправленный XML (waybill):', xmlRequest);
+        }
+        throw error;
+    }
+}

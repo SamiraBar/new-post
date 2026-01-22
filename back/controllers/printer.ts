@@ -1,7 +1,24 @@
-import type { Request, Response } from "express";
+import type {NextFunction, Request, Response} from "express";
 import path from "path";
 import PDFDocument from "pdfkit";
 import bwipjs from "bwip-js";
+import axios from "axios";
+import xml2js from "xml2js";
+import fs from "fs";
+import {getWaybillPdfBuffer} from "../services/ekit.service";
+
+type EKitConfig = {
+  apiUrl: string;
+  login: string;
+  pass: string;
+  extra: string;
+  client: string;
+};
+
+type WaybillPdfResult = {
+  orderCode?: string;
+  pdfBuffer: Buffer;
+};
 
 const DPI = 203;
 
@@ -16,26 +33,26 @@ const FONT_REGULAR = path.join(ASSETS_DIR, "fonts", "DejaVuSans.ttf");
 const FONT_BOLD = path.join(ASSETS_DIR, "fonts", "DejaVuSans-Bold.ttf");
 const LOGO_PNG = path.join(ASSETS_DIR, "logo.png");
 
-function setNoStore(res: Response) {
+const setNoStore = (res: Response) => {
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   res.setHeader("Pragma", "no-cache");
   res.setHeader("Expires", "0");
 }
 
-async function makeCode128Png(text: string, heightDots: number) {
+const makeCode128Png = async (text: string, heightDots: number) => {
   const heightMm = (heightDots / DPI) * 25.4;
 
   return bwipjs.toBuffer({
     bcid: "code128",
     text,
     scale: 2,
-    height: heightMm, // мм
+    height: heightMm,
     includetext: false,
     backgroundcolor: "FFFFFF",
   });
 }
 
-function normalizeAddress(value: string) {
+const normalizeAddress = (value: string) => {
   const s = (value ?? "").toString();
   return s
     .replace(/\s*,\s*/g, ", ")
@@ -43,11 +60,11 @@ function normalizeAddress(value: string) {
     .trim();
 }
 
-function addressWithSmartBreaks(value: string) {
+const addressWithSmartBreaks = (value: string) => {
   return normalizeAddress(value).replace(/,\s/g, ",\n");
 }
 
-function createDoc(res: Response, fileName: string) {
+const createDoc = (res: Response, fileName: string) => {
   const doc = new PDFDocument({
     size: [LABEL_W_PT, LABEL_H_PT],
     margins: { top: 0, left: 0, right: 0, bottom: 0 },
@@ -69,7 +86,7 @@ function createDoc(res: Response, fileName: string) {
   return doc;
 }
 
-function textOneLine(
+const textOneLine = (
   doc: PDFKit.PDFDocument,
   value: string,
   xDots: number,
@@ -77,7 +94,7 @@ function textOneLine(
   fontDots: number,
   widthDots: number,
   useBold = false
-) {
+) => {
   doc
     .font(useBold ? "B" : "R")
     .fontSize(dotToPt(fontDots))
@@ -88,7 +105,7 @@ function textOneLine(
     });
 }
 
-function textMultiline(
+const textMultiline = (
   doc: PDFKit.PDFDocument,
   value: string,
   xDots: number,
@@ -97,7 +114,7 @@ function textMultiline(
   widthDots: number,
   maxHeightPt: number,
   lineGap = 2
-) {
+) => {
   doc
     .font("R")
     .fontSize(dotToPt(fontDots))
@@ -146,6 +163,21 @@ export const stickerPdf = async (req: Request, res: Response) => {
   doc.end();
 };
 
-export const partnerStickerPdf = async (req: Request, res: Response) => {
-  console.log("Partner Sticker PDF");
+export const partnerStickerPdf = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const trackingNumber = String(req.params.trackingNumber || req.query.trackingNumber || "").trim();
+    if (!trackingNumber) {
+      return res.status(400).json({ error: "trackingNumber is required" });
+    }
+
+    const { pdfBuffer } = await getWaybillPdfBuffer({ trackingNumber, form: 2 });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="${trackingNumber}.pdf"`);
+    setNoStore(res);
+
+    return res.status(200).send(pdfBuffer);
+  } catch (e) {
+    next(e);
+  }
 };
