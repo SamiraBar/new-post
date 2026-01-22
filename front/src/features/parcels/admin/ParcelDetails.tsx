@@ -53,6 +53,7 @@ const ParcelDetails = () => {
           parcelId={parcel._id}
           status={parcel.status}
           trackingNumber={parcel.trackingNumber}
+          deliveryType={parcel.deliveryType}
           draftedAt={parcel.draftedAt}
           createdAt={parcel.createdAt}
           acceptedAt={parcel.acceptedAt}

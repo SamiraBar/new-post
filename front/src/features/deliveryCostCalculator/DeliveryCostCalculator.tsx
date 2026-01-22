@@ -36,6 +36,7 @@ const DeliveryCostCalculator = () => {
     selectPickup,
     selectDoorDelivery,
     clearActions,
+    resetAfterParcelCreation,
     fetchDeliveryCost,
   } = useDeliveryStore();
 
@@ -164,11 +165,30 @@ const DeliveryCostCalculator = () => {
     if (trackingNumber) {
       setCreatedTrackingNumber(trackingNumber);
       setShowSuccessModal(true);
-      reset();
+      resetAfterParcelCreation();
+      reset({
+        originCity: '',
+        destinationCity: '',
+        serviceCode: undefined,
+        serviceCity: undefined,
+        originOffice: '',
+        destinationOffice: 0,
+        parcelValue: '',
+        parcelWeight: '',
+        deliveryCost: 0,
+        insuranceCost: 0,
+        totalCost: 0,
+        deliveryDate: '',
+        inParcel: '',
+        sender: { name: '', email: '', phone: '', inn_passport: '' },
+        receiver: { name: '', email: '', phone: '', address: '' },
+        deliveryType: isPickup ? 'pickup' : 'courier',
+        partnerType: isPickup ? 'E-Kit' : 'KCE',
+      });
+
       setCurrentStep(1);
       setIsAgreed(false);
       setAgreementError(false);
-      clearActions();
     } else {
       toast.error(
         createParcelError?.error ||
