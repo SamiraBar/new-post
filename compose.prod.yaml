@@ -10,6 +10,13 @@ services:
     environment:
       NODE_ENV: production
       MONGO_DB_URL: mongodb://new-post-database:27017/new-post
+    expose:
+      - "8000"
+    volumes:
+      - social_uploads:/usr/src/back/dist/public/uploads/social
+      - file_uploads:/usr/src/back/dist/public/company-files
+      - i18n_locales:/usr/src/back/dist/i18n/locales
+    restart: unless-stopped
 
   front:
     build:
@@ -19,11 +26,16 @@ services:
       - back
     ports:
       - "8080:80"
+    restart: unless-stopped
 
   new-post-database:
     image: mongo:8
     volumes:
       - database:/data/db
+    restart: unless-stopped
 
 volumes:
   database:
+  social_uploads:
+  file_uploads:
+  i18n_locales:

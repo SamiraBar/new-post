@@ -1,7 +1,9 @@
 import type {NextFunction, Request, Response} from "express";
 import path from "path";
 import PDFDocument from "pdfkit";
+import type PDFKit from "pdfkit";
 import bwipjs from "bwip-js";
+import fs from "fs";
 import {getWaybillPdfBuffer} from "../services/ekit.service";
 
 const DPI = 203;
@@ -12,7 +14,11 @@ const mmToPt = (mm: number) => (mm / 25.4) * 72;
 const LABEL_W_PT = mmToPt(75);
 const LABEL_H_PT = mmToPt(140);
 
-const ASSETS_DIR = path.resolve(__dirname, "../assets");
+const ASSETS_DIR = (() => {
+  const p1 = path.resolve(process.cwd(), "assets");
+  const p2 = path.resolve(__dirname, "../assets");
+  return fs.existsSync(p1) ? p1 : p2;
+})();
 
 const FONT_REGULAR = path.join(ASSETS_DIR, "fonts", "DejaVuSans.ttf");
 const FONT_BOLD = path.join(ASSETS_DIR, "fonts", "DejaVuSans-Bold.ttf");
@@ -49,7 +55,7 @@ const addressWithSmartBreaks = (value: string) => {
   return normalizeAddress(value).replace(/,\s/g, ",\n");
 }
 
-const createDoc = (res: Response, fileName: string) => {
+const createDoc = (res: Response, fileName: string): PDFKit.PDFDocument => {
   const doc = new PDFDocument({
     size: [LABEL_W_PT, LABEL_H_PT],
     margins: { top: 0, left: 0, right: 0, bottom: 0 },
@@ -61,15 +67,12 @@ const createDoc = (res: Response, fileName: string) => {
 
   doc.pipe(res);
 
-  doc.registerFont("R", FONT_REGULAR);
-  try {
-    doc.registerFont("B", FONT_BOLD);
-  } catch {
-  }
+  try { doc.registerFont("R", FONT_REGULAR); } catch {}
+  try { doc.registerFont("B", FONT_BOLD); } catch {}
 
   doc.font("R");
   return doc;
-}
+};
 
 const textOneLine = (
   doc: PDFKit.PDFDocument,
