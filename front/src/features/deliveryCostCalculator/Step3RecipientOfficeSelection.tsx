@@ -56,18 +56,13 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ form }) => {
     console.log('  - Service код:', serviceCode);
     console.log('  - Service город:', serviceCity);
 
-    // destinationCity НЕ трогаем.
-    // setValue('destinationCity', ...) УБРАНО ПО ЛОГИКЕ ТРЕБОВАНИЙ
-
-    // PVZ сохраняем с фактическим городом.
-    // Дополнительно кладём requestedDestinationCity (не ломает, просто добавит поле в объект формы).
     setValue(
       'pvzData',
       {
         ...pvzData,
         town: actualPvzCity,
-        requestedDestinationCity, // новое: город, выбранный в потоке
-      } as any,
+        requestedDestinationCity,
+      } as never,
       { shouldDirty: true },
     );
 
@@ -79,8 +74,6 @@ const Step3RecipientOfficeSelection: FC<Props> = ({ form }) => {
     setValue('serviceCode', serviceCode, { shouldDirty: true });
     setValue('serviceCity', serviceCity, { shouldDirty: true });
 
-    // receiver.city — тоже НЕ перезаписываем городом ПВЗ.
-    // Адрес можно обновить адресом ПВЗ.
     const currentReceiver = getValues('receiver');
     setValue(
       'receiver',

@@ -3,7 +3,7 @@ export function normalizeRuBase(value: unknown): string {
         .trim()
         .toLowerCase()
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // диакритика
+        .replace(/[\u0300-\u036f]/g, '')
         .replace(/ё/g, 'е')
         .replace(/й/g, 'и')
         .replace(/\s+/g, ' ');

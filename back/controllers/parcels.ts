@@ -163,11 +163,6 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
           required: ["code", "name", "address", "town"],
         });
       }
-
-      // NOTE:
-      // destinationCity определяется выбором пользователя в потоке (step 3),
-      // но PVZ может находиться в другом городе (если в выбранном городе PVZ нет).
-      // Поэтому НЕ блокируем создание, а только логируем расхождение.
       if (pvzData.town && normalizeCity(destinationCity) !== normalizeCity(pvzData.town)) {
         console.warn("[pvz] destinationCity differs from actual pvz town - allowed by rules", {
           destinationCity,
