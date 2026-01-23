@@ -10,6 +10,9 @@ services:
     environment:
       NODE_ENV: production
       MONGO_DB_URL: mongodb://new-post-database:27017/new-post
+    volumes:
+      - social_uploads:/back/public/uploads/social
+      - file_uploads:/back/public/uploads/company-files
 
   front:
     build:
