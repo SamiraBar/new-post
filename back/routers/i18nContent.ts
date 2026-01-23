@@ -7,10 +7,12 @@ import permit from "../middleware/permit";
 const router = express.Router();
 type Lang = "ru" | "kg";
 
-const LOCALES_DIR =
-  process.env.LOCALES_DIR
-    ? path.resolve(process.env.LOCALES_DIR)
-    : path.resolve(process.cwd(), "dist/i18n/locales");
+const LOCALES_DIR = process.env.LOCALES_DIR
+  ? path.resolve(process.env.LOCALES_DIR)
+  : process.env.NODE_ENV === "production"
+    ? path.resolve(process.cwd(), "dist/i18n/locales")
+    : path.resolve(process.cwd(), "i18n/locales");
+
 
 const allowedKeys = new Set([
     "aboutCompany.textInfo",
