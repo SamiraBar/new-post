@@ -4,7 +4,6 @@ export const seedSocialNetworks = async () => {
   try {
     const count = await SocialMedia.countDocuments();
     if (count > 0) {
-      console.log("📱 Social networks already exist, skipping seed");
       return;
     }
 
@@ -24,8 +23,7 @@ export const seedSocialNetworks = async () => {
     ];
 
     await SocialMedia.insertMany(defaultSocials);
-    console.log("✅ Social networks seeded successfully");
   } catch (error) {
-    console.error("❌ Error seeding social networks:", error);
+    console.error("Error seeding social networks:", error);
   }
 };

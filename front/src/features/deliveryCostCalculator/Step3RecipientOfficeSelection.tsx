@@ -33,14 +33,6 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
   const handlePvzSelect = (pvzData: PvzData) => {
     const normalizedCity = normalizeCityName(pvzData.town || '');
 
-    console.log(' Обработка выбранного ПВЗ в Step3:');
-    console.log('  - Код ПВЗ:', pvzData.code);
-    console.log('  - Название:', pvzData.name);
-    console.log('  - Город (оригинал):', pvzData.town);
-    console.log('  - Город (нормализованный):', normalizedCity);
-    console.log('  - ParentCode:', pvzData.parentcode);
-    console.log('  - ParentName:', pvzData.parentname);
-
     let serviceCode: '14' | '15' = '14';
     let serviceCity: 'МСК' | 'ЕКБ' = 'МСК';
 
@@ -48,9 +40,6 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
       serviceCode = '15';
       serviceCity = 'ЕКБ';
     }
-
-    console.log('  - Service код:', serviceCode);
-    console.log('  - Service город:', serviceCity);
 
     setValue('destinationCity', normalizedCity, {
       shouldDirty: true,
@@ -80,8 +69,6 @@ const Step3RecipientOfficeSelection: FC<Props> = ({form}) => {
       shouldValidate: true
     });
 
-    console.log('Все поля обновлены. Город:', normalizedCity);
-    console.log('useEffect в родительском компоненте пересчитает цены автоматически');
   };
 
   if (!deliveryType) return null;

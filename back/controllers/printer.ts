@@ -2,23 +2,7 @@ import type {NextFunction, Request, Response} from "express";
 import path from "path";
 import PDFDocument from "pdfkit";
 import bwipjs from "bwip-js";
-import axios from "axios";
-import xml2js from "xml2js";
-import fs from "fs";
 import {getWaybillPdfBuffer} from "../services/ekit.service";
-
-type EKitConfig = {
-  apiUrl: string;
-  login: string;
-  pass: string;
-  extra: string;
-  client: string;
-};
-
-type WaybillPdfResult = {
-  orderCode?: string;
-  pdfBuffer: Buffer;
-};
 
 const DPI = 203;
 
@@ -28,7 +12,8 @@ const mmToPt = (mm: number) => (mm / 25.4) * 72;
 const LABEL_W_PT = mmToPt(75);
 const LABEL_H_PT = mmToPt(140);
 
-const ASSETS_DIR = path.resolve(process.cwd(), "assets");
+const ASSETS_DIR = path.resolve(__dirname, "../assets");
+
 const FONT_REGULAR = path.join(ASSETS_DIR, "fonts", "DejaVuSans.ttf");
 const FONT_BOLD = path.join(ASSETS_DIR, "fonts", "DejaVuSans-Bold.ttf");
 const LOGO_PNG = path.join(ASSETS_DIR, "logo.png");
