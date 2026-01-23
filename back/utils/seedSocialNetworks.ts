@@ -24,8 +24,7 @@ export const seedSocialNetworks = async () => {
     ];
 
     await SocialMedia.insertMany(defaultSocials);
-    console.log("✅ Social networks seeded successfully");
   } catch (error) {
-    console.error("❌ Error seeding social networks:", error);
+    console.error("Error seeding social networks:", error);
   }
 };

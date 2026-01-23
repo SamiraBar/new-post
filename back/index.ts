@@ -38,25 +38,12 @@ app.use("/", socialMediaRouter);
 const run = async () => {
   try {
     await mongoose.connect(config.db);
-    console.log("✅ Connected to MongoDB");
 
-    // setupTestSyncCron(); 🚫 Не раскоментировать!
+    // setupTestSyncCron(); <-- крон для всех посылок, не расскомичивать, если не знаете что это
     await seedSocialNetworks();
-
-    console.log("Автоматический Cron: ОТКЛЮЧЕН (для безопасности)");
-    console.log("Ручная синхронизация доступна через API:");
-    console.log("   - POST /parcels/sync-all (синхронизировать все посылки)");
-    console.log(
-      "   - POST /parcels/tracking/:trackingNumber/sync (синхронизировать одну)",
-    );
-    console.log(" Оба роута требуют авторизации (заголовок Authorization)");
 
     app.listen(config.port as number, "0.0.0.0", () => {
       console.log(`Server running on port ${config.port}`);
-      console.log(
-        `Режим: БЕЗОПАСНЫЙ (ручная синхронизация через /parcels/sync-all)`,
-      );
-      console.log("=".repeat(50));
     });
   } catch (error) {
     console.error("Failed to start server:", error);
