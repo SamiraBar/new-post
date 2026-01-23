@@ -8,7 +8,9 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run build
+RUN npm run build \
+  && mkdir -p dist/i18n/locales \
+  && cp -r i18n/locales/* dist/i18n/locales/
 
 
 # --------- production stage ----------

@@ -14,6 +14,7 @@ import { isHeadingLine, splitBlocks } from '@/components/ui/contentBlocks.ts';
 import logoDark from '@/assets/logo/logo-2.png';
 import AdminSocialNetworks from './AdminSocialNetworks';
 import CompanyFilesCard from './CompanyFilesCard';
+import i18n from '@/i18n/i18n';
 
 type Lang = 'ru' | 'kg';
 type Mode = 'edit' | 'preview';
@@ -117,6 +118,12 @@ const AdminSiteContent = () => {
           'contacts.email': contacts.email,
         },
       });
+
+      await i18n.reloadResources(lang);
+      if (i18n.language === lang) {
+        await i18n.changeLanguage(lang);
+      }
+
       setOrig({ about, important, footer });
       setOrigContacts({ ...contacts });
       toast.success('Сохранено');
