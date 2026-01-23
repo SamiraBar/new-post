@@ -2,7 +2,13 @@ import { type ChangeEvent, type FC, useEffect, useMemo, useState } from 'react';
 import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field.tsx';
 import TruckIconA from '@/features/deliveryCostCalculator/components/icons/TruckIconA.tsx';
 import TruckIconB from '@/features/deliveryCostCalculator/components/icons/TruckIconB.tsx';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select.tsx';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { AlertCircle, Clock, HandCoins, Weight } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
@@ -21,7 +27,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
   const { citiesPVZ, citiesHand, getCities, loadingCities } = useFileStore();
   const [citySearch, setCitySearch] = useState({ destination: '' });
   const { t } = useTranslation();
-  const {originCities, getOriginCities} = useOfficesStore();
+  const { originCities, getOriginCities } = useOfficesStore();
 
   const {
     register,
@@ -37,6 +43,18 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     name: ['originCity', 'destinationCity', 'parcelValue', 'parcelWeight', 'deliveryType'],
   });
 
+  const maxWeightCourier = Number(
+    t('deliveryCostCalculator.limits.maxWeightCourier', { defaultValue: '15' }),
+  );
+  const maxWeightPVZ = Number(
+    t('deliveryCostCalculator.limits.maxWeightPVZ', { defaultValue: '12' }),
+  );
+  const maxParcelValue = Number(
+    t('deliveryCostCalculator.limits.maxParcelValue', { defaultValue: '50000' }),
+  );
+
+  const currentMaxWeight = deliveryType === 'courier' ? maxWeightCourier : maxWeightPVZ;
+
   const trError = (msg: unknown) => {
     const key = String(msg ?? '').trim();
     if (!key) return '';
@@ -44,8 +62,8 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     return translated === key ? key : translated;
   };
 
-  const isParcelValueValid = Number(parcelValue) > 0 && Number(parcelValue) <= 50000;
-  const isParcelWeightValid = Number(parcelWeight) > 0 && Number(parcelWeight) <= 15;
+  const isParcelValueValid = Number(parcelValue) > 0 && Number(parcelValue) <= maxParcelValue;
+  const isParcelWeightValid = Number(parcelWeight) > 0 && Number(parcelWeight) <= currentMaxWeight;
 
   useEffect(() => {
     const type: 'PVZ' | 'Hand' = deliveryType === 'courier' ? 'Hand' : 'PVZ';
@@ -62,7 +80,8 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
   const selectedPrice = watch('totalCost') || 0;
 
   const canProceed =
-    originCity && destinationCity &&
+    originCity &&
+    destinationCity &&
     Number(parcelValue) > 0 &&
     Number(parcelWeight) > 0 &&
     Object.keys(errors).length === 0;
@@ -72,26 +91,21 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
       if (name === 'parcelWeight' || name === undefined) {
         const weight = value.parcelWeight || '';
         const weightNum = parseFloat(weight);
-        const currentMax = deliveryType === 'courier' ? 15 : 12;
         const typeText = t(`delivery.${deliveryType}`);
 
         if (!isNaN(weightNum) && weightNum > 0) {
-          if (weightNum > currentMax) {
+          if (weightNum > currentMaxWeight) {
             const errorMsg = t('deliveryCostCalculator.stepOneForm.maxWeightError', {
-              weight: currentMax,
+              weight: currentMaxWeight,
               type: typeText,
+              defaultValue: `Максимальный вес для "${typeText}" — ${currentMaxWeight} кг`,
             });
 
             setTimeout(() => {
               form.setError(
                 'parcelWeight',
-                {
-                  type: 'manual',
-                  message: errorMsg,
-                },
-                {
-                  shouldFocus: false,
-                },
+                { type: 'manual', message: errorMsg },
+                { shouldFocus: false },
               );
             }, 50);
           } else {
@@ -101,42 +115,37 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
       }
     });
     return () => subscription.unsubscribe();
-  }, [watch, deliveryType, form, t]);
+  }, [watch, deliveryType, currentMaxWeight, form, t]);
 
   useEffect(() => {
     const weight = watch('parcelWeight');
     const weightNum = parseFloat(weight);
 
     if (!isNaN(weightNum) && weightNum > 0) {
-      const currentMax = deliveryType === 'courier' ? 15 : 12;
       const typeText = t(`delivery.${deliveryType}`);
 
-      if (weightNum > currentMax) {
+      if (weightNum > currentMaxWeight) {
         const errorMsg = t('deliveryCostCalculator.stepOneForm.maxWeightError', {
-          weight: currentMax,
+          weight: currentMaxWeight,
           type: typeText,
+          defaultValue: `Максимальный вес для "${typeText}" — ${currentMaxWeight} кг`,
         });
 
         setTimeout(() => {
           form.setError(
             'parcelWeight',
-            {
-              type: 'manual',
-              message: errorMsg,
-            },
-            {
-              shouldFocus: false,
-            },
+            { type: 'manual', message: errorMsg },
+            { shouldFocus: false },
           );
         }, 50);
       } else {
         form.clearErrors('parcelWeight');
       }
     }
-  }, [deliveryType, watch, form, t]);
+  }, [deliveryType, currentMaxWeight, watch, form, t]);
 
   useEffect(() => {
-    void getOriginCities()
+    void getOriginCities();
   }, [getOriginCities]);
 
   const handleNextClick = async () => {
@@ -164,15 +173,14 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
 
                   <Select
                     onValueChange={(value: string) => {
-                      setValue('originCity', value, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      });
+                      setValue('originCity', value, { shouldDirty: true, shouldValidate: true });
                       clearErrors('originCity');
                     }}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t('deliveryCostCalculator.stepOneForm.senderPlaceholder')} />
+                      <SelectValue
+                        placeholder={t('deliveryCostCalculator.stepOneForm.senderPlaceholder')}
+                      />
                     </SelectTrigger>
                     <SelectContent
                       position="popper"
@@ -180,15 +188,15 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                       align="start"
                       avoidCollisions={false}
                     >
-                      {
-                        originCities.length > 0 ? (
-                          originCities.map((o) => (
-                            <SelectItem value={o.city.toString()} key={o._id}>{o.label}</SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="0">Офисы не найдены</SelectItem>
-                        )
-                      }
+                      {originCities.length > 0 ? (
+                        originCities.map((o) => (
+                          <SelectItem value={o.city.toString()} key={o._id}>
+                            {o.label}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="0">Офисы не найдены</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </FieldGroup>

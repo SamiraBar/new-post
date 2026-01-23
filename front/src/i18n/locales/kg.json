@@ -1,65 +1,4 @@
 {
-  "nav": {
-    "importantInfo": "Маанилүү маалымат",
-    "about": "Биз жөнүндө",
-    "contacts": "Байланыштар"
-  },
-  "deliveryCalculation": {
-    "headerCalculation": "Жеткирүү баасын эсептөө",
-    "buttonCalculation": "Эсептөө",
-    "parcelTracking": "Посылканы көзөмөлдөө",
-    "modal": {
-      "buttonOne": "Посылка беруу пунктка чейин жеткирүү",
-      "buttonTwo": "Алуучунун уйунө чейин жеткирүү",
-      "selectType": "Жеткирүү түрүн тандаңыз",
-      "subTitleButtonOne": "Кабыл алуу пунктунан алуу",
-      "subTitleButtonTwo": "Дарек боюнча чабарман аркылуу жеткирүү",
-      "modalWarning": "Ылайыктуу жеткирүү ыкмасын тандаңыз.\nНаркы автоматтык түрдө эсептелинет."
-    },
-    "trackingSearch": {
-      "status": "Посылка абалы",
-      "currentStatus": "Учурдагы абалы",
-      "departurePoint": "Кетүү пункту",
-      "pickUpPoint": "Кабыл алуу пункту",
-      "history": "Байкоо тарыхы",
-      "err": "Жараксыз көзөмөлдөө номеринин форматы. KGZ-000001 колдонуңуз."
-    },
-    "inTransit": "Жолдо",
-    "customsClearance": "Бажыдан өттү",
-    "pickupPointInDevelopment": "ПВЗ дареги (иштелип жатат)",
-    "statuses": {
-      "draft": "Долбоор",
-      "created": "Түзүлдү",
-      "accepted": "Кампага кабыл алынды",
-      "shipped": "Жөнөтүлдү",
-      "in_country": "Өлкөдө",
-      "in_city": "Шаарда",
-      "at_pickup_point": "ПВЗ'да",
-      "delivered": "Берилди"
-    },
-    "toast": {
-      "enterTrackNumber": "Трек-номерди киргизиңиз",
-      "parcelFound": "Посылка табылды",
-      "parcelNotFound": "Посылка табылган жок",
-      "errorOccurred": "Катачылык кетти"
-    }
-  },
-  "delivery": {
-    "chooseType": "Биринчиден Жеткирүү түрүн тандаңыз:",
-    "pickup": "ПВЗ",
-    "pickupFull": "ПВЗге жеткирүү",
-    "courier": "Курьер",
-    "courierFull": "Курьер аркылуу жеткирүү",
-    "value": "Посылканын наркын көрсөтүңүз",
-    "weight": "Посылканын салмагын көрсөтүңүз"
-  },
-  "infoSendPost": {
-    "title": "Посылканы кантип жиберсе болот?",
-    "subtitleOne": "Посылканы\nонлайн каттоодон өткөр",
-    "subtitleTwo": "Посылканын\nтрек номерин ал",
-    "subtitleThee": "Посылканы\nофиске алып кел",
-    "subtitleFor": "Посылканы\nонлайн көзөмөлдөө"
-  },
   "deliveryCostCalculator": {
     "title": "Жеткирүү баасын эсептөө калькулятору",
     "buttons": {
@@ -204,6 +143,67 @@
       "warningPrice": "Посылканын максималдуу баасы 50000 сом.\nПосылка жоголсо, баасын кайтарып беребиз.",
       "warningParam": "Посылканын баардык тараптарынын суммасы 250 см ашпашы керек.\nЭң узун тарап 100 см ашпашы керек."
     }
+  },
+  "nav": {
+    "importantInfo": "Маанилүү маалымат",
+    "about": "Биз жөнүндө",
+    "contacts": "Байланыштар"
+  },
+  "deliveryCalculation": {
+    "headerCalculation": "Жеткирүү баасын эсептөө",
+    "buttonCalculation": "Эсептөө",
+    "parcelTracking": "Посылканы көзөмөлдөө",
+    "modal": {
+      "buttonOne": "Посылка беруу пунктка чейин жеткирүү",
+      "buttonTwo": "Алуучунун уйунө чейин жеткирүү",
+      "selectType": "Жеткирүү түрүн тандаңыз",
+      "subTitleButtonOne": "Кабыл алуу пунктунан алуу",
+      "subTitleButtonTwo": "Дарек боюнча чабарман аркылуу жеткирүү",
+      "modalWarning": "Ылайыктуу жеткирүү ыкмасын тандаңыз.\nНаркы автоматтык түрдө эсептелинет."
+    },
+    "trackingSearch": {
+      "status": "Посылка абалы",
+      "currentStatus": "Учурдагы абалы",
+      "departurePoint": "Кетүү пункту",
+      "pickUpPoint": "Кабыл алуу пункту",
+      "history": "Байкоо тарыхы",
+      "err": "Жараксыз көзөмөлдөө номеринин форматы. KGZ-000001 колдонуңуз."
+    },
+    "inTransit": "Жолдо",
+    "customsClearance": "Бажыдан өттү",
+    "pickupPointInDevelopment": "ПВЗ дареги (иштелип жатат)",
+    "statuses": {
+      "draft": "Долбоор",
+      "created": "Түзүлдү",
+      "accepted": "Кампага кабыл алынды",
+      "shipped": "Жөнөтүлдү",
+      "in_country": "Өлкөдө",
+      "in_city": "Шаарда",
+      "at_pickup_point": "ПВЗ'да",
+      "delivered": "Берилди"
+    },
+    "toast": {
+      "enterTrackNumber": "Трек-номерди киргизиңиз",
+      "parcelFound": "Посылка табылды",
+      "parcelNotFound": "Посылка табылган жок",
+      "errorOccurred": "Катачылык кетти"
+    }
+  },
+  "delivery": {
+    "chooseType": "Биринчиден Жеткирүү түрүн тандаңыз:",
+    "pickup": "ПВЗ",
+    "pickupFull": "ПВЗге жеткирүү",
+    "courier": "Курьер",
+    "courierFull": "Курьер аркылуу жеткирүү",
+    "value": "Посылканын наркын көрсөтүңүз",
+    "weight": "Посылканын салмагын көрсөтүңүз"
+  },
+  "infoSendPost": {
+    "title": "Посылканы кантип жиберсе болот?",
+    "subtitleOne": "Посылканы\nонлайн каттоодон өткөр",
+    "subtitleTwo": "Посылканын\nтрек номерин ал",
+    "subtitleThee": "Посылканы\nофиске алып кел",
+    "subtitleFor": "Посылканы\nонлайн көзөмөлдөө"
   },
   "aboutCompany": {
     "title": "Биз жөнүндө",

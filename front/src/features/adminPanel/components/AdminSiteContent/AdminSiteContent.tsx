@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -14,6 +14,11 @@ import { isHeadingLine, splitBlocks } from '@/components/ui/contentBlocks.ts';
 import logoDark from '@/assets/logo/logo-2.png';
 import AdminSocialNetworks from './AdminSocialNetworks';
 import CompanyFilesCard from './CompanyFilesCard';
+import AdminCalculatorSettings, {
+  type AdminCalculatorSettingsRef,
+} from './AdminCalculatorSettings';
+import CalculatorPreview from './CalculatorPreview';
+import { Calculator } from 'lucide-react';
 
 type Lang = 'ru' | 'kg';
 type Mode = 'edit' | 'preview';
@@ -49,6 +54,7 @@ const AdminSiteContent = () => {
   const [lang, setLang] = useState<Lang>('ru');
   const [mode, setMode] = useState<Mode>('edit');
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('content');
 
   const [about, setAbout] = useState<string>('');
   const [important, setImportant] = useState<string>('');
@@ -62,6 +68,53 @@ const AdminSiteContent = () => {
   const [origContacts, setOrigContacts] = useState({ phone: '', email: '' });
 
   const [socialNetworks, setSocialNetworks] = useState<SocialNetwork[]>([]);
+
+  const [hasCalculatorChanges, setHasCalculatorChanges] = useState(false);
+  const calculatorRef = useRef<AdminCalculatorSettingsRef>(null);
+
+  const [currentCalcLimits, setCurrentCalcLimits] = useState<{
+    maxWeightCourier: number;
+    maxWeightPVZ: number;
+    maxParcelValue: number;
+  }>({
+    maxWeightCourier: 15,
+    maxWeightPVZ: 12,
+    maxParcelValue: 50000,
+  });
+
+  const [currentCalcNotices, setCurrentCalcNotices] = useState<{
+    warningDelivery: string;
+    warningWeight: string;
+    warningPrice: string;
+    warningParam: string;
+  }>({
+    warningDelivery: '',
+    warningWeight: '',
+    warningPrice: '',
+    warningParam: '',
+  });
+
+  const [origCalcLimits, setOrigCalcLimits] = useState<{
+    maxWeightCourier: number;
+    maxWeightPVZ: number;
+    maxParcelValue: number;
+  }>({
+    maxWeightCourier: 15,
+    maxWeightPVZ: 12,
+    maxParcelValue: 50000,
+  });
+
+  const [origCalcNotices, setOrigCalcNotices] = useState<{
+    warningDelivery: string;
+    warningWeight: string;
+    warningPrice: string;
+    warningParam: string;
+  }>({
+    warningDelivery: '',
+    warningWeight: '',
+    warningPrice: '',
+    warningParam: '',
+  });
 
   useEffect(() => {
     if (!admin || admin.role !== 'superAdmin') navigate('/admin');
@@ -103,7 +156,15 @@ const AdminSiteContent = () => {
     important !== orig.important ||
     footer !== orig.footer ||
     contacts.phone !== origContacts.phone ||
-    contacts.email !== origContacts.email;
+    contacts.email !== origContacts.email ||
+    hasCalculatorChanges;
+
+  useEffect(() => {
+    const calcChanges =
+      JSON.stringify(currentCalcLimits) !== JSON.stringify(origCalcLimits) ||
+      JSON.stringify(currentCalcNotices) !== JSON.stringify(origCalcNotices);
+    setHasCalculatorChanges(calcChanges);
+  }, [currentCalcLimits, currentCalcNotices, origCalcLimits, origCalcNotices]);
 
   const save = async () => {
     setLoading(true);
@@ -117,9 +178,19 @@ const AdminSiteContent = () => {
           'contacts.email': contacts.email,
         },
       });
+
+      if (hasCalculatorChanges && calculatorRef.current) {
+        await calculatorRef.current.saveData();
+        setOrigCalcLimits({ ...currentCalcLimits });
+        setOrigCalcNotices({ ...currentCalcNotices });
+      }
+
       setOrig({ about, important, footer });
       setOrigContacts({ ...contacts });
-      toast.success('Сохранено');
+
+      setTimeout(() => {
+        toast.success('Изменения успешно сохранены');
+      }, 100);
     } catch (error) {
       const e = error as { response?: { data?: { error?: string } }; message?: string };
       toast.error(e.response?.data?.error || e.message || 'Ошибка сохранения');
@@ -264,9 +335,13 @@ const AdminSiteContent = () => {
       </div>
 
       {mode === 'edit' ? (
-        <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="content">Текстовый контент</TabsTrigger>
+            <TabsTrigger value="calculator">
+              <Calculator className="h-4 w-4 mr-2 inline-block" />
+              Калькулятор
+            </TabsTrigger>
             <TabsTrigger value="social">Социальные сети</TabsTrigger>
           </TabsList>
 
@@ -332,7 +407,21 @@ const AdminSiteContent = () => {
             </Card>
 
             <CompanyFilesCard />
+          </TabsContent>
 
+          <TabsContent value="calculator" className="space-y-6">
+            <AdminCalculatorSettings
+              ref={calculatorRef}
+              lang={lang}
+              calcLimits={currentCalcLimits}
+              calcNotices={currentCalcNotices}
+              origCalcLimits={origCalcLimits}
+              origCalcNotices={origCalcNotices}
+              onLimitsChange={setCurrentCalcLimits}
+              onNoticesChange={setCurrentCalcNotices}
+              onOrigLimitsChange={setOrigCalcLimits}
+              onOrigNoticesChange={setOrigCalcNotices}
+            />
           </TabsContent>
 
           <TabsContent value="social">
@@ -341,6 +430,20 @@ const AdminSiteContent = () => {
         </Tabs>
       ) : (
         <div className="space-y-10 pb-10">
+          <section className="container px-0">
+            <div className="p-2 sm:p-5 rounded-lg">
+              <Card className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <CardContent className="p-5 sm:p-8">
+                  <CalculatorPreview
+                    lang={lang}
+                    calcLimits={currentCalcLimits}
+                    calcNotices={currentCalcNotices}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
           <section className="container px-0">
             <div className="p-2 sm:p-5 rounded-lg">
               <Card className="rounded-2xl border border-gray-200 bg-white shadow-sm">
