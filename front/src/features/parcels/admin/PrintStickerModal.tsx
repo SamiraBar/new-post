@@ -63,7 +63,7 @@ const PrintStickerModal = ({ isOpen, onClose, parcel, stickerType }: PrintSticke
       success = await printPartnerSticker(
         parcel.partnerTrackingNumber,
         parcel.recipient.fullName,
-        1, // quantityOfPlace - нужно получить (пока нету)
+        1,
         parcel.pvzData.code,
         parcel.recipient.address,
       );
@@ -136,9 +136,6 @@ const PrintStickerModal = ({ isOpen, onClose, parcel, stickerType }: PrintSticke
                 <div>
                   <div className="text-right text-base sm:text-lg font-semibold">
                     <span>КОЛ-ВО: 1</span>
-                  </div>
-                  <div className="text-base sm:text-lg font-semibold">
-                    <span>ПВЗ: {parcel.pvzData.code}</span>
                   </div>
                 </div>
               </>
