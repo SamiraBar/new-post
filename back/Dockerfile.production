@@ -24,7 +24,7 @@ RUN npm ci --omit=dev
 
 COPY --from=build /usr/src/back/dist ./dist
 
-RUN mkdir -p dist/public/prices
+RUN mkdir -p dist/public/company-files
 
 EXPOSE 8000
 
