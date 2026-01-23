@@ -81,7 +81,7 @@ const steps: StatusStep[] = [
   },
   {
     id: 8,
-    label: 'Доставлен',
+    label: 'Выдан',
     icon: <Home className="w-5 h-5 text-green-600" />,
     color: 'text-green-600',
     statusValue: 'delivered',
