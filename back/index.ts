@@ -12,7 +12,6 @@ import officeRouter from './routers/offices';
 import socialMediaRouter from "./routers/socialMedia";
 import path from "path";
 import { seedSocialNetworks } from "./utils/seedSocialNetworks";
-import fs from "fs";
 import companyFilesRouter from "./routers/companyFiles";
 
 const app = express();
