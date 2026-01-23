@@ -25,7 +25,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=build /usr/src/back/dist ./dist
-
+COPY --from=build /usr/src/back/assets ./assets
 COPY --from=build /usr/src/back/public ./dist/public
 
 RUN mkdir -p dist/public/uploads/social dist/public/company-files
