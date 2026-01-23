@@ -7,7 +7,10 @@ import permit from "../middleware/permit";
 const router = express.Router();
 type Lang = "ru" | "kg";
 
-const LOCALES_DIR = path.resolve(process.cwd(), "../front/src/i18n/locales");
+const LOCALES_DIR =
+  process.env.LOCALES_DIR
+    ? path.resolve(process.env.LOCALES_DIR)
+    : path.resolve(process.cwd(), "dist/i18n/locales");
 
 const allowedKeys = new Set([
     "aboutCompany.textInfo",
@@ -38,11 +41,14 @@ router.get("/:lang", async (req, res, next) => {
     try {
         const lang = req.params.lang as Lang;
         if (!["ru", "kg"].includes(lang)) return res.status(400).send({ error: "Bad lang" });
+
         res.send(await readJson(lang));
-    } catch (e) {
+    } catch (e: any) {
+        console.error("i18n-content read error:", e?.message);
         next(e);
     }
 });
+
 
 router.patch("/:lang", auth, permit("superAdmin"), async (req, res, next) => {
     try {
