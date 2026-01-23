@@ -4,7 +4,6 @@ export const seedSocialNetworks = async () => {
   try {
     const count = await SocialMedia.countDocuments();
     if (count > 0) {
-      console.log("📱 Social networks already exist, skipping seed");
       return;
     }
 

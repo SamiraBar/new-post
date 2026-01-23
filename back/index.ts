@@ -23,7 +23,6 @@ app.use(cors(config.corsOptions));
 const publicPath = fs.existsSync(path.join(__dirname, "public"))
   ? path.join(__dirname, "public")
   : path.join(__dirname, "../public");
-console.log("📁 Public directory:", publicPath);
 app.use(express.static(publicPath));
 
 app.use("/admins", adminsRouter);
