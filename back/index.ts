@@ -12,6 +12,7 @@ import officeRouter from './routers/offices';
 import socialMediaRouter from "./routers/socialMedia";
 import path from "path";
 import { seedSocialNetworks } from "./utils/seedSocialNetworks";
+import fs from "fs";
 import companyFilesRouter from "./routers/companyFiles";
 
 const app = express();
@@ -19,8 +20,10 @@ const app = express();
 app.use(express.json());
 app.use(cors(config.corsOptions));
 
-const publicPath = path.resolve(__dirname, "../public");
-app.use("/public", express.static(publicPath));
+const publicPath = fs.existsSync(path.join(__dirname, "public"))
+  ? path.join(__dirname, "public")
+  : path.join(__dirname, "../public");
+app.use(express.static(publicPath));
 
 app.use("/admins", adminsRouter);
 app.use("/prices", pricesRouter);
