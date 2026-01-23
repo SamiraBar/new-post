@@ -13,11 +13,15 @@
 
     const EKIT_STATUS_MAPPING: Record<string, string | null> = {
         "Новый": null,
-        "Отправлено со склада": "in_country",
+        "Планируется отправка": null,
+        "Инвентаризация": null,
         "Отправлен в город назначения": null,
         "В пути": null,
-        "В городе": "in_city",
-        "Посылка в ПВЗ": "at_pickup_point",
+
+        "Отправлено со склада": "in_country",
+        "Получен складом": "in_city",
+        "Готов к выдаче": "at_pickup_point",
+        "Доставлен": "delivered",
         "Выдано": "delivered",
         "Вручено": "delivered",
     };

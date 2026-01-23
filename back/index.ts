@@ -40,7 +40,7 @@ const run = async () => {
     await mongoose.connect(config.db);
     console.log("✅ Connected to MongoDB");
 
-    // setupTestSyncCron();  🔴 НЕ РАСКОММЕНТИРОВАТЬ!
+    // setupTestSyncCron(); 🚫 Не раскоментировать!
     await seedSocialNetworks();
 
     console.log("Автоматический Cron: ОТКЛЮЧЕН (для безопасности)");
@@ -49,12 +49,12 @@ const run = async () => {
     console.log(
       "   - POST /parcels/tracking/:trackingNumber/sync (синхронизировать одну)",
     );
-    console.log("⚡ Оба роута требуют авторизации (заголовок Authorization)");
+    console.log(" Оба роута требуют авторизации (заголовок Authorization)");
 
     app.listen(config.port as number, "0.0.0.0", () => {
       console.log(`Server running on port ${config.port}`);
       console.log(
-        `🔒 Режим: БЕЗОПАСНЫЙ (ручная синхронизация через /parcels/sync-all)`,
+        `Режим: БЕЗОПАСНЫЙ (ручная синхронизация через /parcels/sync-all)`,
       );
       console.log("=".repeat(50));
     });
