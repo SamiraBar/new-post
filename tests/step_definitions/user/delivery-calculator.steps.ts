@@ -84,6 +84,40 @@ When("выбран тип доставки {string}", (type: string) => {
 Then("выбран тип доставки {string}", (type: string) => {
   assertDeliveryTypeSelected(type);
 });
+// ---------------- MODAL ----------------
+
+Then("я вижу модальное окно выбора доставки", () => {
+  I.waitForElement(selectors.modal, 10);
+});
+
+Then("я вижу заголовок {string} в модальном окне", (text: string) => {
+  I.see(text, selectors.modal);
+});
+
+Then("я вижу кнопку {string} в модальном окне", (text: string) => {
+  if (text.includes("пункта")) {
+    I.seeElement('//button[contains(.,"пункт")]');
+  }
+  if (text.includes("двер")) {
+    I.seeElement('//button[contains(.,"двер")]');
+  }
+});
+
+Then("я вижу иконку закрытия модального окна", () => {
+  I.seeElement(`${selectors.modal} button`);
+});
+
+When("я кликаю на иконку закрытия модального окна", () => {
+  I.click(`${selectors.modal} button`);
+});
+
+When("я кликаю вне модального окна", () => {
+  I.pressKey("Escape");
+});
+
+Then("модальное окно выбора доставки закрыто", () => {
+  I.dontSeeElement(selectors.modal);
+});
 
 // ---------------- STEP 1 ----------------
 
