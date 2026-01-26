@@ -38,6 +38,30 @@ interface IContentData {
   contacts: { phone: string; email: string };
 }
 
+interface CalcLimits {
+  maxWeightCourier: number;
+  maxWeightPVZ: number;
+  maxParcelValue: number;
+}
+
+interface CalcNotices {
+  warningDelivery: string;
+  warningWeight: string;
+  warningPrice: string;
+  warningParam: string;
+}
+
+interface LocalStorageData {
+  about: string;
+  important: string;
+  footer: string;
+  contacts: { phone: string; email: string };
+  calcLimits: CalcLimits;
+  calcNotices: CalcNotices;
+}
+
+const STORAGE_KEY_PREFIX = 'admin_content_draft_';
+
 const getDeep = <T, K extends string>(obj: T, path: K): string | undefined => {
   return path.split('.').reduce<unknown>((acc, key) => {
     if (acc && typeof acc === 'object' && key in acc) {
@@ -45,6 +69,32 @@ const getDeep = <T, K extends string>(obj: T, path: K): string | undefined => {
     }
     return undefined;
   }, obj) as string | undefined;
+};
+
+const saveToLocalStorage = (lang: Lang, data: LocalStorageData) => {
+  try {
+    localStorage.setItem(STORAGE_KEY_PREFIX + lang, JSON.stringify(data));
+  } catch (error) {
+    console.error('Ошибка сохранения в localStorage:', error);
+  }
+};
+
+const loadFromLocalStorage = (lang: Lang): LocalStorageData | null => {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_PREFIX + lang);
+    return data ? JSON.parse(data) : null;
+  } catch (error) {
+    console.error('Ошибка загрузки из localStorage:', error);
+    return null;
+  }
+};
+
+const clearLocalStorage = (lang: Lang) => {
+  try {
+    localStorage.removeItem(STORAGE_KEY_PREFIX + lang);
+  } catch (error) {
+    console.error('Ошибка очистки localStorage:', error);
+  }
 };
 
 const AdminSiteContent = () => {
@@ -72,44 +122,26 @@ const AdminSiteContent = () => {
   const [hasCalculatorChanges, setHasCalculatorChanges] = useState(false);
   const calculatorRef = useRef<AdminCalculatorSettingsRef>(null);
 
-  const [currentCalcLimits, setCurrentCalcLimits] = useState<{
-    maxWeightCourier: number;
-    maxWeightPVZ: number;
-    maxParcelValue: number;
-  }>({
+  const [currentCalcLimits, setCurrentCalcLimits] = useState<CalcLimits>({
     maxWeightCourier: 15,
     maxWeightPVZ: 12,
     maxParcelValue: 50000,
   });
 
-  const [currentCalcNotices, setCurrentCalcNotices] = useState<{
-    warningDelivery: string;
-    warningWeight: string;
-    warningPrice: string;
-    warningParam: string;
-  }>({
+  const [currentCalcNotices, setCurrentCalcNotices] = useState<CalcNotices>({
     warningDelivery: '',
     warningWeight: '',
     warningPrice: '',
     warningParam: '',
   });
 
-  const [origCalcLimits, setOrigCalcLimits] = useState<{
-    maxWeightCourier: number;
-    maxWeightPVZ: number;
-    maxParcelValue: number;
-  }>({
+  const [origCalcLimits, setOrigCalcLimits] = useState<CalcLimits>({
     maxWeightCourier: 15,
     maxWeightPVZ: 12,
     maxParcelValue: 50000,
   });
 
-  const [origCalcNotices, setOrigCalcNotices] = useState<{
-    warningDelivery: string;
-    warningWeight: string;
-    warningPrice: string;
-    warningParam: string;
-  }>({
+  const [origCalcNotices, setOrigCalcNotices] = useState<CalcNotices>({
     warningDelivery: '',
     warningWeight: '',
     warningPrice: '',
@@ -120,12 +152,52 @@ const AdminSiteContent = () => {
     if (!admin || admin.role !== 'superAdmin') navigate('/admin');
   }, [admin, navigate]);
 
+  useEffect(() => {
+    const currentData: LocalStorageData = {
+      about,
+      important,
+      footer,
+      contacts,
+      calcLimits: currentCalcLimits,
+      calcNotices: currentCalcNotices,
+    };
+
+    const hasContentChanges =
+      about !== orig.about ||
+      important !== orig.important ||
+      footer !== orig.footer ||
+      contacts.phone !== origContacts.phone ||
+      contacts.email !== origContacts.email;
+
+    const hasCalcChanges =
+      JSON.stringify(currentCalcLimits) !== JSON.stringify(origCalcLimits) ||
+      JSON.stringify(currentCalcNotices) !== JSON.stringify(origCalcNotices);
+
+    if (hasContentChanges || hasCalcChanges) {
+      saveToLocalStorage(lang, currentData);
+    }
+  }, [
+    about,
+    important,
+    footer,
+    contacts,
+    currentCalcLimits,
+    currentCalcNotices,
+    lang,
+    orig,
+    origContacts,
+    origCalcLimits,
+    origCalcNotices,
+  ]);
+
   const load = async (lng: Lang, opts?: { silent?: boolean }) => {
     const silent = Boolean(opts?.silent);
 
     if (!silent) setLoading(true);
 
     try {
+      const savedDraft = loadFromLocalStorage(lng);
+
       const { data } = await axiosApi.get<IContentData>(`/i18n-content/${lng}`);
       const aboutStr = getDeep(data, 'aboutCompany.textInfo') ?? '';
       const importantStr = getDeep(data, 'importantInfo.textInfo') ?? '';
@@ -133,12 +205,46 @@ const AdminSiteContent = () => {
       const phone = data.contacts.phone ?? '';
       const email = data.contacts.email ?? '';
 
-      setAbout(aboutStr);
-      setImportant(importantStr);
-      setFooter(footerStr);
-      setContacts({ phone, email });
+      if (savedDraft) {
+        setAbout(savedDraft.about);
+        setImportant(savedDraft.important);
+        setFooter(savedDraft.footer);
+        setContacts(savedDraft.contacts);
+        setCurrentCalcLimits(savedDraft.calcLimits);
+        setCurrentCalcNotices(savedDraft.calcNotices);
+      } else {
+        setAbout(aboutStr);
+        setImportant(importantStr);
+        setFooter(footerStr);
+        setContacts({ phone, email });
+      }
+
       setOrig({ about: aboutStr, important: importantStr, footer: footerStr });
       setOrigContacts({ phone, email });
+
+      const limits = (data as any).deliveryCostCalculator?.limits || {};
+      const notices = (data as any).deliveryCostCalculator?.WarningNotices || {};
+
+      const limitsData: CalcLimits = {
+        maxWeightCourier: Number(limits.maxWeightCourier) || 15,
+        maxWeightPVZ: Number(limits.maxWeightPVZ) || 12,
+        maxParcelValue: Number(limits.maxParcelValue) || 50000,
+      };
+
+      const noticesData: CalcNotices = {
+        warningDelivery: String(notices.warningDelivery || ''),
+        warningWeight: String(notices.warningWeight || ''),
+        warningPrice: String(notices.warningPrice || ''),
+        warningParam: String(notices.warningParam || ''),
+      };
+
+      if (!savedDraft) {
+        setCurrentCalcLimits(limitsData);
+        setCurrentCalcNotices(noticesData);
+      }
+
+      setOrigCalcLimits(limitsData);
+      setOrigCalcNotices(noticesData);
     } catch (error) {
       const e = error instanceof Error ? error : new Error('Ошибка загрузки');
       toast.error(e.message);
@@ -147,7 +253,26 @@ const AdminSiteContent = () => {
     }
   };
 
+  const previousLangRef = useRef<Lang>(lang);
+
   useEffect(() => {
+    const previousLang = previousLangRef.current;
+
+    if (previousLang !== lang) {
+      const previousData: LocalStorageData = {
+        about,
+        important,
+        footer,
+        contacts,
+        calcLimits: currentCalcLimits,
+        calcNotices: currentCalcNotices,
+      };
+
+      saveToLocalStorage(previousLang, previousData);
+
+      previousLangRef.current = lang;
+    }
+
     void load(lang);
   }, [lang]);
 
@@ -169,24 +294,63 @@ const AdminSiteContent = () => {
   const save = async () => {
     setLoading(true);
     try {
-      await axiosApi.patch(`/i18n-content/${lang}`, {
-        updates: {
-          'aboutCompany.textInfo': about,
-          'importantInfo.textInfo': important,
-          'footer.address': footer,
-          'contacts.phone': contacts.phone,
-          'contacts.email': contacts.email,
-        },
-      });
+      const languages: Lang[] = ['ru', 'kg'];
 
-      if (hasCalculatorChanges && calculatorRef.current) {
-        await calculatorRef.current.saveData();
-        setOrigCalcLimits({ ...currentCalcLimits });
-        setOrigCalcNotices({ ...currentCalcNotices });
+      for (const lng of languages) {
+        if (lng === lang) {
+          await axiosApi.patch(`/i18n-content/${lng}`, {
+            updates: {
+              'aboutCompany.textInfo': about,
+              'importantInfo.textInfo': important,
+              'footer.address': footer,
+              'contacts.phone': contacts.phone,
+              'contacts.email': contacts.email,
+              'deliveryCostCalculator.limits.maxWeightCourier': currentCalcLimits.maxWeightCourier,
+              'deliveryCostCalculator.limits.maxWeightPVZ': currentCalcLimits.maxWeightPVZ,
+              'deliveryCostCalculator.limits.maxParcelValue': currentCalcLimits.maxParcelValue,
+              'deliveryCostCalculator.WarningNotices.warningDelivery':
+                currentCalcNotices.warningDelivery,
+              'deliveryCostCalculator.WarningNotices.warningWeight':
+                currentCalcNotices.warningWeight,
+              'deliveryCostCalculator.WarningNotices.warningPrice': currentCalcNotices.warningPrice,
+              'deliveryCostCalculator.WarningNotices.warningParam': currentCalcNotices.warningParam,
+            },
+          });
+
+          clearLocalStorage(lng);
+        } else {
+          const draft = loadFromLocalStorage(lng);
+          if (draft) {
+            await axiosApi.patch(`/i18n-content/${lng}`, {
+              updates: {
+                'aboutCompany.textInfo': draft.about,
+                'importantInfo.textInfo': draft.important,
+                'footer.address': draft.footer,
+                'contacts.phone': draft.contacts.phone,
+                'contacts.email': draft.contacts.email,
+                'deliveryCostCalculator.limits.maxWeightCourier': draft.calcLimits.maxWeightCourier,
+                'deliveryCostCalculator.limits.maxWeightPVZ': draft.calcLimits.maxWeightPVZ,
+                'deliveryCostCalculator.limits.maxParcelValue': draft.calcLimits.maxParcelValue,
+                'deliveryCostCalculator.WarningNotices.warningDelivery':
+                  draft.calcNotices.warningDelivery,
+                'deliveryCostCalculator.WarningNotices.warningWeight':
+                  draft.calcNotices.warningWeight,
+                'deliveryCostCalculator.WarningNotices.warningPrice':
+                  draft.calcNotices.warningPrice,
+                'deliveryCostCalculator.WarningNotices.warningParam':
+                  draft.calcNotices.warningParam,
+              },
+            });
+
+            clearLocalStorage(lng);
+          }
+        }
       }
 
       setOrig({ about, important, footer });
       setOrigContacts({ ...contacts });
+      setOrigCalcLimits({ ...currentCalcLimits });
+      setOrigCalcNotices({ ...currentCalcNotices });
 
       setTimeout(() => {
         toast.success('Изменения успешно сохранены');
