@@ -221,8 +221,8 @@ const AdminSiteContent = () => {
   useEffect(() => {
     const previousLang = previousLangRef.current;
 
-    if (previousLang !== lang) {
-      const previousData: LocalStorageData = {
+    if (previousLang !== lang && previousLang) {
+      const dataToSave: LocalStorageData = {
         about,
         important,
         footer,
@@ -231,10 +231,10 @@ const AdminSiteContent = () => {
         calcNotices: currentCalcNotices,
       };
 
-      saveToLocalStorage(previousLang, previousData);
-
-      previousLangRef.current = lang;
+      saveToLocalStorage(previousLang, dataToSave);
     }
+
+    previousLangRef.current = lang;
 
     void load(lang);
   }, [lang]);
