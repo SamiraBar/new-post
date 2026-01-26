@@ -46,7 +46,6 @@ Employees can view all orders, update statuses, assign partner tracking numbers,
 -  Get tracking number after registration
 -  Delivery cost calculator
 -  Pickup point selection via e-kit.pro API
--  Online payment (planned)
 -  Track parcel by tracking number
 
 ### 🧑‍💻 Employee Dashboard
