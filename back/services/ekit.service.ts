@@ -140,7 +140,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
             };
         } else {
             const errorMsg = createOrder.errormsgru || createOrder.errormsg || 'Неизвестная ошибка';
-            console.error('Ошибка API E-Kit:', { код: createOrder.error, сообщение: errorMsg });
+            console.error('Ошибка API E-Kit:', { code: createOrder.error, message: errorMsg });
             throw new Error(`Ошибка API E-Kit (${createOrder.error}): ${errorMsg}`);
         }
     } catch (error) {
