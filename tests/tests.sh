@@ -13,8 +13,9 @@ echo '######################'
 echo '### Running tests! ###'
 echo '######################'
 
-echo '### Killing test backend and frontend before running tests'
-pm2 kill
+echo '### Stopping previous test processes (if any)'
+pm2 delete new-post-back-test 2>/dev/null || true
+pm2 delete new-post-front-test 2>/dev/null || true
 
 echo '### Backend'
 
@@ -24,15 +25,19 @@ echo '### Running fixtures'
 npm run seed:test
 
 echo '### Running Backend server in test mode'
-pm2 start "npm run start:test" --name="new-post-back-test"
+pm2 start "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" \
+  --name "new-post-back-test" -- \
+  -NoProfile -ExecutionPolicy Bypass -Command "npm run start:test"
 
 echo '### Frontend'
 cd ../front || exit 1
 
 echo '### Running Frontend in test mode'
-pm2 start "npm run start:test" --name="new-post-front-test"
+pm2 start "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" \
+  --name "new-post-front-test" -- \
+  -NoProfile -ExecutionPolicy Bypass -Command "npm run start:test"
 
-while ! nc -z localhost 5183; do
+while ! (echo > /dev/tcp/localhost/5183) 2>/dev/null; do
   sleep 0.1
 done
 
@@ -50,7 +55,8 @@ fi
 
 EXIT_CODE=$?
 
-echo '### Killing test processes'
-pm2 kill
+echo '### Stopping test processes'
+pm2 delete new-post-back-test 2>/dev/null || true
+pm2 delete new-post-front-test 2>/dev/null || true
 
 exit ${EXIT_CODE}
