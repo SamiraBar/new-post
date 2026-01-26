@@ -1,272 +1,171 @@
-import { Request, Response } from "express";
-import { exec } from "child_process";
-import { promisify } from "util";
+import type {NextFunction, Request, Response} from "express";
+import path from "path";
+import PDFDocument from "pdfkit";
+import type PDFKit from "pdfkit";
+import bwipjs from "bwip-js";
+import fs from "fs";
+import {getWaybillPdfBuffer} from "../services/ekit.service";
 
-const execAsync = promisify(exec);
+const DPI = 203;
 
-const PRINTER = "Zebra-GK888t";
+const dotToPt = (dots: number) => (dots * 72) / DPI;
+const mmToPt = (mm: number) => (mm / 25.4) * 72;
 
-let isPrinting = false;
-const printQueue: Array<() => Promise<void>> = [];
+const LABEL_W_PT = mmToPt(75);
+const LABEL_H_PT = mmToPt(140);
 
-const MAX_QUEUE_SIZE = 50;
+const ASSETS_DIR = (() => {
+  const p1 = path.resolve(process.cwd(), "assets");
+  const p2 = path.resolve(__dirname, "../assets");
+  return fs.existsSync(p1) ? p1 : p2;
+})();
 
-const LOGO_ZPL =
-  "^FO130,50^GFA,5724,5724,36,X01,X07,X0F,W03F,W07F,V01FF,V07FF,V0FFE,U03FFE,U07FFE,T01IFC,T03IFC,T0JFC,S01JF8,S07JF,S0JFEO0FFCK03F8J0NF1FFS01FC,R03JFCO0IFK03FCI03NF1FF8R03FE,R0KF8O0IFCJ03FEI07NF0FFCJ01FCK03FF,Q01JFEP0IFEJ03FEI07NF0FFCJ01FFK03FF,Q07JFCP0JFJ03FFI0OF0FFEJ01FF8J03FF,Q0KFQ0JF8I03FFI0NFE0FFEJ01FFCJ03FF,P03JFEQ0JFCI03FFI0NFE0FFEJ03FFCJ03FF,P07JF8Q0JFCI03FFI0NFC0IFJ03FFCJ07FF,O01JFER0JFEI03FFI0FFCM07FFJ03FFEJ07FF,O03JFCR0KFI03FF001FFCM07FFJ03FFEJ07FE,O0KFS0KFI03FF001FF8M07FFJ07FFEJ07FE,N01JFES0KF8003FF001FF8M07FFJ07FFEJ07FE,N07JF8J03N0KF8003FF001FF8M07FFJ07IFJ0FFE,M01KFK078M0KFC003FF001FF8M03FF8I07IFJ0FFC,M03JFCJ01F8M0FFCFFC003FF001FF8M03FF8I0JFJ0FFC,M0KF8J07F8M0FFCFFE003FF001FF8M03FF8I0JFJ0FFC,L01JFEK0FF8M0FFC7FE003FF001FF8M03FF8I0JF8001FFC,L07JFCJ03FFN0FFC7FF003FF001FF8M01FFCI0JF8001FF8,L0KFK07FFN0FFC3FF003FF001FF8M01FFC001JF8001FF8,K03JFEJ01IFN0FFC3FF803FF001FF8M01FFC001JF8001FF8,K07JF8J03IFN0FFC1FF803FF001FF8M01FFC001JFC003FF8,J01KFK0IFEN0FFC1FFC03FF001FF8N0FFE001FF7FC003FF,J07JFCJ01IFEN0FFC0FFC03FF001MFCI0FFE003FE7FC003FF,J0KF8J07IFCN0FFC0FFE03FF001MFCI0FFE003FE7FE007FF,I03JFEJ01JF8N0FFC07FE03FF001MFCI07FF003FE7FE007FE,I07JF8J03JFO0FFC03FF03FF001MFCI07FF007FE3FE007FE,001KFK0JFEO0FFC03FF03FF001MFCI07FF007FC3FF007FE,003JFCJ01JFCO0FFC01FF83FF001MFCI03FF807FC3FF00FFC,00KF8J07JFP0FFC01FF83FF001MF8I03FF80FFC3FF00FFC,01JFEK0JFEP0FFC00FFC3FF001MFJ03FF80FF81FF80FFC,07JFCJ03JF8P0FFC00FFC3FF001FF8N01FFC0FF81FF81FF8,0KFK0KFQ0FFC007FE3FF001FF8N01FFC1FF81FF81FF8,3JFEJ01JFCQ0FFC007FE3FF001FF8N01FFC1FF00FFC3FF8,3JF8J07JF8Q0FFC003FE3FF001FF8O0FFE1FF00FFC3FF,7JFK0JFER0FFC003FF3FF001FF8O0FFE3FF00FFE3FF,7IFCJ03JFCR0FFC001FF3FF001FF8O0FFE3FF007FE7FF,7IF8J07JFS0FFC001FFBFF001FF8O07FF7FE007FE7FE,IFEJ01JFES0FFCI0KF001FF8O07JFE007JFE,IFCJ03JF8S0FFCI0KF001FF8O03JFC003JFC,IFK0KFK03N0FFCI07JF001FFCO03JFC003JFC,FFEJ01JFCK078M0FFCI07JF001FFCO03JFC003JFC,7FF8I07JF8J01F8M0FFCI03JFI0FFCO01JF8001JF8,7FFCI07IFEK03F8M0FFCI03JFI0FFEO01JF8001JF8,7IFI03IFCK0FF8M0FFCI01JFI0IFP0JFJ0JF,7IF8001IFK03FFN0FFCJ0JFI07FFCO0JFJ0JF,3IFEI07FEK07FFN0FFCJ0JFI07NFJ07IFJ07FFE,3JFI03F8J01IFN0FFCJ07IFI03NFJ07FFEJ07FFE,1JFCI0FK03IFN0FFCJ03IFI01NFJ03FFEJ03FFC,07JFO0IFEN0FFCJ03IFI01NFJ03FFCJ03FFC,03JF8M03IFEN07FCJ01IFJ0NFJ01FFCJ01FF8,01JFEM07IFCN07FCK0IFJ03LFEJ01FF8J01FF8,007JFL01JF8N03FCK07FFJ01LFEK0FF8K0FF,003JFCK03JF8N01FCK01FFK07KFCK07FL0FF,800JFEK0JFEP07CL07FL0JFEL03FL03E,C007JF8I01JFC,E001JFEI03JF,FI0KFI03IFE,F8003JFC001IF8,FC001JFEI07FE,FEI07JF8003FC,FFI03JFCI0F,FF8I0KF,FFCI07JFC,FFEI01JFE,IFJ0KF8,IF8I03JFC,IFCI01KF,IFEJ07JF8,JFJ01JFE,JF8J0KF8,JFCJ03JFC,JFEJ01KF,KFK07JF8,KF8J03JFEgL03FCO01FF,KFCK0KFR01JFCM07IFCM01JFI03OF8KFCK07JFCP01LF8K03KFM07JFC00PF8KFEK01KFP0MFEK0LFCK01LF01PF8LFL07JF8O0NFJ01MFK07LF83PF8LF8K03JFEO0NFCI03MF8J0MFC3PF8LFCL0KFO0NFCI0NFCI01MFC3PF,IF7FFEL07JF8N0NFE001NFEI03MFE3PF,IF3IFL01JFCN0OF003OFI03MFE3OFE,IF1IF8L0JFEN0OF003OF8007MFE3OFC,IF0IFCL03JFN0FFE001IF807IF003IFC00IFC001FE3NFE,IF03FFEL01JFN0FFEI07FF80IFCI0IFC00IFJ03EJ03FF,IF01IFM07IFN0FFEI03FFC0IF8I03FFE01FFEK0EJ03FF,IF00IF8L01IFN0FFEI03FFC1IFJ01FFE01FFCK06J03FF,IF007FFCM0IFN0FFEI01FFC1FFEK0IF01FFCP03FF,IF003FFEM0IFN0FFEI01FFC3FFCK0IF01FF8P03FF,IF001IFM0IFN0FFEI01FFC3FF8K07FF81FF8P03FF,IFI0IF8L0IFN0FFEI01FFC3FF8K07FF81FF8P03FF,IFI07FFCL0IFN0FFEI01FFC7FFL03FF81FFCP03FF,IFI03FFEI0C00IFN0FFEI01FFC7FFL03FFC1FFCP03FF,IFC001MF00IFN0FFEI01FFC7FFL01FFC1FFEP03FF,IFEI0MF80IFN0FFEI01FFCFFEL01FFC1IF8O03FF,JF8007LFC0IFN0FFEI03FFCFFEL01FFC1IFEO03FF,JFC003LFE0IFN0FFEI03FF8FFEL01FFC0JFEN03FF,7JF001LFE0IFN0FFEI07FF8FFEL01FFE0KFEM03FF,7JF800MF0IFN0FFEI0IF8FFEL01FFE07KFCL03FF,3JFE007LF0IFN0IF003IF0FFEM0FFE03LF8K03FF,0KF003LF0IFN0OF0FFEM0FFE01LFEK03FF,07JFC00KFC0IFN0NFE0FFEM0FFE00MFK03FF,01JFEO0IFN0NFE0FFEM0FFE003LF8J03FF,00KF8N0IFN0NFC0FFEM0FFEI07KFCJ03FF,003JFCN0IFN0NF80FFEM0FFCJ0KFEJ03FF,001KFN0IFN0NF00FFEL01FFCK0JFEJ03FF,I07JF8M0IFN0MFC00FFEL01FFCL0JFJ03FF,I03JFEM0IFN0MFI0FFEL01FFCL03IFJ03FF,J0KFM0IFN0FFE7FFCI0IFL01FFCM0IFJ03FF,J07JFCL0IFN0FFEM07FFL01FFCM07FF8I03FF,J01JFEL0IFN0FFEM07FFL03FF8M03FF8I03FF,K0KF8K0IFN0FFEM07FFL03FF8M03FF8I03FF,K03JFCK0IFN0FFEM07FF8K03FF8M03FF8I03FF,K01KFK0IFN0FFEM03FF8K07FFN03FF8I03FF,L07JF8J0IFN0FFEM03FFCK07FFN03FF8I03FF,L03JFEJ0IFN0FFEM01FFEK0IF00CK03FF8I03FF,M0KFJ0IFN0FFEM01FFEJ01FFE00EK07FFJ03FF,M07JFCI0IFN0FFEN0IF8I03FFE00F8J0IFJ03FF,M01JFEI0IFN0FFEN0IFCI07FFC00FEI01IFJ03FF,N0KF800IFN0FFEN07IF001IF800FFC007FFEJ03FF,N03JFC00IFN0FFEN03OF800NFEJ03FF,N01KF00IFN0FFEN03OFI0NFCJ03FF,O07JF80IFN0FFEN01NFEI0NFCJ03FF,O03JFE0IFN0FFEO0NFCI07MF8J03FF,P0KF0IFN0FFEO03MF8I03MFK03FF,P07JFCIFN07FEO01LFEJ03LFEK03FF,P01NFN03FEP07KFCK0LF8K01FF,Q0NFN01FEP01JFEL07JFEM0FF,Q03MFO07CQ07IF8M0JF8M03F,Q01MFgI03EP07E,R07LF,R03LF,S0LF,S07KF,S01KF,T0KF,T03JF,T01JF,U07IF,U03IF,V0IF,V07FE,V01FC,W07,^FS";
+const FONT_REGULAR = path.join(ASSETS_DIR, "fonts", "DejaVuSans.ttf");
+const FONT_BOLD = path.join(ASSETS_DIR, "fonts", "DejaVuSans-Bold.ttf");
+const LOGO_PNG = path.join(ASSETS_DIR, "logo.png");
 
-const generateZPLSticker = (
-  trackingNumber: string,
-  recipientName: string,
-  address: string
-): string => {
-  return `^XA
-    ^MMT
-    ^CI28
-    ^PW591
-    ^LL906
-    ${LOGO_ZPL}
-    ^FO70,250^BY2^BCN,180,N,N^FD${trackingNumber}^FS
-    ^FO100,450^A0N,35,35^FD${trackingNumber}^FS
-    ^FO70,550^A0N,35,35^FDПолучатель:^FS
-    ^FO70,600^A0N,30,30^FD${recipientName}^FS
-    ^FO70,700^A0N,35,35^FDАдрес:^FS
-    ^FO70,750^A0N,30,30^FD${address}^FS
-^XZ`;
-};
+const setNoStore = (res: Response) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+}
 
-const generateZPLPartnerSticker = (
-  partnerTrackingNumber: string,
-  recipientName: string,
-  quantityOfPlace: number,
-  pvzCode: string,
-  address: string
-): string => {
-  return `^XA
-    ^MMT
-    ^CI28
-    ^PW591
-    ^LL906
-    ^FO70,150^A0N,50,50^FDНОВАЯ ПОЧТА ООО^FS
-    ^FO70,210^BY2^BCN,180,N,N^FD${partnerTrackingNumber}^FS
-    ^FO100,400^A0N,35,35^FD${partnerTrackingNumber}^FS
-    ^FO400,480^A0N,35,35^FDКОЛ-ВО: ${quantityOfPlace}^FS
-    ^FO70,530^A0N,35,35^FDПВЗ: ${pvzCode}^FS
-    ^FO70,620^A0N,35,35^FDПолучатель:^FS
-    ^FO70,670^A0N,30,30^FD${recipientName}^FS
-    ^FO70,750^A0N,35,35^FDАдрес:^FS
-    ^FO70,800^A0N,30,30^FD${address}^FS
-^XZ`;
-};
+const makeCode128Png = async (text: string, heightDots: number) => {
+  const heightMm = (heightDots / DPI) * 25.4;
 
-const processPrintQueue = async () => {
-  if (isPrinting || printQueue.length === 0) {
-    return;
-  }
-
-  isPrinting = true;
-  const task = printQueue.shift();
-
-  if (task) {
-    try {
-      await task();
-    } catch (error) {
-      console.error("Queue processing error:", error);
-    } finally {
-      isPrinting = false;
-      processPrintQueue();
-    }
-  }
-};
-
-const checkPrinterStatus = async (
-  printerName: string
-): Promise<{
-  available: boolean;
-  message: string;
-}> => {
-  try {
-    const { stdout } = await execAsync(`lpstat -p ${printerName}`);
-
-    if (!stdout.includes(printerName)) {
-      return { available: false, message: "Printer not found" };
-    }
-
-    if (stdout.includes("disabled")) {
-      return { available: false, message: "Printer is disabled" };
-    }
-
-    return { available: true, message: "Printer is ready" };
-  } catch (error: any) {
-    return {
-      available: false,
-      message: `Printer check failed: ${error.message}`,
-    };
-  }
-};
-
-export const printSticker = async (req: Request, res: Response) => {
-  try {
-    const { trackingNumber, recipientName, address } = req.body;
-
-    if (!trackingNumber || !recipientName || !address) {
-      return res.status(400).json({ error: "Missing fields" });
-    }
-
-    if (printQueue.length >= MAX_QUEUE_SIZE) {
-      return res.status(429).json({
-        error: "Print queue is full",
-        message: `Maximum queue size (${MAX_QUEUE_SIZE}) reached. Please try again later.`,
-        queueSize: printQueue.length,
-      });
-    }
-
-    const printerStatus = await checkPrinterStatus(PRINTER);
-    if (!printerStatus.available) {
-      return res.status(503).json({
-        error: "Printer unavailable",
-        details: printerStatus.message,
-      });
-    }
-
-    let resolveTask: (value: any) => void;
-    let rejectTask: (reason: any) => void;
-
-    const taskPromise = new Promise((resolve, reject) => {
-      resolveTask = resolve;
-      rejectTask = reject;
-    });
-
-    const printTask = async () => {
-      try {
-        const zpl = generateZPLSticker(trackingNumber, recipientName, address);
-        await execAsync(`echo '${zpl}' | lp -d ${PRINTER} -o raw`);
-
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-
-        resolveTask({ success: true, message: "Sticker printed!" });
-      } catch (error: any) {
-        rejectTask(error);
-      }
-    };
-
-    printQueue.push(printTask);
-
-    const queuePosition = printQueue.length;
-    res.json({
-      success: true,
-      message: "Print job added to queue",
-      queuePosition,
-      queueSize: printQueue.length,
-    });
-
-    processPrintQueue();
-
-    taskPromise
-      .then(() => {
-        console.log(`Sticker printed for tracking: ${trackingNumber}`);
-      })
-      .catch((error) => {
-        console.error(`Print failed for tracking ${trackingNumber}:`, error);
-      });
-  } catch (error: any) {
-    console.error("Print error:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-export const printPartnerSticker = async (req: Request, res: Response) => {
-  try {
-    const {
-      partnerTrackingNumber,
-      recipientName,
-      quantityOfPlace,
-      pvzCode,
-      address,
-    } = req.body;
-
-    if (
-      !partnerTrackingNumber ||
-      !recipientName ||
-      !quantityOfPlace ||
-      !pvzCode ||
-      !address
-    ) {
-      return res.status(400).json({ error: "Missing fields" });
-    }
-
-    if (printQueue.length >= MAX_QUEUE_SIZE) {
-      return res.status(429).json({
-        error: "Print queue is full",
-        message: `Maximum queue size (${MAX_QUEUE_SIZE}) reached. Please try again later.`,
-        queueSize: printQueue.length,
-      });
-    }
-
-    const printerStatus = await checkPrinterStatus(PRINTER);
-    if (!printerStatus.available) {
-      return res.status(503).json({
-        error: "Printer unavailable",
-        details: printerStatus.message,
-      });
-    }
-
-    let resolveTask: (value: any) => void;
-    let rejectTask: (reason: any) => void;
-
-    const taskPromise = new Promise((resolve, reject) => {
-      resolveTask = resolve;
-      rejectTask = reject;
-    });
-
-    const printTask = async () => {
-      try {
-        const zpl = generateZPLPartnerSticker(
-          partnerTrackingNumber,
-          recipientName,
-          quantityOfPlace,
-          pvzCode,
-          address
-        );
-
-        await execAsync(`echo '${zpl}' | lp -d ${PRINTER} -o raw`);
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-
-        resolveTask({ success: true, message: "Partner sticker printed!" });
-      } catch (error: any) {
-        rejectTask(error);
-      }
-    };
-
-    printQueue.push(printTask);
-
-    const queuePosition = printQueue.length;
-    res.json({
-      success: true,
-      message: "Print job added to queue",
-      queuePosition,
-      queueSize: printQueue.length,
-    });
-
-    processPrintQueue();
-
-    taskPromise
-      .then(() => {
-        console.log(`Partner sticker printed: ${partnerTrackingNumber}`);
-      })
-      .catch((error) => {
-        console.error(`Print failed for ${partnerTrackingNumber}:`, error);
-      });
-  } catch (error: any) {
-    console.error("Print error:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-export const getQueueStatus = (req: Request, res: Response) => {
-  res.json({
-    queueSize: printQueue.length,
-    maxQueueSize: MAX_QUEUE_SIZE,
-    isPrinting,
-    availableSlots: MAX_QUEUE_SIZE - printQueue.length,
+  return bwipjs.toBuffer({
+    bcid: "code128",
+    text,
+    scale: 2,
+    height: heightMm,
+    includetext: false,
+    backgroundcolor: "FFFFFF",
   });
+}
+
+const normalizeAddress = (value: string) => {
+  const s = (value ?? "").toString();
+  return s
+    .replace(/\s*,\s*/g, ", ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const addressWithSmartBreaks = (value: string) => {
+  return normalizeAddress(value).replace(/,\s/g, ",\n");
+}
+
+const createDoc = (res: Response, fileName: string): PDFKit.PDFDocument => {
+  const doc = new PDFDocument({
+    size: [LABEL_W_PT, LABEL_H_PT],
+    margins: { top: 0, left: 0, right: 0, bottom: 0 },
+  });
+
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
+  setNoStore(res);
+
+  doc.pipe(res);
+
+  try { doc.registerFont("R", FONT_REGULAR); } catch {}
+  try { doc.registerFont("B", FONT_BOLD); } catch {}
+
+  doc.font("R");
+  return doc;
+};
+
+const textOneLine = (
+  doc: PDFKit.PDFDocument,
+  value: string,
+  xDots: number,
+  yDots: number,
+  fontDots: number,
+  widthDots: number,
+  useBold = false
+) => {
+  doc
+    .font(useBold ? "B" : "R")
+    .fontSize(dotToPt(fontDots))
+    .text(value ?? "", dotToPt(xDots), dotToPt(yDots), {
+      width: dotToPt(widthDots),
+      lineBreak: false,
+      ellipsis: true,
+    });
+}
+
+const textMultiline = (
+  doc: PDFKit.PDFDocument,
+  value: string,
+  xDots: number,
+  yDots: number,
+  fontDots: number,
+  widthDots: number,
+  maxHeightPt: number,
+  lineGap = 2
+) => {
+  doc
+    .font("R")
+    .fontSize(dotToPt(fontDots))
+    .text(value ?? "", dotToPt(xDots), dotToPt(yDots), {
+      width: dotToPt(widthDots),
+      height: maxHeightPt,
+      lineGap,
+      ellipsis: true,
+    });
+}
+
+export const stickerPdf = async (req: Request, res: Response) => {
+  const { trackingNumber, recipientName, address } = req.body;
+
+  if (!trackingNumber || !recipientName || !address) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
+  let barcodePng: Buffer;
+  try {
+    barcodePng = await makeCode128Png(trackingNumber, 180);
+  } catch (e: any) {
+    return res.status(500).json({ error: "Barcode generation failed", details: e?.message });
+  }
+
+  const doc = createDoc(res, `sticker-${trackingNumber}.pdf`);
+
+  try {
+    doc.image(LOGO_PNG, dotToPt(130), dotToPt(50), { width: dotToPt(250) });
+  } catch {}
+
+  doc.image(barcodePng, dotToPt(70), dotToPt(250), { height: dotToPt(180) });
+  textOneLine(doc, trackingNumber, 100, 450, 35, 400);
+  textOneLine(doc, "Получатель:", 70, 550, 35, 450, true);
+  textOneLine(doc, recipientName, 70, 600, 30, 450);
+  textOneLine(doc, "Адрес:", 70, 675, 35, 450, true);
+
+  const addrText = addressWithSmartBreaks(address);
+
+  const addrY = dotToPt(720);
+  const bottomPadding = dotToPt(18);
+  const maxH = (LABEL_H_PT - addrY) - bottomPadding;
+
+  textMultiline(doc, addrText, 70, 720, 30, 450, maxH, 3);
+
+  doc.end();
+};
+
+export const partnerStickerPdf = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const trackingNumber = String(req.params.trackingNumber || req.query.trackingNumber || "").trim();
+    if (!trackingNumber) {
+      return res.status(400).json({ error: "trackingNumber is required" });
+    }
+
+    const { pdfBuffer } = await getWaybillPdfBuffer({ trackingNumber, form: 2 });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="${trackingNumber}.pdf"`);
+    setNoStore(res);
+
+    return res.status(200).send(pdfBuffer);
+  } catch (e) {
+    next(e);
+  }
 };

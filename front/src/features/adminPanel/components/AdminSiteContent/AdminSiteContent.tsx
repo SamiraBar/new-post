@@ -19,6 +19,7 @@ import AdminCalculatorSettings, {
 } from './AdminCalculatorSettings';
 import CalculatorPreview from './CalculatorPreview';
 import { Calculator } from 'lucide-react';
+import i18n from '@/i18n/i18n';
 
 type Lang = 'ru' | 'kg';
 type Mode = 'edit' | 'preview';
@@ -151,44 +152,6 @@ const AdminSiteContent = () => {
   useEffect(() => {
     if (!admin || admin.role !== 'superAdmin') navigate('/admin');
   }, [admin, navigate]);
-
-  useEffect(() => {
-    const currentData: LocalStorageData = {
-      about,
-      important,
-      footer,
-      contacts,
-      calcLimits: currentCalcLimits,
-      calcNotices: currentCalcNotices,
-    };
-
-    const hasContentChanges =
-      about !== orig.about ||
-      important !== orig.important ||
-      footer !== orig.footer ||
-      contacts.phone !== origContacts.phone ||
-      contacts.email !== origContacts.email;
-
-    const hasCalcChanges =
-      JSON.stringify(currentCalcLimits) !== JSON.stringify(origCalcLimits) ||
-      JSON.stringify(currentCalcNotices) !== JSON.stringify(origCalcNotices);
-
-    if (hasContentChanges || hasCalcChanges) {
-      saveToLocalStorage(lang, currentData);
-    }
-  }, [
-    about,
-    important,
-    footer,
-    contacts,
-    currentCalcLimits,
-    currentCalcNotices,
-    lang,
-    orig,
-    origContacts,
-    origCalcLimits,
-    origCalcNotices,
-  ]);
 
   const load = async (lng: Lang, opts?: { silent?: boolean }) => {
     const silent = Boolean(opts?.silent);
@@ -345,6 +308,21 @@ const AdminSiteContent = () => {
             clearLocalStorage(lng);
           }
         }
+      }
+
+      await axiosApi.patch(`/i18n-content/${lang}`, {
+        updates: {
+          'aboutCompany.textInfo': about,
+          'importantInfo.textInfo': important,
+          'footer.address': footer,
+          'contacts.phone': contacts.phone,
+          'contacts.email': contacts.email,
+        },
+      });
+
+      await i18n.reloadResources(lang);
+      if (i18n.language === lang) {
+        await i18n.changeLanguage(lang);
       }
 
       setOrig({ about, important, footer });

@@ -1,4 +1,65 @@
 {
+  "nav": {
+    "importantInfo": "Важная информация",
+    "about": "О компании",
+    "contacts": "Контакты"
+  },
+  "deliveryCalculation": {
+    "headerCalculation": "Рассчитать доставку",
+    "buttonCalculation": "Рассчитать",
+    "parcelTracking": "Отследить посылку",
+    "modal": {
+      "buttonOne": "Доставка до пункта выдачи посылок",
+      "buttonTwo": "Доставка посылки до двери получателя",
+      "selectType": "Выберите тип доставки",
+      "subTitleButtonOne": "Самовывоз из пункта выдачи",
+      "subTitleButtonTwo": "Доставка курьером до адреса",
+      "modalWarning": "Выберите подходящий способ доставки.\nСтоимость будет рассчитана автоматически."
+    },
+    "trackingSearch": {
+      "status": "Статус посылки",
+      "currentStatus": "Текущий статус",
+      "departurePoint": "Пункт отправления",
+      "pickUpPoint": "Пункт выдачи",
+      "history": "История отслеживания",
+      "err": "Неверный формат трек-номера. Используйте KGZ-000001"
+    },
+    "inTransit": "В пути",
+    "customsClearance": "Прошла таможню",
+    "pickupPointInDevelopment": "Адрес ПВЗ (в разработке)",
+    "statuses": {
+      "draft": "Черновик",
+      "created": "Создана",
+      "accepted": "Принята на складе",
+      "shipped": "Отправлена",
+      "in_country": "В стране",
+      "in_city": "В городе",
+      "at_pickup_point": "На ПВЗ",
+      "delivered": "Выдано"
+    },
+    "toast": {
+      "enterTrackNumber": "Введите трек-номер",
+      "parcelFound": "Посылка найдена",
+      "parcelNotFound": "Посылка не найдена",
+      "errorOccurred": "Произошла ошибка"
+    }
+  },
+  "delivery": {
+    "chooseType": "Сначала Выберите тип доставки:",
+    "pickup": "ПВЗ",
+    "pickupFull": "Доставка в ПВЗ",
+    "courier": "Курьер",
+    "courierFull": "Курьерская доставка",
+    "value": "Укажите ценность посылки",
+    "weight": "Укажите вес посылки"
+  },
+  "infoSendPost": {
+    "title": "Как отправить посылку?",
+    "subtitleOne": "Оформи\nпосылку онлайн",
+    "subtitleTwo": "Получи \nтрек номер посылки",
+    "subtitleThee": "Принеси\nпосылку в офис",
+    "subtitleFor": "Отследи\nпосылку"
+  },
   "deliveryCostCalculator": {
     "title": "Калькулятор расчёта стоимости доставки",
     "buttons": {
@@ -143,73 +204,7 @@
       "warningWeight": "Максимальный вес посылки:\n• При курьере - 15кг.\n• При ПВЗ - 12кг",
       "warningPrice": "Максимальная ценность посылки - 50000 сом.\nВ случае потери вернем указанную стоимость.",
       "warningParam": "Сумма всех сторон посылки не должна превышать 250 см.\nСамая длинная сторона не должна превышать 100 см."
-    },
-    "limits": {
-      "maxWeightCourier": 15,
-      "maxWeightPVZ": 12,
-      "maxParcelValue": 50000
     }
-  },
-  "nav": {
-    "importantInfo": "Важная информация",
-    "about": "О компании",
-    "contacts": "Контакты"
-  },
-  "deliveryCalculation": {
-    "headerCalculation": "Рассчитать доставку",
-    "buttonCalculation": "Рассчитать",
-    "parcelTracking": "Отследить посылку",
-    "modal": {
-      "buttonOne": "Доставка до пункта выдачи посылок",
-      "buttonTwo": "Доставка посылки до двери получателя",
-      "selectType": "Выберите тип доставки",
-      "subTitleButtonOne": "Самовывоз из пункта выдачи",
-      "subTitleButtonTwo": "Доставка курьером до адреса",
-      "modalWarning": "Выберите подходящий способ доставки.\nСтоимость будет рассчитана автоматически."
-    },
-    "trackingSearch": {
-      "status": "Статус посылки",
-      "currentStatus": "Текущий статус",
-      "departurePoint": "Пункт отправления",
-      "pickUpPoint": "Пункт выдачи",
-      "history": "История отслеживания",
-      "err": "Неверный формат трек-номера. Используйте KGZ-000001"
-    },
-    "inTransit": "В пути",
-    "customsClearance": "Прошла таможню",
-    "pickupPointInDevelopment": "Адрес ПВЗ (в разработке)",
-    "statuses": {
-      "draft": "Черновик",
-      "created": "Создана",
-      "accepted": "Принята на складе",
-      "shipped": "Отправлена",
-      "in_country": "В стране",
-      "in_city": "В городе",
-      "at_pickup_point": "На ПВЗ",
-      "delivered": "Выдано"
-    },
-    "toast": {
-      "enterTrackNumber": "Введите трек-номер",
-      "parcelFound": "Посылка найдена",
-      "parcelNotFound": "Посылка не найдена",
-      "errorOccurred": "Произошла ошибка"
-    }
-  },
-  "delivery": {
-    "chooseType": "Сначала Выберите тип доставки:",
-    "pickup": "ПВЗ",
-    "pickupFull": "Доставка в ПВЗ",
-    "courier": "Курьер",
-    "courierFull": "Курьерская доставка",
-    "value": "Укажите ценность посылки",
-    "weight": "Укажите вес посылки"
-  },
-  "infoSendPost": {
-    "title": "Как отправить посылку?",
-    "subtitleOne": "Оформи\nпосылку онлайн",
-    "subtitleTwo": "Получи \nтрек номер посылки",
-    "subtitleThee": "Принеси\nпосылку в офис",
-    "subtitleFor": "Отследи\nпосылку"
   },
   "aboutCompany": {
     "title": "О компании",

@@ -86,38 +86,6 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
           };
 
           const parentcode = getElementValue('pvz_parentcode');
-          console.log('=' .repeat(60));
-          console.log('🗺️ ПВЗ выбран на карте');
-          console.log('=' .repeat(60));
-          console.log('📋 Базовые данные из pvzData:');
-          console.log('  - code:', pvzData.code);
-          console.log('  - name:', pvzData.name);
-          console.log('  - address:', pvzData.address);
-          console.log('  - phone:', pvzData.phone);
-          console.log('  - worktime:', pvzData.worktime);
-          console.log('  - maxweight:', pvzData.maxweight);
-
-          console.log('\n📋 Данные из скрытых полей DOM:');
-          console.log('  - pvz_parentcode:', parentcode);
-          console.log('  - pvz_parentname:', getElementValue('pvz_parentname'));
-          console.log('  - pvz_town:', getElementValue('pvz_town'));
-          console.log('  - pvz_towncode:', getElementValue('pvz_towncode'));
-          console.log('  - pvz_region:', getElementValue('pvz_region'));
-          console.log('  - pvz_acceptcash:', getElementNumberValue('pvz_acceptcash'));
-          console.log('  - pvz_acceptcard:', getElementNumberValue('pvz_acceptcard'));
-
-          console.log('\n🎯 Определение РЦ:');
-          if (parentcode === '2495') {
-            console.log('  ✅ РЦ: Екатеринбург (ЕКБ)');
-            console.log('  📦 service для E-Kit: 15');
-          } else if (parentcode === '18483') {
-            console.log('  ✅ РЦ: Москва (МСК)');
-            console.log('  📦 service для E-Kit: 14');
-          } else {
-            console.log('  ⚠️ Неизвестный parentcode:', parentcode);
-            console.log('  📦 service по умолчанию: 14 (МСК)');
-          }
-          console.log('=' .repeat(60));
 
           onPvzSelect({
             code: pvzData.code,
@@ -218,7 +186,6 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
 
         if (lat && lon && window.measoftMap?.map) {
           window.measoftMap.map.setView([lat, lon], 11);
-          console.log(`Карта центрирована на: ${cityName} (${lat}, ${lon})`);
         }
       } else {
         console.warn(t('measoftMap.errors.cityNotFound', {city: cityName}));

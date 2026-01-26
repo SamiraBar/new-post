@@ -1,26 +1,18 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import HttpBackend from 'i18next-http-backend';
 
-import ru from './locales/ru.json';
-import kg from './locales/kg.json';
-
-const resources = {
-  ru: {
-    translation: ru,
-  },
-  kg: {
-    translation: kg,
-  },
-};
-
-i18n.use(initReactI18next).init({
-  resources,
-  lng: localStorage.getItem('language') || 'ru',
-  fallbackLng: 'ru',
-  interpolation: {
-    escapeValue: false,
-  },
-});
+i18n
+  .use(HttpBackend)
+  .use(initReactI18next)
+  .init({
+    lng: localStorage.getItem('language') || 'ru',
+    fallbackLng: 'ru',
+    interpolation: { escapeValue: false },
+    backend: {
+      loadPath: `${import.meta.env.VITE_API_URL}/i18n-content/{{lng}}`,
+    },
+  });
 
 i18n.on('languageChanged', (lng: string) => {
   localStorage.setItem('language', lng);

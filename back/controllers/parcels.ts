@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import Contact from "../models/Contact";
 import { generateTrackingNumber } from "../utils/generateTrackingNumber";
 import { createOrderInEKit, getOrderStatus } from "../services/ekit.service";
-import { CreateParcelResponse, EKitOrderResult, ParcelCreateData } from "../types";
+import { CreateParcelResponse, ParcelCreateData } from "../types";
 import {syncAllEKitStatuses, syncSingleParcelStatus} from "../services/ekit.synchonization";
 import {sendParcelCreatedEmail} from "../services/email.service";
 import Office from "../models/Office";
@@ -36,7 +36,6 @@ type MongoQuery = {
 
 export const createParcel = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log('📦 Начало создания посылки:', req.body);
     const {
       partnerTrackingNumber,
       sender,
@@ -56,60 +55,6 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       serviceCity,
       description,
     } = req.body;
-    console.log('Incoming request body:', req.body);
-
-    console.log('📦 ДЕТАЛЬНЫЙ АНАЛИЗ ДАННЫХ ПОСЫЛКИ:');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('1. ОСНОВНЫЕ ДАННЫЕ:');
-    console.log('   - Партнёрский трек-номер:', partnerTrackingNumber || 'не указан');
-    console.log('   - Город отправления (originCity):', originCity);
-    console.log('   - Город назначения (destinationCity):', destinationCity);
-    console.log('   - Пункт отправления (originOffice):', originOffice || 'не указан');
-    console.log('   - Пункт назначения (destinationOffice):', destinationOffice || 'не указан');
-    console.log('   - Вес (weight):', weight);
-    console.log('   - Тип доставки (deliveryType):', deliveryType);
-    console.log('   - Тип партнёра (partnerType):', partnerType);
-    console.log('   - РЦ из запроса (serviceCity):', serviceCity || 'не указан');
-    console.log('   - Оплачено (isPaid):', isPaid || false);
-    console.log('   - Стикер получен (partnerStickerReceived):', partnerStickerReceived || false);
-
-    console.log('\n2. ДАННЫЕ ОТПРАВИТЕЛЯ:');
-    console.log('   - ФИО:', sender?.fullName);
-    console.log('   - Телефон:', sender?.phoneNumber);
-    console.log('   - Email:', sender?.email);
-    console.log('   - Описание:', sender?.description);
-    console.log('   - Город:', sender?.city || 'не указан');
-    console.log('   - Адрес:', sender?.address || 'не указан');
-    console.log('   - Адрес имя:', sender?.addressName || 'не указан');
-    console.log('   - Улица:', sender?.street || 'не указан');
-    console.log('   - Дом:', sender?.house || 'не указан');
-    console.log('   - Квартира:', sender?.apartment || 'не указан');
-
-    console.log('\n3. ДАННЫЕ ПОЛУЧАТЕЛЯ:');
-    console.log('   - ФИО:', recipient?.fullName);
-    console.log('   - Телефон:', recipient?.phoneNumber);
-    console.log('   - Email:', recipient?.email);
-    console.log('   - Описание:', recipient?.description);
-    console.log('   - Город:', recipient?.city || 'не указан');
-    console.log('   - Адрес:', recipient?.address || 'не указан');
-    console.log('   - Улица:', recipient?.street || 'не указан');
-    console.log('   - Дом:', recipient?.house || 'не указан');
-    console.log('   - Квартира:', recipient?.apartment || 'не указан');
-
-    console.log('\n4. ДАННЫЕ ПВЗ (только для pickup):');
-    if (pvzData && deliveryType === 'pickup') {
-      console.log('   - Код ПВЗ:', pvzData.code);
-      console.log('   - Название:', pvzData.name);
-      console.log('   - Адрес:', pvzData.address);
-      console.log('   - Город:', pvzData.town);
-      console.log('   - Родительский код (parentcode):', pvzData.parentcode || 'не указан');
-      console.log('   - Родительское название:', pvzData.parentname || 'не указан');
-      console.log('   - Регион:', pvzData.region || 'не указан');
-      console.log('   - Город-код (towncode):', pvzData.towncode || 'не указан');
-    } else {
-      console.log('   - Нет данных ПВЗ (доставка курьером или не указано)');
-    }
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
     if (!destinationCity || !weight) {
       return res.status(400).json({
@@ -266,10 +211,6 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
           trackingNumber,
         });
 
-        console.log("[email] parcel-created email sent", {
-          trackingNumber,
-          to: senderContact.email,
-        });
       } catch (err: any) {
         console.error("[email] failed to send parcel-created email", {
           parcelId: newParcel._id,
@@ -595,7 +536,6 @@ export const syncAllParcels = async (
     next: NextFunction
 ) => {
   try {
-    console.log("Manual sync triggered for all E-Kit parcels");
 
     const result = await syncAllEKitStatuses();
 
@@ -629,8 +569,6 @@ export const syncSingleParcel = async (
 ) => {
   try {
     const { trackingNumber } = req.params;
-
-    console.log(`Manual sync triggered for ${trackingNumber}`);
 
     const result = await syncSingleParcelStatus(trackingNumber);
 

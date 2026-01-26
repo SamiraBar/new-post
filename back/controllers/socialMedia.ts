@@ -27,7 +27,7 @@ export const createSocialNetwork = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Иконка обязательна" });
     }
 
-    const icon = `uploads/social/${req.file.filename}`;
+    const icon = `public/uploads/social/${req.file.filename}`;
 
     const social = await SocialMedia.create({
       name,
@@ -41,7 +41,7 @@ export const createSocialNetwork = async (req: Request, res: Response) => {
     if (req.file) {
       const filePath = path.join(
         __dirname,
-        "../public/uploads/social",
+        "../uploads/social",
         req.file.filename,
       );
       if (fs.existsSync(filePath)) {
@@ -76,7 +76,7 @@ export const updateSocialNetwork = async (req: Request, res: Response) => {
       if (fs.existsSync(oldIconPath)) {
         fs.unlinkSync(oldIconPath);
       }
-      social.icon = `uploads/social/${req.file.filename}`;
+      social.icon = `public/uploads/social/${req.file.filename}`;
     }
 
     if (name !== undefined) social.name = name;
@@ -106,7 +106,7 @@ export const deleteSocialNetwork = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Социальная сеть не найдена" });
     }
 
-    const iconPath = path.join(__dirname, "../public", social.icon);
+    const iconPath = path.join(__dirname, "..", social.icon);
     if (fs.existsSync(iconPath)) {
       fs.unlinkSync(iconPath);
     }

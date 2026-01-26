@@ -8,7 +8,9 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run build
+RUN npm run build \
+  && mkdir -p dist/i18n/locales \
+  && cp -r i18n/locales/* dist/i18n/locales/
 
 
 # --------- production stage ----------
@@ -23,8 +25,10 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=build /usr/src/back/dist ./dist
+COPY --from=build /usr/src/back/assets ./assets
+COPY --from=build /usr/src/back/public ./dist/public
 
-RUN mkdir -p dist/public/prices
+RUN mkdir -p dist/public/uploads/social dist/public/company-files
 
 EXPOSE 8000
 

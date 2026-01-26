@@ -119,7 +119,6 @@ export const adminLogout = async (
     admin.generateToken();
     await admin.save();
 
-    console.log("Admin logged out:", admin.email);
     res.status(204).send();
   } catch (error) {
     next(error);

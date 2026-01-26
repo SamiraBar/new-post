@@ -98,8 +98,6 @@ export const downloadFile = async (req: Request, res: Response, next: NextFuncti
     const fileNameInStorage = path.basename(file.fileUrl);
     const filePath = path.join(UPLOAD_DIR, fileNameInStorage);
 
-    console.log("Ищем файл по пути:", filePath);
-
     try {
       await fs.access(filePath);
     } catch (err) {
