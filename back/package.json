@@ -5,11 +5,11 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.ts",
-    "start:test": "NODE_ENV=test ts-node index.ts",
+    "start:test": "cross-env NODE_ENV=test ts-node index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "seed": "ts-node fixtures.ts",
-    "seed:test": "NODE_ENV=test ts-node fixtures.ts",
+    "seed:test": "cross-env NODE_ENV=test ts-node fixtures.ts",
     "seed:prod": "node dist/fixtures.js"
   },
   "keywords": [],
@@ -46,6 +46,7 @@
     "@types/nodemailer": "^7.0.5",
     "@types/pdfkit": "^0.17.4",
     "@types/xml2js": "^0.4.14",
+    "cross-env": "^10.1.0",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"

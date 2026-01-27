@@ -3,13 +3,26 @@
 
 # New Post - Parcel Management System
 
-[![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat&logo=react&logoColor=white)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Express](https://img.shields.io/badge/Express-4.21-000000?style=flat&logo=express&logoColor=white)](https://expressjs.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Latest-47A248?style=flat&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+![Node.js](https://img.shields.io/badge/-Node.js-339933?style=flat&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/-Express-000000?style=flat&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)
+![JWT](https://img.shields.io/badge/-JWT-000000?style=flat&logo=jsonwebtokens&logoColor=white)
+
+![React](https://img.shields.io/badge/-React-61DAFB?style=flat&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/-Vite-646CFF?style=flat&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/-Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
+![shadcn/ui](https://img.shields.io/badge/-shadcn%2Fui-000000?style=flat&logo=radixui&logoColor=white)
+![Axios](https://img.shields.io/badge/-Axios-5A29E4?style=flat&logo=axios&logoColor=white)
 ![Zustand](https://img.shields.io/badge/-Zustand-443E38?style=flat&logo=react&logoColor=white)
+
+![CodeceptJS](https://img.shields.io/badge/-CodeceptJS-F6E05E?style=flat&logo=codeceptjs&logoColor=black)
+![Puppeteer](https://img.shields.io/badge/-Puppeteer-40B5A4?style=flat&logo=puppeteer&logoColor=white)
+![Gherkin](https://img.shields.io/badge/-Gherkin-00A818?style=flat&logo=cucumber&logoColor=white)
+
+![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat&logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/-Nginx-009639?style=flat&logo=nginx&logoColor=white)
+![Docker%20Compose](https://img.shields.io/badge/-Docker_Compose-2496ED?style=flat&logo=docker&logoColor=white)
 </div>
 
 ---
@@ -33,7 +46,6 @@ Employees can view all orders, update statuses, assign partner tracking numbers,
 -  Get tracking number after registration
 -  Delivery cost calculator
 -  Pickup point selection via e-kit.pro API
--  Online payment (planned)
 -  Track parcel by tracking number
 
 ### 🧑‍💻 Employee Dashboard
@@ -48,12 +60,25 @@ Employees can view all orders, update statuses, assign partner tracking numbers,
 
 ## 🧩 Tech Stack
 
+### Backend
+![Node.js](https://img.shields.io/badge/-Node.js-339933?style=flat&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/-Express-000000?style=flat&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)
+![JWT](https://img.shields.io/badge/-JWT-000000?style=flat&logo=jsonwebtokens&logoColor=white)
+
+- Express.js
+- Mongoose (MongoDB)
+- dotenv, CORS
+- JWT authentication (planned)
+
 ### Frontend
 ![React](https://img.shields.io/badge/-React-61DAFB?style=flat&logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/-Vite-646CFF?style=flat&logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/-Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
 ![Zustand](https://img.shields.io/badge/-Zustand-443E38?style=flat&logo=react&logoColor=white)
+![shadcn/ui](https://img.shields.io/badge/-shadcn%2Fui-000000?style=flat&logo=radixui&logoColor=white)
+![Axios](https://img.shields.io/badge/-Axios-5A29E4?style=flat&logo=axios&logoColor=white)
 
 - React 18 + TypeScript + Vite
 - Zustand for state management
@@ -61,15 +86,6 @@ Employees can view all orders, update statuses, assign partner tracking numbers,
 - Axios for API communication
 - React Router for navigation
 
-### Backend
-![Node.js](https://img.shields.io/badge/-Node.js-339933?style=flat&logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/-Express-000000?style=flat&logo=express&logoColor=white)
-![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)
-
-- Express.js
-- Mongoose (MongoDB)
-- dotenv, CORS
-- JWT authentication (planned)
 
 ### Testing
 ![CodeceptJS](https://img.shields.io/badge/-CodeceptJS-F6E05E?style=flat&logo=codeceptjs&logoColor=black)
@@ -84,6 +100,7 @@ Employees can view all orders, update statuses, assign partner tracking numbers,
 ### DevOps
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat&logo=docker&logoColor=white)
 ![Nginx](https://img.shields.io/badge/-Nginx-009639?style=flat&logo=nginx&logoColor=white)
+![Docker%20Compose](https://img.shields.io/badge/-Docker_Compose-2496ED?style=flat&logo=docker&logoColor=white)
 
 - **Docker** - Containerization
 - **Docker Compose** - Multi-container orchestration
@@ -173,49 +190,76 @@ npm run test
 - **Partner API** — Real-time tracking synchronization
 - **Sticker Print API** — Thermal label printing
 
----
-
-## 📁 Project Structure
 ```
-new-post/
-├── front/                    # Frontend application
+## 📁 Project Structure
+
+```
+NEW-POST/
+├── back/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routers/
+│   ├── services/
+│   ├── utils/
+│   ├── public/
+│   ├── config.ts
+│   ├── index.ts
+│   ├── multer.ts
+│   ├── fixtures.ts
+│   ├── types.d.ts
+│   ├── .env
+│   ├── Dockerfile
+│   ├── Dockerfile.production
+│   ├── tsconfig.json
+│   ├── ...
+│   └── package-lock.json
+│
+├── front/
+│   ├── public/
 │   ├── src/
-│   │   ├── assets/          # Images, icons, logos
-│   │   ├── components/      # Reusable UI components
-│   │   ├── features/        # Feature-based modules
-│   │   ├── i18n/           # Internationalization (ru/kg)
-│   │   ├── lib/            # Utility libraries
-│   │   ├── stores/         # Zustand state management
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── features/
+│   │   ├── i18n/
+│   │   ├── lib/
+│   │   ├── stores/
+│   │   ├── utils/
 │   │   ├── App.tsx
 │   │   └── main.tsx
+│   ├── .env
+│   ├── .env.production
 │   ├── Dockerfile
+│   ├── Dockerfile.production
 │   ├── nginx.conf
-│   └── package.json
+│   ├── eslint.config.js
+│   ├── components.json
+│   ├── ...
+│   └── package-lock.json
 │
-├── back/                     # Backend application
-│   ├── controllers/         # Request handlers
-│   ├── middleware/          # Custom middleware
-│   ├── models/             # Mongoose schemas
-│   ├── routers/            # API routes
-│   ├── services/           # Business logic
-│   ├── utils/              # Helper functions
-│   ├── Dockerfile
-│   ├── fixtures.ts         # Seed data
-│   └── package.json
-│
-├── tests/                   # E2E tests with CodeceptJS
+├── tests/
 │   ├── features/
-│   │   ├── admin/          # Admin panel tests
-│   │   └── user/           # User-facing tests
+│   │   ├── admin/
+│   │   └── user/
 │   ├── step_definitions/
 │   │   ├── admin/
 │   │   └── user/
-│   ├── helpers/            # Test helpers (i18n, etc.)
-│   ├── output/             # Test results & screenshots
+│   ├── helpers/
+│   │   └── i18nHelper.ts
+│   ├── output/
+│   ├── steps.ts
+│   ├── steps_file.ts
+│   ├── steps.d.ts
 │   ├── codecept.conf.ts
-│   └── package.json
-│
-└── README.md
+│   ├── tests.sh
+│   ├── tsconfig.json
+│   ├── ...
+│   └── package-lock.json
+│ 
+├── compose.yaml
+├── compose.prod.yaml
+├── README.md
+└── .gitignore
 ```
 
 ---
@@ -243,12 +287,7 @@ new-post/
 - ✅ E2E testing with CodeceptJS and Puppeteer
 - ✅ Docker containerization
 - ✅ Production server deployment
-
----
-
-### 🔄 In Progress
-
-- 🔄 Status synchronization via partner API
+- ✅ Status synchronization via partner API
 
 ---
 
