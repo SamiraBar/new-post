@@ -1,0 +1,73 @@
+services:
+  mongo-test:
+    image: mongo:8
+    container_name: new-post-mongo-test
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_test_data:/data/db
+
+  back-test:
+    image: node:22-alpine
+    container_name: new-post-back-test
+    working_dir: /usr/src/back
+    depends_on:
+      - mongo-test
+    env_file:
+      - ./back/.test.env
+    environment:
+      NODE_ENV: test
+      MONGO_DB_URL: mongodb://mongo-test:27017/new-post-test
+      PORT: 8010
+    volumes:
+      - ./back:/usr/src/back
+    command: >
+      sh -lc "
+      npm ci --include=dev &&
+      npm run seed:test &&
+      npm run start:test
+      "
+    ports:
+      - "8010:8010"
+
+  front-test:
+    image: node:22-alpine
+    container_name: new-post-front-test
+    working_dir: /usr/src/front
+    depends_on:
+      - back-test
+    environment:
+      NODE_ENV: test
+      PORT: 5183
+      VITE_API_URL: http://back-test:8010
+    volumes:
+      - ./front:/usr/src/front
+    command: >
+      sh -lc "
+      npm ci --include=dev &&
+      npm run start:test
+      "
+    ports:
+      - "5183:5183"
+
+  e2e:
+    image: ghcr.io/puppeteer/puppeteer:22.12.1
+    container_name: new-post-e2e
+    working_dir: /work/tests
+    depends_on:
+      - front-test
+    environment:
+      DOCKER_E2E: "true"
+      HEADLESS: "true"
+      BASE_URL: "http://front-test:5183"
+    volumes:
+      - ./tests:/work/tests
+    command: >
+      sh -lc "
+      npm ci &&
+      npx wait-on http://front-test:5183 &&
+      npm run test
+      "
+
+volumes:
+  mongo_test_data:
