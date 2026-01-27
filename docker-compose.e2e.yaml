@@ -21,6 +21,7 @@ services:
       PORT: 8010
     volumes:
       - ./back:/usr/src/back
+      - back_test_node_modules:/usr/src/back/node_modules
     command: >
       sh -lc "
       npm ci --include=dev &&
@@ -42,6 +43,7 @@ services:
       VITE_API_URL: http://back-test:8010
     volumes:
       - ./front:/usr/src/front
+      - front_test_node_modules:/usr/src/front/node_modules
     command: >
       sh -lc "
       npm ci --include=dev &&
@@ -71,3 +73,5 @@ services:
 
 volumes:
   mongo_test_data:
+  back_test_node_modules:
+  front_test_node_modules:
