@@ -30,6 +30,7 @@
         "test:regression": "node run-tests.mjs @regression",
         "test:close": "node run-tests.mjs @close",
         "test:delivery-type": "node run-tests.mjs @delivery-type"
+
     },
     "devDependencies": {
         "@codeceptjs/configure": "^1.0.6",
