@@ -1,0 +1,14 @@
+FROM ghcr.io/puppeteer/puppeteer:22.12.1
+
+WORKDIR /work/tests
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+ENV DOCKER_E2E=true
+ENV HEADLESS=true
+ENV BASE_URL=http://front-test:5183
+
+CMD sh -lc "npx wait-on --timeout 180000 --interval 500 $BASE_URL && npm run test"

@@ -39,7 +39,7 @@
         "codeceptjs": "^3.7.5",
         "concurrently": "^9.2.1",
         "cross-env": "^10.1.0",
-        "puppeteer": "^21.1.1",
+        "puppeteer-core": "^22.12.1",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.3",
         "wait-on": "^9.0.3"
