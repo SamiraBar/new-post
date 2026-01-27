@@ -3,7 +3,7 @@ import { I } from "../steps";
 const selectors = {
   navContactsLink: '//nav//a[contains(., "Контакты")]',
 
-  footer: "footer#contacts",
+  footer: "footer",
   footerLogo: 'footer img[alt="New Post logo"]',
   footerLogoLink: 'footer a[href="/"]',
 
@@ -62,8 +62,9 @@ Then("страница прокручивается к футеру", () => {
 });
 
 When("я прокручиваю к футеру", () => {
+  I.waitForElement(selectors.footer, 10);
   I.scrollTo(selectors.footer);
-  I.wait(4);
+  I.waitForVisible(selectors.footer, 10);
 });
 
 Then("я вижу футер полностью", () => {
