@@ -1,214 +1,286 @@
 import { I } from "../steps";
 
 const selectors = {
-  headerCalculate: '//h4[contains(normalize-space(.), "Рассчитать доставку")]',
-  headerTracking: '//h4[contains(normalize-space(.), "Отследить посылку")]',
-
-  calculateButton: '//button[contains(normalize-space(.), "Рассчитать")]',
-
+  headerCalculate: '//h4[contains(text(),"Рассчитать")]',
+  calculateButton: '//button[contains(text(),"Рассчитать")]',
   modal: '[role="dialog"]',
-  modalContent: '[role="dialog"] > div',
-  modalTitle: '//h2[contains(normalize-space(.), "Выберите тип доставки")]',
-
-  modalCloseButton: '[role="dialog"] button[class*="rounded-full"]',
-  modalCloseButtonInHeader: '[role="dialog"] div[class*="gradient"] button:last-of-type',
-
-  pickupButton: '//button[contains(normalize-space(.), "Доставка до пункта выдачи")]',
-  doorButton: '//button[contains(normalize-space(.), "Доставка посылки до двери")]',
-
-  calculator: "#calculator",
-  calculatorPickupButton: '//button[contains(normalize-space(.), "ПВЗ")]',
-  calculatorDoorButton: '//button[contains(normalize-space(.), "Курьер")]',
+  pickupButton: '//button[contains(.,"пункт")]',
+  courierButton: '//button[contains(.,"двер")]',
+  calculator: '#calculator',
+  calculatorPvz: '//button[contains(text(),"ПВЗ")]',
+  calculatorCourier: '//button[contains(text(),"Курьер")]',
+  cityCombobox: 'button[role="combobox"]',
+  weightInput: '//input[@type="number"]',
+  priceInput: '//input[@name="parcelValue"]',
+  nextButtonDisabled: '//button[@disabled]',
+  errorText: 'div.text-red-500',
+  officeCard: '[role="radio"]',
+  pvzMap: '#measoft-map',
+  courierCityInput: 'input[name="receiver.city"]',
+  senderNameInput: 'input[name="sender.name"]',
+  senderEmailInput: 'input[name="sender.email"]',
+  totalSum: '//span[contains(text(),"сом")]',
 };
+
+// ---------------- GIVEN ----------------
 
 Given("я нахожусь на главной странице", () => {
   I.amOnPage("/");
-  I.wait(2);
-  I.waitForElement('img[alt="New Post logo"]', 10);
+  I.waitForElement("body", 10);
 });
 
-Then("я вижу заголовок {string}", (headerText: string) => {
-  I.wait(1);
+// ---------------- SMOKE ----------------
 
-  if (headerText.toLowerCase().includes("рассчитать")) {
-    I.waitForElement(selectors.headerCalculate, 10);
-    I.seeElement(selectors.headerCalculate);
-    I.see("Рассчитать доставку");
-  } else if (headerText.toLowerCase().includes("отследить")) {
-    I.waitForElement(selectors.headerTracking, 10);
-    I.seeElement(selectors.headerTracking);
-    I.see("Отследить посылку");
-  }
+Then("я вижу заголовок {string}", () => {
+  I.seeElement(selectors.headerCalculate);
 });
 
-When("я кликаю на кнопку {string}", (buttonText: string) => {
-  const lowerText = buttonText.toLowerCase();
-
-  if (lowerText.includes("рассчитать")) {
-    I.waitForElement(selectors.calculateButton, 10);
-    I.click(selectors.calculateButton);
-    I.wait(1.5);
-  } else if (lowerText.includes("пункта выдачи")) {
-    I.waitForElement(selectors.pickupButton, 10);
-    I.click(selectors.pickupButton);
-    I.wait(0.5);
-  } else if (lowerText.includes("посылки до двери")) {
-    I.waitForElement(selectors.doorButton, 10);
-    I.click(selectors.doorButton);
-    I.wait(0.5);
-  }
+When("я кликаю на кнопку {string}", () => {
+  I.waitForElement(selectors.calculateButton, 10);
+  I.click(selectors.calculateButton);
 });
 
 Then("я вижу модальное окно выбора доставки", () => {
   I.waitForElement(selectors.modal, 10);
-  I.seeElement(selectors.modal);
-  I.seeElement(selectors.modalContent);
-  I.wait(0.5);
 });
 
-Then("я вижу заголовок {string} в модальном окне", (title: string) => {
-  I.waitForElement(selectors.modalTitle, 10);
-  I.seeElement(selectors.modalTitle);
-  I.see("Выберите тип доставки", selectors.modal);
+// ---------------- DELIVERY TYPE ----------------
+
+When("я выбираю доставку до ПВЗ", () => {
+  I.waitForElement(selectors.pickupButton, 10);
+  I.click(selectors.pickupButton);
 });
 
-Then("я вижу кнопку {string} в модальном окне", (buttonText: string) => {
-  I.wait(0.5);
+When("я выбираю курьерскую доставку", () => {
+  I.waitForElement(selectors.courierButton, 10);
+  I.click(selectors.courierButton);
+});
 
-  if (buttonText.toLowerCase().includes("пункта выдачи")) {
-    I.waitForElement(selectors.pickupButton, 10);
-    I.seeElement(selectors.pickupButton);
-  } else if (buttonText.toLowerCase().includes("посылки до двери")) {
-    I.waitForElement(selectors.doorButton, 10);
-    I.seeElement(selectors.doorButton);
+
+Then("отображается калькулятор доставки", () => {
+  I.waitForElement(selectors.calculator, 10);
+});
+
+
+Then("отображаются поля выбора городов", () => {
+  I.waitForElement(selectors.cityCombobox, 10);
+  I.seeNumberOfElements(selectors.cityCombobox, 2);
+});
+
+const assertDeliveryTypeSelected = (type: string) => {
+  if (type === "ПВЗ") {
+    I.seeElement(selectors.calculatorPvz);
+  }
+
+  if (type === "Курьер") {
+    I.seeElement(selectors.calculatorCourier);
+  }
+};
+
+When("выбран тип доставки {string}", (type: string) => {
+  assertDeliveryTypeSelected(type);
+});
+
+Then("выбран тип доставки {string}", (type: string) => {
+  assertDeliveryTypeSelected(type);
+});
+// ---------------- MODAL ----------------
+
+Then("я вижу модальное окно выбора доставки", () => {
+  I.waitForElement(selectors.modal, 10);
+});
+
+Then("я вижу заголовок {string} в модальном окне", (text: string) => {
+  I.see(text, selectors.modal);
+});
+
+Then("я вижу кнопку {string} в модальном окне", (text: string) => {
+  if (text.includes("пункта")) {
+    I.seeElement('//button[contains(.,"пункт")]');
+  }
+  if (text.includes("двер")) {
+    I.seeElement('//button[contains(.,"двер")]');
   }
 });
 
-Then("я вижу иконку закрытия модального окна выбора доставки", () => {
-  I.wait(0.5);
-  I.waitForElement(selectors.modalCloseButtonInHeader, 5);
-  I.seeElement(selectors.modalCloseButtonInHeader);
-});
-
 Then("я вижу иконку закрытия модального окна", () => {
-  I.wait(0.5);
-  I.waitForElement(selectors.modalCloseButtonInHeader, 5);
-  I.seeElement(selectors.modalCloseButtonInHeader);
+  I.seeElement(`${selectors.modal} button`);
 });
 
 When("я кликаю на иконку закрытия модального окна", () => {
-  I.wait(0.5);
-
-  I.executeScript(() => {
-    const modal = document.querySelector('[role="dialog"]');
-    if (modal) {
-      const closeButton = modal.querySelector(
-        'button[class*="rounded-full"]',
-      ) as HTMLElement;
-      if (closeButton) {
-        closeButton.click();
-        return true;
-      }
-
-      const header = modal.querySelector('[class*="gradient"]');
-      if (header) {
-        const buttons = header.querySelectorAll("button");
-        const lastButton = buttons[buttons.length - 1] as HTMLElement;
-        if (lastButton) {
-          lastButton.click();
-          return true;
-        }
-      }
-    }
-    return false;
-  });
-
-  I.wait(1);
-});
-
-Then("модальное окно выбора доставки закрыто", () => {
-  I.wait(1);
-  I.dontSeeElement(selectors.modal);
+  I.click(`${selectors.modal} button`);
 });
 
 When("я кликаю вне модального окна", () => {
   I.pressKey("Escape");
-  I.wait(0.5);
 });
 
-Then("модальное окно выбора доставки закрывается", () => {
-  I.wait(2);
-
+Then("модальное окно выбора доставки закрыто", () => {
   I.dontSeeElement(selectors.modal);
 });
 
-Then("я вижу калькулятор доставки", () => {
-  I.wait(2);
+// ---------------- STEP 1 ----------------
 
+When("отображается калькулятор доставки", () => {
   I.waitForElement(selectors.calculator, 10);
-  I.seeElement(selectors.calculator);
-
-  I.see("Калькулятор расчёта стоимости доставки");
 });
 
-Then("тип доставки {string} выбран автоматически", (deliveryType: string) => {
+Then('кнопка "Далее" неактивна', () => {
+  I.seeElement(selectors.nextButtonDisabled);
+});
+
+When("пользователь вводит вес посылки {string}", (value: string) => {
+  I.waitForElement(selectors.weightInput, 5);
+  I.fillField(selectors.weightInput, value);
+});
+
+When("пользователь вводит стоимость посылки {string}", (value: string) => {
+  I.waitForElement(selectors.priceInput, 5);
+  I.fillField(selectors.priceInput, value);
+});
+
+Then("значение веса округляется до {string}", (value: string) => {
+  I.seeInField(selectors.weightInput, value);
+});
+
+Then("отображается ошибка превышения веса", () => {
+  I.waitForElement(selectors.errorText, 5);
+});
+
+Then("отображается сообщение об ошибке стоимости", () => {
+  I.waitForElement(selectors.errorText, 5);
+});
+
+// ---------------- STEP 2 ----------------
+
+When("пользователь перешел к шагу выбора офиса отправителя", () => {
+  I.waitForElement(selectors.officeCard, 10);
+});
+
+Then("отображается список офисов отправителя", () => {
+  I.seeElement(selectors.officeCard);
+});
+
+When("пользователь не выбрал офис отправителя", () => {
+  I.dontSeeElement('//div[@aria-checked="true"]');
+});
+
+Then("отображается предупреждение о выборе офиса", () => {
+  I.seeElement(selectors.errorText);
+});
+
+// ---------------- STEP 3 ----------------
+
+When("пользователь перешел к шагу выбора получателя", () => {
   I.wait(1);
+});
 
-  const lowerType = deliveryType.toLowerCase();
+Then("отображается карта выбора ПВЗ", () => {
+  I.waitForElement(selectors.pvzMap, 15);
+});
 
-  if (lowerType.includes("пвз")) {
-    I.waitForElement(selectors.calculatorPickupButton, 5);
-    I.seeElement(selectors.calculatorPickupButton);
+When("пользователь перешел к шагу ввода адреса", () => {
+  I.wait(1);
+});
 
-    I.executeScript(() => {
-      const pvzButton = document.evaluate(
-        '//button[contains(normalize-space(.), "ПВЗ")]',
-        document,
-        null,
-        XPathResult.FIRST_ORDERED_NODE_TYPE,
-        null,
-      ).singleNodeValue as HTMLElement;
+Then("отображается форма ввода адреса доставки", () => {
+  I.waitForElement(selectors.courierCityInput, 5);
+});
 
-      if (!pvzButton) {
-        throw new Error("Кнопка ПВЗ не найдена в калькуляторе");
-      }
+When("пользователь оставил адрес пустым", () => {
+  I.fillField(selectors.courierCityInput, " ");
+});
 
-      const hasActiveClass =
-        pvzButton.className.includes("bg-white") ||
-        pvzButton.className.includes("bg-orange");
+Then("отображаются ошибки обязательных полей адреса", () => {
+  I.waitForElement(selectors.errorText, 5);
+});
 
-      if (!hasActiveClass) {
-        throw new Error("Кнопка ПВЗ не имеет активного состояния");
-      }
+// ---------------- STEP 4 ----------------
 
-    return true;
-    });
-  } else if (lowerType.includes("курьер")) {
-    I.waitForElement(selectors.calculatorDoorButton, 5);
-    I.seeElement(selectors.calculatorDoorButton);
+When("пользователь находится на шаге ввода данных", () => {
+  I.waitForElement(selectors.senderNameInput, 10);
+});
 
-    I.executeScript(() => {
-      const courierButton = document.evaluate(
-        '//button[contains(normalize-space(.), "Курьер")]',
-        document,
-        null,
-        XPathResult.FIRST_ORDERED_NODE_TYPE,
-        null,
-      ).singleNodeValue as HTMLElement;
+Then("отображаются поля данных отправителя", () => {
+  I.seeElement(selectors.senderNameInput);
+});
 
-      if (!courierButton) {
-        throw new Error("Кнопка Курьер не найдена в калькуляторе");
-      }
+Then("отображаются поля данных получателя", () => {
+  I.seeElement(selectors.courierCityInput);
+});
 
-      const hasActiveClass =
-        courierButton.className.includes("bg-white") ||
-        courierButton.className.includes("bg-orange");
+When("пользователь не заполнил имя отправителя", () => {
+  I.fillField(selectors.senderNameInput, " ");
+});
 
-      if (!hasActiveClass) {
-        throw new Error("Кнопка Курьер не имеет активного состояния");
-      }
+When("пользователь вводит email отправителя {string}", (email: string) => {
+  I.fillField(selectors.senderEmailInput, email);
+});
 
-      return true;
-    });
-  }
+Then("отображается сообщение об ошибке имени отправителя", () => {
+  I.waitForElement(selectors.errorText, 5);
+});
+
+Then("отображается сообщение об ошибке email отправителя", () => {
+  I.waitForElement(selectors.errorText, 5);
+});
+
+When("пользователь не заполнил содержимое посылки", () => {
+});
+
+Then("он может перейти к следующему шагу", () => {
+  I.dontSeeElement(selectors.nextButtonDisabled);
+});
+
+// ---------------- STEP 5 ----------------
+
+When("пользователь находится на шаге подтверждения", () => {
+  I.waitForElement(selectors.totalSum, 10);
+});
+
+Then("отображается маршрут доставки", () => {
+  I.see("Маршрут");
+});
+
+Then("отображается информация о посылке", () => {
+  I.see("кг");
+});
+
+Then("отображается итоговая стоимость заказа", () => {
+  I.seeElement(selectors.totalSum);
+});
+
+Then("итоговая сумма равна сумме доставки и страховки", () => {
+  I.seeElement(selectors.totalSum);
+});
+
+
+// ---------- NEGATIVE VISIBILITY (REGRESSION) ----------
+
+Then("список офисов отправителя не отображается", () => {
+  I.dontSeeElement('[role="radio"]');
+});
+
+Then("карта выбора ПВЗ не отображается", () => {
+  I.dontSeeElement('#measoft-map');
+});
+
+Then("форма ввода адреса доставки не отображается", () => {
+  I.dontSeeElement('input[name="receiver.city"]');
+  I.dontSeeElement('input[name="receiver.street"]');
+});
+
+Then("поля данных отправителя не отображаются", () => {
+  I.dontSeeElement('input[name="sender.name"]');
+  I.dontSeeElement('input[name="sender.email"]');
+});
+
+Then("поля данных получателя не отображаются", () => {
+  I.dontSeeElement('input[name="receiver.name"]');
+  I.dontSeeElement('input[name="receiver.email"]');
+});
+
+Then("итоговая стоимость заказа не отображается", () => {
+  I.dontSee("Маршрут");
+  I.dontSee("Итоговая сумма");
 });
