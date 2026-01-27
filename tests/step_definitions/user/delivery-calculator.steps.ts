@@ -1,26 +1,24 @@
 import { I } from "../steps";
 
 const selectors = {
-  headerCalculate: '//h4[contains(text(), "Рассчитать доставку")]',
-  headerTracking: '//h4[contains(text(), "Отследить посылку")]',
+  headerCalculate: '//h4[contains(normalize-space(.), "Рассчитать доставку")]',
+  headerTracking: '//h4[contains(normalize-space(.), "Отследить посылку")]',
 
-  calculateButton: '//button[contains(text(), "Рассчитать")]',
+  calculateButton: '//button[contains(normalize-space(.), "Рассчитать")]',
 
   modal: '[role="dialog"]',
   modalContent: '[role="dialog"] > div',
-  modalTitle: '//h2[contains(text(), "Выберите тип доставки")]',
+  modalTitle: '//h2[contains(normalize-space(.), "Выберите тип доставки")]',
 
   modalCloseButton: '[role="dialog"] button[class*="rounded-full"]',
-  modalCloseButtonInHeader:
-    '[role="dialog"] div[class*="gradient"] button:last-of-type',
+  modalCloseButtonInHeader: '[role="dialog"] div[class*="gradient"] button:last-of-type',
 
-  pickupButton: '//button[contains(., "Доставка до пункта выдачи")]',
-  doorButton: '//button[contains(., "Доставка до двери")]',
+  pickupButton: '//button[contains(normalize-space(.), "Доставка до пункта выдачи")]',
+  doorButton: '//button[contains(normalize-space(.), "Доставка посылки до двери")]',
 
   calculator: "#calculator",
-
-  calculatorPickupButton: '//button[contains(text(), "ПВЗ")]',
-  calculatorDoorButton: '//button[contains(text(), "Курьер")]',
+  calculatorPickupButton: '//button[contains(normalize-space(.), "ПВЗ")]',
+  calculatorDoorButton: '//button[contains(normalize-space(.), "Курьер")]',
 };
 
 Given("я нахожусь на главной странице", () => {
@@ -54,7 +52,7 @@ When("я кликаю на кнопку {string}", (buttonText: string) => {
     I.waitForElement(selectors.pickupButton, 10);
     I.click(selectors.pickupButton);
     I.wait(0.5);
-  } else if (lowerText.includes("до двери")) {
+  } else if (lowerText.includes("посылки до двери")) {
     I.waitForElement(selectors.doorButton, 10);
     I.click(selectors.doorButton);
     I.wait(0.5);
@@ -80,7 +78,7 @@ Then("я вижу кнопку {string} в модальном окне", (button
   if (buttonText.toLowerCase().includes("пункта выдачи")) {
     I.waitForElement(selectors.pickupButton, 10);
     I.seeElement(selectors.pickupButton);
-  } else if (buttonText.toLowerCase().includes("до двери")) {
+  } else if (buttonText.toLowerCase().includes("посылки до двери")) {
     I.waitForElement(selectors.doorButton, 10);
     I.seeElement(selectors.doorButton);
   }
@@ -164,7 +162,7 @@ Then("тип доставки {string} выбран автоматически",
 
     I.executeScript(() => {
       const pvzButton = document.evaluate(
-        '//button[contains(text(), "ПВЗ")]',
+        '//button[contains(normalize-space(.), "ПВЗ")]',
         document,
         null,
         XPathResult.FIRST_ORDERED_NODE_TYPE,
@@ -183,7 +181,7 @@ Then("тип доставки {string} выбран автоматически",
         throw new Error("Кнопка ПВЗ не имеет активного состояния");
       }
 
-      return true;
+    return true;
     });
   } else if (lowerType.includes("курьер")) {
     I.waitForElement(selectors.calculatorDoorButton, 5);
@@ -191,7 +189,7 @@ Then("тип доставки {string} выбран автоматически",
 
     I.executeScript(() => {
       const courierButton = document.evaluate(
-        '//button[contains(text(), "Курьер")]',
+        '//button[contains(normalize-space(.), "Курьер")]',
         document,
         null,
         XPathResult.FIRST_ORDERED_NODE_TYPE,
