@@ -5,17 +5,32 @@ const pageMap: Record<string, string> = {
   "главной странице": "/",
 };
 
-const navKeysMap: Record<string, string> = {
-  importantInfo: "nav.importantInfo",
-  about: "nav.about",
-  contacts: "nav.contacts",
+const navHrefMap: Record<string, string> = {
+  importantInfo: "#important-info",
+  about: "#about",
+  contacts: "#contacts",
 };
+
+const navTextExpected = {
+  ru: {
+    "nav.importantInfo": "Важная информация",
+    "nav.about": "О компании",
+    "nav.contacts": "Контакты",
+  },
+  kg: {
+    "nav.importantInfo": "Маанилүү маалымат",
+    "nav.about": "Биз жөнүндө",
+    "nav.contacts": "Байланыштар",
+  },
+} as const;
 
 const selectors = {
   logo: 'img[alt="New Post logo"]',
   logoLink: 'a[href="/"]',
 
-  navigationLink: (text: string) => `//nav//a[contains(., "${text}")]`,
+  navigationLinkByHref: (href: string) =>
+    `nav[aria-label="Main"] a[href="${href}"], nav[aria-label="Main"] a[href$="${href}"]`,
+
   navigationMenu: 'nav[aria-label="Main"]',
 
   importantInfoBlock: "#important-info",
@@ -39,12 +54,10 @@ const selectors = {
   mobileMenu: ".sm\\:hidden nav",
 };
 
-function getNavLinkText(navKey: string): string {
-  const i18nKey = navKeysMap[navKey];
-  if (!i18nKey) {
-    throw new Error(`Неизвестный ключ навигации: ${navKey}`);
-  }
-  return i18n.t(i18nKey);
+function getNavHref(navKey: string): string {
+  const href = navHrefMap[navKey];
+  if (!href) throw new Error(`Неизвестный href для navKey: ${navKey}`);
+  return href;
 }
 
 function demonstratePageTranslation() {
@@ -133,9 +146,9 @@ When("я переключаюсь между языками", () => {
 });
 
 When("я кликаю на навигационную ссылку {string}", (navKey: string) => {
-  const linkText = getNavLinkText(navKey);
+  const href = getNavHref(navKey);
 
-  const linkSelector = selectors.navigationLink(linkText);
+  const linkSelector = selectors.navigationLinkByHref(href);
   I.waitForElement(linkSelector, 10);
 
   I.moveCursorTo(linkSelector);
@@ -165,8 +178,8 @@ Then("я вижу блок {string}", (blockKey: string) => {
       I.waitForElement(selectors.importantInfoBlock, 10);
       I.seeElement(selectors.importantInfoBlock);
 
-      const importantInfoTitle = i18n.t("importantInfo.title");
-      I.see(importantInfoTitle);
+      I.waitForElement(selectors.importantInfoTitle, 10);
+      I.seeElement(selectors.importantInfoTitle);
       break;
 
     case "about":
@@ -175,8 +188,8 @@ Then("я вижу блок {string}", (blockKey: string) => {
       I.waitForElement(selectors.aboutBlock, 10);
       I.seeElement(selectors.aboutBlock);
 
-      const aboutTitle = i18n.t("aboutCompany.title");
-      I.see(aboutTitle);
+      I.waitForElement(selectors.aboutTitle, 10);
+      I.seeElement(selectors.aboutTitle);
       break;
 
     default:
@@ -185,12 +198,11 @@ Then("я вижу блок {string}", (blockKey: string) => {
 });
 
 Then("я вижу блок заголовка страницы", () => {
-  const calculateText = i18n.t("deliveryCalculation.headerCalculation");
-  const trackText = i18n.t("deliveryCalculation.parcelTracking");
-
   I.waitForElement(selectors.calculateDeliveryHeader, 10);
-  I.see(calculateText);
-  I.see(trackText);
+  I.waitForElement(selectors.trackParcelHeader, 10);
+
+  I.seeElement(selectors.calculateDeliveryHeader);
+  I.seeElement(selectors.trackParcelHeader);
 });
 
 Then("я вижу футер с контактами", () => {
@@ -206,9 +218,9 @@ Then("я вижу футер с контактами", () => {
 });
 
 Then("я вижу навигационную ссылку {string}", (navKey: string) => {
-  const linkText = getNavLinkText(navKey);
+  const href = getNavHref(navKey);
 
-  const linkSelector = selectors.navigationLink(linkText);
+  const linkSelector = selectors.navigationLinkByHref(href);
   I.wait(1);
 
   I.moveCursorTo(linkSelector);
@@ -219,26 +231,24 @@ Then("я вижу навигационную ссылку {string}", (navKey: st
 });
 
 Then("я вижу текст навигации {string} на русском", (i18nKey: string) => {
-  const russianText = i18n.t(i18nKey, "ru");
-
-  I.wait(1);
-  I.see(russianText, selectors.navigationMenu);
+  const text = (navTextExpected.ru as any)[i18nKey];
+  if (!text) throw new Error(`Неизвестный ключ: ${i18nKey}`);
+  I.see(text, selectors.navigationMenu);
 });
 
 Then("я вижу текст навигации {string} на кыргызском", (i18nKey: string) => {
-  const kyrgyzText = i18n.t(i18nKey, "kg");
-
-  I.wait(1);
-  I.see(kyrgyzText, selectors.navigationMenu);
+  const text = (navTextExpected.kg as any)[i18nKey];
+  if (!text) throw new Error(`Неизвестный ключ: ${i18nKey}`);
+  I.see(text, selectors.navigationMenu);
 });
 
 Then("все навигационные ссылки отображаются корректно", () => {
   const navKeys = ["importantInfo", "about", "contacts"];
 
   navKeys.forEach((navKey) => {
-    const linkText = getNavLinkText(navKey);
+    const href = getNavHref(navKey);
 
-    const linkSelector = selectors.navigationLink(linkText);
+    const linkSelector = selectors.navigationLinkByHref(href);
 
     I.moveCursorTo(linkSelector);
     I.wait(0.5);

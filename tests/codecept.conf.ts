@@ -4,13 +4,14 @@ exports.config = {
     Puppeteer: {
       url: process.env.BASE_URL || "http://localhost:5183",
       show: process.env.HEADLESS !== 'true',
+      waitForNavigation: 'networkidle0',
       windowSize: "1450x1080",
       chrome: {
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
         args: [
           "--no-sandbox",
           "--disable-setuid-sandbox",
           "--disable-dev-shm-usage",
-          "--start-fullscreen",
         ],
       },
     },

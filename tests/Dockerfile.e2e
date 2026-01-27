@@ -15,8 +15,16 @@ COPY --from=deps /work/tests/package-lock.json ./package-lock.json
 
 COPY . .
 
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 ENV DOCKER_E2E=true
 ENV HEADLESS=true
 ENV BASE_URL=http://front-test:5183
+ENV API_URL=http://back-test:8010
 
-CMD sh -lc "npx wait-on --timeout 180000 --interval 500 $BASE_URL && npm run test"
+CMD sh -lc "\
+  npx wait-on --timeout 180000 --interval 500 tcp:back-test:8010 && \
+  sleep 3 && \
+  npx wait-on --timeout 180000 --interval 500 $BASE_URL && \
+  npm run test \
+"

@@ -50,6 +50,7 @@ services:
       DOCKER_E2E: "true"
       HEADLESS: "true"
       BASE_URL: "http://front-test:5183"
+      API_URL: "http://back-test:8010"
 
 volumes:
   mongo_test_data:
