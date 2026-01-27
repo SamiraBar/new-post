@@ -11,4 +11,4 @@ ENV NODE_ENV=test
 ENV PORT=5183
 ENV VITE_API_URL=http://back-test:8010
 
-CMD sh -lc "npm run start:test"
+CMD sh -lc "npm run start:test:docker"
