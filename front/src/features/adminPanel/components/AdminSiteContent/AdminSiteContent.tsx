@@ -61,6 +61,22 @@ interface LocalStorageData {
   calcNotices: CalcNotices;
 }
 
+interface I18nContentResponse {
+  deliveryCostCalculator?: {
+    limits?: {
+      maxWeightCourier?: number;
+      maxWeightPVZ?: number;
+      maxParcelValue?: number;
+    };
+    WarningNotices?: {
+      warningDelivery?: string;
+      warningWeight?: string;
+      warningPrice?: string;
+      warningParam?: string;
+    };
+  };
+}
+
 const STORAGE_KEY_PREFIX = 'admin_content_draft_';
 
 const getDeep = <T, K extends string>(obj: T, path: K): string | undefined => {
@@ -185,8 +201,8 @@ const AdminSiteContent = () => {
       setOrig({ about: aboutStr, important: importantStr, footer: footerStr });
       setOrigContacts({ phone, email });
 
-      const limits = (data as any).deliveryCostCalculator?.limits || {};
-      const notices = (data as any).deliveryCostCalculator?.WarningNotices || {};
+      const limits = (data as I18nContentResponse).deliveryCostCalculator?.limits || {};
+      const notices = (data as I18nContentResponse).deliveryCostCalculator?.WarningNotices || {};
 
       const limitsData: CalcLimits = {
         maxWeightCourier: Number(limits.maxWeightCourier) || 15,
@@ -222,6 +238,30 @@ const AdminSiteContent = () => {
     const previousLang = previousLangRef.current;
 
     if (previousLang !== lang && previousLang) {
+      clearLocalStorage(previousLang);
+      clearLocalStorage(lang);
+    }
+
+    previousLangRef.current = lang;
+
+    void load(lang);
+  }, [lang]);
+
+  useEffect(() => {
+    if (!orig.about && !orig.important && !orig.footer) return;
+
+    const hasContentChanges =
+      about !== orig.about ||
+      important !== orig.important ||
+      footer !== orig.footer ||
+      contacts.phone !== origContacts.phone ||
+      contacts.email !== origContacts.email;
+
+    const hasCalcChanges =
+      JSON.stringify(currentCalcLimits) !== JSON.stringify(origCalcLimits) ||
+      JSON.stringify(currentCalcNotices) !== JSON.stringify(origCalcNotices);
+
+    if (hasContentChanges || hasCalcChanges) {
       const dataToSave: LocalStorageData = {
         about,
         important,
@@ -231,13 +271,23 @@ const AdminSiteContent = () => {
         calcNotices: currentCalcNotices,
       };
 
-      saveToLocalStorage(previousLang, dataToSave);
+      saveToLocalStorage(lang, dataToSave);
+    } else {
+      clearLocalStorage(lang);
     }
-
-    previousLangRef.current = lang;
-
-    void load(lang);
-  }, [lang]);
+  }, [
+    about,
+    important,
+    footer,
+    contacts,
+    currentCalcLimits,
+    currentCalcNotices,
+    lang,
+    orig,
+    origContacts,
+    origCalcLimits,
+    origCalcNotices,
+  ]);
 
   const hasChanges =
     about !== orig.about ||
@@ -451,14 +501,20 @@ const AdminSiteContent = () => {
 
             <Button
               variant={lang === 'ru' ? 'default' : 'outline'}
-              onClick={() => setLang('ru')}
+              onClick={() => {
+                clearLocalStorage(lang);
+                setLang('ru');
+              }}
               disabled={loading}
             >
               RU
             </Button>
             <Button
               variant={lang === 'kg' ? 'default' : 'outline'}
-              onClick={() => setLang('kg')}
+              onClick={() => {
+                clearLocalStorage(lang);
+                setLang('kg');
+              }}
               disabled={loading}
             >
               KG

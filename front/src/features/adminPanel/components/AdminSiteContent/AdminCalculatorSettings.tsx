@@ -44,8 +44,6 @@ const AdminCalculatorSettings = forwardRef<AdminCalculatorSettingsRef, Props>(
       lang,
       calcLimits,
       calcNotices,
-      origCalcLimits,
-      origCalcNotices,
       onLimitsChange,
       onNoticesChange,
       onOrigLimitsChange,
@@ -76,14 +74,8 @@ const AdminCalculatorSettings = forwardRef<AdminCalculatorSettingsRef, Props>(
           warningParam: String(notices.warningParam || ''),
         };
 
-        const noChanges =
-          JSON.stringify(calcLimits) === JSON.stringify(origCalcLimits) &&
-          JSON.stringify(calcNotices) === JSON.stringify(origCalcNotices);
-
-        if (noChanges) {
-          onLimitsChange(limitsData);
-          onNoticesChange(noticesData);
-        }
+        onLimitsChange(limitsData);
+        onNoticesChange(noticesData);
 
         onOrigLimitsChange(limitsData);
         onOrigNoticesChange(noticesData);
