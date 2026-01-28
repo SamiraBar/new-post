@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "start:test": "cross-env PORT=5183 VITE_API_URL=http://localhost:8010 vite --host 0.0.0.0 --strictPort",
+    "start:test:docker": "cross-env PORT=5183 vite --host 0.0.0.0 --strictPort",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",

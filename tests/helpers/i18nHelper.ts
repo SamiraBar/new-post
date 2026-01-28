@@ -14,7 +14,7 @@ class I18nHelper {
   private currentLanguage: "ru" | "kg" = "ru";
 
   constructor() {
-    const frontendPath = path.join(__dirname, "../../front/src/i18n/locales");
+    const frontendPath = path.resolve(process.cwd(), "../front/src/i18n/locales");
 
     this.translations = {
       ru: this.loadTranslations(path.join(frontendPath, "ru.json")),

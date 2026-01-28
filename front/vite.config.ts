@@ -5,12 +5,12 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
+  resolve: { alias: { '@': path.resolve(__dirname, './src') } },
   server: {
+    host: true,              // важно для докера
+    strictPort: true,
     port: parseInt(process.env['PORT'] || '5173'),
+    allowedHosts: ['front-test', 'localhost'], // или allowedHosts: 'all'
   },
 });
+
