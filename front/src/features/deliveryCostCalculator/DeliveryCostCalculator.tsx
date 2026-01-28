@@ -19,6 +19,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type OrderFormData, orderSchema } from '@/lib/order.schema.ts';
 import AgreementCheckbox from './components/AgreementCheckbox';
+import { useCalculatorLimits } from '@/hooks/useCalculatorLimits';
 
 const DeliveryCostCalculator = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -41,11 +42,8 @@ const DeliveryCostCalculator = () => {
   } = useDeliveryStore();
 
   const { createParcel, createParcelLoading, createParcelError } = useParcelsStore();
-
-  const schema = useMemo(
-    () => orderSchema(t),
-    [t]
-  );
+  const { limits } = useCalculatorLimits();
+  const schema = useMemo(() => orderSchema(t, limits), [t, limits]);
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(schema),
@@ -96,7 +94,6 @@ const DeliveryCostCalculator = () => {
     setValue('deliveryType', isPickup ? 'pickup' : 'courier');
     setValue('partnerType', isPickup ? 'E-Kit' : 'KCE');
   }, [isPickup, setValue]);
-
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
@@ -261,7 +258,6 @@ const DeliveryCostCalculator = () => {
         return false;
     }
   }, [currentStep, step2, step3Door, step3Office, step4, isDoorDelivery, errors, isAgreed]);
-
 
   const handleNext = async () => {
     if (currentStep === 1) {

@@ -10,9 +10,8 @@ type Lang = "ru" | "kg";
 const LOCALES_DIR = process.env.LOCALES_DIR
   ? path.resolve(process.env.LOCALES_DIR)
   : process.env.NODE_ENV === "production"
-    ? path.resolve(process.cwd(), "dist/i18n/locales")
-    : path.resolve(process.cwd(), "i18n/locales");
-
+  ? path.resolve(process.cwd(), "dist/i18n/locales")
+  : path.resolve(process.cwd(), "i18n/locales");
 
 const allowedKeys = new Set([
   "aboutCompany.textInfo",
@@ -21,9 +20,6 @@ const allowedKeys = new Set([
   "contacts.phone",
   "contacts.email",
 
-  "deliveryCostCalculator.limits.maxWeightCourier",
-  "deliveryCostCalculator.limits.maxWeightPVZ",
-  "deliveryCostCalculator.limits.maxParcelValue",
   "deliveryCostCalculator.WarningNotices.warningDelivery",
   "deliveryCostCalculator.WarningNotices.warningWeight",
   "deliveryCostCalculator.WarningNotices.warningPrice",
@@ -35,8 +31,20 @@ const localePath = (lang: Lang) => path.join(LOCALES_DIR, `${lang}.json`);
 const readJson = async (lang: Lang) =>
   JSON.parse(await fs.readFile(localePath(lang), "utf-8"));
 
-const writeJson = async (lang: Lang, data: any) =>
-  fs.writeFile(localePath(lang), JSON.stringify(data, null, 2) + "\n", "utf-8");
+const writeJson = async (lang: Lang, data: any) => {
+  const filepath = localePath(lang);
+
+  try {
+    await fs.access(filepath);
+    const backup = `${filepath}.backup`;
+    await fs.copyFile(filepath, backup);
+  } catch {}
+
+  const tempFile = `${filepath}.tmp`;
+  await fs.writeFile(tempFile, JSON.stringify(data, null, 2) + "\n", "utf-8");
+
+  await fs.rename(tempFile, filepath);
+};
 
 const setDeep = (obj: any, dotted: string, value: any) => {
   const parts = dotted.split(".");

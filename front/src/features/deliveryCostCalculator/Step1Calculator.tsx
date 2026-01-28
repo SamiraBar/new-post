@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { type UseFormReturn, useWatch } from 'react-hook-form';
 import type { OrderFormData } from '@/lib/order.schema.ts';
 import useOfficesStore from '@/stores/officesStore/officesStore.ts';
+import { useCalculatorLimits } from '@/hooks/useCalculatorLimits';
 
 interface Props {
   form: UseFormReturn<OrderFormData>;
@@ -28,6 +29,8 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
   const [citySearch, setCitySearch] = useState({ destination: '' });
   const { t } = useTranslation();
   const { originCities, getOriginCities } = useOfficesStore();
+
+  const { limits } = useCalculatorLimits();
 
   const {
     register,
@@ -43,17 +46,18 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     name: ['originCity', 'destinationCity', 'parcelValue', 'parcelWeight', 'deliveryType'],
   });
 
-  const maxWeightCourier = Number(
-    t('deliveryCostCalculator.limits.maxWeightCourier', { defaultValue: '15' }),
-  );
-  const maxWeightPVZ = Number(
-    t('deliveryCostCalculator.limits.maxWeightPVZ', { defaultValue: '12' }),
-  );
-  const maxParcelValue = Number(
-    t('deliveryCostCalculator.limits.maxParcelValue', { defaultValue: '50000' }),
-  );
+  // const maxWeightCourier = Number(
+  //   t('deliveryCostCalculator.limits.maxWeightCourier', { defaultValue: '15' }),
+  // );
+  // const maxWeightPVZ = Number(
+  //   t('deliveryCostCalculator.limits.maxWeightPVZ', { defaultValue: '12' }),
+  // );
+  // const maxParcelValue = Number(
+  //   t('deliveryCostCalculator.limits.maxParcelValue', { defaultValue: '50000' }),
+  // );
 
-  const currentMaxWeight = deliveryType === 'courier' ? maxWeightCourier : maxWeightPVZ;
+  const currentMaxWeight =
+    deliveryType === 'courier' ? limits.maxWeightCourier : limits.maxWeightPVZ;
 
   const trError = (msg: unknown) => {
     const key = String(msg ?? '').trim();
@@ -62,7 +66,8 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     return translated === key ? key : translated;
   };
 
-  const isParcelValueValid = Number(parcelValue) > 0 && Number(parcelValue) <= maxParcelValue;
+  const isParcelValueValid =
+    Number(parcelValue) > 0 && Number(parcelValue) <= limits.maxParcelValue;
   const isParcelWeightValid = Number(parcelWeight) > 0 && Number(parcelWeight) <= currentMaxWeight;
 
   useEffect(() => {

@@ -14,12 +14,10 @@ import { isHeadingLine, splitBlocks } from '@/components/ui/contentBlocks.ts';
 import logoDark from '@/assets/logo/logo-2.png';
 import AdminSocialNetworks from './AdminSocialNetworks';
 import CompanyFilesCard from './CompanyFilesCard';
-import AdminCalculatorSettings, {
-  type AdminCalculatorSettingsRef,
-} from './AdminCalculatorSettings';
 import CalculatorPreview from './CalculatorPreview';
 import { Calculator } from 'lucide-react';
 import i18n from '@/i18n/i18n';
+import AdminCalculatorSettings from './AdminCalculatorSettings';
 
 type Lang = 'ru' | 'kg';
 type Mode = 'edit' | 'preview';
@@ -137,7 +135,6 @@ const AdminSiteContent = () => {
   const [socialNetworks, setSocialNetworks] = useState<SocialNetwork[]>([]);
 
   const [hasCalculatorChanges, setHasCalculatorChanges] = useState(false);
-  const calculatorRef = useRef<AdminCalculatorSettingsRef>(null);
 
   const [currentCalcLimits, setCurrentCalcLimits] = useState<CalcLimits>({
     maxWeightCourier: 15,
@@ -307,59 +304,6 @@ const AdminSiteContent = () => {
   const save = async () => {
     setLoading(true);
     try {
-      const languages: Lang[] = ['ru', 'kg'];
-
-      for (const lng of languages) {
-        if (lng === lang) {
-          await axiosApi.patch(`/i18n-content/${lng}`, {
-            updates: {
-              'aboutCompany.textInfo': about,
-              'importantInfo.textInfo': important,
-              'footer.address': footer,
-              'contacts.phone': contacts.phone,
-              'contacts.email': contacts.email,
-              'deliveryCostCalculator.limits.maxWeightCourier': currentCalcLimits.maxWeightCourier,
-              'deliveryCostCalculator.limits.maxWeightPVZ': currentCalcLimits.maxWeightPVZ,
-              'deliveryCostCalculator.limits.maxParcelValue': currentCalcLimits.maxParcelValue,
-              'deliveryCostCalculator.WarningNotices.warningDelivery':
-                currentCalcNotices.warningDelivery,
-              'deliveryCostCalculator.WarningNotices.warningWeight':
-                currentCalcNotices.warningWeight,
-              'deliveryCostCalculator.WarningNotices.warningPrice': currentCalcNotices.warningPrice,
-              'deliveryCostCalculator.WarningNotices.warningParam': currentCalcNotices.warningParam,
-            },
-          });
-
-          clearLocalStorage(lng);
-        } else {
-          const draft = loadFromLocalStorage(lng);
-          if (draft) {
-            await axiosApi.patch(`/i18n-content/${lng}`, {
-              updates: {
-                'aboutCompany.textInfo': draft.about,
-                'importantInfo.textInfo': draft.important,
-                'footer.address': draft.footer,
-                'contacts.phone': draft.contacts.phone,
-                'contacts.email': draft.contacts.email,
-                'deliveryCostCalculator.limits.maxWeightCourier': draft.calcLimits.maxWeightCourier,
-                'deliveryCostCalculator.limits.maxWeightPVZ': draft.calcLimits.maxWeightPVZ,
-                'deliveryCostCalculator.limits.maxParcelValue': draft.calcLimits.maxParcelValue,
-                'deliveryCostCalculator.WarningNotices.warningDelivery':
-                  draft.calcNotices.warningDelivery,
-                'deliveryCostCalculator.WarningNotices.warningWeight':
-                  draft.calcNotices.warningWeight,
-                'deliveryCostCalculator.WarningNotices.warningPrice':
-                  draft.calcNotices.warningPrice,
-                'deliveryCostCalculator.WarningNotices.warningParam':
-                  draft.calcNotices.warningParam,
-              },
-            });
-
-            clearLocalStorage(lng);
-          }
-        }
-      }
-
       await axiosApi.patch(`/i18n-content/${lang}`, {
         updates: {
           'aboutCompany.textInfo': about,
@@ -367,8 +311,39 @@ const AdminSiteContent = () => {
           'footer.address': footer,
           'contacts.phone': contacts.phone,
           'contacts.email': contacts.email,
+          'deliveryCostCalculator.WarningNotices.warningDelivery':
+            currentCalcNotices.warningDelivery,
+          'deliveryCostCalculator.WarningNotices.warningWeight': currentCalcNotices.warningWeight,
+          'deliveryCostCalculator.WarningNotices.warningPrice': currentCalcNotices.warningPrice,
+          'deliveryCostCalculator.WarningNotices.warningParam': currentCalcNotices.warningParam,
         },
       });
+
+      await axiosApi.patch('/calculator-limits', currentCalcLimits);
+
+      const otherLang: Lang = lang === 'ru' ? 'kg' : 'ru';
+      const draft = loadFromLocalStorage(otherLang);
+
+      if (draft) {
+        await axiosApi.patch(`/i18n-content/${otherLang}`, {
+          updates: {
+            'aboutCompany.textInfo': draft.about,
+            'importantInfo.textInfo': draft.important,
+            'footer.address': draft.footer,
+            'contacts.phone': draft.contacts.phone,
+            'contacts.email': draft.contacts.email,
+            'deliveryCostCalculator.WarningNotices.warningDelivery':
+              draft.calcNotices.warningDelivery,
+            'deliveryCostCalculator.WarningNotices.warningWeight': draft.calcNotices.warningWeight,
+            'deliveryCostCalculator.WarningNotices.warningPrice': draft.calcNotices.warningPrice,
+            'deliveryCostCalculator.WarningNotices.warningParam': draft.calcNotices.warningParam,
+          },
+        });
+
+        clearLocalStorage(otherLang);
+      }
+
+      clearLocalStorage(lang);
 
       await i18n.reloadResources(lang);
       if (i18n.language === lang) {
@@ -380,9 +355,7 @@ const AdminSiteContent = () => {
       setOrigCalcLimits({ ...currentCalcLimits });
       setOrigCalcNotices({ ...currentCalcNotices });
 
-      setTimeout(() => {
-        toast.success('Изменения успешно сохранены');
-      }, 100);
+      toast.success('Изменения успешно сохранены');
     } catch (error) {
       const e = error as { response?: { data?: { error?: string } }; message?: string };
       toast.error(e.response?.data?.error || e.message || 'Ошибка сохранения');
@@ -609,7 +582,6 @@ const AdminSiteContent = () => {
 
           <TabsContent value="calculator" className="space-y-6">
             <AdminCalculatorSettings
-              ref={calculatorRef}
               lang={lang}
               calcLimits={currentCalcLimits}
               calcNotices={currentCalcNotices}
