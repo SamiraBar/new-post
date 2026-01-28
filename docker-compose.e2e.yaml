@@ -8,6 +8,27 @@ services:
       - "27018:27017"
     volumes:
       - mongo_test_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  seed-test:
+    build:
+      context: ./back
+      dockerfile: Dockerfile.test
+    container_name: new-post-seed-test
+    depends_on:
+      mongo-test:
+        condition: service_healthy
+    env_file:
+      - ./back/.test.env
+    environment:
+      NODE_ENV: test
+      MONGO_DB_URL: mongodb://mongo-test:27017/new-post-test
+    command: ["npm", "run", "seed:test"]
+    restart: "no"
 
   back-test:
     build:
@@ -15,7 +36,8 @@ services:
       dockerfile: Dockerfile.test
     container_name: new-post-back-test
     depends_on:
-      - mongo-test
+      seed-test:
+        condition: service_completed_successfully
     env_file:
       - ./back/.test.env
     environment:
@@ -24,6 +46,7 @@ services:
       PORT: 8010
     ports:
       - "8010:8010"
+    command: ["npm", "run", "start:test"]
 
   front-test:
     build:
@@ -31,7 +54,8 @@ services:
       dockerfile: Dockerfile.test
     container_name: new-post-front-test
     depends_on:
-      - back-test
+      back-test:
+        condition: service_started
     environment:
       NODE_ENV: test
       PORT: 5183
@@ -44,7 +68,8 @@ services:
       context: ./tests
       dockerfile: Dockerfile.e2e
     depends_on:
-      - front-test
+      front-test:
+        condition: service_started
     environment:
       DOCKER_E2E: "true"
       HEADLESS: "true"
