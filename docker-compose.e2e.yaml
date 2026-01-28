@@ -43,7 +43,6 @@ services:
     build:
       context: ./tests
       dockerfile: Dockerfile.e2e
-    container_name: new-post-e2e
     depends_on:
       - front-test
     environment:

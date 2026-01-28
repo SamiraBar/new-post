@@ -20,22 +20,24 @@ pipeline {
 
     stage('E2E Tests') {
       steps {
-        script {
-          sh '''
-            echo "=== Running E2E tests ==="
+        sh '''
+          set -e
 
-            docker compose -f docker-compose.e2e.yml up \
-              --build \
-              --abort-on-container-exit \
-              --exit-code-from e2e
+          echo "=== Running E2E tests ==="
 
-            EXIT_CODE=$?
+          docker compose -f docker-compose.e2e.yaml up \
+            --build \
+            --abort-on-container-exit \
+            --exit-code-from e2e
 
-            docker compose -f docker-compose.e2e.yml down -v
-
-            exit $EXIT_CODE
-          '''
-        }
+        '''
+      }
+    }
+    post {
+      always {
+        sh '''
+          docker compose -f docker-compose.e2e.yaml down -v || true
+        '''
       }
     }
 
@@ -48,8 +50,8 @@ pipeline {
           sh '''
             echo "=== Deploying production ==="
 
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.prod.yaml pull
+            docker compose -f docker-compose.prod.yaml up -d --build
           '''
         }
       }
