@@ -22,38 +22,39 @@ pipeline {
       steps {
         sh '''
           set -e
-
           echo "=== Running E2E tests ==="
 
-          docker compose -f docker-compose.e2e.yaml up \
+          docker compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.e2e.yaml up \
             --build \
             --abort-on-container-exit \
             --exit-code-from e2e
-
         '''
       }
-    }
-    post {
-      always {
-        sh '''
-          docker compose -f docker-compose.e2e.yaml down -v || true
-        '''
+      post {
+        always {
+          sh '''
+            echo "=== Cleaning E2E environment ==="
+            docker compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.e2e.yaml down -v || true
+          '''
+        }
       }
     }
 
     stage('Deploy Production') {
       when {
-        expression { currentBuild.currentResult == 'SUCCESS' }
+        allOf {
+          branch 'main'
+          expression { currentBuild.currentResult == 'SUCCESS' }
+        }
       }
       steps {
-        script {
-          sh '''
-            echo "=== Deploying production ==="
+        sh '''
+          set -e
+          echo "=== Deploying production ==="
 
-            docker compose -f docker-compose.prod.yaml pull
-            docker compose -f docker-compose.prod.yaml up -d --build
-          '''
-        }
+          docker compose -f docker-compose.prod.yaml pull
+          docker compose -f docker-compose.prod.yaml up -d --build
+        '''
       }
     }
   }
@@ -66,7 +67,9 @@ pipeline {
       echo 'Pipeline failed (tests or deploy)'
     }
     always {
-      sh 'docker system prune -f || true'
+      sh '''
+        docker system prune -f || true
+      '''
     }
   }
 }
