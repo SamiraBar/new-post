@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -14,7 +14,10 @@ import { isHeadingLine, splitBlocks } from '@/components/ui/contentBlocks.ts';
 import logoDark from '@/assets/logo/logo-2.png';
 import AdminSocialNetworks from './AdminSocialNetworks';
 import CompanyFilesCard from './CompanyFilesCard';
+import CalculatorPreview from './CalculatorPreview';
+import { Calculator } from 'lucide-react';
 import i18n from '@/i18n/i18n';
+import AdminCalculatorSettings from './AdminCalculatorSettings';
 
 type Lang = 'ru' | 'kg';
 type Mode = 'edit' | 'preview';
@@ -34,6 +37,46 @@ interface IContentData {
   contacts: { phone: string; email: string };
 }
 
+interface CalcLimits {
+  maxWeightCourier: number;
+  maxWeightPVZ: number;
+  maxParcelValue: number;
+}
+
+interface CalcNotices {
+  warningDelivery: string;
+  warningWeight: string;
+  warningPrice: string;
+  warningParam: string;
+}
+
+interface LocalStorageData {
+  about: string;
+  important: string;
+  footer: string;
+  contacts: { phone: string; email: string };
+  calcLimits: CalcLimits;
+  calcNotices: CalcNotices;
+}
+
+interface I18nContentResponse {
+  deliveryCostCalculator?: {
+    limits?: {
+      maxWeightCourier?: number;
+      maxWeightPVZ?: number;
+      maxParcelValue?: number;
+    };
+    WarningNotices?: {
+      warningDelivery?: string;
+      warningWeight?: string;
+      warningPrice?: string;
+      warningParam?: string;
+    };
+  };
+}
+
+const STORAGE_KEY_PREFIX = 'admin_content_draft_';
+
 const getDeep = <T, K extends string>(obj: T, path: K): string | undefined => {
   return path.split('.').reduce<unknown>((acc, key) => {
     if (acc && typeof acc === 'object' && key in acc) {
@@ -43,6 +86,32 @@ const getDeep = <T, K extends string>(obj: T, path: K): string | undefined => {
   }, obj) as string | undefined;
 };
 
+const saveToLocalStorage = (lang: Lang, data: LocalStorageData) => {
+  try {
+    localStorage.setItem(STORAGE_KEY_PREFIX + lang, JSON.stringify(data));
+  } catch (error) {
+    console.error('Ошибка сохранения в localStorage:', error);
+  }
+};
+
+const loadFromLocalStorage = (lang: Lang): LocalStorageData | null => {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_PREFIX + lang);
+    return data ? JSON.parse(data) : null;
+  } catch (error) {
+    console.error('Ошибка загрузки из localStorage:', error);
+    return null;
+  }
+};
+
+const clearLocalStorage = (lang: Lang) => {
+  try {
+    localStorage.removeItem(STORAGE_KEY_PREFIX + lang);
+  } catch (error) {
+    console.error('Ошибка очистки localStorage:', error);
+  }
+};
+
 const AdminSiteContent = () => {
   const admin = useAdminStore((s) => s.admin);
   const navigate = useNavigate();
@@ -50,6 +119,7 @@ const AdminSiteContent = () => {
   const [lang, setLang] = useState<Lang>('ru');
   const [mode, setMode] = useState<Mode>('edit');
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('content');
 
   const [about, setAbout] = useState<string>('');
   const [important, setImportant] = useState<string>('');
@@ -64,6 +134,34 @@ const AdminSiteContent = () => {
 
   const [socialNetworks, setSocialNetworks] = useState<SocialNetwork[]>([]);
 
+  const [hasCalculatorChanges, setHasCalculatorChanges] = useState(false);
+
+  const [currentCalcLimits, setCurrentCalcLimits] = useState<CalcLimits>({
+    maxWeightCourier: 15,
+    maxWeightPVZ: 12,
+    maxParcelValue: 50000,
+  });
+
+  const [currentCalcNotices, setCurrentCalcNotices] = useState<CalcNotices>({
+    warningDelivery: '',
+    warningWeight: '',
+    warningPrice: '',
+    warningParam: '',
+  });
+
+  const [origCalcLimits, setOrigCalcLimits] = useState<CalcLimits>({
+    maxWeightCourier: 15,
+    maxWeightPVZ: 12,
+    maxParcelValue: 50000,
+  });
+
+  const [origCalcNotices, setOrigCalcNotices] = useState<CalcNotices>({
+    warningDelivery: '',
+    warningWeight: '',
+    warningPrice: '',
+    warningParam: '',
+  });
+
   useEffect(() => {
     if (!admin || admin.role !== 'superAdmin') navigate('/admin');
   }, [admin, navigate]);
@@ -74,6 +172,8 @@ const AdminSiteContent = () => {
     if (!silent) setLoading(true);
 
     try {
+      const savedDraft = loadFromLocalStorage(lng);
+
       const { data } = await axiosApi.get<IContentData>(`/i18n-content/${lng}`);
       const aboutStr = getDeep(data, 'aboutCompany.textInfo') ?? '';
       const importantStr = getDeep(data, 'importantInfo.textInfo') ?? '';
@@ -81,12 +181,46 @@ const AdminSiteContent = () => {
       const phone = data.contacts.phone ?? '';
       const email = data.contacts.email ?? '';
 
-      setAbout(aboutStr);
-      setImportant(importantStr);
-      setFooter(footerStr);
-      setContacts({ phone, email });
+      if (savedDraft) {
+        setAbout(savedDraft.about);
+        setImportant(savedDraft.important);
+        setFooter(savedDraft.footer);
+        setContacts(savedDraft.contacts);
+        setCurrentCalcLimits(savedDraft.calcLimits);
+        setCurrentCalcNotices(savedDraft.calcNotices);
+      } else {
+        setAbout(aboutStr);
+        setImportant(importantStr);
+        setFooter(footerStr);
+        setContacts({ phone, email });
+      }
+
       setOrig({ about: aboutStr, important: importantStr, footer: footerStr });
       setOrigContacts({ phone, email });
+
+      const limits = (data as I18nContentResponse).deliveryCostCalculator?.limits || {};
+      const notices = (data as I18nContentResponse).deliveryCostCalculator?.WarningNotices || {};
+
+      const limitsData: CalcLimits = {
+        maxWeightCourier: Number(limits.maxWeightCourier) || 15,
+        maxWeightPVZ: Number(limits.maxWeightPVZ) || 12,
+        maxParcelValue: Number(limits.maxParcelValue) || 50000,
+      };
+
+      const noticesData: CalcNotices = {
+        warningDelivery: String(notices.warningDelivery || ''),
+        warningWeight: String(notices.warningWeight || ''),
+        warningPrice: String(notices.warningPrice || ''),
+        warningParam: String(notices.warningParam || ''),
+      };
+
+      if (!savedDraft) {
+        setCurrentCalcLimits(limitsData);
+        setCurrentCalcNotices(noticesData);
+      }
+
+      setOrigCalcLimits(limitsData);
+      setOrigCalcNotices(noticesData);
     } catch (error) {
       const e = error instanceof Error ? error : new Error('Ошибка загрузки');
       toast.error(e.message);
@@ -95,16 +229,77 @@ const AdminSiteContent = () => {
     }
   };
 
+  const previousLangRef = useRef<Lang>(lang);
+
   useEffect(() => {
+    const previousLang = previousLangRef.current;
+
+    if (previousLang !== lang && previousLang) {
+      clearLocalStorage(previousLang);
+      clearLocalStorage(lang);
+    }
+
+    previousLangRef.current = lang;
+
     void load(lang);
   }, [lang]);
+
+  useEffect(() => {
+    if (!orig.about && !orig.important && !orig.footer) return;
+
+    const hasContentChanges =
+      about !== orig.about ||
+      important !== orig.important ||
+      footer !== orig.footer ||
+      contacts.phone !== origContacts.phone ||
+      contacts.email !== origContacts.email;
+
+    const hasCalcChanges =
+      JSON.stringify(currentCalcLimits) !== JSON.stringify(origCalcLimits) ||
+      JSON.stringify(currentCalcNotices) !== JSON.stringify(origCalcNotices);
+
+    if (hasContentChanges || hasCalcChanges) {
+      const dataToSave: LocalStorageData = {
+        about,
+        important,
+        footer,
+        contacts,
+        calcLimits: currentCalcLimits,
+        calcNotices: currentCalcNotices,
+      };
+
+      saveToLocalStorage(lang, dataToSave);
+    } else {
+      clearLocalStorage(lang);
+    }
+  }, [
+    about,
+    important,
+    footer,
+    contacts,
+    currentCalcLimits,
+    currentCalcNotices,
+    lang,
+    orig,
+    origContacts,
+    origCalcLimits,
+    origCalcNotices,
+  ]);
 
   const hasChanges =
     about !== orig.about ||
     important !== orig.important ||
     footer !== orig.footer ||
     contacts.phone !== origContacts.phone ||
-    contacts.email !== origContacts.email;
+    contacts.email !== origContacts.email ||
+    hasCalculatorChanges;
+
+  useEffect(() => {
+    const calcChanges =
+      JSON.stringify(currentCalcLimits) !== JSON.stringify(origCalcLimits) ||
+      JSON.stringify(currentCalcNotices) !== JSON.stringify(origCalcNotices);
+    setHasCalculatorChanges(calcChanges);
+  }, [currentCalcLimits, currentCalcNotices, origCalcLimits, origCalcNotices]);
 
   const save = async () => {
     setLoading(true);
@@ -116,8 +311,39 @@ const AdminSiteContent = () => {
           'footer.address': footer,
           'contacts.phone': contacts.phone,
           'contacts.email': contacts.email,
+          'deliveryCostCalculator.WarningNotices.warningDelivery':
+            currentCalcNotices.warningDelivery,
+          'deliveryCostCalculator.WarningNotices.warningWeight': currentCalcNotices.warningWeight,
+          'deliveryCostCalculator.WarningNotices.warningPrice': currentCalcNotices.warningPrice,
+          'deliveryCostCalculator.WarningNotices.warningParam': currentCalcNotices.warningParam,
         },
       });
+
+      await axiosApi.patch('/calculator-limits', currentCalcLimits);
+
+      const otherLang: Lang = lang === 'ru' ? 'kg' : 'ru';
+      const draft = loadFromLocalStorage(otherLang);
+
+      if (draft) {
+        await axiosApi.patch(`/i18n-content/${otherLang}`, {
+          updates: {
+            'aboutCompany.textInfo': draft.about,
+            'importantInfo.textInfo': draft.important,
+            'footer.address': draft.footer,
+            'contacts.phone': draft.contacts.phone,
+            'contacts.email': draft.contacts.email,
+            'deliveryCostCalculator.WarningNotices.warningDelivery':
+              draft.calcNotices.warningDelivery,
+            'deliveryCostCalculator.WarningNotices.warningWeight': draft.calcNotices.warningWeight,
+            'deliveryCostCalculator.WarningNotices.warningPrice': draft.calcNotices.warningPrice,
+            'deliveryCostCalculator.WarningNotices.warningParam': draft.calcNotices.warningParam,
+          },
+        });
+
+        clearLocalStorage(otherLang);
+      }
+
+      clearLocalStorage(lang);
 
       await i18n.reloadResources(lang);
       if (i18n.language === lang) {
@@ -126,7 +352,10 @@ const AdminSiteContent = () => {
 
       setOrig({ about, important, footer });
       setOrigContacts({ ...contacts });
-      toast.success('Сохранено');
+      setOrigCalcLimits({ ...currentCalcLimits });
+      setOrigCalcNotices({ ...currentCalcNotices });
+
+      toast.success('Изменения успешно сохранены');
     } catch (error) {
       const e = error as { response?: { data?: { error?: string } }; message?: string };
       toast.error(e.response?.data?.error || e.message || 'Ошибка сохранения');
@@ -245,14 +474,20 @@ const AdminSiteContent = () => {
 
             <Button
               variant={lang === 'ru' ? 'default' : 'outline'}
-              onClick={() => setLang('ru')}
+              onClick={() => {
+                clearLocalStorage(lang);
+                setLang('ru');
+              }}
               disabled={loading}
             >
               RU
             </Button>
             <Button
               variant={lang === 'kg' ? 'default' : 'outline'}
-              onClick={() => setLang('kg')}
+              onClick={() => {
+                clearLocalStorage(lang);
+                setLang('kg');
+              }}
               disabled={loading}
             >
               KG
@@ -271,9 +506,13 @@ const AdminSiteContent = () => {
       </div>
 
       {mode === 'edit' ? (
-        <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="content">Текстовый контент</TabsTrigger>
+            <TabsTrigger value="calculator">
+              <Calculator className="h-4 w-4 mr-2 inline-block" />
+              Калькулятор
+            </TabsTrigger>
             <TabsTrigger value="social">Социальные сети</TabsTrigger>
           </TabsList>
 
@@ -339,7 +578,20 @@ const AdminSiteContent = () => {
             </Card>
 
             <CompanyFilesCard />
+          </TabsContent>
 
+          <TabsContent value="calculator" className="space-y-6">
+            <AdminCalculatorSettings
+              lang={lang}
+              calcLimits={currentCalcLimits}
+              calcNotices={currentCalcNotices}
+              origCalcLimits={origCalcLimits}
+              origCalcNotices={origCalcNotices}
+              onLimitsChange={setCurrentCalcLimits}
+              onNoticesChange={setCurrentCalcNotices}
+              onOrigLimitsChange={setOrigCalcLimits}
+              onOrigNoticesChange={setOrigCalcNotices}
+            />
           </TabsContent>
 
           <TabsContent value="social">
@@ -348,6 +600,20 @@ const AdminSiteContent = () => {
         </Tabs>
       ) : (
         <div className="space-y-10 pb-10">
+          <section className="container px-0">
+            <div className="p-2 sm:p-5 rounded-lg">
+              <Card className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <CardContent className="p-5 sm:p-8">
+                  <CalculatorPreview
+                    lang={lang}
+                    calcLimits={currentCalcLimits}
+                    calcNotices={currentCalcNotices}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
           <section className="container px-0">
             <div className="p-2 sm:p-5 rounded-lg">
               <Card className="rounded-2xl border border-gray-200 bg-white shadow-sm">

@@ -42,7 +42,13 @@ const detectDestinationCountry = (
   return 'UNKNOWN';
 };
 
-export const orderSchema = (t: TFunction) =>
+interface CalcLimits {
+  maxWeightCourier: number;
+  maxWeightPVZ: number;
+  maxParcelValue: number;
+}
+
+export const orderSchema = (t: TFunction, limits: CalcLimits) =>
   z
     .object({
       originCity: z.string().min(1, 'deliveryCostCalculator.validateError.cityOfSender'),
@@ -58,8 +64,8 @@ export const orderSchema = (t: TFunction) =>
           t('deliveryCostCalculator.validateError.value'),
         )
         .refine(
-          (v) => v === '' || Number(v) <= 50000,
-          t('deliveryCostCalculator.validateError.maxValue'),
+          (v) => v === '' || Number(v) <= limits.maxParcelValue,
+          t('deliveryCostCalculator.validateError.maxValue', { maxValue: limits.maxParcelValue }),
         ),
       parcelWeight: z.string().min(1, t('deliveryCostCalculator.validateError.parcelWeight')),
       deliveryCost: z.number().min(0),

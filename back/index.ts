@@ -7,13 +7,14 @@ import pricesRouter from "./routers/prices";
 import parcelsRouter from "./routers/parcels";
 import printerRouter from "./routers/printer";
 import i18nContentRouter from "./routers/i18nContent";
-import {setupTestSyncCron} from "./services/ekit.cron";
-import officeRouter from './routers/offices';
+import { setupTestSyncCron } from "./services/ekit.cron";
+import officeRouter from "./routers/offices";
 import socialMediaRouter from "./routers/socialMedia";
 import path from "path";
 import { seedSocialNetworks } from "./utils/seedSocialNetworks";
 import fs from "fs";
 import companyFilesRouter from "./routers/companyFiles";
+import calculatorLimitsRouter from "./routers/calculatorLimits";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use("/i18n-content", i18nContentRouter);
 app.use("/admin/company-files", companyFilesRouter);
 app.use("/offices", officeRouter);
 app.use("/", socialMediaRouter);
+app.use("/calculator-limits", calculatorLimitsRouter);
 
 const run = async () => {
   try {
