@@ -18,10 +18,25 @@ pipeline {
       }
     }
 
+    stage('Prepare test env') {
+      steps {
+        withCredentials([file(credentialsId: 'back-test-env', variable: 'TEST_ENV_FILE')]) {
+          sh '''
+            set -e
+            mkdir -p back
+            cp "$TEST_ENV_FILE" back/.test.env
+            echo "Prepared back/.test.env"
+          '''
+        }
+      }
+    }
+
     stage('E2E Tests') {
       steps {
         sh '''
           set -e
+          test -f back/.test.env
+
           echo "=== Running E2E tests ==="
 
           docker compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.e2e.yaml up \
@@ -60,12 +75,8 @@ pipeline {
   }
 
   post {
-    success {
-      echo 'Pipeline finished successfully'
-    }
-    failure {
-      echo 'Pipeline failed (tests or deploy)'
-    }
+    success { echo 'Pipeline finished successfully' }
+    failure { echo 'Pipeline failed (tests or deploy)' }
     always {
       sh '''
         docker system prune -f || true
