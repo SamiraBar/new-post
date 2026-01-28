@@ -23,7 +23,7 @@ services:
       mongo-test:
         condition: service_healthy
     env_file:
-      - ./back/.test.env
+      - ./.test.env
     environment:
       NODE_ENV: test
       MONGO_DB_URL: mongodb://mongo-test:27017/new-post-test
@@ -39,7 +39,7 @@ services:
       seed-test:
         condition: service_completed_successfully
     env_file:
-      - ./back/.test.env
+      - ./.test.env
     environment:
       NODE_ENV: test
       MONGO_DB_URL: mongodb://mongo-test:27017/new-post-test

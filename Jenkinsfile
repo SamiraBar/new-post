@@ -23,9 +23,8 @@ pipeline {
         withCredentials([file(credentialsId: 'back-test-env', variable: 'TEST_ENV_FILE')]) {
           sh '''
             set -e
-            mkdir -p back
-            cp "$TEST_ENV_FILE" back/.test.env
-            echo "Prepared back/.test.env"
+            cp "$TEST_ENV_FILE" ./.test.env
+            chmod 600 ./.test.env
           '''
         }
       }
@@ -35,7 +34,7 @@ pipeline {
       steps {
         sh '''
           set -e
-          test -f back/.test.env
+          test -f ./.test.env
 
           echo "=== Running E2E tests ==="
 
