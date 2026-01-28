@@ -4,10 +4,8 @@ import path from "path";
 
 export const secret = process.env["SECRET_FRAZE"] || "admin_potato_secret";
 
-const envFile = process.env["NODE_ENV"]
-  ? `.${process.env["NODE_ENV"]}.env`
-  : ".env";
-configDotenv({ path: envFile });
+const envFile = process.env.NODE_ENV ? `.${process.env.NODE_ENV}.env` : ".env";
+configDotenv({ path: path.resolve(process.cwd(), envFile) });
 
 const rootPath = __dirname;
 
