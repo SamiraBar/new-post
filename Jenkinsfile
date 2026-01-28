@@ -36,23 +36,26 @@ pipeline {
           set -e
           test -f ./.test.env
 
-          echo "=== Running E2E tests ==="
+          docker compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.e2e.yaml build
 
-          docker compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.e2e.yaml up \
-            --build \
-            --abort-on-container-exit \
-            --exit-code-from e2e
+          docker compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.e2e.yaml up -d mongo-test
+
+          docker compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.e2e.yaml run --rm seed-test
+
+          docker compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.e2e.yaml up -d back-test front-test
+
+          docker compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.e2e.yaml run --rm e2e
         '''
       }
       post {
         always {
           sh '''
-            echo "=== Cleaning E2E environment ==="
-            docker compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.e2e.yaml down -v || true
+            docker compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.e2e.yaml down -v --remove-orphans || true
           '''
         }
       }
     }
+
 
     stage('Deploy Production') {
       when {

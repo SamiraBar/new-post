@@ -3,7 +3,6 @@ name: new-post-tests
 services:
   mongo-test:
     image: mongo:8
-    container_name: new-post-mongo-test
     ports:
       - "27018:27017"
     volumes:
@@ -18,7 +17,6 @@ services:
     build:
       context: ./back
       dockerfile: Dockerfile.test
-    container_name: new-post-seed-test
     depends_on:
       mongo-test:
         condition: service_healthy
@@ -34,10 +32,9 @@ services:
     build:
       context: ./back
       dockerfile: Dockerfile.test
-    container_name: new-post-back-test
     depends_on:
-      seed-test:
-        condition: service_completed_successfully
+      mongo-test:
+        condition: service_healthy
     env_file:
       - ./.test.env
     environment:
@@ -52,7 +49,6 @@ services:
     build:
       context: ./front
       dockerfile: Dockerfile.test
-    container_name: new-post-front-test
     depends_on:
       back-test:
         condition: service_started
