@@ -3,7 +3,7 @@ exports.config = {
   helpers: {
     Puppeteer: {
       url: "http://localhost:5183",
-      show: true,
+      show: process.env.HEADLESS !== 'true',
       windowSize: "1450x1080",
       chrome: {
         args: ["--start-fullscreen"],
