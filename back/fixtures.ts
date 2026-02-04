@@ -1001,7 +1001,24 @@ const run = async () => {
       description: 'Посылка с одеждой',
       inshprice:777,
       price: 777,
-    }
+    },
+    {
+      trackingNumber: 'KGZ-000066',
+      partnerTrackingNumber: 'PTN-001-A',
+      sender: senderOne._id,
+      recipient: recipientOne._id,
+      originCity: 'Бишкек',
+      destinationCity: 'Ош',
+      status: 'created',
+      isPaid: false,
+      partnerStickerReceived: false,
+      deliveryType: 'courier',
+      partnerType: 'KCE',
+      weight: 0.8,
+      description: 'Посылка с одеждой',
+      inshprice:777,
+      price: 777,
+    },
   ]);
 
   const fullHistoryParcel = new Parcel({

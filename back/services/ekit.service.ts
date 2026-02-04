@@ -52,33 +52,94 @@ function resolveDistributionCenter(parcel: IParcel): {
 
 
 export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResult> {
+    console.log('=== НАЧАЛО СОЗДАНИЯ ЗАКАЗА В EKIT ===');
+    console.log('Входящий объект parcel:', JSON.stringify(parcel, null, 2));
+    console.log('Трек номер:', parcel.trackingNumber);
 
     const { serviceCode, senderTown, senderAddress } = resolveDistributionCenter(parcel);
+    console.log('Результат resolveDistributionCenter:', { serviceCode, senderTown, senderAddress });
 
     const authExtra = config.extra;
     const authLogin = config.login;
     const authPass = config.pass;
+    console.log('Авторизационные данные:', {
+        authExtra,
+        authLogin,
+        authPass: authPass ? '***скрыто***' : 'отсутствует'
+    });
 
     const sender = parcel.sender as IContact;
     const recipient = parcel.recipient as IContact;
+    console.log('Отправитель (sender):', JSON.stringify(sender, null, 2));
+    console.log('Получатель (recipient):', JSON.stringify(recipient, null, 2));
 
     let recipientAddress = '';
     let recipientCity = '';
 
+    console.log('Тип доставки (deliveryType):', parcel.deliveryType);
+
     if(parcel.deliveryType === 'courier') {
         recipientCity = recipient.city || parcel.destinationCity;
+        console.log('Курьерская доставка - recipientCity:', recipientCity);
+        console.log('  - recipient.city:', recipient.city);
+        console.log('  - parcel.destinationCity:', parcel.destinationCity);
+
         const parts = [
             recipient.street,
             recipient.house ? `д. ${recipient.house}` : '',
             recipient.apartment ? `кв. ${recipient.apartment}` : '',
         ].filter(Boolean);
+        console.log('Части адреса (parts):', parts);
+
         recipientAddress = parts.length > 0 ? parts.join(', ') : recipient.address || 'Not selected';
+        console.log('Итоговый recipientAddress:', recipientAddress);
     } else {
+        console.log('Доставка в ПВЗ - pvzData:', JSON.stringify(parcel.pvzData, null, 2));
+
         recipientCity = parcel.pvzData?.town || parcel.destinationCity;
+        console.log('ПВЗ доставка - recipientCity:', recipientCity);
+        console.log('  - parcel.pvzData?.town:', parcel.pvzData?.town);
+        console.log('  - parcel.destinationCity:', parcel.destinationCity);
+
         recipientAddress = parcel.pvzData?.address || recipient.address || 'Not selected';
+        console.log('ПВЗ доставка - recipientAddress:', recipientAddress);
+        console.log('  - parcel.pvzData?.address:', parcel.pvzData?.address);
+        console.log('  - recipient.address:', recipient.address);
     }
 
+    console.log('ВЕС:');
+    console.log('  - parcel.weight (исходное значение):', parcel.weight);
+    console.log('  - typeof parcel.weight:', typeof parcel.weight);
     const formattedWeight = Number(parcel.weight).toFixed(1);
+    console.log('  - formattedWeight (после форматирования):', formattedWeight);
+    console.log('  - Number(parcel.weight):', Number(parcel.weight));
+
+    console.log('СТРАХОВКА (inshprice):');
+    console.log('  - parcel.inshprice (исходное):', parcel.inshprice);
+    console.log('  - typeof parcel.inshprice:', typeof parcel.inshprice);
+    console.log('  - Number(parcel.inshprice).toFixed(2):', Number(parcel.inshprice).toFixed(2));
+
+    console.log('ТРЕКИНГ НОМЕР:');
+    console.log('  - parcel.trackingNumber:', parcel.trackingNumber);
+
+    let packagesSection = '';
+    if (formattedWeight && Number(formattedWeight) > 0) {
+        const packageAttrs = [
+            `strbarcode="${parcel.trackingNumber}"`,
+            `mass="${formattedWeight}"`,
+            `quantity="1"`
+        ];
+
+        packagesSection = `
+    <packages>
+      <package ${packageAttrs.join(' ')}></package>
+    </packages>`;
+
+        console.log('PACKAGES СЕКЦИЯ:');
+        console.log(packagesSection);
+    } else {
+        console.warn('ВНИМАНИЕ: Вес равен 0 или отсутствует! Секция packages не будет создана!');
+    }
 
     const xmlRequest = `<?xml version="1.0" encoding="UTF-8"?>
 <neworder newfolder="YES">
@@ -88,7 +149,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     <barcode>${parcel.trackingNumber}</barcode>
 
     <sender>
-      <company>ОСОО “Новая Почта”</company>
+      <company>ОСОО "Новая Почта"</company>
       <person>${sender.fullName}</person>
       <phone>${sender.phoneNumber}</phone>
       <town>${senderTown}</town>
@@ -103,51 +164,78 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
       <address>${escapeXml(recipientAddress)}</address>
       ${parcel.deliveryType === 'pickup' && parcel.pvzData ? `<pvz>${parcel.pvzData.code}</pvz>` : ''}
     </receiver>
-
-    <price>${Number(parcel.price).toFixed(2)}</price>
+    
     <inshprice>${Number(parcel.inshprice).toFixed(2)}</inshprice>
     <weight>${formattedWeight}</weight>
     <quantity>1</quantity>
-    <service>${serviceCode}</service> 
+    <service>${serviceCode}</service>
     <type>3</type>
     <paytype>NO</paytype>
     <return>NO</return>
     <pickup>NO</pickup>
-    <acceptpartially>NO</acceptpartially>
+    <acceptpartially>NO</acceptpartially>${packagesSection}
   </order>
 </neworder>`;
 
+    console.log('=== ПОЛНЫЙ XML ЗАПРОС ===');
+    console.log(xmlRequest);
+    console.log('=== КОНЕЦ XML ЗАПРОСА ===');
+
     try {
+        console.log('Отправка запроса на URL:', config.apiUrl);
+        console.log('Таймаут:', 50000);
+
         const response = await axios.post(config.apiUrl, xmlRequest, {
             headers: { 'Content-Type': 'application/xml' },
             timeout: 50000,
         });
 
+        console.log('Ответ получен. Status:', response.status);
+        console.log('Response data:', response.data);
+
         const result = await xml2js.parseStringPromise(response.data);
+        console.log('Распарсенный результат:', JSON.stringify(result, null, 2));
 
         if (!result.neworder?.createorder?.[0]) {
+            console.error('ОШИБКА: Неверная структура ответа');
             throw new Error('Неверная структура ответа от E-Kit');
         }
 
         const createOrder = result.neworder.createorder[0].$;
+        console.log('createOrder объект:', createOrder);
 
         if (createOrder.error === '0') {
-            return {
+            console.log('=== УСПЕШНОЕ СОЗДАНИЕ ЗАКАЗА ===');
+            const successResult = {
                 success: true,
                 ekitOrderNo: createOrder.orderno,
                 ekitBarcode: createOrder.barcode,
                 ekitOrderPrice: createOrder.orderprice,
             };
+            console.log('Результат:', successResult);
+            return successResult;
         } else {
             const errorMsg = createOrder.errormsgru || createOrder.errormsg || 'Неизвестная ошибка';
-            console.error('Ошибка API E-Kit:', { code: createOrder.error, message: errorMsg });
+            console.error('=== ОШИБКА API E-KIT ===');
+            console.error('Код ошибки:', createOrder.error);
+            console.error('Сообщение:', errorMsg);
+            console.error('Полный createOrder:', createOrder);
             throw new Error(`Ошибка API E-Kit (${createOrder.error}): ${errorMsg}`);
         }
     } catch (error) {
-        console.error('Не удалось создать заказ в E-Kit:', error instanceof Error ? error.message : String(error));
-        if (process.env.NODE_ENV === 'development') {
-            console.error('Отправленный XML:', xmlRequest);
+        console.error('=== ИСКЛЮЧЕНИЕ ПРИ СОЗДАНИИ ЗАКАЗА ===');
+        console.error('Тип ошибки:', error instanceof Error ? 'Error' : typeof error);
+        console.error('Сообщение:', error instanceof Error ? error.message : String(error));
+        console.error('Stack trace:', error instanceof Error ? error.stack : 'N/A');
+
+        if (axios.isAxiosError(error)) {
+            console.error('Axios error details:');
+            console.error('  - response status:', error.response?.status);
+            console.error('  - response data:', error.response?.data);
+            console.error('  - request config:', error.config);
         }
+
+        console.error('XML который был отправлен:', xmlRequest);
         throw error;
     }
 }
