@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import logoDark from '../../assets/logo/logo-2.png';
+import logoDark from '../../assets/logo/logo.png';
+import logoKg from '../../assets/logo/newpost_logo01.png';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import axiosApi from '@/axiosApi';
@@ -13,7 +14,7 @@ interface SocialNetwork {
 }
 
 const FooterComponent = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [socialNetworks, setSocialNetworks] = useState<SocialNetwork[]>([]);
 
   useEffect(() => {
@@ -28,6 +29,8 @@ const FooterComponent = () => {
 
     void loadSocials();
   }, []);
+
+  const logoByLang = i18n.resolvedLanguage === 'kg' ? logoKg : logoDark;
 
   return (
     <footer
@@ -51,7 +54,7 @@ const FooterComponent = () => {
             className="inline-block"
           >
             <img
-              src={logoDark}
+              src={logoByLang}
               alt="New Post logo"
               className="h-14 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
             />

@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from '../ui/navigation-menu';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-
-import logo from '../../assets/logo/newPostLogo.jpeg';
+import logo from '../../assets/logo/logo.png';
+import logoKg from '../../assets/logo/newpost_logo01.png';
 import LanguageSwitcher from './LanguageSwitcher.tsx';
 import { useTranslation } from 'react-i18next';
 
@@ -19,7 +19,9 @@ const UserToolbar = () => {
     hoveredIndex: null as number | null,
   });
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const logoByLang = i18n.resolvedLanguage === 'kg' ? logoKg : logo;
 
   const toggleMenu = () => setState((prev) => ({ ...prev, isMenuOpen: !prev.isMenuOpen }));
 
@@ -43,7 +45,7 @@ const UserToolbar = () => {
             <NavigationMenuItem>
               <Link to="/" className="flex items-center">
                 <img
-                  src={logo}
+                  src={logoByLang}
                   alt="New Post logo"
                   className="h-12 md:h-16 w-auto object-contain"
                 />
@@ -72,10 +74,8 @@ const UserToolbar = () => {
               </ul>
             </NavigationMenuItem>
 
-            <NavigationMenuItem className="flex items-center gap-8">
-              <div className="flex gap-2">
-                <LanguageSwitcher />
-              </div>
+            <NavigationMenuItem className="flex items-center gap-2">
+              <LanguageSwitcher />
               <button
                 onClick={toggleMenu}
                 className="sm:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"

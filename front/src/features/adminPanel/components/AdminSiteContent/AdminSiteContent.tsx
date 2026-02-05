@@ -11,7 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Info, Eye, Pencil, Package } from 'lucide-react';
 import axiosApi from '@/axiosApi';
 import { isHeadingLine, splitBlocks } from '@/components/ui/contentBlocks.ts';
-import logoDark from '@/assets/logo/logo-2.png';
+import logoDark from '@/assets/logo/logo.png';
 import AdminSocialNetworks from './AdminSocialNetworks';
 import CompanyFilesCard from './CompanyFilesCard';
 import CalculatorPreview from './CalculatorPreview';
