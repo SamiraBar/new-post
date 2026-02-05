@@ -6,7 +6,7 @@ import {
     deleteFile,
     downloadFile,
     getAgreementFile,
-    getFiles,
+    getFiles, getPublicFiles,
     replaceFile,
     uploadFile
 } from "../controllers/companyFile";
@@ -18,5 +18,6 @@ router.patch("/:id", auth, permit("superAdmin"), companyFileUpload.single("file"
 router.delete("/:id", auth, permit("superAdmin"), deleteFile);
 router.get("/download/:id", downloadFile);
 router.get("/agreement", getAgreementFile);
+router.get("/public", getPublicFiles);
 
 export default router;

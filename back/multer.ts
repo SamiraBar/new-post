@@ -24,8 +24,10 @@ const companyFileStorage = multer.diskStorage({
     callback(null, destDir);
   },
   filename: (_req, file, callback) => {
-    const extension = path.extname(file.originalname);
-    const nameWithoutExt = path.basename(file.originalname, extension)
+    const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+
+    const extension = path.extname(originalName);
+    const nameWithoutExt = path.basename(originalName, extension)
         .normalize('NFC')
         .replace(/[\\/:"*?<>|]+/g, "_");
 

@@ -21,6 +21,7 @@
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "bwip-js": "^4.8.0",
+    "content-disposition": "^1.0.1",
     "cors": "^2.8.5",
     "dayjs": "^1.11.19",
     "dotenv": "^17.2.3",
@@ -36,6 +37,7 @@
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
+    "@types/content-disposition": "^0.5.9",
     "@types/cors": "^2.8.19",
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.5",
