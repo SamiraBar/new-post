@@ -33,21 +33,24 @@ function escapeXml(text: string): string {
 }
 
 function resolveDistributionCenter(parcel: IParcel): {
-    serviceCode: '14' | '15';
+    serviceCode: '49' | '50';
+    respstore: '8' | '168';
     senderTown: string;
     senderAddress: string;
 } {
-    let serviceCode: '14' | '15' = '14';
+    let serviceCode: '49' | '50' = '50';
+    let respstore: '8' | '168' = '8';
     let senderTown = 'Москва';
     let senderAddress = 'МКАД 43км';
 
     if (parcel.pvzData?.parentcode === '2495') {
-        serviceCode = '15';
+        serviceCode = '49';
+        respstore = '168';
         senderTown = 'Екатеринбург';
         senderAddress = '8 Марта 269';
     }
 
-    return { serviceCode, senderTown, senderAddress };
+    return { serviceCode, respstore, senderTown, senderAddress };
 }
 
 
@@ -56,8 +59,8 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
     console.log('Входящий объект parcel:', JSON.stringify(parcel, null, 2));
     console.log('Трек номер:', parcel.trackingNumber);
 
-    const { serviceCode, senderTown, senderAddress } = resolveDistributionCenter(parcel);
-    console.log('Результат resolveDistributionCenter:', { serviceCode, senderTown, senderAddress });
+    const { serviceCode, respstore, senderTown, senderAddress } = resolveDistributionCenter(parcel);
+    console.log('Результат resolveDistributionCenter:', { serviceCode, respstore, senderTown, senderAddress });
 
     const authExtra = config.extra;
     const authLogin = config.login;
@@ -145,7 +148,7 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
 <neworder newfolder="YES">
   <auth extra="${authExtra}" login="${authLogin}" pass="${authPass}"></auth>
   <order orderno="${parcel.trackingNumber}">
-    <respstore>8</respstore>
+    <respstore>${respstore}</respstore>
     <barcode>${parcel.trackingNumber}</barcode>
 
     <sender>
