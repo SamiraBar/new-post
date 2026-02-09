@@ -52,7 +52,7 @@ export interface IParcel extends mongoose.Document {
     inCityAtFormatted?: string;
     atPickupPointAtFormatted?: string;
     deliveredAtFormatted?: string;
-    serviceCode?: '14' | '15';
+    serviceCode?: '49' | '50';
     serviceCity?: "МСК" | "ЕКБ"
 }
 
@@ -225,7 +225,7 @@ const ParcelSchema = new Schema(
         },
         serviceCode: {
             type: String,
-            enum: ['14', '15'],
+            enum: ['49', '50'],
             required: false,
         },
         draftedAt: {
