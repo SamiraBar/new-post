@@ -12,7 +12,7 @@ import type { IParcel } from '@/types';
 import Barcode from 'react-barcode';
 import useParcelsStore from '@/stores/parcelsStore/parcelsStore';
 
-import logo from '../../../assets/logo/newPostLogo.jpeg';
+import logo from '../../../assets/logo/logo.png';
 import { useEffect, useState } from 'react';
 
 type StickerType = 'own' | 'partner';

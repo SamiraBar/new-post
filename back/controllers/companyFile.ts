@@ -21,9 +21,11 @@ export const uploadFile = async (req: Request, res: Response, next: NextFunction
     if (!type) return res.status(400).json({error: "File type is required"});
     if (!req.file) return res.status(400).json({error: "File is required"});
 
+    const correctName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+
     const newFile = await CompanyFile.create({
       type,
-      fileName: req.file.originalname,
+      fileName: correctName,
       fileUrl: `/uploads/company-files/${req.file.filename}`,
       uploadedAt: new Date(),
     });
@@ -38,8 +40,7 @@ export const replaceFile = async (req: Request, res: Response, next: NextFunctio
   try {
     const file = await CompanyFile.findById(req.params.id);
     if (!file) {
-      if (req.file) await fs.unlink(req.file.path).catch(() => {
-      });
+      if (req.file) await fs.unlink(req.file.path).catch(() => {});
       return res.status(404).json({error: "File not found"});
     }
 
@@ -47,7 +48,9 @@ export const replaceFile = async (req: Request, res: Response, next: NextFunctio
       const oldFileName = path.basename(file.fileUrl);
       const oldPath = path.join(UPLOAD_DIR, oldFileName);
 
-      file.fileName = req.file.originalname;
+      const correctName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+
+      file.fileName = correctName;
       file.fileUrl = `/uploads/company-files/${req.file.filename}`;
       file.uploadedAt = new Date();
       await file.save();
@@ -63,11 +66,11 @@ export const replaceFile = async (req: Request, res: Response, next: NextFunctio
 
     res.json(file);
   } catch (e) {
-    if (req.file) await fs.unlink(req.file.path).catch(() => {
-    });
+    if (req.file) await fs.unlink(req.file.path).catch(() => {});
     next(e);
   }
 };
+
 
 export const deleteFile = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -89,23 +92,21 @@ export const deleteFile = async (req: Request, res: Response, next: NextFunction
     next(e);
   }
 };
-
 export const downloadFile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const file = await CompanyFile.findById(req.params.id);
-    if (!file) return res.status(404).json({ error: "Файл не найден в БД" });
+    if (!file) return res.status(404).json({ error: "Файл не найден" });
 
-    const fileNameInStorage = path.basename(file.fileUrl);
-    const filePath = path.join(UPLOAD_DIR, fileNameInStorage);
+    const filePath = path.join(UPLOAD_DIR, path.basename(file.fileUrl));
+    await fs.access(filePath);
 
-    try {
-      await fs.access(filePath);
-    } catch (err) {
-      console.error("Файл отсутствует на диске:", filePath);
-      return res.status(404).json({ error: "Файл не найден на сервере" });
-    }
+    const encodedName = encodeURIComponent(file.fileName);
+    res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="file.pdf"; filename*=UTF-8''${encodedName}`
+    );
 
-    res.download(filePath, file.fileName);
+    res.sendFile(filePath);
   } catch (e) {
     next(e);
   }
@@ -121,6 +122,23 @@ export const getAgreementFile = async (_req: Request, res: Response, next: NextF
       fileUrl: file.fileUrl,
       fileName: file.fileName,
     });
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const getPublicFiles = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const files = await CompanyFile.find()
+        .sort({ uploadedAt: -1 });
+
+    res.json(
+        files.map(file => ({
+          _id: file._id,
+          type: file.type,
+          fileName: file.fileName,
+        }))
+    );
   } catch (e) {
     next(e);
   }

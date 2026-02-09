@@ -17,7 +17,7 @@ interface CompanyFilesState {
   uploadFile: (data: FormData) => Promise<void>;
   replaceFile: (id: string, data: FormData) => Promise<void>;
   deleteFile: (id: string) => Promise<void>;
-  downloadFile: (id: string, fileName: string) => void;
+  downloadFile: (id: string, fileName: string) => Promise<void>;
 }
 
 const useCompanyFilesStore = create<CompanyFilesState>((set, get) => ({
@@ -25,32 +25,59 @@ const useCompanyFilesStore = create<CompanyFilesState>((set, get) => ({
   loading: false,
 
   fetchFiles: async () => {
-    const { data } = await axiosApi.get('/admin/company-files');
-    set({ items: data, loading: false });
+    set({ loading: true });
+    try {
+      const { data } = await axiosApi.get('/admin/company-files');
+      set({ items: data });
+    } finally {
+      set({ loading: false });
+    }
   },
 
   uploadFile: async (formData: FormData) => {
-    await axiosApi.post('/admin/company-files', formData);
-    await get().fetchFiles();
+    set({ loading: true });
+    try {
+      await axiosApi.post('/admin/company-files', formData);
+      await get().fetchFiles();
+    } finally {
+      set({ loading: false });
+    }
   },
 
   replaceFile: async (id: string, formData: FormData) => {
-    await axiosApi.patch(`/admin/company-files/${id}`, formData);
-    await get().fetchFiles();
+    set({ loading: true });
+    try {
+      await axiosApi.patch(`/admin/company-files/${id}`, formData);
+      await get().fetchFiles();
+    } finally {
+      set({ loading: false });
+    }
   },
 
   deleteFile: async (id: string) => {
-    await axiosApi.delete(`/admin/company-files/${id}`);
-    await get().fetchFiles();
+    set({ loading: true });
+    try {
+      await axiosApi.delete(`/admin/company-files/${id}`);
+      await get().fetchFiles();
+    } finally {
+      set({ loading: false });
+    }
   },
 
-  downloadFile: async (id: string, fileName: string) => {
-    const { data } = await axiosApi.get(
-      `/admin/company-files/download/${id}`,
-      { responseType: 'blob' }
-    );
+  downloadFile: async (id: string) => {
+    const response = await axiosApi.get(`/admin/company-files/download/${id}`, {
+      responseType: 'blob',
+    });
 
-    const blobUrl = window.URL.createObjectURL(new Blob([data]));
+    const contentDisposition = response.headers['content-disposition'];
+    let fileName = 'file.pdf';
+
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename\*=UTF-8''(.+)$/);
+      if (match) fileName = decodeURIComponent(match[1]);
+    }
+
+    const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
     const a = document.createElement('a');
     a.href = blobUrl;
     a.download = fileName;

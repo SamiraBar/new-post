@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import logoDark from '../../assets/logo/logo-2.png';
+import logoDark from '../../assets/logo/logo-footer.png';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import axiosApi from '@/axiosApi';

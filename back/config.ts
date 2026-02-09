@@ -26,6 +26,7 @@ const corsOptions: CorsOptions = {
       callback(new Error("Not allowed by CORS"));
     }
   },
+  exposedHeaders: ["Content-Disposition"],
 };
 
 const config = {

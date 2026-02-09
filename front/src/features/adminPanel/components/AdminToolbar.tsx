@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { type ChangeEvent, useCallback, useEffect, useState } from 'react';
-import logoImage from '@/assets/logo/newPostLogo.jpeg';
+import logoImage from '@/assets/logo/logo.png';
 import useAdminStore from '@/stores/adminStore/adminStore.ts';
 import ModalFile from '@/features/adminPanel/components/ModalFile.tsx';
 import {
