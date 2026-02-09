@@ -129,7 +129,7 @@ export const getAgreementFile = async (_req: Request, res: Response, next: NextF
 
 export const getPublicFiles = async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const files = await CompanyFile.find({ type: { $ne: "agreement" } })
+    const files = await CompanyFile.find()
         .sort({ uploadedAt: -1 });
 
     res.json(
