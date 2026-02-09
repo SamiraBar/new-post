@@ -7,7 +7,7 @@ import pricesRouter from "./routers/prices";
 import parcelsRouter from "./routers/parcels";
 import printerRouter from "./routers/printer";
 import i18nContentRouter from "./routers/i18nContent";
-import { setupTestSyncCron } from "./services/ekit.cron";
+import {setupStatusSyncCron} from "./services/ekit.cron";
 import officeRouter from "./routers/offices";
 import socialMediaRouter from "./routers/socialMedia";
 import path from "path";
@@ -40,7 +40,7 @@ const run = async () => {
   try {
     await mongoose.connect(config.db);
 
-    // setupTestSyncCron(); <-- крон для всех посылок, не расскомичивать, если не знаете что это
+    setupStatusSyncCron();
     await seedSocialNetworks();
 
     app.listen(config.port as number, "0.0.0.0", () => {
