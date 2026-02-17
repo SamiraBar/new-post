@@ -53,6 +53,93 @@ function resolveDistributionCenter(parcel: IParcel): {
     return { serviceCode, respstore, senderTown, senderAddress };
 }
 
+export async function getChangedStatusesOnlyLast(params: {
+    limit?: number;
+}): Promise<Array<{
+    orderno: string;
+    ordercode?: string;
+    status: string;
+    statusTitle: string;
+    deliveredDate: string | null;
+    deliveredTime: string | null;
+}>> {
+    const authExtra = config.extra;
+    const authLogin = config.login;
+    const authPass = config.pass;
+
+    const { limit } = params;
+
+    const xmlRequest = `<?xml version="1.0" encoding="UTF-8" ?>
+<statusreq>
+  <auth extra="${authExtra}" login="${authLogin}" pass="${authPass}"></auth>
+  <changes>ONLY_LAST</changes>
+  ${typeof limit === "number" ? `<limit>${limit}</limit>` : ""}
+</statusreq>`;
+
+    const response = await axios.post(config.apiUrl, xmlRequest, {
+        headers: { "Content-Type": "application/xml" },
+        timeout: 30000,
+    });
+
+    const result = await xml2js.parseStringPromise(response.data);
+
+    const orders = result?.statusreq?.order ?? [];
+    if (!Array.isArray(orders) || orders.length === 0) return [];
+
+    return orders.map((order: any) => {
+        const orderno = order?.$?.orderno ? String(order.$.orderno) : "";
+        const ordercode = order?.$?.ordercode ? String(order.$.ordercode) : undefined;
+
+        const status = order?.status?.[0]?._ ?? "UNKNOWN";
+        const statusTitle = order?.status?.[0]?.$?.title ?? "";
+
+        const deliveredDate = order?.delivereddate?.[0] ?? null;
+        const deliveredTime = order?.deliveredtime?.[0] ?? null;
+
+        return {
+            orderno,
+            ordercode,
+            status: String(status),
+            statusTitle: String(statusTitle),
+            deliveredDate,
+            deliveredTime,
+        };
+    }).filter((x) => x.orderno);
+}
+
+export async function commitLastStatus(params: {
+    orderCodes?: string[];
+}): Promise<void> {
+    const authExtra = config.extra;
+    const authLogin = config.login;
+    const authPass = config.pass;
+
+    const { orderCodes } = params;
+
+    const acsBlock =
+      orderCodes && orderCodes.length
+        ? `<acs>${orderCodes.map((c) => `<ac>${escapeXml(c)}</ac>`).join("")}</acs>`
+        : "";
+
+    const xmlRequest = `<?xml version="1.0" encoding="UTF-8" ?>
+<commitlaststatus>
+  <auth extra="${authExtra}" login="${authLogin}" pass="${authPass}"></auth>
+  ${acsBlock}
+</commitlaststatus>`;
+
+    const response = await axios.post(config.apiUrl, xmlRequest, {
+        headers: { "Content-Type": "application/xml" },
+        timeout: 30000,
+    });
+
+    const result = await xml2js.parseStringPromise(response.data);
+    const node = result?.commitlaststatus;
+
+    const err = node?.$?.error;
+    if (String(err) !== "0") {
+        throw new Error(`commitlaststatus failed: ${response.data}`);
+    }
+}
 
 export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResult> {
     console.log('=== НАЧАЛО СОЗДАНИЯ ЗАКАЗА В EKIT ===');

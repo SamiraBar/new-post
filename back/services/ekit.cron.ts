@@ -8,7 +8,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export function setupStatusSyncCron() {
-    const cronExpression = "0 6 * * *";
+    const cronExpression = "*/30 * * * *";
 
   return cron.schedule(
       cronExpression,

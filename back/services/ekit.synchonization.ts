@@ -1,5 +1,5 @@
     import Parcel from "../models/Parcel";
-    import { getOrderStatus } from "./ekit.service";
+    import { getChangedStatusesOnlyLast, commitLastStatus, getOrderStatus } from "./ekit.service";
 
     type ParcelStatus =
         | "draft"
@@ -52,83 +52,107 @@
             details: [],
             errors: [],
         };
-    
-        try {
-            const parcels = await Parcel.find({
-                partnerType: "E-Kit",
-                status: { $nin: ["draft", "delivered"] },
-                partnerTrackingNumber: { $ne: null },
-            })
-                .populate("sender")
-                .populate("recipient");
 
-            result.totalChecked = parcels.length;
-    
-            for (const parcel of parcels) {
-                try {
-    
-                    const statusData = await getOrderStatus(parcel.trackingNumber);
-    
-                    if (!statusData || !statusData.statusTitle) {
-                        console.warn(` Не удалось получить статус из E-Kit`);
-                        result.skipped++;
-                        continue;
-                    }
-    
-                    const ekitStatusTitle = statusData.statusTitle;
-    
-                    const newStatus = EKIT_STATUS_MAPPING[ekitStatusTitle];
-    
-                    if (newStatus === undefined) {
-                        console.warn(` Неизвестный статус E-Kit: "${ekitStatusTitle}"`);
-                        console.warn(` Добавьте этот статус в EKIT_STATUS_MAPPING!`);
+        const LIMIT = Number(process.env.EKIT_STATUS_LIMIT ?? 300);  // чтобы не улететь в огромные ответы
+
+        try {
+            while (true) {
+                const changed = await getChangedStatusesOnlyLast({
+                    limit: LIMIT
+                });
+
+                if (changed.length === 0) break;
+
+                result.totalChecked += changed.length;
+
+                const missingOrderCode = changed.some((x) => !x.ordercode);
+                if (LIMIT && missingOrderCode) {
+                    throw new Error("E-Kit returned changes without ordercode while using limit; can't safely commit");
+                }
+
+                const orderNos = changed.map((x) => x.orderno);
+
+                const parcels = await Parcel.find({
+                    partnerType: "E-Kit",
+                    partnerTrackingNumber: { $in: orderNos },
+                }).populate("sender").populate("recipient");
+
+                const byPartnerTrack = new Map<string, any>();
+                for (const p of parcels) {
+                    if (p.partnerTrackingNumber) byPartnerTrack.set(String(p.partnerTrackingNumber), p);
+                }
+
+                const commitCodes: string[] = [];
+
+                for (const ch of changed) {
+                    const ekitStatusTitle = ch.statusTitle || ch.status || "UNKNOWN";
+                    const parcel = byPartnerTrack.get(ch.orderno);
+
+                    if (!parcel) {
                         result.skipped++;
                         result.errors.push({
-                            trackingNumber: parcel.trackingNumber,
+                            trackingNumber: ch.orderno,
+                            error: "Parcel not found in DB for this partnerTrackingNumber",
+                        });
+                        continue;
+                    }
+
+                    const mapped = EKIT_STATUS_MAPPING[ekitStatusTitle];
+
+                    if (mapped === undefined) {
+                        result.skipped++;
+                        result.errors.push({
+                            trackingNumber: ch.orderno,
                             error: `Unknown E-Kit status: ${ekitStatusTitle}`,
                         });
                         continue;
                     }
-    
-                    if (newStatus === null) {
+
+                    if (mapped === null) {
                         result.skipped++;
-                        continue;
-                    }
-    
-                    if (parcel.status === newStatus) {
-                        result.skipped++;
+                        if (ch.ordercode) commitCodes.push(ch.ordercode);
                         continue;
                     }
 
-                    const oldStatus = parcel.status;
-                    parcel.status = newStatus as ParcelStatus;
-                    await parcel.save();
+                    if (parcel.status === mapped) {
+                        result.skipped++;
+                        if (ch.ordercode) commitCodes.push(ch.ordercode);
+                        continue;
+                    }
 
-                    result.updated++;
-                    result.details.push({
-                        trackingNumber: parcel.trackingNumber,
-                        oldStatus,
-                        newStatus,
-                        ekitStatus: ekitStatusTitle,
-                    });
-    
-                } catch (error) {
-                    const errorMsg = error instanceof Error ? error.message : String(error);
-                    console.error(`Ошибка синхронизации ${parcel.trackingNumber}:`, errorMsg);
-                    result.failed++;
-                    result.errors.push({
-                        trackingNumber: parcel.trackingNumber,
-                        error: errorMsg,
+                    try {
+                        const oldStatus = parcel.status;
+                        parcel.status = mapped as ParcelStatus;
+                        await parcel.save();
+
+                        result.updated++;
+                        result.details.push({
+                            trackingNumber: String(parcel.trackingNumber),
+                            oldStatus,
+                            newStatus: mapped,
+                            ekitStatus: ekitStatusTitle,
+                        });
+
+                        if (ch.ordercode) commitCodes.push(ch.ordercode);
+                    } catch (e) {
+                        const msg = e instanceof Error ? e.message : String(e);
+                        result.failed++;
+                        result.errors.push({ trackingNumber: ch.orderno, error: msg });
+                    }
+                }
+
+                if (commitCodes.length) {
+                    await commitLastStatus({
+                        orderCodes: commitCodes,
                     });
                 }
-    
-                await new Promise(resolve => setTimeout(resolve, 500));
+
+                if (changed.length < LIMIT) break;
             }
-    
+
             return result;
-    
         } catch (error) {
-            console.error("Критическая ошибка при синхронизации E-Kit:", error);
+            console.error("Критическая ошибка при sync ONLY_LAST:", error);
             throw error;
         }
     }
@@ -168,9 +192,9 @@
                     message: "Посылка еще не синхронизирована с E-Kit",
                 };
             }
-    
-            const statusData = await getOrderStatus(parcel.trackingNumber);
-    
+
+            const statusData = await getOrderStatus(String(parcel.partnerTrackingNumber));
+
             if (!statusData || !statusData.statusTitle) {
                 return {
                     success: false,
