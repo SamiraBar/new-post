@@ -148,6 +148,13 @@
                 }
 
                 if (changed.length < LIMIT) break;
+
+                if (!commitCodes.length) {
+                    console.warn(
+                      `[E-Kit ONLY_LAST] Got ${changed.length} changes but produced 0 commit codes. Breaking to avoid infinite loop.`
+                    );
+                    break;
+                }
             }
 
             return result;
