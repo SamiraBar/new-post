@@ -277,7 +277,6 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
 
         const response = await axios.post(config.apiUrl, xmlRequest, {
             headers: { 'Content-Type': 'application/xml' },
-            responseType: 'text',
             timeout: 50000,
         });
 
