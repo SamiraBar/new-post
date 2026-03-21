@@ -277,11 +277,14 @@ export async function createOrderInEKit(parcel: IParcel): Promise<EKitOrderResul
 
         const response = await axios.post(config.apiUrl, xmlRequest, {
             headers: { 'Content-Type': 'application/xml' },
+            responseType: 'text',
             timeout: 50000,
         });
 
         console.log('Ответ получен. Status:', response.status);
-        console.log('Response data:', response.data);
+        console.log('Ответ получен. Status:', response.status);
+        console.log('Response data type:', typeof response.data);
+        console.log('Response data (first 500 chars):', String(response.data).substring(0, 500));
 
         const result = await xml2js.parseStringPromise(response.data);
         console.log('Распарсенный результат:', JSON.stringify(result, null, 2));
