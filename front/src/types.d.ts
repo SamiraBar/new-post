@@ -225,6 +225,7 @@ export interface PvzFilter {
   acceptcash?: number;
   acceptcard?: number;
   acceptfitting?: number;
+  store?: string;
 }
 
 export interface MeasoftMapConfig {

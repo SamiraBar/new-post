@@ -17,13 +17,12 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const mapInstanceRef = useRef<MeasoftMapInstance | null>(null);
-  const {
-    t,
-    i18n
-  } = useTranslation();
+  const { t, i18n } = useTranslation();
 
-  const {watch} = form;
-  const {destinationCity, parcelWeight, pvzData} = watch();
+  const { watch } = form;
+  const destinationCity = watch('destinationCity');
+  const parcelWeight = watch('parcelWeight');
+  const pvzData = watch('pvzData');
 
   const getMapLanguage = () => {
     const currentLang = i18n.language;
@@ -59,6 +58,11 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
     };
   }, [t]);
 
+  const onPvzSelectRef = useRef(onPvzSelect);
+  useEffect(() => {
+    onPvzSelectRef.current = onPvzSelect;
+  }, [onPvzSelect]);
+
   useEffect(() => {
     if (!isScriptLoaded || !mapContainerRef.current || !window.measoftMap) {
       return;
@@ -69,6 +73,10 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
     if (parcelWeight) {
       filter.maxweight = parcelWeight;
     }
+
+    filter.store = '2495';
+
+    let originalClose: (() => void) | null = null;
 
     try {
       const handlePvzChoice = () => {
@@ -87,7 +95,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
 
           const parentcode = getElementValue('pvz_parentcode');
 
-          onPvzSelect({
+          onPvzSelectRef.current({
             code: pvzData.code,
             name: pvzData.name,
             address: pvzData.address,
@@ -124,7 +132,13 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
         windowFixedPosition: '0'
       };
 
+      originalClose = typeof window.measoftMap.close === 'function'
+        ? window.measoftMap.close.bind(window.measoftMap)
+        : null;
+
       mapInstanceRef.current = window.measoftMap.config(config).init();
+
+      window.measoftMap.close = () => {};
 
       if (destinationCity && destinationCity.trim() !== '') {
         const tryToCenter = () => {
@@ -134,7 +148,6 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
             setTimeout(tryToCenter, 500);
           }
         };
-
         setTimeout(tryToCenter, 300);
       }
 
@@ -143,23 +156,24 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
     }
 
     return () => {
-      if (mapInstanceRef.current?.close) {
-        mapInstanceRef.current.close();
+      if (originalClose) {
+        window.measoftMap.close = originalClose;
       }
+      mapInstanceRef.current = null;
     };
-  }, [isScriptLoaded, destinationCity, parcelWeight, clientId, clientCode, onPvzSelect, t, getMapLanguage]);
+  }, [isScriptLoaded, destinationCity, parcelWeight, clientId, clientCode, t]);
 
   const centerMapOnCity = async (cityName: string) => {
     try {
       const xml = `<?xml version="1.0" encoding="UTF-8" ?>
-                <townlist>
-                    <conditions>
-                        <namestarts>${cityName}</namestarts>
-                    </conditions>
-                    <limit>
-                        <limitcount>1</limitcount>
-                    </limit>
-                </townlist>`;
+        <townlist>
+          <conditions>
+            <namestarts>${cityName}</namestarts>
+          </conditions>
+          <limit>
+            <limitcount>1</limitcount>
+          </limit>
+        </townlist>`;
 
       const response = await fetch('https://home.courierexe.ru/api/', {
         method: 'POST',
@@ -174,7 +188,6 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
       }
 
       const responseText = await response.text();
-
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(responseText, 'text/xml');
       const towns = xmlDoc.getElementsByTagName('town');
@@ -188,7 +201,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
           window.measoftMap.map.setView([lat, lon], 11);
         }
       } else {
-        console.warn(t('measoftMap.errors.cityNotFound', {city: cityName}));
+        console.warn(t('measoftMap.errors.cityNotFound', { city: cityName }));
       }
     } catch (error) {
       console.error(t('measoftMap.errors.geocodingError'), error);
@@ -217,7 +230,7 @@ const MeasoftMap: React.FC<MeasoftMapProps> = ({
           <div className="flex items-start gap-3">
             <div className="p-2 bg-green-100 rounded-lg">
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <div className="flex-1">
