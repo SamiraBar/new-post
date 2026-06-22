@@ -65,7 +65,7 @@ const AgreementCheckbox = ({
               <button
                 type="button"
                 onClick={handleDownload}
-                className="text-blue-600 underline ml-1 hover:text-blue-800"
+                className="text-blue-600 underline hover:text-blue-800 break-all text-left"
               >
                 ({agreementFile.fileName})
               </button>
