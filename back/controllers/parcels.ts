@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { RequestWithAdmin } from "../middleware/auth";
 import Parcel from "../models/Parcel";
 import mongoose from "mongoose";
 import Contact from "../models/Contact";
@@ -376,8 +377,8 @@ export const getParcelByTrackingNumber = async (req: Request, res: Response, nex
     const { trackingNumber } = req.params;
 
     const parcel = await Parcel.findOne({ trackingNumber })
-        .populate("sender")
-        .populate("recipient");
+      .populate("sender")
+      .populate("recipient");
 
     if (!parcel) {
       return res.status(404).json({ error: "Parcel with this tracking number not found" });
@@ -389,10 +390,26 @@ export const getParcelByTrackingNumber = async (req: Request, res: Response, nex
   }
 };
 
+const LOCKED_STATUSES = [
+  "shipped",
+  "in_country",
+  "in_city",
+  "at_pickup_point",
+  "delivered",
+];
+
+const ADMIN_RESTRICTED_STATUSES = [
+  "in_country",
+  "in_city",
+  "at_pickup_point",
+  "delivered",
+];
+
 export const updateParcelStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { trackingNumber } = req.params;
     const { status } = req.body;
+    const admin = (req as RequestWithAdmin).admin;
 
     if (!status) return res.status(400).json({ error: "Status is required" });
 
@@ -414,8 +431,23 @@ export const updateParcelStatus = async (req: Request, res: Response, next: Next
       });
     }
 
+    if (admin.role !== "superAdmin" && ADMIN_RESTRICTED_STATUSES.includes(status)) {
+      return res.status(403).json({
+        error: "Access denied: only superAdmin can set this status",
+        allowedStatuses: ["draft", "created", "accepted", "shipped"],
+        providedStatus: status,
+      });
+    }
+
     const parcel = await Parcel.findOne({ trackingNumber }).populate("sender").populate("recipient");
     if (!parcel) return res.status(404).json({ error: "Parcel with this tracking number not found" });
+
+    if (admin.role !== "superAdmin" && LOCKED_STATUSES.includes(parcel.status)) {
+      return res.status(403).json({
+        error: "Access denied: parcel is already shipped and can only be modified by superAdmin",
+        currentStatus: parcel.status,
+      });
+    }
 
     parcel.status = status;
 

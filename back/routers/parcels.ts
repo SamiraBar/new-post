@@ -1,5 +1,6 @@
 import express from "express";
 import auth from "../middleware/auth";
+import permit from "../middleware/permit";
 import {
     createParcel, getEKitStatus, getParcelById,
     getParcelByTrackingNumber,
@@ -28,6 +29,7 @@ parcelsRouter.get('/parcels/:id/ekit-status', getEKitStatus);
 parcelsRouter.patch(
   "/tracking/:trackingNumber/status",
   auth,
+  permit("admin", "superAdmin"),
   updateParcelStatus,
 );
 
