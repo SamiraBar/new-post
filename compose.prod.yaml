@@ -14,7 +14,7 @@ services:
       - "8000"
     volumes:
       - social_uploads:/usr/src/back/dist/public/uploads/social
-      - file_uploads:/usr/src/back/dist/public/company-files
+      - file_uploads:/usr/src/back/dist/public/uploads/company-files
       - i18n_locales:/usr/src/back/dist/i18n/locales
     restart: unless-stopped
 
