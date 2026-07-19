@@ -123,6 +123,14 @@ const Step5Review: FC<Props> = ({ form, doorDelivery }) => {
             </div>
             <div>
               <p className="text-sm text-gray-500">
+                {t('deliveryCostCalculator.stepFive.dimensions')}
+              </p>
+              <p className="font-semibold">
+                {order.length}×{order.width}×{order.height} см
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">
                 {t('deliveryCostCalculator.stepFive.content')}
               </p>
               <p className="font-semibold">

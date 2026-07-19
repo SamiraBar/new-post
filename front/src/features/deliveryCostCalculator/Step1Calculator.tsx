@@ -41,9 +41,9 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     clearErrors,
   } = form;
 
-  const [originCity, destinationCity, parcelValue, parcelWeight, deliveryType] = useWatch({
+  const [originCity, destinationCity, parcelValue, parcelWeight, deliveryType, length, width, height] = useWatch({
     control: form.control,
-    name: ['originCity', 'destinationCity', 'parcelValue', 'parcelWeight', 'deliveryType'],
+    name: ['originCity', 'destinationCity', 'parcelValue', 'parcelWeight', 'deliveryType', 'length', 'width', 'height'],
   });
 
   // const maxWeightCourier = Number(
@@ -89,6 +89,9 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     destinationCity &&
     Number(parcelValue) > 0 &&
     Number(parcelWeight) > 0 &&
+    Number(length) > 0 &&
+    Number(width) > 0 &&
+    Number(height) > 0 &&
     Object.keys(errors).length === 0;
 
   useEffect(() => {
@@ -154,7 +157,9 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
   }, [getOriginCities]);
 
   const handleNextClick = async () => {
-    const valid = await trigger(['destinationCity', 'originCity', 'parcelWeight', 'parcelValue']);
+    const valid = await trigger([
+      'destinationCity', 'originCity', 'parcelWeight', 'parcelValue', 'length', 'width', 'height',
+    ]);
     if (valid) handleNext();
   };
 
@@ -262,7 +267,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                 </FieldGroup>
               </div>
 
-              <FieldGroup className="flex flex-col sm:flex-row justify-between mt-5 min-w-0">
+              <FieldGroup className="flex flex-col sm:flex-row justify-between mt-5 mb-1 min-w-0">
                 <Field>
                   <div className="flex items-center gap-2">
                     <FieldLabel>{t('deliveryCostCalculator.stepOneForm.parcelValue')}</FieldLabel>
@@ -283,14 +288,12 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                     />
                   </div>
 
-                  <div className="h-6 mt-1">
-                    {errors.parcelValue && (
-                      <div className="flex items-center gap-1.5 text-red-500 text-sm">
-                        <AlertCircle size={14} className="shrink-0" />
-                        <p>{trError(errors.parcelValue.message)}</p>
-                      </div>
-                    )}
-                  </div>
+                  {errors.parcelValue && (
+                    <div className="mt-1 flex items-center gap-1.5 text-red-500 text-sm">
+                      <AlertCircle size={14} className="shrink-0" />
+                      <p>{trError(errors.parcelValue.message)}</p>
+                    </div>
+                  )}
                 </Field>
 
                 <Field>
@@ -326,14 +329,68 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                     />
                   </div>
 
-                  <div className="h-6 mt-1">
-                    {errors.parcelWeight && (
-                      <div className="flex items-center gap-1.5 text-red-500 text-sm animate-in fade-in slide-in-from-top-1">
-                        <AlertCircle size={14} className="shrink-0" />
-                        <p>{trError(errors.parcelWeight.message)}</p>
-                      </div>
-                    )}
-                  </div>
+                  {errors.parcelWeight && (
+                    <div className="mt-1 flex items-center gap-1.5 text-red-500 text-sm">
+                      <AlertCircle size={14} className="shrink-0" />
+                      <p>{trError(errors.parcelWeight.message)}</p>
+                    </div>
+                  )}
+                </Field>
+              </FieldGroup>
+
+              <FieldGroup className="flex flex-col sm:flex-row justify-between min-w-0 gap-4">
+                <Field>
+                  <FieldLabel>{t('deliveryCostCalculator.stepOneForm.length')}</FieldLabel>
+                  <Input
+                    placeholder={t('deliveryCostCalculator.stepOneForm.cm')}
+                    type="number"
+                    min={1}
+                    step={0.1}
+                    className="w-full"
+                    {...register('length')}
+                  />
+                  {errors.length && (
+                    <div className="mt-1 flex items-center gap-1.5 text-red-500 text-sm">
+                      <AlertCircle size={14} className="shrink-0" />
+                      <p>{trError(errors.length.message)}</p>
+                    </div>
+                  )}
+                </Field>
+
+                <Field>
+                  <FieldLabel>{t('deliveryCostCalculator.stepOneForm.width')}</FieldLabel>
+                  <Input
+                    placeholder={t('deliveryCostCalculator.stepOneForm.cm')}
+                    type="number"
+                    min={1}
+                    step={0.1}
+                    className="w-full"
+                    {...register('width')}
+                  />
+                  {errors.width && (
+                    <div className="mt-1 flex items-center gap-1.5 text-red-500 text-sm">
+                      <AlertCircle size={14} className="shrink-0" />
+                      <p>{trError(errors.width.message)}</p>
+                    </div>
+                  )}
+                </Field>
+
+                <Field>
+                  <FieldLabel>{t('deliveryCostCalculator.stepOneForm.height')}</FieldLabel>
+                  <Input
+                    placeholder={t('deliveryCostCalculator.stepOneForm.cm')}
+                    type="number"
+                    min={1}
+                    step={0.1}
+                    className="w-full"
+                    {...register('height')}
+                  />
+                  {errors.height && (
+                    <div className="mt-1 flex items-center gap-1.5 text-red-500 text-sm">
+                      <AlertCircle size={14} className="shrink-0" />
+                      <p>{trError(errors.height.message)}</p>
+                    </div>
+                  )}
                 </Field>
               </FieldGroup>
             </div>

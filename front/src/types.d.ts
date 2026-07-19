@@ -78,6 +78,10 @@ export interface IParcel {
   isPaid: boolean;
   partnerStickerReceived: boolean;
   weight: number;
+  length?: number;
+  width?: number;
+  height?: number;
+  volumetricWeight?: number;
   price: number;
   inshprice: number;
   draftedAt: string;
@@ -121,6 +125,9 @@ export interface CreateParcelData {
   price: number;
   inshprice: number;
   weight: number;
+  length: number;
+  width: number;
+  height: number;
   isPaid: boolean;
   partnerStickerReceived: boolean;
   deliveryType: DeliveryType;
@@ -168,6 +175,9 @@ export interface Order {
   destinationOffice: number;
   parcelValue: number;
   parcelWeight: number;
+  length: number;
+  width: number;
+  height: number;
   deliveryCost: number;
   insuranceCost: number;
   totalCost: number;

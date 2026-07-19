@@ -57,6 +57,9 @@ const DeliveryCostCalculator = () => {
       destinationOffice: 0,
       parcelValue: '',
       parcelWeight: '',
+      length: '',
+      width: '',
+      height: '',
       deliveryCost: 0,
       insuranceCost: 0,
       totalCost: 0,
@@ -85,9 +88,9 @@ const DeliveryCostCalculator = () => {
     formState: { errors },
   } = form;
 
-  const [destinationCity, pvzData, parcelWeight, parcelValue] = useWatch({
+  const [destinationCity, pvzData, parcelWeight, parcelValue, length, width, height] = useWatch({
     control: form.control,
-    name: ['destinationCity', 'pvzData', 'parcelWeight', 'parcelValue'],
+    name: ['destinationCity', 'pvzData', 'parcelWeight', 'parcelValue', 'length', 'width', 'height'],
   });
 
   useEffect(() => {
@@ -104,12 +107,23 @@ const DeliveryCostCalculator = () => {
 
   useEffect(() => {
     const calculatePrices = async () => {
-      if (!destinationCity || Number(parcelWeight) <= 0) {
+      if (
+        !destinationCity ||
+        Number(parcelWeight) <= 0 ||
+        Number(parcelValue) <= 0 ||
+        Number(length) <= 0 ||
+        Number(width) <= 0 ||
+        Number(height) <= 0
+      ) {
         return;
       }
       const cityForCalculation = pvzData?.town || destinationCity;
 
-      const delivery = await fetchDeliveryCost(cityForCalculation, Number(parcelWeight));
+      const volumetric = (Number(length) * Number(width) * Number(height)) / 4000;
+      const billed = Math.max(Math.ceil(Number(parcelWeight)), Math.ceil(volumetric));
+      const weightForPricing = Math.min(billed, 15);
+
+      const delivery = await fetchDeliveryCost(cityForCalculation, weightForPricing);
       const insurance = calculateInsuranceCost(Number(parcelValue));
 
       setValue('deliveryCost', delivery.totalCost, { shouldDirty: false });
@@ -122,6 +136,9 @@ const DeliveryCostCalculator = () => {
     destinationCity,
     parcelWeight,
     parcelValue,
+    length,
+    width,
+    height,
     pvzData,
     fetchDeliveryCost,
     calculateInsuranceCost,
@@ -138,6 +155,9 @@ const DeliveryCostCalculator = () => {
       ...values,
       parcelValue: Number(values.parcelValue),
       parcelWeight: Number(values.parcelWeight),
+      length: Number(values.length),
+      width: Number(values.width),
+      height: Number(values.height),
       deliveryCost: Number(values.deliveryCost),
       insuranceCost: Number(values.insuranceCost),
       totalCost: Number(values.totalCost),
@@ -159,6 +179,9 @@ const DeliveryCostCalculator = () => {
         destinationOffice: 0,
         parcelValue: '',
         parcelWeight: '',
+        length: '',
+        width: '',
+        height: '',
         deliveryCost: 0,
         insuranceCost: 0,
         totalCost: 0,

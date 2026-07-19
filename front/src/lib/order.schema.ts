@@ -68,6 +68,18 @@ export const orderSchema = (t: TFunction, limits: CalcLimits) =>
           t('deliveryCostCalculator.validateError.maxValue', { maxValue: limits.maxParcelValue }),
         ),
       parcelWeight: z.string().min(1, t('deliveryCostCalculator.validateError.parcelWeight')),
+      length: z
+        .string()
+        .min(1, t('deliveryCostCalculator.validateError.length'))
+        .refine((v) => !isNaN(Number(v)) && Number(v) > 0, t('deliveryCostCalculator.validateError.length')),
+      width: z
+        .string()
+        .min(1, t('deliveryCostCalculator.validateError.width'))
+        .refine((v) => !isNaN(Number(v)) && Number(v) > 0, t('deliveryCostCalculator.validateError.width')),
+      height: z
+        .string()
+        .min(1, t('deliveryCostCalculator.validateError.height'))
+        .refine((v) => !isNaN(Number(v)) && Number(v) > 0, t('deliveryCostCalculator.validateError.height')),
       deliveryCost: z.number().min(0),
       insuranceCost: z.number().min(0),
       totalCost: z.number().min(0),

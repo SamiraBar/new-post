@@ -98,7 +98,7 @@ export const useDeliveryStore = create<DeliveryStore>()((set, get) => ({
   },
 
   fetchDeliveryCost: async (city: string, weight: number) => {
-    if (!city || weight <= 0 || weight > 15) {
+    if (!city || weight <= 0) {
       console.warn('Invalid delivery cost params:', { city, weight });
       return { totalCost: 0, distributionCenter: '' };
     }

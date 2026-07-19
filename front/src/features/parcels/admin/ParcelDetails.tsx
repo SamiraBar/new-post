@@ -103,6 +103,29 @@ const ParcelDetails = () => {
               </div>
               <span className="font-bold text-gray-900 text-base sm:text-lg">{parcel.weight}</span>
             </div>
+            {parcel.length && parcel.width && parcel.height && (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Weight size={16} className="sm:w-[18px] sm:h-[18px]" />
+                    <span className="uppercase text-xs sm:text-sm font-medium">ГАБАРИТЫ Д.Ш.В., СМ</span>
+                  </div>
+                  <span className="font-bold text-gray-900 text-base sm:text-lg">
+                    {parcel.length}×{parcel.width}×{parcel.height}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Weight size={16} className="sm:w-[18px] sm:h-[18px]" />
+                    <span className="uppercase text-xs sm:text-sm font-medium">ОБЪЁМНЫЙ ВЕС, КГ</span>
+                  </div>
+                  <span className="font-bold text-gray-900 text-base sm:text-lg">
+                    {parcel.volumetricWeight ??
+                      (parcel.length * parcel.width * parcel.height / 4000).toFixed(1)}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </Card>
