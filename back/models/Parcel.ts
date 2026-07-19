@@ -25,6 +25,10 @@ export interface IParcel extends mongoose.Document {
     price: number;
     inshprice: number;
     weight: number;
+    length?: number;
+    width?: number;
+    height?: number;
+    volumetricWeight?: number;
     deliveryType?: "courier" | "pickup";
     partnerType?: "E-Kit" | "KCE";
     description?: string;
@@ -208,6 +212,18 @@ const ParcelSchema = new Schema(
             required: [true, "Weight is required"],
             min: [0.1, "Weight must be greater than 0"],
         },
+        length: {
+            type: Number,
+            min: [0.1, "Length must be greater than 0"],
+        },
+        width: {
+            type: Number,
+            min: [0.1, "Width must be greater than 0"],
+        },
+        height: {
+            type: Number,
+            min: [0.1, "Height must be greater than 0"],
+        },
         inshprice: {
             type: Number,
             required: [true, "Inshprice is required"],
@@ -335,6 +351,11 @@ ParcelSchema.virtual("recipientFullName").get(function (this: IParcel) {
 ParcelSchema.virtual("recipientPhoneNumber").get(function (this: IParcel) {
     const recipient = this.recipient as IContact;
     return recipient.phoneNumber;
+});
+
+ParcelSchema.virtual("volumetricWeight").get(function (this: IParcel) {
+    if (!this.length || !this.width || !this.height) return null;
+    return Math.round(((this.length * this.width * this.height) / 4000) * 10) / 10;
 });
 
 ParcelSchema.set("toJSON", { virtuals: true });

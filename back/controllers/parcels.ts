@@ -48,6 +48,9 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       price,
       inshprice,
       weight,
+      length,
+      width,
+      height,
       isPaid,
       partnerStickerReceived,
       deliveryType,
@@ -79,6 +82,17 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
     const weightValue = parseFloat(weight);
     if (isNaN(weightValue) || weightValue <= 0) {
       return res.status(400).json({ error: "Weight must be a positive number" });
+    }
+
+    const lengthValue = parseFloat(length);
+    const widthValue = parseFloat(width);
+    const heightValue = parseFloat(height);
+    if (
+      [lengthValue, widthValue, heightValue].some((v) => isNaN(v) || v <= 0)
+    ) {
+      return res.status(400).json({
+        error: "Length, width and height must be positive numbers",
+      });
     }
 
     const validDeliveryTypes = ["pickup", "courier"] as const;
@@ -155,6 +169,9 @@ export const createParcel = async (req: Request, res: Response, next: NextFuncti
       originCity: ORIGIN_CITY_FIXED,
       destinationCity,
       weight: weightValue,
+      length: lengthValue,
+      width: widthValue,
+      height: heightValue,
       price,
       inshprice,
       isPaid: isPaid || false,

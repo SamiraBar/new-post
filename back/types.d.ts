@@ -42,6 +42,9 @@ export interface ParcelCreateData {
   price: number;
   inshprice: number;
   weight: number;
+  length: number;
+  width: number;
+  height: number;
   isPaid: boolean;
   partnerStickerReceived: boolean;
   status: "draft" | "created" | "accepted" | "shipped" | "in_country" | "in_city" | "at_pickup_point" | "delivered";
