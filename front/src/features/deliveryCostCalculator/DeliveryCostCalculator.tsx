@@ -17,7 +17,7 @@ import useParcelsStore from '@/stores/parcelsStore/parcelsStore.ts';
 import ParcelSuccessModal from './components/modal/ParcelSuccessModal';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type OrderFormData, orderSchema } from '@/lib/order.schema.ts';
+import { type OrderFormData, orderSchema, MAX_DIMENSIONS } from '@/lib/order.schema.ts';
 import AgreementCheckbox from './components/AgreementCheckbox';
 import { useCalculatorLimits } from '@/hooks/useCalculatorLimits';
 
@@ -100,9 +100,7 @@ const DeliveryCostCalculator = () => {
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
-    if (parcelValue <= 10000) return parcelValue * 0.01;
-    if (parcelValue <= 50000) return parcelValue * 0.015;
-    return parcelValue * 0.02;
+    return Math.round(parcelValue * 0.03);
   }, []);
 
   useEffect(() => {
@@ -119,11 +117,26 @@ const DeliveryCostCalculator = () => {
       }
       const cityForCalculation = pvzData?.town || destinationCity;
 
+      const type = isPickup ? 'pickup' : 'courier';
+      const dimMax = MAX_DIMENSIONS[type];
+      const currentMaxWeight = isPickup ? limits.maxWeightPVZ : limits.maxWeightCourier;
+
       const volumetric = (Number(length) * Number(width) * Number(height)) / 4000;
       const billed = Math.max(Math.ceil(Number(parcelWeight)), Math.ceil(volumetric));
-      const weightForPricing = Math.min(billed, 15);
 
-      const delivery = await fetchDeliveryCost(cityForCalculation, weightForPricing);
+      const overDimension =
+        Number(length) > dimMax.length ||
+        Number(width) > dimMax.width ||
+        Number(height) > dimMax.height;
+
+      if (overDimension || billed > currentMaxWeight) {
+        setValue('deliveryCost', 0, { shouldDirty: false });
+        setValue('insuranceCost', 0, { shouldDirty: false });
+        setValue('totalCost', 0, { shouldDirty: false });
+        return;
+      }
+
+      const delivery = await fetchDeliveryCost(cityForCalculation, billed);
       const insurance = calculateInsuranceCost(Number(parcelValue));
 
       setValue('deliveryCost', delivery.totalCost, { shouldDirty: false });
@@ -144,6 +157,7 @@ const DeliveryCostCalculator = () => {
     calculateInsuranceCost,
     setValue,
     isPickup,
+    limits
   ]);
 
   const handleSubmit = async (e: FormEvent) => {

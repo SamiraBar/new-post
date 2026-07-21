@@ -48,6 +48,11 @@ interface CalcLimits {
   maxParcelValue: number;
 }
 
+export const MAX_DIMENSIONS = {
+  courier: { length: 50, width: 40, height: 30 },
+  pickup: { length: 45, width: 35, height: 30 },
+} as const;
+
 export const orderSchema = (t: TFunction, limits: CalcLimits) =>
   z
     .object({
@@ -201,7 +206,40 @@ export const orderSchema = (t: TFunction, limits: CalcLimits) =>
         message: t('deliveryCostCalculator.validateError.phoneCountryMismatch'),
         path: ['receiver', 'phone'],
       },
-    );
+    )
+    .superRefine((data, ctx) => {
+      const type = data.deliveryType; // 'courier' | 'pickup'
+      const dimMax = MAX_DIMENSIONS[type];
+      const maxWeight = type === 'courier' ? limits.maxWeightCourier : limits.maxWeightPVZ;
+
+      const dimKey = {
+        length: 'deliveryCostCalculator.validateError.maxLength',
+        width: 'deliveryCostCalculator.validateError.maxWidth',
+        height: 'deliveryCostCalculator.validateError.maxHeight',
+      } as const;
+
+      (['length', 'width', 'height'] as const).forEach((dim) => {
+        if (Number(data[dim]) > dimMax[dim]) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [dim],
+            message: t(dimKey[dim], { max: dimMax[dim] }),
+          });
+        }
+      });
+
+      const volumetric =
+        (Number(data.length) * Number(data.width) * Number(data.height)) / 4000;
+      const effective = Math.max(Math.ceil(Number(data.parcelWeight)), Math.ceil(volumetric));
+
+      if (effective > maxWeight) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['parcelWeight'],
+          message: t('deliveryCostCalculator.validateError.maxEffectiveWeight', { max: maxWeight }),
+        });
+      }
+    });
 
 export type OrderSchema = ReturnType<typeof orderSchema>;
 export type OrderFormData = z.infer<OrderSchema>;

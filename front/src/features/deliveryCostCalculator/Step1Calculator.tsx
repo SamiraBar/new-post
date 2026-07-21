@@ -95,64 +95,6 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     Object.keys(errors).length === 0;
 
   useEffect(() => {
-    const subscription = watch((value, { name }) => {
-      if (name === 'parcelWeight' || name === undefined) {
-        const weight = value.parcelWeight || '';
-        const weightNum = parseFloat(weight);
-        const typeText = t(`delivery.${deliveryType}`);
-
-        if (!isNaN(weightNum) && weightNum > 0) {
-          if (weightNum > currentMaxWeight) {
-            const errorMsg = t('deliveryCostCalculator.stepOneForm.maxWeightError', {
-              weight: currentMaxWeight,
-              type: typeText,
-              defaultValue: `Максимальный вес для "${typeText}" — ${currentMaxWeight} кг`,
-            });
-
-            setTimeout(() => {
-              form.setError(
-                'parcelWeight',
-                { type: 'manual', message: errorMsg },
-                { shouldFocus: false },
-              );
-            }, 50);
-          } else {
-            form.clearErrors('parcelWeight');
-          }
-        }
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [watch, deliveryType, currentMaxWeight, form, t]);
-
-  useEffect(() => {
-    const weight = watch('parcelWeight');
-    const weightNum = parseFloat(weight);
-
-    if (!isNaN(weightNum) && weightNum > 0) {
-      const typeText = t(`delivery.${deliveryType}`);
-
-      if (weightNum > currentMaxWeight) {
-        const errorMsg = t('deliveryCostCalculator.stepOneForm.maxWeightError', {
-          weight: currentMaxWeight,
-          type: typeText,
-          defaultValue: `Максимальный вес для "${typeText}" — ${currentMaxWeight} кг`,
-        });
-
-        setTimeout(() => {
-          form.setError(
-            'parcelWeight',
-            { type: 'manual', message: errorMsg },
-            { shouldFocus: false },
-          );
-        }, 50);
-      } else {
-        form.clearErrors('parcelWeight');
-      }
-    }
-  }, [deliveryType, currentMaxWeight, watch, form, t]);
-
-  useEffect(() => {
     void getOriginCities();
   }, [getOriginCities]);
 
