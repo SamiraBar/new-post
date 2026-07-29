@@ -100,7 +100,7 @@ const DeliveryCostCalculator = () => {
 
   const calculateInsuranceCost = useCallback((parcelValue: number) => {
     if (parcelValue <= 0) return 0;
-    return Math.round(parcelValue * 0.03);
+    return Math.round(parcelValue * 0.02);
   }, []);
 
   useEffect(() => {

@@ -334,6 +334,32 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
                     </div>
                   )}
                 </Field>
+
+                <Field>
+                  <FieldLabel>
+                    {t('deliveryCostCalculator.stepOneForm.volumetricWeight')}
+                  </FieldLabel>
+                  <div className="relative">
+                    <Input
+                      placeholder="кг"
+                      type="number"
+                      readOnly
+                      tabIndex={-1}
+                      className="w-full pr-8 bg-gray-50 pointer-events-none"
+                      value={
+                        Number(length) > 0 && Number(width) > 0 && Number(height) > 0
+                          ? Math.ceil(
+                              (Number(length) * Number(width) * Number(height)) / 4000,
+                            )
+                          : ''
+                      }
+                    />
+                    <Weight
+                      size={20}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    />
+                  </div>
+                </Field>
               </FieldGroup>
             </div>
           </FieldSet>

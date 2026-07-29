@@ -134,7 +134,8 @@
       "length": "Длина, см",
       "width": "Ширина, см",
       "height": "Высота, см",
-      "cm": "см"
+      "cm": "см",
+      "volumetricWeight": "Объёмный вес"
     },
     "stepTwoForm": {
       "spanOne": "Выберите офис отправки.",
