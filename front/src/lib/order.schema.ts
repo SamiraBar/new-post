@@ -46,6 +46,7 @@ interface CalcLimits {
   maxWeightCourier: number;
   maxWeightPVZ: number;
   maxParcelValue: number;
+  minParcelValue: number;
 }
 
 export const MAX_DIMENSIONS = {
@@ -69,8 +70,16 @@ export const orderSchema = (t: TFunction, limits: CalcLimits) =>
           t('deliveryCostCalculator.validateError.value'),
         )
         .refine(
+          (v) => v === '' || Number(v) >= limits.minParcelValue,
+          t('deliveryCostCalculator.validateError.minValue', {
+            minValue: limits.minParcelValue,
+          }),
+        )
+        .refine(
           (v) => v === '' || Number(v) <= limits.maxParcelValue,
-          t('deliveryCostCalculator.validateError.maxValue', { maxValue: limits.maxParcelValue }),
+          t('deliveryCostCalculator.validateError.maxValue', {
+            maxValue: limits.maxParcelValue,
+          }),
         ),
       parcelWeight: z.string().min(1, t('deliveryCostCalculator.validateError.parcelWeight')),
       length: z

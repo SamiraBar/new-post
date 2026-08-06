@@ -8,6 +8,7 @@ interface CalcLimits {
   maxWeightCourier: number;
   maxWeightPVZ: number;
   maxParcelValue: number;
+  minParcelValue: number;
 }
 
 interface CalcNotices {
@@ -28,6 +29,7 @@ const CalculatorPreview = ({ lang, calcLimits: propLimits, calcNotices: propNoti
     maxWeightCourier: 15,
     maxWeightPVZ: 12,
     maxParcelValue: 50000,
+    minParcelValue: 1000,
   });
 
   const [calcNotices, setCalcNotices] = useState<CalcNotices>({
@@ -58,6 +60,7 @@ const CalculatorPreview = ({ lang, calcLimits: propLimits, calcNotices: propNoti
           maxWeightCourier: Number(limits.maxWeightCourier) || 15,
           maxWeightPVZ: Number(limits.maxWeightPVZ) || 12,
           maxParcelValue: Number(limits.maxParcelValue) || 50000,
+          minParcelValue: Number(limits.minParcelValue) || 1000,
         });
 
         setCalcNotices({
@@ -146,6 +149,10 @@ const CalculatorPreview = ({ lang, calcLimits: propLimits, calcNotices: propNoti
             <div className="bg-white p-3 rounded-lg border border-amber-200">
               <p className="text-gray-600 text-xs mb-1">Макс. ценность</p>
               <p className="text-xl font-bold text-amber-600">{calcLimits.maxParcelValue} сом</p>
+            </div>
+            <div className="bg-white p-3 rounded-lg border border-amber-200">
+              <p className="text-gray-600 text-xs mb-1">Мин. ценность</p>
+              <p className="text-xl font-bold text-amber-600">{calcLimits.minParcelValue} сом</p>
             </div>
           </div>
         </CardContent>

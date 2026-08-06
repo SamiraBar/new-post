@@ -13,6 +13,7 @@ interface CalcLimits {
   maxWeightCourier: number;
   maxWeightPVZ: number;
   maxParcelValue: number;
+  minParcelValue: number;
 }
 
 interface CalcNotices {
@@ -57,6 +58,7 @@ const AdminCalculatorSettings = ({
         maxWeightCourier: limitsResponse.maxWeightCourier || 15,
         maxWeightPVZ: limitsResponse.maxWeightPVZ || 12,
         maxParcelValue: limitsResponse.maxParcelValue || 50000,
+        minParcelValue: limitsResponse.minParcelValue || 1000
       };
 
       const noticesData: CalcNotices = {
@@ -140,7 +142,7 @@ const AdminCalculatorSettings = ({
               </Label>
               <Input
                 type="number"
-                min="1"
+                min="1000"
                 value={calcLimits.maxParcelValue}
                 onChange={(e) =>
                   onLimitsChange({ ...calcLimits, maxParcelValue: Number(e.target.value) })

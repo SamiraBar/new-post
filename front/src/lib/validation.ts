@@ -35,6 +35,7 @@ export const validateStep1 = (order: Order, t: TFunction): string | null => {
     return t('deliveryCostCalculator.validateError.weight');
   if (order.parcelWeight > 15) return t('deliveryCostCalculator.validateError.maxWeight');
   if (order.parcelValue > 50000) return t('deliveryCostCalculator.validateError.maxValue');
+  if (order.parcelValue < 1000) return t('deliveryCostCalculator.validateError.minValue');
   return null;
 };
 

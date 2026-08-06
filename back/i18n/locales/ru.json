@@ -94,6 +94,7 @@
       "weight": "Укажите вес посылки",
       "chooseType": "Выберите тип доставки",
       "maxValue": "Максимальная ценность {{maxValue}} сом",
+      "minValue": "Минимальная ценность {{minValue}} сом",
       "chooseOffice": "Выберите офис отправки",
       "indicateCity": "Укажите город",
       "indicateStreet": "Укажите улицу",

@@ -5,12 +5,14 @@ interface CalcLimits {
   maxWeightCourier: number;
   maxWeightPVZ: number;
   maxParcelValue: number;
+  minParcelValue: number;
 }
 
 const DEFAULT_LIMITS: CalcLimits = {
   maxWeightCourier: 15,
   maxWeightPVZ: 12,
   maxParcelValue: 50000,
+  minParcelValue: 1000
 };
 
 export const useCalculatorLimits = () => {

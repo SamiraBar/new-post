@@ -15,12 +15,14 @@ interface CalcLimits {
   maxWeightCourier: number;
   maxWeightPVZ: number;
   maxParcelValue: number;
+  minParcelValue: number;
 }
 
 const DEFAULT_LIMITS: CalcLimits = {
   maxWeightCourier: 15,
   maxWeightPVZ: 12,
   maxParcelValue: 50000,
+  minParcelValue: 1000,
 };
 
 const ensureDataDir = async () => {
@@ -68,17 +70,18 @@ router.get("/", async (req, res, next) => {
 
 router.patch("/", auth, permit("superAdmin"), async (req, res, next) => {
   try {
-    const { maxWeightCourier, maxWeightPVZ, maxParcelValue } = req.body;
+    const { maxWeightCourier, maxWeightPVZ, maxParcelValue, minParcelValue } = req.body;
 
     if (
       typeof maxWeightCourier !== "number" ||
       typeof maxWeightPVZ !== "number" ||
-      typeof maxParcelValue !== "number"
+      typeof maxParcelValue !== "number" ||
+      typeof minParcelValue !== "number"
     ) {
       return res.status(400).send({ error: "All limits must be numbers" });
     }
 
-    if (maxWeightCourier <= 0 || maxWeightPVZ <= 0 || maxParcelValue <= 0) {
+    if (maxWeightCourier <= 0 || maxWeightPVZ <= 0 || maxParcelValue <= 0 || minParcelValue <= 0) {
       return res.status(400).send({ error: "All limits must be positive" });
     }
 
@@ -86,6 +89,7 @@ router.patch("/", auth, permit("superAdmin"), async (req, res, next) => {
       maxWeightCourier,
       maxWeightPVZ,
       maxParcelValue,
+      minParcelValue,
     };
 
     await writeLimits(limits);

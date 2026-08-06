@@ -46,16 +46,6 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
     name: ['originCity', 'destinationCity', 'parcelValue', 'parcelWeight', 'deliveryType', 'length', 'width', 'height'],
   });
 
-  // const maxWeightCourier = Number(
-  //   t('deliveryCostCalculator.limits.maxWeightCourier', { defaultValue: '15' }),
-  // );
-  // const maxWeightPVZ = Number(
-  //   t('deliveryCostCalculator.limits.maxWeightPVZ', { defaultValue: '12' }),
-  // );
-  // const maxParcelValue = Number(
-  //   t('deliveryCostCalculator.limits.maxParcelValue', { defaultValue: '50000' }),
-  // );
-
   const currentMaxWeight =
     deliveryType === 'courier' ? limits.maxWeightCourier : limits.maxWeightPVZ;
 
@@ -67,7 +57,7 @@ const Step1Calculator: FC<Props> = ({ handleNext, form }) => {
   };
 
   const isParcelValueValid =
-    Number(parcelValue) > 0 && Number(parcelValue) <= limits.maxParcelValue;
+    Number(parcelValue) >= limits.minParcelValue && Number(parcelValue) <= limits.maxParcelValue;
   const isParcelWeightValid = Number(parcelWeight) > 0 && Number(parcelWeight) <= currentMaxWeight;
 
   useEffect(() => {

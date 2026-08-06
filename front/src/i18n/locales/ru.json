@@ -154,7 +154,8 @@
     "limits": {
       "maxWeightCourier": 15,
       "maxWeightPVZ": 12,
-      "maxParcelValue": 50000
+      "maxParcelValue": 50000,
+      "minParcelValue": 1000
     }
   },
   "nav": {

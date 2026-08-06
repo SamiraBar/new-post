@@ -41,6 +41,7 @@ interface CalcLimits {
   maxWeightCourier: number;
   maxWeightPVZ: number;
   maxParcelValue: number;
+  minParcelValue: number;
 }
 
 interface CalcNotices {
@@ -65,6 +66,7 @@ interface I18nContentResponse {
       maxWeightCourier?: number;
       maxWeightPVZ?: number;
       maxParcelValue?: number;
+      minParcelValue?: number;
     };
     WarningNotices?: {
       warningDelivery?: string;
@@ -140,6 +142,7 @@ const AdminSiteContent = () => {
     maxWeightCourier: 15,
     maxWeightPVZ: 12,
     maxParcelValue: 50000,
+    minParcelValue: 1000,
   });
 
   const [currentCalcNotices, setCurrentCalcNotices] = useState<CalcNotices>({
@@ -153,6 +156,7 @@ const AdminSiteContent = () => {
     maxWeightCourier: 15,
     maxWeightPVZ: 12,
     maxParcelValue: 50000,
+    minParcelValue: 1000,
   });
 
   const [origCalcNotices, setOrigCalcNotices] = useState<CalcNotices>({
@@ -205,6 +209,7 @@ const AdminSiteContent = () => {
         maxWeightCourier: Number(limits.maxWeightCourier) || 15,
         maxWeightPVZ: Number(limits.maxWeightPVZ) || 12,
         maxParcelValue: Number(limits.maxParcelValue) || 50000,
+        minParcelValue: Number(limits.minParcelValue) || 1000,
       };
 
       const noticesData: CalcNotices = {
